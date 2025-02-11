@@ -20,30 +20,32 @@
     var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="赤团开时斜飞去， 最不安神晴又复雨。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:url" content="https://miaopasss.github.io/index.html">
+  <meta name="description" content="In C#, primitive types such as int, double, and bool are all structs. Arrays of int are allocated on heap as int structs, only pointer to them will be allocated on stack.To make a fixed size array be">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C#中的unsafe、fixed和checked关键字">
+<meta property="og:url" content="https://miaopasss.github.io/2025/02/11/C-%E4%B8%AD%E7%9A%84unsafe%E3%80%81fixed%E5%92%8Cchecked%E5%85%B3%E9%94%AE%E5%AD%97/index.html">
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:description" content="赤团开时斜飞去， 最不安神晴又复雨。">
+<meta property="og:description" content="In C#, primitive types such as int, double, and bool are all structs. Arrays of int are allocated on heap as int structs, only pointer to them will be allocated on stack.To make a fixed size array be">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-02-11T07:19:51.000Z">
+<meta property="article:modified_time" content="2025-02-11T08:37:13.695Z">
 <meta property="article:author" content="Haotian Luo">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://miaopasss.github.io/">
+<link rel="canonical" href="https://miaopasss.github.io/2025/02/11/C-%E4%B8%AD%E7%9A%84unsafe%E3%80%81fixed%E5%92%8Cchecked%E5%85%B3%E9%94%AE%E5%AD%97/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>乌啦呀哈呀哈乌啦！</title>
+  <title>C#中的unsafe、fixed和checked关键字 | 乌啦呀哈呀哈乌啦！</title>
   
 
 
@@ -155,9 +157,10 @@
         <div class="content-wrap">
           
 
-          <div class="content index posts-expand">
+          <div class="content post posts-expand">
             
-      
+
+    
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
@@ -179,10 +182,9 @@
       <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/11/C-%E4%B8%AD%E7%9A%84unsafe%E3%80%81fixed%E5%92%8Cchecked%E5%85%B3%E9%94%AE%E5%AD%97/" class="post-title-link" itemprop="url">C#中的unsafe、fixed和checked关键字</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          C#中的unsafe、fixed和checked关键字
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -206,7 +208,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>In C#, primitive types such as int, double, and bool are all structs. Arrays of int are allocated on heap as int structs, only pointer to them will be allocated on stack.<br>To make a fixed size array be stored on stack, you need to use the <em>stackalloc</em> keyword, either with <em>unsafe</em> block or <em>Span</em> type.</p>
+        <p>In C#, primitive types such as int, double, and bool are all structs. Arrays of int are allocated on heap as int structs, only pointer to them will be allocated on stack.<br>To make a fixed size array be stored on stack, you need to use the <em>stackalloc</em> keyword, either with <em>unsafe</em> block or <em>Span</em> type.</p>
 <figure class="highlight cs"><figcaption><span>unsafe关键词示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="keyword">unsafe</span> <span class="title">foo</span>(<span class="params"><span class="built_in">int</span> length</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">int</span>* bar = <span class="keyword">stackalloc</span> <span class="built_in">int</span> [length];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight cs"><figcaption><span>type Span示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">foo</span>(<span class="params"><span class="built_in">int</span> length</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    Span&lt;<span class="built_in">int</span>&gt; bar = <span class="keyword">stackalloc</span> <span class="built_in">int</span> [length];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -235,283 +237,30 @@
 <h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_31418645/article/details/135245645">https://blog.csdn.net/qq_31418645/article/details/135245645</a></p>
 <hr>
 
-      
     </div>
 
     
     
     
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/11/%E6%98%BE%E7%A4%BA%E5%99%A8%E5%92%8CVSync%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/">
+        
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
 
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/11/%E6%98%BE%E7%A4%BA%E5%99%A8%E5%92%8CVSync%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">显示器和VSync工作原理</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2025-02-11 14:31:30 / 修改时间：15:05:49" itemprop="dateCreated datePublished" datetime="2025-02-11T14:31:30+08:00">2025-02-11</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">图形学笔记</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="显示器类别"><a href="#显示器类别" class="headerlink" title="显示器类别"></a>显示器类别</h2><p>根据显示技术和用途的不同，显示器可以分为多种类型，主要包括：</p>
-<ul>
-<li><strong>阴极射线管显示器（CRT）</strong></li>
-<li><strong>液晶显示器（LCD）</strong></li>
-<li><strong>发光二极管显示器（LED）</strong></li>
-<li><strong>等离子显示器（PDP）</strong></li>
-<li><strong>有机发光二极管显示器（OLED）</strong></li>
-<li><strong>量子点显示器（QLED）</strong></li>
-</ul>
-<h2 id="VSync-工作原理"><a href="#VSync-工作原理" class="headerlink" title="VSync 工作原理"></a>VSync 工作原理</h2><p>What is VSync? VSync stands for Vertical Synchronization. The basic idea is that synchronizes your FPS with your monitor’s refresh rate. The purpose is to eliminate something called “tearing”. I will describe all these things here.  </p>
-<p>Every CRT monitor has a refresh rate. It’s specified in Hz (Hertz, cycles per second). It is the number of times the monitor updates the display per second. Different monitors support different refresh rates at different resolutions. They range from 60Hz at the low end up to 100Hz and higher. Note that this isn’t your FPS as your games report it. If your monitor is set at a specific refresh rate, it always updates the screen at that rate, even if nothing on it is changing. On an LCD, things work differently. Pixels on an LCD stay lit until they are told to change; they don’t have to be refreshed. However, because of how VGA (and DVI) works, the LCD must still poll the video card at a certain rate for new frames. This is why LCD’s still have a “refresh rate” even though they don’t actually have to refresh.  </p>
-<p>I think everyone here understands FPS. It’s how many frames the video card can draw per second. Higher is obviously better. However, during a fast paced game, your FPS rarely stays the same all the time. It moves around as the complexity of the image the video card has to draw changes based on what you are seeing. This is where tearing comes in.  </p>
-<p>Tearing is a phenomenon that gives a disjointed image. The idea is as if you took a photograph of something, then rotated your vew maybe just 1 degree to the left and took a photograph of that, then cut the two pictures in half and taped the top half of one to the bottom half of the other. The images would be similar but there would be a notable difference in the top half from the bottom half. This is what is called tearing on a visual display. It doesn’t always have to be cut right in the middle. It can be near the top or the bottom and the separation point can actually move up or down the screen, or seem to jump back and forth between two points.  </p>
-<p>Why does this happen? Lets take a specific example. Let’s say your monitor is set to a refresh rate of 75Hz. You’re playing your favorite game and you’re getting 100FPS right now. That means that the mointor is updating itself 75 times per second, but the video card is updating the display 100 times per second, that’s 33% faster than the mointor. So that means in the time between screen updates, the video card has drawn one frame and a third of another one. That third of the next frame will overwrite the top third of the previous frame and then get drawn on the screen. The video card then finishes the last 2 thirds of that frame, and renders the next 2 thirds of the next frame and then the screen updates again. As you can see this would cause this tearing effect as 2 out of every 3 times the screen updates, either the top third or bottom third is disjointed from the rest of the display. This won’t really be noticeable if what is on the screen isn’t changing much, but if you’re looking around quickly or what not this effect will be very apparant.  </p>
-<p>Now this is where the common misconception comes in. Some people think that the solution to this problem is to simply create an FPS cap equal to the refresh rate. So long as the video card doesn’t go faster than 75 FPS, everything is fine, right? Wrong.  </p>
-<p>Before I explain why, let me talk about double-buffering. Double-buffering is a technique that mitigates the tearing problem somewhat, but not entirely. Basically you have a frame buffer and a back buffer. Whenever the monitor grabs a frame to refresh with, it pulls it from the frame buffer. The video card draws new frames in the back buffer, then copies it to the frame buffer when it’s done. However the copy operation still takes time, so if the monitor refreshes in the middle of the copy operation, it will still have a torn image.  </p>
-<p>VSync solves this problem by creating a rule that says the back buffer can’t copy to the frame buffer until right after the monitor refreshes. With a framerate higher than the refresh rate, this is fine. The back buffer is filled with a frame, the system waits, and after the refresh, the back buffer is copied to the frame buffer and a new frame is drawn in the back buffer, effectively capping your framerate at the refresh rate.  </p>
-<p>That’s all well and good, but now let’s look at a different example. Let’s say you’re playing the sequel to your favorite game, which has better graphics. You’re at 75Hz refresh rate still, but now you’re only getting 50FPS, 33% slower than the refresh rate. That means every time the monitor updates the screen, the video card draws 2&#x2F;3 of the next frame. So lets track how this works. The monitor just refreshed, and frame 1 is copied into the frame buffer. 2&#x2F;3 of frame 2 gets drawn in the back buffer, and the monitor refreshes again. It grabs frame 1 from the frame buffer for the first time. Now the video card finishes the last third of frame 2, but it has to wait, because it can’t update until right after a refresh. The monitor refreshes, grabbing frame 1 the second time, and frame 2 is put in the frame buffer. The video card draws 2&#x2F;3 of frame 3 in the back buffer, and a refresh happens, grabbing frame 2 for the first time. The last third of frame 3 is draw, and again we must wait for the refresh, and when it happens, frame 2 is grabbed for the second time, and frame 3 is copied in. We went through 4 refresh cycles but only 2 frames were drawn. At a refresh rate of 75Hz, that means we’ll see 37.5FPS. That’s noticeably less than 50FPS which the video card is capable of. This happens because the video card is forced to waste time after finishing a frame in the back buffer as it can’t copy it out and it has nowhere else to draw frames.  </p>
-<p>Essentially this means that with double-buffered VSync, the framerate can only be equal to a discrete set of values equal to Refresh &#x2F; N where N is some positive integer. That means if you’re talking about 60Hz refresh rate, the only framerates you can get are 60, 30, 20, 15, 12, 10, etc etc. You can see the big gap between 60 and 30 there. Any framerate between 60 and 30 your video card would normally put out would get dropped to 30.  </p>
-<p>Now maybe you can see why people loathe it. Let’s go back to the original example. You’re playing your favorite game at 75Hz refresh and 100FPS. You turn VSync on, and the game limits you to 75FPS. No problem, right? Fixed the tearing issue, it looks better. You get to an area that’s particularly graphically intensive, an area that would drop your FPS down to about 60 without VSync. Now your card cannot do the 75FPS it was doing before, and since VSync is on, it has to do the next highest one on the list, which is 37.5FPS. So now your game which was running at 75FPS just halved it’s framerate to 37.5 instantly. Whether or not you find 37.5FPS smooth doesn’t change the fact that the framerate just cut in half suddenly, which you would notice. This is what people hate about it.  </p>
-<p>If you’re playing a game that has a framerate that routinely stays above your refresh rate, then VSync will generally be a good thing. However if it’s a game that moves above and below it, then VSync can become annoying. Even worse, if the game plays at an FPS that is just below the refresh rate (say you get 65FPS most of the time on a refresh rate of 75Hz), the video card will have to settle for putting out much less FPS than it could (37.5FPS in that instance). This second example is where the percieved drop in performance comes in. It looks like VSync just killed your framerate. It did, technically, but it isn’t because it’s a graphically intensive operation. It’s simply the way it works.  </p>
-<p>All hope is not lost however. There is a technique called triple-buffering that solves this VSync problem. Lets go back to our 50FPS, 75Hz example. Frame 1 is in the frame buffer, and 2&#x2F;3 of frame 2 are drawn in the back buffer. The refresh happens and frame 1 is grabbed for the first time. The last third of frame 2 are drawn in the back buffer, and the first third of frame 3 is drawn in the second back buffer (hence the term triple-buffering). The refresh happens, frame 1 is grabbed for the second time, and frame 2 is copied into the frame buffer and the first part of frame 3 into the back buffer. The last 2&#x2F;3 of frame 3 are drawn in the back buffer, the refresh happens, frame 2 is grabbed for the first time, and frame 3 is copied to the frame buffer. The process starts over. This time we still got 2 frames, but in only 3 refresh cycles. That’s 2&#x2F;3 of the refresh rate, which is 50FPS, exactly what we would have gotten without it. Triple-buffering essentially gives the video card someplace to keep doing work while it waits to transfer the back buffer to the frame buffer, so it doesn’t have to waste time. Unfortunately, triple-buffering isn’t available in every game, and in fact it isn’t too common. It also can cost a little performance to utilize, as it requires extra VRAM for the buffers, and time spent copying all of them around. However, triple-buffered VSync really is the key to the best experience as you eliminate tearing without the downsides of normal VSync (unless you consider the fact that your FPS is capped a downside… which is silly because you can’t see an FPS higher than your refresh anyway).  </p>
-<p>I hope this was informative, and will help people understand the intracacies of VSync (and hopefully curb the “VSync, yes or no?” debates!). Generally, if triple buffering isn’t available, you have to decide whether the discrete framerate limitations of VSync and the issues that can cause are worth the visual improvement of the elimination of tearing. It’s a personal preference, and it’s entirely up to you.</p>
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>VSync explanation: <a target="_blank" rel="noopener" href="https://hardforum.com/threads/how-vsync-works-and-why-people-loathe-it.928593/">https://hardforum.com/threads/how-vsync-works-and-why-people-loathe-it.928593/</a></p>
-<p>CRT显示器和各类显示器比较：<a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_69378371/article/details/145129033">https://blog.csdn.net/m0_69378371/article/details/145129033</a></p>
-<hr>
-
-      
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/02/11/%E6%98%BE%E7%A4%BA%E5%99%A8%E5%92%8CVSync%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/" rel="prev" title="显示器和VSync工作原理">
+      <i class="fa fa-chevron-left"></i> 显示器和VSync工作原理
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
       </footer>
+    
   </article>
   
   
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/10/%E5%85%B6%E6%AC%A1%E5%9D%90%E6%A0%87/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/10/%E5%85%B6%E6%AC%A1%E5%9D%90%E6%A0%87/" class="post-title-link" itemprop="url">其次坐标</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2025-02-10 16:06:35" itemprop="dateCreated datePublished" datetime="2025-02-10T16:06:35+08:00">2025-02-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-02-11 14:37:28" itemprop="dateModified" datetime="2025-02-11T14:37:28+08:00">2025-02-11</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">图形学笔记</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="其次函数：输入函数扩大-a-倍，其响应函数相应的也扩大-a-倍。"><a href="#其次函数：输入函数扩大-a-倍，其响应函数相应的也扩大-a-倍。" class="headerlink" title="其次函数：输入函数扩大  a  倍，其响应函数相应的也扩大  a  倍。"></a>其次函数：输入函数扩大  a  倍，其响应函数相应的也扩大  a  倍。</h3><p>Unity中的齐次坐标是一种在计算机图形学中常用的表示坐标的方式，通过引入一个额外的维度来扩展传统的笛卡尔坐标系，以便进行几何变换和矩阵运算。‌齐次坐标将n维的向量或矩阵用n+1维来表示，这样可以明确区分向量和点，并且能够方便地处理平移变换‌。</p>
-<p>齐次坐标通过增加一个额外的分量w来实现。当w≠0时，可以将齐次坐标转化为普通的笛卡尔坐标；当w&#x3D;0时，表示一个无穷远的点‌。这种表示方法使得4x4矩阵（仿射矩阵）能够同时进行线性变换和平移变换，而3x3矩阵（线性矩阵）则只能进行旋转和缩放等线性变换‌。</p>
-<p>在Unity中，齐次坐标主要用于顶点着色器和片段着色器中，进行模型的变换、投影和视图转换等操作。通过使用齐次坐标，可以统一处理各种变换，使得着色器的实现更加统一和高效‌</p>
-<p><img src="/2025/02/10/%E5%85%B6%E6%AC%A1%E5%9D%90%E6%A0%87/p1.png" title="其次坐标的性质"> <br></p>
-<p><img src="/2025/02/10/%E5%85%B6%E6%AC%A1%E5%9D%90%E6%A0%87/p2.png" title="二维其次坐标"> <br></p>
-<p><img src="/2025/02/10/%E5%85%B6%E6%AC%A1%E5%9D%90%E6%A0%87/p3.png" title="其次坐标的优势"> <br></p>
-<p><img src="/2025/02/10/%E5%85%B6%E6%AC%A1%E5%9D%90%E6%A0%87/p4.png" title="欧式变换"> <br></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/" class="post-title-link" itemprop="url">设计模式六大原则</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2025-02-10 13:34:28 / 修改时间：17:17:08" itemprop="dateCreated datePublished" datetime="2025-02-10T13:34:28+08:00">2025-02-10</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">编程笔记</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<p>六大设计原则举例说明：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45165610/article/details/136027921">https://blog.csdn.net/qq_45165610/article/details/136027921</a></p>
-<hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-
   
 
 
@@ -564,6 +313,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#unsafe"><span class="nav-number">1.</span> <span class="nav-text">unsafe</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fixed"><span class="nav-number">2.</span> <span class="nav-text">fixed</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#checked"><span class="nav-number">3.</span> <span class="nav-text">checked</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number"></span> <span class="nav-text">Credits</span></a></div>
       </div>
       <!--/noindex-->
 
@@ -698,7 +448,7 @@
       quicklink({
         timeout : 3000,
         priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/',]
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/02/11/C-%E4%B8%AD%E7%9A%84unsafe%E3%80%81fixed%E5%92%8Cchecked%E5%85%B3%E9%94%AE%E5%AD%97/',]
       });
       });
   </script>
