@@ -20,20 +20,23 @@
     var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="六大设计原则举例说明：https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_45165610&#x2F;article&#x2F;details&#x2F;136027921">
+  <meta name="description" content="五层体系结构包括：应用层、运输层、网络层、数据链路层和物理层。五层协议只是OSI和TCP&#x2F;IP的综合，实际应用还是TCP&#x2F;IP的四层结构。为了方便可以把下两层称为网络接口层。  TCP&#x2F;IP网络模型各层协议功能1. 应用层应用层是网络通信的最高层，它定义了应用程序和网络之间的接口。在这一层，用户可以直接与应用程序进行交互。常见的应用层协议有HTTP、FTP、SMTP等">
 <meta property="og:type" content="article">
-<meta property="og:title" content="设计模式六大原则">
-<meta property="og:url" content="https://miaopasss.github.io/2025/02/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/index.html">
+<meta property="og:title" content="TCP&#x2F;IP 五层网络模型">
+<meta property="og:url" content="https://miaopasss.github.io/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/index.html">
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:description" content="六大设计原则举例说明：https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_45165610&#x2F;article&#x2F;details&#x2F;136027921">
+<meta property="og:description" content="五层体系结构包括：应用层、运输层、网络层、数据链路层和物理层。五层协议只是OSI和TCP&#x2F;IP的综合，实际应用还是TCP&#x2F;IP的四层结构。为了方便可以把下两层称为网络接口层。  TCP&#x2F;IP网络模型各层协议功能1. 应用层应用层是网络通信的最高层，它定义了应用程序和网络之间的接口。在这一层，用户可以直接与应用程序进行交互。常见的应用层协议有HTTP、FTP、SMTP等">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2025-02-10T05:34:28.000Z">
-<meta property="article:modified_time" content="2025-02-10T09:17:08.873Z">
+<meta property="og:image" content="https://miaopasss.github.io/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/ethernet-frame-format.png">
+<meta property="og:image" content="https://miaopasss.github.io/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/NetworkPacket.png">
+<meta property="article:published_time" content="2025-02-12T09:26:08.000Z">
+<meta property="article:modified_time" content="2025-02-13T02:49:39.209Z">
 <meta property="article:author" content="Haotian Luo">
-<meta property="article:tag" content="设计模式">
+<meta property="article:tag" content="网络模型">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://miaopasss.github.io/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/ethernet-frame-format.png">
 
-<link rel="canonical" href="https://miaopasss.github.io/2025/02/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/">
+<link rel="canonical" href="https://miaopasss.github.io/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/">
 
 
 <script id="page-configurations">
@@ -46,7 +49,7 @@
   };
 </script>
 
-  <title>设计模式六大原则 | 乌啦呀哈呀哈乌啦！</title>
+  <title>TCP/IP 五层网络模型 | 乌啦呀哈呀哈乌啦！</title>
   
 
 
@@ -165,7 +168,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/exciting-usagi.gif">
@@ -184,7 +187,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          设计模式六大原则
+          TCP/IP 五层网络模型
         </h1>
 
         <div class="post-meta">
@@ -193,10 +196,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2025-02-10 13:34:28 / Modified: 17:17:08" itemprop="dateCreated datePublished" datetime="2025-02-10T13:34:28+08:00">2025-02-10</time>
+              <time title="Created: 2025-02-12 17:26:08" itemprop="dateCreated datePublished" datetime="2025-02-12T17:26:08+08:00">2025-02-12</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-13 10:49:39" itemprop="dateModified" datetime="2025-02-13T10:49:39+08:00">2025-02-13</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -218,8 +227,37 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <hr>
-<p>六大设计原则举例说明：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45165610/article/details/136027921">https://blog.csdn.net/qq_45165610/article/details/136027921</a></p>
+        <p>五层体系结构包括：应用层、运输层、网络层、数据链路层和物理层。<br>五层协议只是OSI和TCP&#x2F;IP的综合，实际应用还是TCP&#x2F;IP的四层结构。为了方便可以把下两层称为网络接口层。</p>
+<hr>
+<h1 id="TCP-IP网络模型各层协议功能"><a href="#TCP-IP网络模型各层协议功能" class="headerlink" title="TCP&#x2F;IP网络模型各层协议功能"></a>TCP&#x2F;IP网络模型各层协议功能</h1><h4 id="1-应用层"><a href="#1-应用层" class="headerlink" title="1. 应用层"></a>1. 应用层</h4><p>应用层是网络通信的最高层，它定义了应用程序和网络之间的接口。在这一层，用户可以直接与应用程序进行交互。常见的应用层协议有HTTP、FTP、SMTP等。</p>
+<ul>
+<li><strong>Proxy</strong><br>A proxy server (forward proxy) takes requests from a client and forwards them to the internet, a reverse proxy takes requests from the internet and forwards them to a server.</li>
+</ul>
+<h4 id="2-传输层"><a href="#2-传输层" class="headerlink" title="2. 传输层"></a>2. 传输层</h4><p>传输层负责在源主机和目标主机之间建立数据传输通道。它提供了可靠的数据传输服务，确保数据的正确传输顺序和可靠性。TCP协议就是传输层协议的一种，它提供了可靠的、面向连接的数据传输服务。</p>
+<h4 id="3-网络层"><a href="#3-网络层" class="headerlink" title="3. 网络层"></a>3. 网络层</h4><p>网络层负责在网络上寻址和路由数据包。它定义了数据在网络中的传输路径，使得数据可以从源主机传输到目标主机。常见的网络层协议有IP协议。</p>
+<h4 id="4-数据链路层"><a href="#4-数据链路层" class="headerlink" title="4. 数据链路层"></a>4. 数据链路层</h4><p>数据链路层协议负责将网络层传输的数据分组封装成帧，传输到物理层，并通过物理介质进行传输。它负责数据的分段和重新组装，以及物理介质的访问控制。常见的数据链路层协议有以太网协议。</p>
+<ul>
+<li><strong>以太网帧</strong><br><img src="/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/ethernet-frame-format.png"></li>
+</ul>
+<p>在以太网帧中，<em>Destination Address(目的地址)<em>放在最前面。接收方收到一个以太网帧后，最先处理</em>Destination Address</em>字段。如果发现该帧不是发给自己的，后面的字段以及数据就不需要处理了。</p>
+<p>什么是帧间距（IFG）</p>
+<p>网络设备和组件在接收一个帧之后，需要一段短暂的时间来恢复并为接收下一帧.做准备互联网帧间隙共20字节，包括：</p>
+<ul>
+<li>以太网最小帧间隙 12Byte</li>
+<li>数据链路层帧 前导码 7Byte，用于时钟同步 Preamble (PRE) was initially developed to accommodate the loss of a few bits as a result of signal delays. This is a sequence of alternate 0s and 1s that denotes the beginning of the frame and enables bit synchronization between the sender and receiver.</li>
+<li>帧开始标识 1Byte （标识帧的开始）</li>
+</ul>
+<h4 id="5-物理层"><a href="#5-物理层" class="headerlink" title="5. 物理层"></a>5. 物理层</h4><p>物理层是网络通信的最底层，它负责在物理介质上传输比特流。它定义了物理连接的特性，如电压、频率等。常见的物理层介质有光纤、双绞线等。</p>
+<hr>
+<h4 id="各层间数据传递"><a href="#各层间数据传递" class="headerlink" title="各层间数据传递"></a>各层间数据传递</h4><ul>
+<li>不同的协议层对数据包有不同的称谓，在传输层叫做段(segment)，在⽹络层叫做数据报 (datagram)，在链路层叫做帧(frame)。</li>
+<li>应⽤层数据通过协议栈发到⽹络上时，每层协议都要加上⼀个数据⾸部(header)，称为封装 (Encapsulation)。</li>
+<li>⾸部信息中包含了⼀些类似于⾸部有多⻓，载荷(payload)有多⻓，上层协议是什么等信息。</li>
+<li>数据封装成帧后发到传输介质上，到达⽬的主机后每层协议再剥掉相应的⾸部，根据⾸部中的 “上层协议字段” 将数据交给对应的上层协议处理。</li>
+</ul>
+<p><img src="/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/NetworkPacket.png" alt="图片2" title="Dissecting a Network Packet"></p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>详解TCP&#x2F;IP五层网络模型：<a target="_blank" rel="noopener" href="https://blog.csdn.net/2201_75437633/article/details/137373813">https://blog.csdn.net/2201_75437633/article/details/137373813</a></p>
 <hr>
 
     </div>
@@ -230,7 +268,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+              <a href="/tags/%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/" rel="tag"># 网络模型</a>
           </div>
 
         
@@ -238,10 +276,13 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2025/02/10/%E5%85%B6%E6%AC%A1%E5%9D%90%E6%A0%87/" rel="next" title="其次坐标">
-      其次坐标 <i class="fa fa-chevron-right"></i>
+    <a href="/2025/02/11/C-%E4%B8%AD%E7%9A%84unsafe%E3%80%81fixed%E5%92%8Cchecked%E5%85%B3%E9%94%AE%E5%AD%97/" rel="prev" title="C#中的unsafe、fixed和checked关键字">
+      <i class="fa fa-chevron-left"></i> C#中的unsafe、fixed和checked关键字
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/02/12/%E6%95%B0%E6%8D%AE%E5%8C%85%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/" rel="next" title="数据包的封装与发送">
+      数据包的封装与发送 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -301,6 +342,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#TCP-IP%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B%E5%90%84%E5%B1%82%E5%8D%8F%E8%AE%AE%E5%8A%9F%E8%83%BD"><span class="nav-number">1.</span> <span class="nav-text">TCP&#x2F;IP网络模型各层协议功能</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%BA%94%E7%94%A8%E5%B1%82"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">1. 应用层</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E4%BC%A0%E8%BE%93%E5%B1%82"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">2. 传输层</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E7%BD%91%E7%BB%9C%E5%B1%82"><span class="nav-number">1.0.0.3.</span> <span class="nav-text">3. 网络层</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82"><span class="nav-number">1.0.0.4.</span> <span class="nav-text">4. 数据链路层</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E7%89%A9%E7%90%86%E5%B1%82"><span class="nav-number">1.0.0.5.</span> <span class="nav-text">5. 物理层</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%84%E5%B1%82%E9%97%B4%E6%95%B0%E6%8D%AE%E4%BC%A0%E9%80%92"><span class="nav-number">1.0.0.6.</span> <span class="nav-text">各层间数据传递</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number">2.</span> <span class="nav-text">Credits</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -435,7 +477,7 @@
       quicklink({
         timeout : 3000,
         priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/02/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/',]
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/',]
       });
       });
   </script>

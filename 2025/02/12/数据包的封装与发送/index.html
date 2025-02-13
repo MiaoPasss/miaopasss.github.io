@@ -20,17 +20,20 @@
     var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="赤团开时斜飞去， 最不安神晴又复雨。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:url" content="https://miaopasss.github.io/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/index.html">
+  <meta name="description" content="数据包 报文(message)我们将位于应用层的信息分组称为报文。报文是网络中交换与传输的数据单元，也是网络传输的单元。报文包含了将要发送的完整的数据信息，其长短不需一致。报文在传输过程中会不断地封装成分组、包、帧来传输，封装的方式就是添加一些控制信息组成的首部，那些就是报文头。  报文段（segment）通常是指起始点和目的地都是传输层的信息单元。  数据报(datagram)面向无连接的数据传">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据包的封装与发送">
+<meta property="og:url" content="https://miaopasss.github.io/2025/02/12/%E6%95%B0%E6%8D%AE%E5%8C%85%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/index.html">
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:description" content="赤团开时斜飞去， 最不安神晴又复雨。">
+<meta property="og:description" content="数据包 报文(message)我们将位于应用层的信息分组称为报文。报文是网络中交换与传输的数据单元，也是网络传输的单元。报文包含了将要发送的完整的数据信息，其长短不需一致。报文在传输过程中会不断地封装成分组、包、帧来传输，封装的方式就是添加一些控制信息组成的首部，那些就是报文头。  报文段（segment）通常是指起始点和目的地都是传输层的信息单元。  数据报(datagram)面向无连接的数据传">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-02-12T09:46:00.000Z">
+<meta property="article:modified_time" content="2025-02-13T02:49:18.049Z">
 <meta property="article:author" content="Haotian Luo">
+<meta property="article:tag" content="网络模型">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://miaopasss.github.io/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">
+<link rel="canonical" href="https://miaopasss.github.io/2025/02/12/%E6%95%B0%E6%8D%AE%E5%8C%85%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/">
 
 
 <script id="page-configurations">
@@ -38,12 +41,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'en'
   };
 </script>
 
-  <title>Tag: 内存管理 | 乌啦呀哈呀哈乌啦！</title>
+  <title>数据包的封装与发送 | 乌啦呀哈呀哈乌啦！</title>
   
 
 
@@ -155,51 +158,134 @@
         <div class="content-wrap">
           
 
-          <div class="content tag">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <h2 class="collection-header">内存管理
-          <small>Tag</small>
-        </h2>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/12/%E6%95%B0%E6%8D%AE%E5%8C%85%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          数据包的封装与发送
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-12 17:46:00" itemprop="dateCreated datePublished" datetime="2025-02-12T17:46:00+08:00">2025-02-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-13 10:49:18" itemprop="dateModified" datetime="2025-02-13T10:49:18+08:00">2025-02-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">编程笔记</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2025</span>
+        <h1 id="数据包"><a href="#数据包" class="headerlink" title="数据包"></a>数据包</h1><ul>
+<li><p>报文(message)<br>我们将位于应用层的信息分组称为报文。报文是网络中交换与传输的数据单元，也是网络传输的单元。报文包含了将要发送的完整的数据信息，其长短不需一致。报文在传输过程中会不断地封装成分组、包、帧来传输，封装的方式就是添加一些控制信息组成的首部，那些就是报文头。</p>
+</li>
+<li><p>报文段（segment）<br>通常是指起始点和目的地都是传输层的信息单元。</p>
+</li>
+<li><p>数据报(datagram)<br>面向无连接的数据传输，其工作过程类似于报文交换。采用数据报方式传输时，被传输的分组称为数据报。通常是指起始点和目的地都使用无连接网络服务的网络层的信息单元。(指IP数据报)</p>
+</li>
+<li><p>分组&#x2F;包(packet)<br>分组是在网络中传输的二进制格式的单元，为了提供通信性能和可靠性，每个用户发送的数据会被分成多个更小的部分。在每个部分的前面加上一些必要的控制信息组成的首部，有时也会加上尾部，就构成了一个分组。它的起始和目的地是网络层。</p>
+</li>
+<li><p>帧(frame)<br>帧是数据链路层的传输单元。它将上层传入的数据添加一个头部和尾部，组成了帧。它的起始点和目的点都是数据链路层。</p>
+</li>
+<li><p>数据单元（data unit）<br>指许多信息单元。常用的数据单元有服务数据单元（SDU）、协议数据单元（PDU）。SDU是在同一机器上的两层之间传送信息。PDU是发送机器上每层的信息发送到接收机器上的相应层（同等层间交流用的）。</p>
+</li>
+</ul>
+<hr>
+<h4 id="数据的封装过程（从上至下）"><a href="#数据的封装过程（从上至下）" class="headerlink" title="数据的封装过程（从上至下）"></a>数据的封装过程（从上至下）</h4><ol>
+<li>应用层——消息</li>
+<li>传输层——报文段(segment)&#x2F;数据报(datagram) (注：TCP叫TCP报文段，UDP叫UDP数据报,也有人叫UDP段)</li>
+<li>网络层——分组、数据包（packet）</li>
+<li>链路层——帧（frame）</li>
+<li>物理层——P-PDU（bit）</li>
+</ol>
+<hr>
+<h4 id="数据包的单位"><a href="#数据包的单位" class="headerlink" title="数据包的单位"></a>数据包的单位</h4><p>Maximum Transmission Unit：最大传输单元，链路层的帧中的数据部分的最大字节数，以太网中的一般为1500字节。</p>
+<p>Maximum Segment Size：最大报文段大小，TCP的报文段中的数据部分的最大字节数，MTU减去IPv4的Header和TCP的Header。IPv4的Header和TCP的Header一般都是20字节，则MSS&#x3D;1500-20-20 &#x3D; 1460字节。</p>
+<p>Maximum Segment Lifetime：报文最大生存时间，报文在网络上存在的最长时间，TCP连接必须经过时间2MSL后才真正释放掉。Windows默认MSL为2分钟。</p>
+<p>Round Trip Time：往返时间。</p>
+<p>Time To Live：表示IP数据报在网络中的寿命，其单位为秒。在目前的实际应用中，常以“跳”为单位。该字段指定IP包被路由器丢弃之前允许通过的最大网段数量。</p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>数据包：<a target="_blank" rel="noopener" href="https://blog.csdn.net/a3192048/article/details/84671340">https://blog.csdn.net/a3192048/article/details/84671340</a></p>
+<hr>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-02-11T15:19:51+08:00"
-              content="2025-02-11">
-          02-11
-        </time>
-      </div>
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/" rel="tag"># 网络模型</a>
+          </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2025/02/11/C-%E4%B8%AD%E7%9A%84unsafe%E3%80%81fixed%E5%92%8Cchecked%E5%85%B3%E9%94%AE%E5%AD%97/" itemprop="url">
-            <span itemprop="name">C#中的unsafe、fixed和checked关键字</span>
-          </a>
-      </div>
+        
 
-    </header>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/" rel="prev" title="TCP/IP 五层网络模型">
+      <i class="fa fa-chevron-left"></i> TCP/IP 五层网络模型
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/02/13/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97-Socket/" rel="next" title="网络编程与套接字(Socket)">
+      网络编程与套接字(Socket) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
   </article>
-
-    </div>
-  </div>
   
   
-  
-
   
 
 
@@ -252,6 +338,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="nav-number">1.</span> <span class="nav-text">数据包</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%9A%84%E5%B0%81%E8%A3%85%E8%BF%87%E7%A8%8B%EF%BC%88%E4%BB%8E%E4%B8%8A%E8%87%B3%E4%B8%8B%EF%BC%89"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">数据的封装过程（从上至下）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8C%85%E7%9A%84%E5%8D%95%E4%BD%8D"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">数据包的单位</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number">2.</span> <span class="nav-text">Credits</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -386,7 +473,7 @@
       quicklink({
         timeout : 3000,
         priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/',]
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/02/12/%E6%95%B0%E6%8D%AE%E5%8C%85%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/',]
       });
       });
   </script>

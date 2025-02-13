@@ -161,6 +161,328 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/13/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97-Socket/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/13/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97-Socket/" class="post-title-link" itemprop="url">网络编程与套接字(Socket)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-02-13 09:35:34 / Modified: 10:49:38" itemprop="dateCreated datePublished" datetime="2025-02-13T09:35:34+08:00">2025-02-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">编程笔记</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Socket-vs-Port"><a href="#Socket-vs-Port" class="headerlink" title="Socket vs Port"></a>Socket vs Port</h1><ul>
+<li>A TCP socket is an endpoint instance defined by an IP address and a port in the context of either a particular TCP connection or the listening state.</li>
+<li>A port is a virtualisation identifier defining a service endpoint (as distinct from a service instance endpoint aka session identifier).</li>
+<li>A TCP socket is not a connection, it is the endpoint of a specific connection.</li>
+<li>There can be concurrent connections to a service endpoint, because a connection is identified by both its local and remote endpoints, allowing traffic to be routed to a specific service instance.</li>
+<li>There can only be one listener socket for a given address&#x2F;port combination.</li>
+</ul>
+<p>Specifically, a TCP socket consists of five things:</p>
+<ol>
+<li>transport layer protocol,</li>
+<li>local address,</li>
+<li>local port, </li>
+<li>remote address, </li>
+<li>remote port</li>
+</ol>
+<p>A port is a number between 1 and 65535 inclusive that signifies a logical gate in a device. Every connection between a client and server requires a unique socket.</p>
+<p>For example:</p>
+<ul>
+<li><em>33123</em> is a port.</li>
+<li><em>(localhost, 33123, 69.59.196.211, 80, TCP)</em> is a socket.</li>
+</ul>
+<blockquote>
+<p>Firefox (localhost:33123) &lt;———–&gt; stackoverflow.com (69.59.196.211:80)<br>Chrome  (localhost:33124) &lt;———–&gt; stackoverflow.com (69.59.196.211:80)</p>
+</blockquote>
+<p>When a client device accesses a website (such as Chrome sending HTTP requests), it automatically connects to port 80 on the web server to retrieve the requested content. When the web server receives the answer, it sends a response that has 80 as source port and 33123 as destination port.</p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>网络编程与套接字：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/Sunbreaker/p/11318288.html">https://www.cnblogs.com/Sunbreaker/p/11318288.html</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/12/%E6%95%B0%E6%8D%AE%E5%8C%85%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/12/%E6%95%B0%E6%8D%AE%E5%8C%85%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/" class="post-title-link" itemprop="url">数据包的封装与发送</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-12 17:46:00" itemprop="dateCreated datePublished" datetime="2025-02-12T17:46:00+08:00">2025-02-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-13 10:49:18" itemprop="dateModified" datetime="2025-02-13T10:49:18+08:00">2025-02-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">编程笔记</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="数据包"><a href="#数据包" class="headerlink" title="数据包"></a>数据包</h1><ul>
+<li><p>报文(message)<br>我们将位于应用层的信息分组称为报文。报文是网络中交换与传输的数据单元，也是网络传输的单元。报文包含了将要发送的完整的数据信息，其长短不需一致。报文在传输过程中会不断地封装成分组、包、帧来传输，封装的方式就是添加一些控制信息组成的首部，那些就是报文头。</p>
+</li>
+<li><p>报文段（segment）<br>通常是指起始点和目的地都是传输层的信息单元。</p>
+</li>
+<li><p>数据报(datagram)<br>面向无连接的数据传输，其工作过程类似于报文交换。采用数据报方式传输时，被传输的分组称为数据报。通常是指起始点和目的地都使用无连接网络服务的网络层的信息单元。(指IP数据报)</p>
+</li>
+<li><p>分组&#x2F;包(packet)<br>分组是在网络中传输的二进制格式的单元，为了提供通信性能和可靠性，每个用户发送的数据会被分成多个更小的部分。在每个部分的前面加上一些必要的控制信息组成的首部，有时也会加上尾部，就构成了一个分组。它的起始和目的地是网络层。</p>
+</li>
+<li><p>帧(frame)<br>帧是数据链路层的传输单元。它将上层传入的数据添加一个头部和尾部，组成了帧。它的起始点和目的点都是数据链路层。</p>
+</li>
+<li><p>数据单元（data unit）<br>指许多信息单元。常用的数据单元有服务数据单元（SDU）、协议数据单元（PDU）。SDU是在同一机器上的两层之间传送信息。PDU是发送机器上每层的信息发送到接收机器上的相应层（同等层间交流用的）。</p>
+</li>
+</ul>
+<hr>
+<h4 id="数据的封装过程（从上至下）"><a href="#数据的封装过程（从上至下）" class="headerlink" title="数据的封装过程（从上至下）"></a>数据的封装过程（从上至下）</h4><ol>
+<li>应用层——消息</li>
+<li>传输层——报文段(segment)&#x2F;数据报(datagram) (注：TCP叫TCP报文段，UDP叫UDP数据报,也有人叫UDP段)</li>
+<li>网络层——分组、数据包（packet）</li>
+<li>链路层——帧（frame）</li>
+<li>物理层——P-PDU（bit）</li>
+</ol>
+<hr>
+<h4 id="数据包的单位"><a href="#数据包的单位" class="headerlink" title="数据包的单位"></a>数据包的单位</h4><p>Maximum Transmission Unit：最大传输单元，链路层的帧中的数据部分的最大字节数，以太网中的一般为1500字节。</p>
+<p>Maximum Segment Size：最大报文段大小，TCP的报文段中的数据部分的最大字节数，MTU减去IPv4的Header和TCP的Header。IPv4的Header和TCP的Header一般都是20字节，则MSS&#x3D;1500-20-20 &#x3D; 1460字节。</p>
+<p>Maximum Segment Lifetime：报文最大生存时间，报文在网络上存在的最长时间，TCP连接必须经过时间2MSL后才真正释放掉。Windows默认MSL为2分钟。</p>
+<p>Round Trip Time：往返时间。</p>
+<p>Time To Live：表示IP数据报在网络中的寿命，其单位为秒。在目前的实际应用中，常以“跳”为单位。该字段指定IP包被路由器丢弃之前允许通过的最大网段数量。</p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>数据包：<a target="_blank" rel="noopener" href="https://blog.csdn.net/a3192048/article/details/84671340">https://blog.csdn.net/a3192048/article/details/84671340</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/" class="post-title-link" itemprop="url">TCP/IP 五层网络模型</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-12 17:26:08" itemprop="dateCreated datePublished" datetime="2025-02-12T17:26:08+08:00">2025-02-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-13 10:49:39" itemprop="dateModified" datetime="2025-02-13T10:49:39+08:00">2025-02-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">编程笔记</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>五层体系结构包括：应用层、运输层、网络层、数据链路层和物理层。<br>五层协议只是OSI和TCP&#x2F;IP的综合，实际应用还是TCP&#x2F;IP的四层结构。为了方便可以把下两层称为网络接口层。</p>
+<hr>
+<h1 id="TCP-IP网络模型各层协议功能"><a href="#TCP-IP网络模型各层协议功能" class="headerlink" title="TCP&#x2F;IP网络模型各层协议功能"></a>TCP&#x2F;IP网络模型各层协议功能</h1><h4 id="1-应用层"><a href="#1-应用层" class="headerlink" title="1. 应用层"></a>1. 应用层</h4><p>应用层是网络通信的最高层，它定义了应用程序和网络之间的接口。在这一层，用户可以直接与应用程序进行交互。常见的应用层协议有HTTP、FTP、SMTP等。</p>
+<ul>
+<li><strong>Proxy</strong><br>A proxy server (forward proxy) takes requests from a client and forwards them to the internet, a reverse proxy takes requests from the internet and forwards them to a server.</li>
+</ul>
+<h4 id="2-传输层"><a href="#2-传输层" class="headerlink" title="2. 传输层"></a>2. 传输层</h4><p>传输层负责在源主机和目标主机之间建立数据传输通道。它提供了可靠的数据传输服务，确保数据的正确传输顺序和可靠性。TCP协议就是传输层协议的一种，它提供了可靠的、面向连接的数据传输服务。</p>
+<h4 id="3-网络层"><a href="#3-网络层" class="headerlink" title="3. 网络层"></a>3. 网络层</h4><p>网络层负责在网络上寻址和路由数据包。它定义了数据在网络中的传输路径，使得数据可以从源主机传输到目标主机。常见的网络层协议有IP协议。</p>
+<h4 id="4-数据链路层"><a href="#4-数据链路层" class="headerlink" title="4. 数据链路层"></a>4. 数据链路层</h4><p>数据链路层协议负责将网络层传输的数据分组封装成帧，传输到物理层，并通过物理介质进行传输。它负责数据的分段和重新组装，以及物理介质的访问控制。常见的数据链路层协议有以太网协议。</p>
+<ul>
+<li><strong>以太网帧</strong><br><img src="/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/ethernet-frame-format.png"></li>
+</ul>
+<p>在以太网帧中，<em>Destination Address(目的地址)<em>放在最前面。接收方收到一个以太网帧后，最先处理</em>Destination Address</em>字段。如果发现该帧不是发给自己的，后面的字段以及数据就不需要处理了。</p>
+<p>什么是帧间距（IFG）</p>
+<p>网络设备和组件在接收一个帧之后，需要一段短暂的时间来恢复并为接收下一帧.做准备互联网帧间隙共20字节，包括：</p>
+<ul>
+<li>以太网最小帧间隙 12Byte</li>
+<li>数据链路层帧 前导码 7Byte，用于时钟同步 Preamble (PRE) was initially developed to accommodate the loss of a few bits as a result of signal delays. This is a sequence of alternate 0s and 1s that denotes the beginning of the frame and enables bit synchronization between the sender and receiver.</li>
+<li>帧开始标识 1Byte （标识帧的开始）</li>
+</ul>
+<h4 id="5-物理层"><a href="#5-物理层" class="headerlink" title="5. 物理层"></a>5. 物理层</h4><p>物理层是网络通信的最底层，它负责在物理介质上传输比特流。它定义了物理连接的特性，如电压、频率等。常见的物理层介质有光纤、双绞线等。</p>
+<hr>
+<h4 id="各层间数据传递"><a href="#各层间数据传递" class="headerlink" title="各层间数据传递"></a>各层间数据传递</h4><ul>
+<li>不同的协议层对数据包有不同的称谓，在传输层叫做段(segment)，在⽹络层叫做数据报 (datagram)，在链路层叫做帧(frame)。</li>
+<li>应⽤层数据通过协议栈发到⽹络上时，每层协议都要加上⼀个数据⾸部(header)，称为封装 (Encapsulation)。</li>
+<li>⾸部信息中包含了⼀些类似于⾸部有多⻓，载荷(payload)有多⻓，上层协议是什么等信息。</li>
+<li>数据封装成帧后发到传输介质上，到达⽬的主机后每层协议再剥掉相应的⾸部，根据⾸部中的 “上层协议字段” 将数据交给对应的上层协议处理。</li>
+</ul>
+<p><img src="/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/NetworkPacket.png" alt="图片2" title="Dissecting a Network Packet"></p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>详解TCP&#x2F;IP五层网络模型：<a target="_blank" rel="noopener" href="https://blog.csdn.net/2201_75437633/article/details/137373813">https://blog.csdn.net/2201_75437633/article/details/137373813</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/11/C-%E4%B8%AD%E7%9A%84unsafe%E3%80%81fixed%E5%92%8Cchecked%E5%85%B3%E9%94%AE%E5%AD%97/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -594,7 +916,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -607,7 +929,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
