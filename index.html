@@ -161,6 +161,116 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8CDNS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/24/CNAME%E5%92%8CDNS/" class="post-title-link" itemprop="url">CNAME和DNS</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-02-24 13:34:05 / Modified: 14:32:11" itemprop="dateCreated datePublished" datetime="2025-02-24T13:34:05+08:00">2025-02-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index"><span itemprop="name">网络模型</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="根域名"><a href="#根域名" class="headerlink" title="根域名"></a>根域名</h2><p><img src="/2025/02/24/CNAME%E5%92%8CDNS/RootDomain.jpg" alt="图片" title="域名结构"><br>Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).</p>
+<hr>
+<h2 id="A-记录"><a href="#A-记录" class="headerlink" title="A 记录"></a>A 记录</h2><p>Address Record indicates the IP address of a given domain. For example, if you pull the DNS records of cloudflare.com, the A record currently returns an IP address of: 104.17.210.9. A records only hold IPv4 addresses. If a website has an IPv6 address, it will instead use an “AAAA” record.</p>
+<p><img src="/2025/02/24/CNAME%E5%92%8CDNS/ARecord.png" alt="图片" title="A记录组成部分"></p>
+<p>The “@” symbol in this example indicates that this is a record for the root domain, and the “14400” value is the TTL (time to live), listed in seconds. The default TTL for A records is 14,400 seconds. This means that if an A record gets updated, it takes 240 minutes (14,400 seconds) to take effect.</p>
+<hr>
+<h2 id="内容分发网络"><a href="#内容分发网络" class="headerlink" title="内容分发网络"></a>内容分发网络</h2><p>内容分发网络 (CDN) 是一个分布在不同地理位置的服务器群，用于缓存靠近最终用户的内容。CDN 可以快速传输加载互联网内容所需的资产，包括 HTML 网页、JavaScript 文件、样式表、图像和视频。</p>
+<hr>
+<h2 id="别名记录"><a href="#别名记录" class="headerlink" title="别名记录"></a>别名记录</h2><p>CNAME记录，也叫别名记录，相当于给A记录中的域名起个小名儿，比如<a href="http://www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：">www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：</a></p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://www.yy.com/">www.yy.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1</p>
+</blockquote>
+<p>这样一来就能通过它的小名儿直接访问1.1.1.1了。</p>
+<br>
+
+<h4 id="多个域名指向同一个地址"><a href="#多个域名指向同一个地址" class="headerlink" title="多个域名指向同一个地址"></a>多个域名指向同一个地址</h4><blockquote>
+<p><a target="_blank" rel="noopener" href="http://www.yy.com/">www.yy.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.cc.com/">www.cc.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.kk.com/">www.kk.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1</p>
+</blockquote>
+<p>突然服务器的IP地址因为一些不可描述的原因要换了，不再是1.1.1.1了，换成了2.2.2.2，这时候你发现，只要把<a href="http://www.xx.com的指向修改一下即可：">www.xx.com的指向修改一下即可：</a></p>
+<blockquote>
+<p>域名 <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 2.2.2.2<br>这时候你又发现了，原来他的小名儿不需要做更改，直接就能访问服务器，因为他们都只指向了<a target="_blank" rel="noopener" href="http://www.xx.com,服务器ip改没改它们不管./">www.xx.com，服务器IP改没改它们不管。</a></p>
+</blockquote>
+<p>那么假如不用CNAME，直接做A记录，那么当1.1.1.1更改的时候，全部相关A记录指向关系都要做更改</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://www.yy.com/">www.yy.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.cc.com/">www.cc.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.kk.com/">www.kk.com</a> → 1.1.1.1</p>
+</blockquote>
+<br>
+
+<h4 id="使用CDN"><a href="#使用CDN" class="headerlink" title="使用CDN"></a>使用CDN</h4><p>假如你是DD公司老板，你公司中的一台IP为1.1.1.1的服务器，注册了域名为<a target="_blank" rel="noopener" href="http://www.dd.com,要对外提供客户访问.随着公司越做越大,访问量也越来越多,服务器顶不住了,你去找cdn提供商购买cdn加速服务,这个时候他们要求你的域名做个cname指向他们给你的一个域名叫www.dd.cdn.com/">www.dd.com，要对外提供客户访问。随着公司越做越大，访问量也越来越多，服务器顶不住了，你去找CDN提供商购买CDN加速服务，这个时候他们要求你的域名做个CNAME指向他们给你的一个域名叫www.dd.cdn.com</a></p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://www.dd.com/">www.dd.com</a> → <a target="_blank" rel="noopener" href="http://www.dd.cdn.com/">www.dd.cdn.com</a></p>
+</blockquote>
+<p>当用户访问<a href="http://www.dd.com的时候，本地DNS会获得CDN提供的CNAME域名：www.dd.cdn.com，然后再次向DNS调度系统发出请求，通过DNS调度系统的智能解析，把离客户端地理位置最近的（或者相对负载低的，主要看CDN那边智能解析的策略）CDN提供商的服务器IP返回给本地DNS，然后再由本地DNS回给客户端，让用户就近取到想要的资源（如访问网站），大大降低了延迟。">www.dd.com的时候，本地DNS会获得CDN提供的CNAME域名：www.dd.cdn.com，然后再次向DNS调度系统发出请求，通过DNS调度系统的智能解析，把离客户端地理位置最近的（或者相对负载低的，主要看CDN那边智能解析的策略）CDN提供商的服务器IP返回给本地DNS，然后再由本地DNS回给客户端，让用户就近取到想要的资源（如访问网站），大大降低了延迟。</a></p>
+<p><img src="/2025/02/24/CNAME%E5%92%8CDNS/CDN.png" alt="图片" title="使用CNAME配置使用CDN服务器"></p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>域名解析：<a target="_blank" rel="noopener" href="https://www.cloudflare.com/learning/dns/what-is-dns/">https://www.cloudflare.com/learning/dns/what-is-dns/</a><br>CNAME别名记录：<a target="_blank" rel="noopener" href="https://blog.csdn.net/DD_orz/article/details/100034049">https://blog.csdn.net/DD_orz/article/details/100034049</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/14/%E7%9B%AE%E5%89%8D%E9%81%87%E5%88%B0%E7%9A%84%E6%89%80%E6%9C%89C-%E8%84%9A%E6%9C%AC%E5%AF%BC%E8%87%B4Unity%E5%8D%A1%E6%AD%BB-%E9%97%AA%E9%80%80%E7%9A%84%E9%97%AE%E9%A2%98/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -512,7 +622,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-19 11:49:34" itemprop="dateModified" datetime="2025-02-19T11:49:34+08:00">2025-02-19</time>
+                <time title="Modified: 2025-02-24 13:49:06" itemprop="dateModified" datetime="2025-02-24T13:49:06+08:00">2025-02-24</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -539,7 +649,14 @@
 <hr>
 <h1 id="TCP-IP网络模型各层协议功能"><a href="#TCP-IP网络模型各层协议功能" class="headerlink" title="TCP&#x2F;IP网络模型各层协议功能"></a>TCP&#x2F;IP网络模型各层协议功能</h1><h4 id="1-应用层"><a href="#1-应用层" class="headerlink" title="1. 应用层"></a>1. 应用层</h4><p>应用层是网络通信的最高层，它定义了应用程序和网络之间的接口。在这一层，用户可以直接与应用程序进行交互。常见的应用层协议有HTTP、FTP、SMTP等。</p>
 <ul>
-<li><strong>Proxy</strong><br>A proxy server (forward proxy) takes requests from a client and forwards them to the internet, a reverse proxy takes requests from the internet and forwards them to a server.</li>
+<li><p><strong>Proxy</strong><br>A proxy server (forward proxy) takes requests from a client and forwards them to the internet, a reverse proxy takes requests from the internet and forwards them to a server.</p>
+</li>
+<li><p><strong>Domain Name System</strong></p>
+<ol>
+<li>通过域名访问网页</li>
+<li>计算机会先将域名发送到一个解析域名的服务器上<br> 2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server)<br> 2.2. 域名解析(在服务器上查找IP地址)的过程有两种算法，迭代查询，递归查询。一般是两种查询的结合<br> 2.3. 本机计算机找到其中一台解析域名的服务器(可能是.com)，如果没有找到对应的IP地址，那么就会去找根域名服务器，根域名服务器知道所有的子服务器，<br> 所以他肯定知道该域名所对应的IP地址在那个子服务器中，所以告诉第一次查询的服务器要他去另一台服务器上找，找到了，就将其返回给计算机，<br> 以后在有另一台计算机也通过这个域名访问，那么第一台服务器会有原来的域名IP地址的缓存，就不用去找根服务器了。<br> 2.4. 找到了，就能找到我们要访问的服务器了。</li>
+</ol>
+</li>
 </ul>
 <h4 id="2-传输层"><a href="#2-传输层" class="headerlink" title="2. 传输层"></a>2. 传输层</h4><p>传输层负责在源主机和目标主机之间建立数据传输通道。它提供了可靠的数据传输服务，确保数据的正确传输顺序和可靠性。TCP协议就是传输层协议的一种，它提供了可靠的、面向连接的数据传输服务。</p>
 <h4 id="3-网络层"><a href="#3-网络层" class="headerlink" title="3. 网络层"></a>3. 网络层</h4><p>网络层负责在网络上寻址和路由数据包。它定义了数据在网络中的传输路径，使得数据可以从源主机传输到目标主机。常见的网络层协议有IP协议。</p>
@@ -1091,7 +1208,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-count">9</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1104,7 +1221,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

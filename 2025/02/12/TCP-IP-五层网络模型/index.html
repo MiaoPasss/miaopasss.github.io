@@ -30,8 +30,9 @@
 <meta property="og:image" content="https://miaopasss.github.io/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/ethernet-frame-format.png">
 <meta property="og:image" content="https://miaopasss.github.io/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/NetworkPacket.png">
 <meta property="article:published_time" content="2025-02-12T09:26:08.000Z">
-<meta property="article:modified_time" content="2025-02-19T03:49:34.756Z">
+<meta property="article:modified_time" content="2025-02-24T05:49:06.042Z">
 <meta property="article:author" content="Haotian Luo">
+<meta property="article:tag" content="域名解析">
 <meta property="article:tag" content="代理服务器">
 <meta property="article:tag" content="以太网帧">
 <meta name="twitter:card" content="summary">
@@ -205,7 +206,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-19 11:49:34" itemprop="dateModified" datetime="2025-02-19T11:49:34+08:00">2025-02-19</time>
+                <time title="Modified: 2025-02-24 13:49:06" itemprop="dateModified" datetime="2025-02-24T13:49:06+08:00">2025-02-24</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -232,7 +233,14 @@
 <hr>
 <h1 id="TCP-IP网络模型各层协议功能"><a href="#TCP-IP网络模型各层协议功能" class="headerlink" title="TCP&#x2F;IP网络模型各层协议功能"></a>TCP&#x2F;IP网络模型各层协议功能</h1><h4 id="1-应用层"><a href="#1-应用层" class="headerlink" title="1. 应用层"></a>1. 应用层</h4><p>应用层是网络通信的最高层，它定义了应用程序和网络之间的接口。在这一层，用户可以直接与应用程序进行交互。常见的应用层协议有HTTP、FTP、SMTP等。</p>
 <ul>
-<li><strong>Proxy</strong><br>A proxy server (forward proxy) takes requests from a client and forwards them to the internet, a reverse proxy takes requests from the internet and forwards them to a server.</li>
+<li><p><strong>Proxy</strong><br>A proxy server (forward proxy) takes requests from a client and forwards them to the internet, a reverse proxy takes requests from the internet and forwards them to a server.</p>
+</li>
+<li><p><strong>Domain Name System</strong></p>
+<ol>
+<li>通过域名访问网页</li>
+<li>计算机会先将域名发送到一个解析域名的服务器上<br> 2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server)<br> 2.2. 域名解析(在服务器上查找IP地址)的过程有两种算法，迭代查询，递归查询。一般是两种查询的结合<br> 2.3. 本机计算机找到其中一台解析域名的服务器(可能是.com)，如果没有找到对应的IP地址，那么就会去找根域名服务器，根域名服务器知道所有的子服务器，<br> 所以他肯定知道该域名所对应的IP地址在那个子服务器中，所以告诉第一次查询的服务器要他去另一台服务器上找，找到了，就将其返回给计算机，<br> 以后在有另一台计算机也通过这个域名访问，那么第一台服务器会有原来的域名IP地址的缓存，就不用去找根服务器了。<br> 2.4. 找到了，就能找到我们要访问的服务器了。</li>
+</ol>
+</li>
 </ul>
 <h4 id="2-传输层"><a href="#2-传输层" class="headerlink" title="2. 传输层"></a>2. 传输层</h4><p>传输层负责在源主机和目标主机之间建立数据传输通道。它提供了可靠的数据传输服务，确保数据的正确传输顺序和可靠性。TCP协议就是传输层协议的一种，它提供了可靠的、面向连接的数据传输服务。</p>
 <h4 id="3-网络层"><a href="#3-网络层" class="headerlink" title="3. 网络层"></a>3. 网络层</h4><p>网络层负责在网络上寻址和路由数据包。它定义了数据在网络中的传输路径，使得数据可以从源主机传输到目标主机。常见的网络层协议有IP协议。</p>
@@ -269,6 +277,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
+              <a href="/tags/%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/" rel="tag"># 域名解析</a>
               <a href="/tags/%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag"># 代理服务器</a>
               <a href="/tags/%E4%BB%A5%E5%A4%AA%E7%BD%91%E5%B8%A7/" rel="tag"># 以太网帧</a>
           </div>
@@ -366,7 +375,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-count">9</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -379,7 +388,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

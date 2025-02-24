@@ -20,20 +20,24 @@
     var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="一、单一设计原则（Single Responsibility Principle，SRP）定义：一个类应该只有一个引起变化的原因，或者说一个类应该只有一个责任。 关键思想：  一个类应该专注于一种类型的任务，只有一个责任； 一个类应该只有一个原因引起它变化。    二、里氏替换原则（Liskov Substitution Principle，LSP）定义：如果对于每一个类型为 S 的对象 o1，都">
+  <meta name="description" content="根域名Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).  A 记录Address Record indicates the IP address of a given domain. Fo">
 <meta property="og:type" content="article">
-<meta property="og:title" content="设计模式六大原则">
-<meta property="og:url" content="https://miaopasss.github.io/2025/02/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/index.html">
+<meta property="og:title" content="CNAME和DNS">
+<meta property="og:url" content="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8CDNS/index.html">
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:description" content="一、单一设计原则（Single Responsibility Principle，SRP）定义：一个类应该只有一个引起变化的原因，或者说一个类应该只有一个责任。 关键思想：  一个类应该专注于一种类型的任务，只有一个责任； 一个类应该只有一个原因引起它变化。    二、里氏替换原则（Liskov Substitution Principle，LSP）定义：如果对于每一个类型为 S 的对象 o1，都">
+<meta property="og:description" content="根域名Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).  A 记录Address Record indicates the IP address of a given domain. Fo">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2025-02-10T05:34:28.000Z">
-<meta property="article:modified_time" content="2025-02-19T03:42:48.089Z">
+<meta property="og:image" content="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8CDNS/RootDomain.jpg">
+<meta property="og:image" content="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8CDNS/ARecord.png">
+<meta property="og:image" content="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8CDNS/CDN.png">
+<meta property="article:published_time" content="2025-02-24T05:34:05.000Z">
+<meta property="article:modified_time" content="2025-02-24T06:32:11.195Z">
 <meta property="article:author" content="Haotian Luo">
-<meta property="article:tag" content="面向对象">
+<meta property="article:tag" content="域名解析">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8CDNS/RootDomain.jpg">
 
-<link rel="canonical" href="https://miaopasss.github.io/2025/02/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/">
+<link rel="canonical" href="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8CDNS/">
 
 
 <script id="page-configurations">
@@ -46,7 +50,7 @@
   };
 </script>
 
-  <title>设计模式六大原则 | 乌啦呀哈呀哈乌啦！</title>
+  <title>CNAME和DNS | 乌啦呀哈呀哈乌啦！</title>
   
 
 
@@ -165,7 +169,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8CDNS/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/exciting-usagi.gif">
@@ -184,7 +188,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          设计模式六大原则
+          CNAME和DNS
         </h1>
 
         <div class="post-meta">
@@ -193,23 +197,17 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2025-02-10 13:34:28" itemprop="dateCreated datePublished" datetime="2025-02-10T13:34:28+08:00">2025-02-10</time>
+              <time title="Created: 2025-02-24 13:34:05 / Modified: 14:32:11" itemprop="dateCreated datePublished" datetime="2025-02-24T13:34:05+08:00">2025-02-24</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-19 11:42:48" itemprop="dateModified" datetime="2025-02-19T11:42:48+08:00">2025-02-19</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+                  <a href="/categories/%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index"><span itemprop="name">网络模型</span></a>
                 </span>
             </span>
 
@@ -224,62 +222,42 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="一、单一设计原则（Single-Responsibility-Principle，SRP）"><a href="#一、单一设计原则（Single-Responsibility-Principle，SRP）" class="headerlink" title="一、单一设计原则（Single Responsibility Principle，SRP）"></a>一、单一设计原则（Single Responsibility Principle，SRP）</h2><p>定义：<br>一个类应该只有一个引起变化的原因，或者说一个类应该只有一个责任。</p>
-<p>关键思想：</p>
-<ol>
-<li>一个类应该专注于一种类型的任务，只有一个责任；</li>
-<li>一个类应该只有一个原因引起它变化。</li>
-</ol>
-<br>
-
-<h2 id="二、里氏替换原则（Liskov-Substitution-Principle，LSP）"><a href="#二、里氏替换原则（Liskov-Substitution-Principle，LSP）" class="headerlink" title="二、里氏替换原则（Liskov Substitution Principle，LSP）"></a>二、里氏替换原则（Liskov Substitution Principle，LSP）</h2><p>定义：<br>如果对于每一个类型为 S 的对象 o1，都有类型为 T 的对象 o2，使得以 T 定义的所有程序 P 在所有的对象 o1 都代换成 o2 时，程序 P 的行为没有发生变化，那么类型 S 是类型 T 的子类型。</p>
-<p>任何基类可以被其子类替代，而程序仍然能够保持正确性。换句话说，子类应该能够替代其基类而不引起程序错误。</p>
-<p>关键思想：</p>
-<ol>
-<li>子类型必须能够替代基类型，而程序的行为不会发生变化。</li>
-<li>子类型应该继承基类型的行为，并且能够按照期望使用。</li>
-</ol>
-<br>
-
-<h2 id="三、迪米特原则（Law-of-Demeter，LoD）"><a href="#三、迪米特原则（Law-of-Demeter，LoD）" class="headerlink" title="三、迪米特原则（Law of Demeter，LoD）"></a>三、迪米特原则（Law of Demeter，LoD）</h2><p>迪米特原则也被称为最少知识原则（Principle of Least Knowledge，PLK）或者直接调用原则（Least Knowledge for Law of Demeter，LKP），是面向对象设计中的一个原则，其核心思想是降低类之间的耦合度，减少对象之间的相互依赖。</p>
-<p>定义：<br>一个对象应该对其他对象保持最少的了解。具体来说，一个类不应该直接调用其他类的内部方法，而是通过它自己的方法或者通过传递给它的对象来完成某项操作</p>
-<p>关键点：</p>
-<ol>
-<li>一个对象应该对其他对象有最少的了解。</li>
-<li>类与类之间应该尽量减少耦合。</li>
-<li>不要直接访问其他对象的内部成员，而应该通过该对象提供的公共方法来进行间接访问。</li>
-</ol>
-<br>
-
-<h2 id="四、依赖倒置原则（Dependency-Inversion-Principle，DIP）"><a href="#四、依赖倒置原则（Dependency-Inversion-Principle，DIP）" class="headerlink" title="四、依赖倒置原则（Dependency Inversion Principle，DIP）"></a>四、依赖倒置原则（Dependency Inversion Principle，DIP）</h2><p>定义：<br>高层模块不应该依赖于低层模块，两者都应该依赖于抽象。</p>
-<p>抽象不应该依赖于细节，细节应该依赖于抽象。</p>
-<p>这意味着在设计系统时，应该避免高层次模块（比如模块的业务逻辑）依赖于低层次模块（比如数据库操作或具体实现类），而应该依赖于抽象，即接口或抽象类。这样可以使系统更加灵活，易于扩展和维护。</p>
-<p>关键点：</p>
-<ol>
-<li>高层次的模块（例如业务逻辑）不应该依赖于低层次的模块（例如具体实现），两者都应该依赖于抽象（接口或抽象类）。</li>
-<li>抽象不应该依赖于具体的实现，具体的实现应该依赖于抽象。</li>
-</ol>
-<br>
-
-<h2 id="五、接口隔离原则（Interface-Segregation-Principle，ISP）"><a href="#五、接口隔离原则（Interface-Segregation-Principle，ISP）" class="headerlink" title="五、接口隔离原则（Interface Segregation Principle，ISP）"></a>五、接口隔离原则（Interface Segregation Principle，ISP）</h2><p>定义：<br>接口隔离原则是面向对象设计中的一条原则，它强调一个类不应该强制依赖它不使用的接口。具体来说，一个类对其他类的依赖关系应该建立在最小的接口集上。</p>
-<p>关键点：</p>
-<ol>
-<li>一个类不应该被迫依赖它不使用的接口。</li>
-<li>客户端不应该被迫依赖它不使用的方法。</li>
-</ol>
-<p>这两点意味着接口设计应该精简，只包含客户端需要的方法，避免将不相关的方法强行放在同一个接口中。</p>
-<br>
-
-<h2 id="六、开闭原则（Open-Closed-Principle，OCP）"><a href="#六、开闭原则（Open-Closed-Principle，OCP）" class="headerlink" title="六、开闭原则（Open&#x2F;Closed Principle，OCP）"></a>六、开闭原则（Open&#x2F;Closed Principle，OCP）</h2><p>定义：<br>开闭原则是面向对象设计中的一个基本原则，它由勃兰特·梅耶（Bertrand Meyer）提出，并由罗伯特·C·马丁（Robert C. Martin）进一步发扬光大。该原则的定义是：</p>
-<p>软件实体（类、模块、函数等）应该对扩展开放，对修改关闭。</p>
-<p>这意味着一个软件实体可以通过扩展来应对新的行为需求，而不需要修改已有的代码。这可以通过抽象和接口实现，以确保对于新增功能的引入，不需要修改现有的代码，而是通过扩展来实现。</p>
-<p>关键点：</p>
-<ol>
-<li>对扩展开放： 新的功能应该通过新增代码而不是修改已有代码的方式引入。</li>
-<li>对修改关闭： 已有的代码在引入新的功能时不应该被修改，以确保稳定性。</li>
-</ol>
+        <h2 id="根域名"><a href="#根域名" class="headerlink" title="根域名"></a>根域名</h2><p><img src="/2025/02/24/CNAME%E5%92%8CDNS/RootDomain.jpg" alt="图片" title="域名结构"><br>Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).</p>
 <hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>六大设计原则举例说明：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45165610/article/details/136027921">https://blog.csdn.net/qq_45165610/article/details/136027921</a></p>
+<h2 id="A-记录"><a href="#A-记录" class="headerlink" title="A 记录"></a>A 记录</h2><p>Address Record indicates the IP address of a given domain. For example, if you pull the DNS records of cloudflare.com, the A record currently returns an IP address of: 104.17.210.9. A records only hold IPv4 addresses. If a website has an IPv6 address, it will instead use an “AAAA” record.</p>
+<p><img src="/2025/02/24/CNAME%E5%92%8CDNS/ARecord.png" alt="图片" title="A记录组成部分"></p>
+<p>The “@” symbol in this example indicates that this is a record for the root domain, and the “14400” value is the TTL (time to live), listed in seconds. The default TTL for A records is 14,400 seconds. This means that if an A record gets updated, it takes 240 minutes (14,400 seconds) to take effect.</p>
+<hr>
+<h2 id="内容分发网络"><a href="#内容分发网络" class="headerlink" title="内容分发网络"></a>内容分发网络</h2><p>内容分发网络 (CDN) 是一个分布在不同地理位置的服务器群，用于缓存靠近最终用户的内容。CDN 可以快速传输加载互联网内容所需的资产，包括 HTML 网页、JavaScript 文件、样式表、图像和视频。</p>
+<hr>
+<h2 id="别名记录"><a href="#别名记录" class="headerlink" title="别名记录"></a>别名记录</h2><p>CNAME记录，也叫别名记录，相当于给A记录中的域名起个小名儿，比如<a href="http://www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：">www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：</a></p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://www.yy.com/">www.yy.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1</p>
+</blockquote>
+<p>这样一来就能通过它的小名儿直接访问1.1.1.1了。</p>
+<br>
+
+<h4 id="多个域名指向同一个地址"><a href="#多个域名指向同一个地址" class="headerlink" title="多个域名指向同一个地址"></a>多个域名指向同一个地址</h4><blockquote>
+<p><a target="_blank" rel="noopener" href="http://www.yy.com/">www.yy.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.cc.com/">www.cc.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.kk.com/">www.kk.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1</p>
+</blockquote>
+<p>突然服务器的IP地址因为一些不可描述的原因要换了，不再是1.1.1.1了，换成了2.2.2.2，这时候你发现，只要把<a href="http://www.xx.com的指向修改一下即可：">www.xx.com的指向修改一下即可：</a></p>
+<blockquote>
+<p>域名 <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 2.2.2.2<br>这时候你又发现了，原来他的小名儿不需要做更改，直接就能访问服务器，因为他们都只指向了<a target="_blank" rel="noopener" href="http://www.xx.com,服务器ip改没改它们不管./">www.xx.com，服务器IP改没改它们不管。</a></p>
+</blockquote>
+<p>那么假如不用CNAME，直接做A记录，那么当1.1.1.1更改的时候，全部相关A记录指向关系都要做更改</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://www.yy.com/">www.yy.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.cc.com/">www.cc.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.kk.com/">www.kk.com</a> → 1.1.1.1</p>
+</blockquote>
+<br>
+
+<h4 id="使用CDN"><a href="#使用CDN" class="headerlink" title="使用CDN"></a>使用CDN</h4><p>假如你是DD公司老板，你公司中的一台IP为1.1.1.1的服务器，注册了域名为<a target="_blank" rel="noopener" href="http://www.dd.com,要对外提供客户访问.随着公司越做越大,访问量也越来越多,服务器顶不住了,你去找cdn提供商购买cdn加速服务,这个时候他们要求你的域名做个cname指向他们给你的一个域名叫www.dd.cdn.com/">www.dd.com，要对外提供客户访问。随着公司越做越大，访问量也越来越多，服务器顶不住了，你去找CDN提供商购买CDN加速服务，这个时候他们要求你的域名做个CNAME指向他们给你的一个域名叫www.dd.cdn.com</a></p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://www.dd.com/">www.dd.com</a> → <a target="_blank" rel="noopener" href="http://www.dd.cdn.com/">www.dd.cdn.com</a></p>
+</blockquote>
+<p>当用户访问<a href="http://www.dd.com的时候，本地DNS会获得CDN提供的CNAME域名：www.dd.cdn.com，然后再次向DNS调度系统发出请求，通过DNS调度系统的智能解析，把离客户端地理位置最近的（或者相对负载低的，主要看CDN那边智能解析的策略）CDN提供商的服务器IP返回给本地DNS，然后再由本地DNS回给客户端，让用户就近取到想要的资源（如访问网站），大大降低了延迟。">www.dd.com的时候，本地DNS会获得CDN提供的CNAME域名：www.dd.cdn.com，然后再次向DNS调度系统发出请求，通过DNS调度系统的智能解析，把离客户端地理位置最近的（或者相对负载低的，主要看CDN那边智能解析的策略）CDN提供商的服务器IP返回给本地DNS，然后再由本地DNS回给客户端，让用户就近取到想要的资源（如访问网站），大大降低了延迟。</a></p>
+<p><img src="/2025/02/24/CNAME%E5%92%8CDNS/CDN.png" alt="图片" title="使用CNAME配置使用CDN服务器"></p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>域名解析：<a target="_blank" rel="noopener" href="https://www.cloudflare.com/learning/dns/what-is-dns/">https://www.cloudflare.com/learning/dns/what-is-dns/</a><br>CNAME别名记录：<a target="_blank" rel="noopener" href="https://blog.csdn.net/DD_orz/article/details/100034049">https://blog.csdn.net/DD_orz/article/details/100034049</a></p>
 <hr>
 
     </div>
@@ -290,7 +268,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" rel="tag"># 面向对象</a>
+              <a href="/tags/%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/" rel="tag"># 域名解析</a>
           </div>
 
         
@@ -298,11 +276,11 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2025/02/10/%E5%85%B6%E6%AC%A1%E5%9D%90%E6%A0%87/" rel="next" title="其次坐标">
-      其次坐标 <i class="fa fa-chevron-right"></i>
+    <a href="/2025/02/14/%E7%9B%AE%E5%89%8D%E9%81%87%E5%88%B0%E7%9A%84%E6%89%80%E6%9C%89C-%E8%84%9A%E6%9C%AC%E5%AF%BC%E8%87%B4Unity%E5%8D%A1%E6%AD%BB-%E9%97%AA%E9%80%80%E7%9A%84%E9%97%AE%E9%A2%98/" rel="prev" title="目前遇到的所有C#脚本导致Unity卡死/闪退的bug">
+      <i class="fa fa-chevron-left"></i> 目前遇到的所有C#脚本导致Unity卡死/闪退的bug
     </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -361,7 +339,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%8D%95%E4%B8%80%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99%EF%BC%88Single-Responsibility-Principle%EF%BC%8CSRP%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">一、单一设计原则（Single Responsibility Principle，SRP）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%87%8C%E6%B0%8F%E6%9B%BF%E6%8D%A2%E5%8E%9F%E5%88%99%EF%BC%88Liskov-Substitution-Principle%EF%BC%8CLSP%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">二、里氏替换原则（Liskov Substitution Principle，LSP）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E8%BF%AA%E7%B1%B3%E7%89%B9%E5%8E%9F%E5%88%99%EF%BC%88Law-of-Demeter%EF%BC%8CLoD%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">三、迪米特原则（Law of Demeter，LoD）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E4%BE%9D%E8%B5%96%E5%80%92%E7%BD%AE%E5%8E%9F%E5%88%99%EF%BC%88Dependency-Inversion-Principle%EF%BC%8CDIP%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">四、依赖倒置原则（Dependency Inversion Principle，DIP）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%8E%A5%E5%8F%A3%E9%9A%94%E7%A6%BB%E5%8E%9F%E5%88%99%EF%BC%88Interface-Segregation-Principle%EF%BC%8CISP%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">五、接口隔离原则（Interface Segregation Principle，ISP）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E5%BC%80%E9%97%AD%E5%8E%9F%E5%88%99%EF%BC%88Open-Closed-Principle%EF%BC%8COCP%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">六、开闭原则（Open&#x2F;Closed Principle，OCP）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number"></span> <span class="nav-text">Credits</span></a></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B9%E5%9F%9F%E5%90%8D"><span class="nav-number">1.</span> <span class="nav-text">根域名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A-%E8%AE%B0%E5%BD%95"><span class="nav-number">2.</span> <span class="nav-text">A 记录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AE%B9%E5%88%86%E5%8F%91%E7%BD%91%E7%BB%9C"><span class="nav-number">3.</span> <span class="nav-text">内容分发网络</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%AB%E5%90%8D%E8%AE%B0%E5%BD%95"><span class="nav-number">4.</span> <span class="nav-text">别名记录</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A%E4%B8%AA%E5%9F%9F%E5%90%8D%E6%8C%87%E5%90%91%E5%90%8C%E4%B8%80%E4%B8%AA%E5%9C%B0%E5%9D%80"><span class="nav-number">4.0.1.</span> <span class="nav-text">多个域名指向同一个地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8CDN"><span class="nav-number">4.0.2.</span> <span class="nav-text">使用CDN</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number"></span> <span class="nav-text">Credits</span></a></div>
       </div>
       <!--/noindex-->
 
@@ -496,7 +474,7 @@
       quicklink({
         timeout : 3000,
         priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/02/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/',]
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8CDNS/',]
       });
       });
   </script>
