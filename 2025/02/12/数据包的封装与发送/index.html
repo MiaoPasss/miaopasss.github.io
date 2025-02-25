@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://miaopasss.github.io/2025/02/12/%E6%95%B0%E6%8D%AE%E5%8C%85%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/NetworkPacket.png">
 <meta property="article:published_time" content="2025-02-12T09:46:00.000Z">
-<meta property="article:modified_time" content="2025-02-25T05:55:09.540Z">
+<meta property="article:modified_time" content="2025-02-25T07:02:15.743Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="数据包">
 <meta name="twitter:card" content="summary">
@@ -203,7 +203,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-25 13:55:09" itemprop="dateModified" datetime="2025-02-25T13:55:09+08:00">2025-02-25</time>
+                <time title="Modified: 2025-02-25 15:02:15" itemprop="dateModified" datetime="2025-02-25T15:02:15+08:00">2025-02-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -241,12 +241,13 @@
 </li>
 </ul>
 <hr>
-<h4 id="数据的封装过程（从上至下）"><a href="#数据的封装过程（从上至下）" class="headerlink" title="数据的封装过程（从上至下）"></a>数据的封装过程（从上至下）</h4><ol>
-<li>应用层——消息</li>
-<li>传输层——报文段(segment)&#x2F;数据报(datagram) (注：TCP叫TCP报文段，UDP叫UDP数据报,也有人叫UDP段)</li>
-<li>网络层——分组、数据包（packet）</li>
-<li>链路层——帧（frame）</li>
-<li>物理层——P-PDU（bit）</li>
+<h4 id="数据的封装过程（从上至下）"><a href="#数据的封装过程（从上至下）" class="headerlink" title="数据的封装过程（从上至下）"></a>数据的封装过程（从上至下）</h4><p>各层PDU形式(Protocol Data Unit)</p>
+<ol>
+<li>应用层PDU——消息（message）</li>
+<li>传输层PDU——报文段(segment)&#x2F;数据报(datagram) (注：TCP叫TCP报文段，UDP叫UDP数据报,也有人叫UDP段)</li>
+<li>网络层PDU——分组、数据包（packet）</li>
+<li>链路层PDU——帧（frame）</li>
+<li>物理层PDU——比特流（bit）</li>
 </ol>
 <hr>
 <h4 id="各层间数据传递"><a href="#各层间数据传递" class="headerlink" title="各层间数据传递"></a>各层间数据传递</h4><ul>

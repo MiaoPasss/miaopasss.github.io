@@ -190,10 +190,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2025-02-24 13:34:05 / Modified: 14:32:11" itemprop="dateCreated datePublished" datetime="2025-02-24T13:34:05+08:00">2025-02-24</time>
+              <time title="Created: 2025-02-24 13:34:05" itemprop="dateCreated datePublished" datetime="2025-02-24T13:34:05+08:00">2025-02-24</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-25 15:52:53" itemprop="dateModified" datetime="2025-02-25T15:52:53+08:00">2025-02-25</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -215,7 +221,17 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="根域名"><a href="#根域名" class="headerlink" title="根域名"></a>根域名</h2><p><img src="/2025/02/24/CNAME%E5%92%8CDNS/RootDomain.jpg" alt="图片" title="域名结构"><br>Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).</p>
+          <h2 id="域名解析协议-Domain-Name-System"><a href="#域名解析协议-Domain-Name-System" class="headerlink" title="域名解析协议 Domain Name System"></a>域名解析协议 Domain Name System</h2><pre><code>1. 通过域名访问网页
+2. 计算机会先将域名发送到一个解析域名的服务器上
+    2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server)
+    2.2. 域名解析(在服务器上查找IP地址)的过程有两种算法，迭代查询，递归查询。一般是两种查询的结合
+    2.3. 本机计算机找到其中一台解析域名的服务器(可能是.com)，如果没有找到对应的IP地址，那么就会去找根域名服务器，根域名服务器知道所有的子服务器，
+    所以他肯定知道该域名所对应的IP地址在那个子服务器中，所以告诉第一次查询的服务器要他去另一台服务器上找，找到了，就将其返回给计算机，
+    以后在有另一台计算机也通过这个域名访问，那么第一台服务器会有原来的域名IP地址的缓存，就不用去找根服务器了。
+    2.4. 找到了，就能找到我们要访问的服务器了。
+</code></pre>
+<hr>
+<h2 id="根域名"><a href="#根域名" class="headerlink" title="根域名"></a>根域名</h2><p><img src="/2025/02/24/CNAME%E5%92%8CDNS/RootDomain.jpg" alt="图片" title="域名结构"><br>Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).</p>
 <hr>
 <h2 id="A-记录"><a href="#A-记录" class="headerlink" title="A 记录"></a>A 记录</h2><p>Address Record indicates the IP address of a given domain. For example, if you pull the DNS records of cloudflare.com, the A record currently returns an IP address of: 104.17.210.9. A records only hold IPv4 addresses. If a website has an IPv6 address, it will instead use an “AAAA” record.</p>
 <p><img src="/2025/02/24/CNAME%E5%92%8CDNS/ARecord.png" alt="图片" title="A记录组成部分"></p>
@@ -223,7 +239,7 @@
 <hr>
 <h2 id="内容分发网络"><a href="#内容分发网络" class="headerlink" title="内容分发网络"></a>内容分发网络</h2><p>内容分发网络 (CDN) 是一个分布在不同地理位置的服务器群，用于缓存靠近最终用户的内容。CDN 可以快速传输加载互联网内容所需的资产，包括 HTML 网页、JavaScript 文件、样式表、图像和视频。</p>
 <hr>
-<h2 id="别名记录"><a href="#别名记录" class="headerlink" title="别名记录"></a>别名记录</h2><p>CNAME记录，也叫别名记录，相当于给A记录中的域名起个小名儿，比如<a href="http://www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：">www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：</a></p>
+<h2 id="CNAME-别名记录"><a href="#CNAME-别名记录" class="headerlink" title="CNAME 别名记录"></a>CNAME 别名记录</h2><p>CNAME记录，也叫别名记录，相当于给A记录中的域名起个小名儿，比如<a href="http://www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：">www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：</a></p>
 <blockquote>
 <p><a target="_blank" rel="noopener" href="http://www.yy.com/">www.yy.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1</p>
 </blockquote>
@@ -512,7 +528,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-25 13:55:09" itemprop="dateModified" datetime="2025-02-25T13:55:09+08:00">2025-02-25</time>
+                <time title="Modified: 2025-02-25 15:02:15" itemprop="dateModified" datetime="2025-02-25T15:02:15+08:00">2025-02-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -550,12 +566,13 @@
 </li>
 </ul>
 <hr>
-<h4 id="数据的封装过程（从上至下）"><a href="#数据的封装过程（从上至下）" class="headerlink" title="数据的封装过程（从上至下）"></a>数据的封装过程（从上至下）</h4><ol>
-<li>应用层——消息</li>
-<li>传输层——报文段(segment)&#x2F;数据报(datagram) (注：TCP叫TCP报文段，UDP叫UDP数据报,也有人叫UDP段)</li>
-<li>网络层——分组、数据包（packet）</li>
-<li>链路层——帧（frame）</li>
-<li>物理层——P-PDU（bit）</li>
+<h4 id="数据的封装过程（从上至下）"><a href="#数据的封装过程（从上至下）" class="headerlink" title="数据的封装过程（从上至下）"></a>数据的封装过程（从上至下）</h4><p>各层PDU形式(Protocol Data Unit)</p>
+<ol>
+<li>应用层PDU——消息（message）</li>
+<li>传输层PDU——报文段(segment)&#x2F;数据报(datagram) (注：TCP叫TCP报文段，UDP叫UDP数据报,也有人叫UDP段)</li>
+<li>网络层PDU——分组、数据包（packet）</li>
+<li>链路层PDU——帧（frame）</li>
+<li>物理层PDU——比特流（bit）</li>
 </ol>
 <hr>
 <h4 id="各层间数据传递"><a href="#各层间数据传递" class="headerlink" title="各层间数据传递"></a>各层间数据传递</h4><ul>
@@ -630,7 +647,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-25 13:55:41" itemprop="dateModified" datetime="2025-02-25T13:55:41+08:00">2025-02-25</time>
+                <time title="Modified: 2025-02-25 16:06:18" itemprop="dateModified" datetime="2025-02-25T16:06:18+08:00">2025-02-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -653,25 +670,19 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>五层体系结构包括：应用层、运输层、网络层、数据链路层和物理层。<br>五层协议只是OSI和TCP&#x2F;IP的综合，实际应用还是TCP&#x2F;IP的四层结构。为了方便可以把下两层称为网络接口层。</p>
-<hr>
-<h1 id="TCP-IP网络模型各层协议功能"><a href="#TCP-IP网络模型各层协议功能" class="headerlink" title="TCP&#x2F;IP网络模型各层协议功能"></a>TCP&#x2F;IP网络模型各层协议功能</h1><h4 id="1-应用层"><a href="#1-应用层" class="headerlink" title="1. 应用层"></a>1. 应用层</h4><p>应用层是网络通信的最高层，它定义了应用程序和网络之间的接口。在这一层，用户可以直接与应用程序进行交互。常见的应用层协议有HTTP、FTP、SMTP等。</p>
+          <h1 id="TCP-IP网络模型各层协议功能"><a href="#TCP-IP网络模型各层协议功能" class="headerlink" title="TCP&#x2F;IP网络模型各层协议功能"></a>TCP&#x2F;IP网络模型各层协议功能</h1><h4 id="1-应用层"><a href="#1-应用层" class="headerlink" title="1. 应用层"></a>1. 应用层</h4><p>应用层是网络通信的最高层，它定义了应用程序和网络之间的接口。在这一层，用户可以直接与应用程序进行交互。常见的应用层协议有HTTP、FTP、SMTP等。</p>
 <ul>
 <li><p><strong>Proxy</strong><br>A proxy server (forward proxy) takes requests from a client and forwards them to the internet, a reverse proxy takes requests from the internet and forwards them to a server.</p>
 </li>
-<li><p><strong>Domain Name System</strong></p>
-<ol>
-<li>通过域名访问网页</li>
-<li>计算机会先将域名发送到一个解析域名的服务器上<br> 2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server)<br> 2.2. 域名解析(在服务器上查找IP地址)的过程有两种算法，迭代查询，递归查询。一般是两种查询的结合<br> 2.3. 本机计算机找到其中一台解析域名的服务器(可能是.com)，如果没有找到对应的IP地址，那么就会去找根域名服务器，根域名服务器知道所有的子服务器，<br> 所以他肯定知道该域名所对应的IP地址在那个子服务器中，所以告诉第一次查询的服务器要他去另一台服务器上找，找到了，就将其返回给计算机，<br> 以后在有另一台计算机也通过这个域名访问，那么第一台服务器会有原来的域名IP地址的缓存，就不用去找根服务器了。<br> 2.4. 找到了，就能找到我们要访问的服务器了。</li>
-</ol>
+<li><p><strong>Transport Layer Security</strong><br>SSL&#x2F;TLS uses asymmetric encryption is used to establish a secure session between a client and a server, and symmetric encryption is used to exchange data within the secured session.<br>密钥：数据的加密是通过密钥进行的，通过密钥，明文被加密成密文。密钥分为对称加密密钥和非对称加密密钥。密钥为一段随机生成的数，通常以 .pem或者 .key文件保存，可以使用Openssl生成。<br>对称加密：加密解密都是使用同一个密钥。服务器使用该密钥进行加密，经过传输后客户端使用该密钥解密。该方式效率高，但存在安全隐患。<br>非对称加密：非对称加密具有一个密钥对，公钥和私钥，理论上来说公钥和私钥并不区分，便于区分将保存在本地的那个叫做私钥，将需要传输给对方的那个叫做公钥。数据经过私钥加密后，只能由对应的公钥解密，同样数据经过公钥加密后，只能由对应的私钥解密。那么只要客户端拥有服务器的公钥，通过公钥加密报文，服务器用自己的私钥解密就可以实现对传输过程的加密。非对称加密的效率比较低，而且仍有被中间人攻击的风险。<br>证书颁发机构：CA机构是权威的第三方，机构本身具有自己的CA公钥与CA私钥，CA公钥是发给全体互联网成员的，可以将其称为CA证书。服务器需要将自己的 公钥以及认证信息经过HASH加密后发改CA机构，CA机构使用CA私钥对提交的信息进行加密，这就得到了带有数字签名的数据。在使用时使用CA公钥对带有数字签名的数据解密，得到经HASH后的数据，同时将公钥以及认证信息 经过HASH加密后与CA解密后的数据比对，验证电子签名的安全性。</p>
 </li>
 </ul>
-<h4 id="2-传输层"><a href="#2-传输层" class="headerlink" title="2. 传输层"></a>2. 传输层</h4><p>传输层负责在源主机和目标主机之间建立数据传输通道。它提供了可靠的数据传输服务，确保数据的正确传输顺序和可靠性。TCP协议就是传输层协议的一种，它提供了可靠的、面向连接的数据传输服务。</p>
+<h4 id="2-传输层"><a href="#2-传输层" class="headerlink" title="2. 传输层"></a>2. 传输层</h4><p>传输层负责在源主机和目标主机（端到端）之间建立数据传输通道，主要协议有TCP和UDP。</p>
 <h4 id="3-网络层"><a href="#3-网络层" class="headerlink" title="3. 网络层"></a>3. 网络层</h4><p>网络层负责在网络上寻址和路由数据包。它定义了数据在网络中的传输路径，使得数据可以从源主机传输到目标主机。常见的网络层协议有IP协议。</p>
 <ul>
 <li><strong>地址解析协议</strong><br>ARP（Address Resolution Protocol，地址解析协议）是用来将IP地址解析为MAC地址的协议。主机或三层网络设备上会维护一张ARP表，用于存储IP地址和MAC地址的映射关系</li>
 </ul>
-<h4 id="4-数据链路层"><a href="#4-数据链路层" class="headerlink" title="4. 数据链路层"></a>4. 数据链路层</h4><p>数据链路层协议负责将网络层传输的数据分组封装成帧，传输到物理层，并通过物理介质进行传输。它负责数据的分段和重新组装，以及物理介质的访问控制。常见的数据链路层协议有以太网协议。</p>
+<h4 id="4-数据链路层"><a href="#4-数据链路层" class="headerlink" title="4. 数据链路层"></a>4. 数据链路层</h4><p>数据链路层协议负责将网络层传输的数据分组封装成帧，传输到物理层，并通过物理介质进行传输。常见的数据链路层协议有以太网和Wi-Fi等。</p>
 <ul>
 <li><strong>以太网帧</strong><br><img src="/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/ethernet-frame-format.png"></li>
 </ul>
@@ -688,7 +699,7 @@
 <h1 id="二层设备和三层设备"><a href="#二层设备和三层设备" class="headerlink" title="二层设备和三层设备"></a>二层设备和三层设备</h1><p>二层设备是工作数据链路层的设备。二层交换机可以识别数据包中的MAC地址信息，根据MAC地址进行转发，并将这些MAC地址与对应的端口记录在自己内部的一个地址表中。具体的工作流程如下：<br>（1） 当交换机从某个端口收到一个数据包，它先读取包头中的源MAC地址，这样它就知道源MAC地址的机器是连在哪个端口上的；<br>（2） 再去读取包头中的目的MAC地址，并在地址表中查找相应的端口；<br>（3） 如表中有与这目的MAC地址对应的端口，把数据包直接复制到这端口上；<br>（4） 如表中找不到相应的端口则把数据包广播到所有端口上，当目的机器对源机器回应时，交换机又可以学习一目的MAC地址与哪个端口对应，在下次传送数据时就不再需要对所有端口进行广播了。<br>不断的循环这个过程，对于全网的MAC地址信息都可以学习到，二层交换机就是这样建立和维护它自己的地址表。</p>
 <p>三层设备是工作在网络层的设备。路由器是最常用的三层设备，利用不同网络的ID号（即IP地址）来确定数据转发的地址。IP地址是在软件中实现的，描述的是设备所在的网络，有时这些第三层的地址也称为协议地址或者网络地址。</p>
 <hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>详解TCP&#x2F;IP五层网络模型：<a target="_blank" rel="noopener" href="https://blog.csdn.net/2201_75437633/article/details/137373813">https://blog.csdn.net/2201_75437633/article/details/137373813</a></p>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>详解TCP&#x2F;IP五层网络模型：<a target="_blank" rel="noopener" href="https://blog.csdn.net/2201_75437633/article/details/137373813">https://blog.csdn.net/2201_75437633/article/details/137373813</a><br>TLS&#x2F;SSL：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44640149/article/details/134667685">https://blog.csdn.net/weixin_44640149/article/details/134667685</a></p>
 <hr>
 
       

@@ -20,18 +20,18 @@
     var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="根域名Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).  A 记录Address Record indicates the IP address of a given domain. Fo">
+  <meta name="description" content="域名解析协议 Domain Name System1. 通过域名访问网页 2. 计算机会先将域名发送到一个解析域名的服务器上     2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server)     2.2. 域名解析(在服务器上查找IP地址)的过程有两种算法，迭代查询，递归">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CNAME和DNS">
 <meta property="og:url" content="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8CDNS/index.html">
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:description" content="根域名Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).  A 记录Address Record indicates the IP address of a given domain. Fo">
+<meta property="og:description" content="域名解析协议 Domain Name System1. 通过域名访问网页 2. 计算机会先将域名发送到一个解析域名的服务器上     2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server)     2.2. 域名解析(在服务器上查找IP地址)的过程有两种算法，迭代查询，递归">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8CDNS/RootDomain.jpg">
 <meta property="og:image" content="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8CDNS/ARecord.png">
 <meta property="og:image" content="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8CDNS/CDN.png">
 <meta property="article:published_time" content="2025-02-24T05:34:05.000Z">
-<meta property="article:modified_time" content="2025-02-24T06:32:11.195Z">
+<meta property="article:modified_time" content="2025-02-25T07:52:53.180Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="域名解析">
 <meta name="twitter:card" content="summary">
@@ -197,10 +197,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2025-02-24 13:34:05 / Modified: 14:32:11" itemprop="dateCreated datePublished" datetime="2025-02-24T13:34:05+08:00">2025-02-24</time>
+              <time title="Created: 2025-02-24 13:34:05" itemprop="dateCreated datePublished" datetime="2025-02-24T13:34:05+08:00">2025-02-24</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-25 15:52:53" itemprop="dateModified" datetime="2025-02-25T15:52:53+08:00">2025-02-25</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -222,7 +228,17 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="根域名"><a href="#根域名" class="headerlink" title="根域名"></a>根域名</h2><p><img src="/2025/02/24/CNAME%E5%92%8CDNS/RootDomain.jpg" alt="图片" title="域名结构"><br>Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).</p>
+        <h2 id="域名解析协议-Domain-Name-System"><a href="#域名解析协议-Domain-Name-System" class="headerlink" title="域名解析协议 Domain Name System"></a>域名解析协议 Domain Name System</h2><pre><code>1. 通过域名访问网页
+2. 计算机会先将域名发送到一个解析域名的服务器上
+    2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server)
+    2.2. 域名解析(在服务器上查找IP地址)的过程有两种算法，迭代查询，递归查询。一般是两种查询的结合
+    2.3. 本机计算机找到其中一台解析域名的服务器(可能是.com)，如果没有找到对应的IP地址，那么就会去找根域名服务器，根域名服务器知道所有的子服务器，
+    所以他肯定知道该域名所对应的IP地址在那个子服务器中，所以告诉第一次查询的服务器要他去另一台服务器上找，找到了，就将其返回给计算机，
+    以后在有另一台计算机也通过这个域名访问，那么第一台服务器会有原来的域名IP地址的缓存，就不用去找根服务器了。
+    2.4. 找到了，就能找到我们要访问的服务器了。
+</code></pre>
+<hr>
+<h2 id="根域名"><a href="#根域名" class="headerlink" title="根域名"></a>根域名</h2><p><img src="/2025/02/24/CNAME%E5%92%8CDNS/RootDomain.jpg" alt="图片" title="域名结构"><br>Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).</p>
 <hr>
 <h2 id="A-记录"><a href="#A-记录" class="headerlink" title="A 记录"></a>A 记录</h2><p>Address Record indicates the IP address of a given domain. For example, if you pull the DNS records of cloudflare.com, the A record currently returns an IP address of: 104.17.210.9. A records only hold IPv4 addresses. If a website has an IPv6 address, it will instead use an “AAAA” record.</p>
 <p><img src="/2025/02/24/CNAME%E5%92%8CDNS/ARecord.png" alt="图片" title="A记录组成部分"></p>
@@ -230,7 +246,7 @@
 <hr>
 <h2 id="内容分发网络"><a href="#内容分发网络" class="headerlink" title="内容分发网络"></a>内容分发网络</h2><p>内容分发网络 (CDN) 是一个分布在不同地理位置的服务器群，用于缓存靠近最终用户的内容。CDN 可以快速传输加载互联网内容所需的资产，包括 HTML 网页、JavaScript 文件、样式表、图像和视频。</p>
 <hr>
-<h2 id="别名记录"><a href="#别名记录" class="headerlink" title="别名记录"></a>别名记录</h2><p>CNAME记录，也叫别名记录，相当于给A记录中的域名起个小名儿，比如<a href="http://www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：">www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：</a></p>
+<h2 id="CNAME-别名记录"><a href="#CNAME-别名记录" class="headerlink" title="CNAME 别名记录"></a>CNAME 别名记录</h2><p>CNAME记录，也叫别名记录，相当于给A记录中的域名起个小名儿，比如<a href="http://www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：">www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：</a></p>
 <blockquote>
 <p><a target="_blank" rel="noopener" href="http://www.yy.com/">www.yy.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1</p>
 </blockquote>
@@ -339,7 +355,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B9%E5%9F%9F%E5%90%8D"><span class="nav-number">1.</span> <span class="nav-text">根域名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A-%E8%AE%B0%E5%BD%95"><span class="nav-number">2.</span> <span class="nav-text">A 记录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AE%B9%E5%88%86%E5%8F%91%E7%BD%91%E7%BB%9C"><span class="nav-number">3.</span> <span class="nav-text">内容分发网络</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%AB%E5%90%8D%E8%AE%B0%E5%BD%95"><span class="nav-number">4.</span> <span class="nav-text">别名记录</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A%E4%B8%AA%E5%9F%9F%E5%90%8D%E6%8C%87%E5%90%91%E5%90%8C%E4%B8%80%E4%B8%AA%E5%9C%B0%E5%9D%80"><span class="nav-number">4.0.1.</span> <span class="nav-text">多个域名指向同一个地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8CDN"><span class="nav-number">4.0.2.</span> <span class="nav-text">使用CDN</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number"></span> <span class="nav-text">Credits</span></a></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90%E5%8D%8F%E8%AE%AE-Domain-Name-System"><span class="nav-number">1.</span> <span class="nav-text">域名解析协议 Domain Name System</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B9%E5%9F%9F%E5%90%8D"><span class="nav-number">2.</span> <span class="nav-text">根域名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A-%E8%AE%B0%E5%BD%95"><span class="nav-number">3.</span> <span class="nav-text">A 记录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AE%B9%E5%88%86%E5%8F%91%E7%BD%91%E7%BB%9C"><span class="nav-number">4.</span> <span class="nav-text">内容分发网络</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CNAME-%E5%88%AB%E5%90%8D%E8%AE%B0%E5%BD%95"><span class="nav-number">5.</span> <span class="nav-text">CNAME 别名记录</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A%E4%B8%AA%E5%9F%9F%E5%90%8D%E6%8C%87%E5%90%91%E5%90%8C%E4%B8%80%E4%B8%AA%E5%9C%B0%E5%9D%80"><span class="nav-number">5.0.1.</span> <span class="nav-text">多个域名指向同一个地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8CDN"><span class="nav-number">5.0.2.</span> <span class="nav-text">使用CDN</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number"></span> <span class="nav-text">Credits</span></a></div>
       </div>
       <!--/noindex-->
 
