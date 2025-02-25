@@ -512,7 +512,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-19 11:43:31" itemprop="dateModified" datetime="2025-02-19T11:43:31+08:00">2025-02-19</time>
+                <time title="Modified: 2025-02-25 13:55:09" itemprop="dateModified" datetime="2025-02-25T13:55:09+08:00">2025-02-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -538,7 +538,7 @@
           <h1 id="数据包"><a href="#数据包" class="headerlink" title="数据包"></a>数据包</h1><ul>
 <li><p>报文(message)<br>我们将位于应用层的信息分组称为报文。报文是网络中交换与传输的数据单元，也是网络传输的单元。报文包含了将要发送的完整的数据信息，其长短不需一致。报文在传输过程中会不断地封装成分组、包、帧来传输，封装的方式就是添加一些控制信息组成的首部，那些就是报文头。</p>
 </li>
-<li><p>报文段（segment）<br>通常是指起始点和目的地都是传输层的信息单元。</p>
+<li><p>报文段(segment)<br>通常是指起始点和目的地都是传输层的信息单元。</p>
 </li>
 <li><p>数据报(datagram)<br>面向无连接的数据传输，其工作过程类似于报文交换。采用数据报方式传输时，被传输的分组称为数据报。通常是指起始点和目的地都使用无连接网络服务的网络层的信息单元。(指IP数据报)</p>
 </li>
@@ -557,6 +557,14 @@
 <li>链路层——帧（frame）</li>
 <li>物理层——P-PDU（bit）</li>
 </ol>
+<hr>
+<h4 id="各层间数据传递"><a href="#各层间数据传递" class="headerlink" title="各层间数据传递"></a>各层间数据传递</h4><ul>
+<li>不同的协议层对数据包有不同的称谓，在传输层叫做段(segment)，在⽹络层叫做数据报 (datagram)，在链路层叫做帧(frame)。</li>
+<li>应⽤层数据通过协议栈发到⽹络上时，每层协议都要加上⼀个数据⾸部(header)，称为封装 (Encapsulation)。</li>
+<li>⾸部信息中包含了⼀些类似于⾸部有多⻓，载荷(payload)有多⻓，上层协议是什么等信息。</li>
+<li>数据封装成帧后发到传输介质上，到达⽬的主机后每层协议再剥掉相应的⾸部，根据⾸部中的 “上层协议字段” 将数据交给对应的上层协议处理。</li>
+</ul>
+<p><img src="/2025/02/12/%E6%95%B0%E6%8D%AE%E5%8C%85%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/NetworkPacket.png" alt="图片2" title="Dissecting a Network Packet"></p>
 <hr>
 <h4 id="数据包的单位"><a href="#数据包的单位" class="headerlink" title="数据包的单位"></a>数据包的单位</h4><p>Maximum Transmission Unit：最大传输单元，链路层的帧中的数据部分的最大字节数，以太网中的一般为1500字节。</p>
 <p>Maximum Segment Size：最大报文段大小，TCP的报文段中的数据部分的最大字节数，MTU减去IPv4的Header和TCP的Header。IPv4的Header和TCP的Header一般都是20字节，则MSS&#x3D;1500-20-20 &#x3D; 1460字节。</p>
@@ -622,7 +630,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-24 13:49:06" itemprop="dateModified" datetime="2025-02-24T13:49:06+08:00">2025-02-24</time>
+                <time title="Modified: 2025-02-25 13:55:41" itemprop="dateModified" datetime="2025-02-25T13:55:41+08:00">2025-02-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -660,11 +668,14 @@
 </ul>
 <h4 id="2-传输层"><a href="#2-传输层" class="headerlink" title="2. 传输层"></a>2. 传输层</h4><p>传输层负责在源主机和目标主机之间建立数据传输通道。它提供了可靠的数据传输服务，确保数据的正确传输顺序和可靠性。TCP协议就是传输层协议的一种，它提供了可靠的、面向连接的数据传输服务。</p>
 <h4 id="3-网络层"><a href="#3-网络层" class="headerlink" title="3. 网络层"></a>3. 网络层</h4><p>网络层负责在网络上寻址和路由数据包。它定义了数据在网络中的传输路径，使得数据可以从源主机传输到目标主机。常见的网络层协议有IP协议。</p>
+<ul>
+<li><strong>地址解析协议</strong><br>ARP（Address Resolution Protocol，地址解析协议）是用来将IP地址解析为MAC地址的协议。主机或三层网络设备上会维护一张ARP表，用于存储IP地址和MAC地址的映射关系</li>
+</ul>
 <h4 id="4-数据链路层"><a href="#4-数据链路层" class="headerlink" title="4. 数据链路层"></a>4. 数据链路层</h4><p>数据链路层协议负责将网络层传输的数据分组封装成帧，传输到物理层，并通过物理介质进行传输。它负责数据的分段和重新组装，以及物理介质的访问控制。常见的数据链路层协议有以太网协议。</p>
 <ul>
 <li><strong>以太网帧</strong><br><img src="/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/ethernet-frame-format.png"></li>
 </ul>
-<p>在以太网帧中，<em>Destination Address(目的地址)<em>放在最前面。接收方收到一个以太网帧后，最先处理</em>Destination Address</em>字段。如果发现该帧不是发给自己的，后面的字段以及数据就不需要处理了。</p>
+<p>在以太网链路上的数据包称作以太帧。以太帧起始部分由前导码和帧开始符组成。后面紧跟着一个以太网报头，以MAC地址说明目的地址和源地址。帧的中部是该帧负载的包含其他协议报头的数据包（例如IP协议）。以太帧由一个32位冗余校验码结尾。它用于检验数据传输是否出现损坏。<br>在以太网帧中，<em>Destination Address(目的地址)<em>放在最前面。接收方收到一个以太网帧后，最先处理</em>Destination Address</em>字段。如果发现该帧不是发给自己的，后面的字段以及数据就不需要处理了。</p>
 <p>什么是帧间距（IFG）</p>
 <p>网络设备和组件在接收一个帧之后，需要一段短暂的时间来恢复并为接收下一帧.做准备互联网帧间隙共20字节，包括：</p>
 <ul>
@@ -674,13 +685,8 @@
 </ul>
 <h4 id="5-物理层"><a href="#5-物理层" class="headerlink" title="5. 物理层"></a>5. 物理层</h4><p>物理层是网络通信的最底层，它负责在物理介质上传输比特流。它定义了物理连接的特性，如电压、频率等。常见的物理层介质有光纤、双绞线等。</p>
 <hr>
-<h4 id="各层间数据传递"><a href="#各层间数据传递" class="headerlink" title="各层间数据传递"></a>各层间数据传递</h4><ul>
-<li>不同的协议层对数据包有不同的称谓，在传输层叫做段(segment)，在⽹络层叫做数据报 (datagram)，在链路层叫做帧(frame)。</li>
-<li>应⽤层数据通过协议栈发到⽹络上时，每层协议都要加上⼀个数据⾸部(header)，称为封装 (Encapsulation)。</li>
-<li>⾸部信息中包含了⼀些类似于⾸部有多⻓，载荷(payload)有多⻓，上层协议是什么等信息。</li>
-<li>数据封装成帧后发到传输介质上，到达⽬的主机后每层协议再剥掉相应的⾸部，根据⾸部中的 “上层协议字段” 将数据交给对应的上层协议处理。</li>
-</ul>
-<p><img src="/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/NetworkPacket.png" alt="图片2" title="Dissecting a Network Packet"></p>
+<h1 id="二层设备和三层设备"><a href="#二层设备和三层设备" class="headerlink" title="二层设备和三层设备"></a>二层设备和三层设备</h1><p>二层设备是工作数据链路层的设备。二层交换机可以识别数据包中的MAC地址信息，根据MAC地址进行转发，并将这些MAC地址与对应的端口记录在自己内部的一个地址表中。具体的工作流程如下：<br>（1） 当交换机从某个端口收到一个数据包，它先读取包头中的源MAC地址，这样它就知道源MAC地址的机器是连在哪个端口上的；<br>（2） 再去读取包头中的目的MAC地址，并在地址表中查找相应的端口；<br>（3） 如表中有与这目的MAC地址对应的端口，把数据包直接复制到这端口上；<br>（4） 如表中找不到相应的端口则把数据包广播到所有端口上，当目的机器对源机器回应时，交换机又可以学习一目的MAC地址与哪个端口对应，在下次传送数据时就不再需要对所有端口进行广播了。<br>不断的循环这个过程，对于全网的MAC地址信息都可以学习到，二层交换机就是这样建立和维护它自己的地址表。</p>
+<p>三层设备是工作在网络层的设备。路由器是最常用的三层设备，利用不同网络的ID号（即IP地址）来确定数据转发的地址。IP地址是在软件中实现的，描述的是设备所在的网络，有时这些第三层的地址也称为协议地址或者网络地址。</p>
 <hr>
 <h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>详解TCP&#x2F;IP五层网络模型：<a target="_blank" rel="noopener" href="https://blog.csdn.net/2201_75437633/article/details/137373813">https://blog.csdn.net/2201_75437633/article/details/137373813</a></p>
 <hr>
