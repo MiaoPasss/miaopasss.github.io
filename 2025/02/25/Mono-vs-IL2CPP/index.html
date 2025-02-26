@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Common Language Runtime公共语言运行时 VM和LR其实比较类似，有人说LR的创建就是为了对标VM。简单来说，就是一个程序运行所需要的环境，包括各种资源、各种操作等等。不同语言、不同操作系统所需要的运行时环境都不一样。举个例子，Windows上的可执行程序都被包装成了.exe格式，而这种.exe格式文件提供了一个程序从加载到运行所需要的所有资源和环境。 而CLR提供了：  一个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mono vs. IL2CPP">
+<meta property="og:url" content="https://miaopasss.github.io/2025/02/25/Mono-vs-IL2CPP/index.html">
+<meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
+<meta property="og:description" content="Common Language Runtime公共语言运行时 VM和LR其实比较类似，有人说LR的创建就是为了对标VM。简单来说，就是一个程序运行所需要的环境，包括各种资源、各种操作等等。不同语言、不同操作系统所需要的运行时环境都不一样。举个例子，Windows上的可执行程序都被包装成了.exe格式，而这种.exe格式文件提供了一个程序从加载到运行所需要的所有资源和环境。 而CLR提供了：  一个">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://miaopasss.github.io/2025/02/25/Mono-vs-IL2CPP/CLR.png">
+<meta property="article:published_time" content="2025-02-25T09:50:04.000Z">
+<meta property="article:modified_time" content="2025-02-26T06:57:55.132Z">
+<meta property="article:author" content="Haotian Luo">
+<meta property="article:tag" content="Unity引擎">
+<meta property="article:tag" content="编译器">
+<meta property="article:tag" content="运行环境">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://miaopasss.github.io/2025/02/25/Mono-vs-IL2CPP/CLR.png">
+
+<link rel="canonical" href="https://miaopasss.github.io/2025/02/25/Mono-vs-IL2CPP/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Mono vs. IL2CPP | 乌啦呀哈呀哈乌啦！</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">乌啦呀哈呀哈乌啦！</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">欢迎光临，这里是喵pass的个人博客，希望有能帮到你的地方
+</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页 | Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类 | Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签 | Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档 | Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/miaopasss" class="github-corner" title="Check out my GitHub" aria-label="Check out my GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/25/Mono-vs-IL2CPP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Mono vs. IL2CPP
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-25 17:50:04" itemprop="dateCreated datePublished" datetime="2025-02-25T17:50:04+08:00">2025-02-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-26 14:57:55" itemprop="dateModified" datetime="2025-02-26T14:57:55+08:00">2025-02-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C-%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">C#编程</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Common-Language-Runtime"><a href="#Common-Language-Runtime" class="headerlink" title="Common Language Runtime"></a>Common Language Runtime</h1><p>公共语言运行时</p>
+<p>VM和LR其实比较类似，有人说LR的创建就是为了对标VM。简单来说，就是一个程序运行所需要的环境，包括各种资源、各种操作等等。不同语言、不同操作系统所需要的运行时环境都不一样。举个例子，Windows上的可执行程序都被包装成了.exe格式，而这种.exe格式文件提供了一个程序从加载到运行所需要的所有资源和环境。</p>
+<p>而CLR提供了：</p>
+<ol>
+<li>一个支持GC的虚拟机，该虚拟机有自己的一套指令集，即CIL（公共中间语言，COmmon Intermediate Language）。高级语言最终会转化成CIL，</li>
+<li>一种丰富的元数据表示，用来描述数据类型、字段、方法等。通过这些统一的描述方法来生成对应的程序。</li>
+<li>一种文件格式，一种专属的不于操作系统和硬件绑定的格式，即跨平台。</li>
+<li>一套类库，提供了垃圾回收、异常、泛型等基本功能，提供了字符串、数组、列表、字典等数据结构，提供了文件、网络、交互等操作系统功能。</li>
+<li>一系列规则，定制了在运行时如果查找引用其他文件、生命周期等一系列规则。</li>
+</ol>
+<p><img src="/2025/02/25/Mono-vs-IL2CPP/CLR.png" title="高级语言、CLR与CIL之间的关系"> <br></p>
+<h2 id="Common-Language-Specification"><a href="#Common-Language-Specification" class="headerlink" title="Common Language Specification"></a>Common Language Specification</h2><p>CLR最大的优势就在于跨语言跨平台支持。目前微软已经为多种语言开发旅了基于CLR的编译器，包括C++、C#、Visual Basic、F#、Iron Python、 Iron Ruby和IL。还有一些大学、公司和机构为一些语言也开发了基于CLR的编译器，包括da、APL、Caml、COBOL、Eiffel、Forth、Fortran、Haskell、Lexicon、LISP、LOGO、Lua、Mercury、ML、Mondrian、Oberon、Pascal、Perl、PHP、Prolog、RPG、Scheme、Smaltak、Tcl&#x2F;Tk等。<br>CLR为不同的编程语言提供了统一的运行平台，对于开发者来说，他们无需考虑平台运行问题，无论使用什么语言开发，最终都会编译成IL，供CLR运行。对于CLR来说，它并不知道也无需知道IL是从什么语言编译过来的。</p>
+<p>但是这么多种各式各样的语言最终都要编译成IL，肯定需要一种规范，CLS就是用来规范语言的。CLS全称Common Language Specification，即公共语言规范。也就是说所有被CLR支持的高级语言都需要最少支持CLS所规定的功能集。只要高级语言最少支持了CLS之后，其它附加功能&#x2F;特性可自行实现。</p>
+<h2 id="Managed-Code"><a href="#Managed-Code" class="headerlink" title="Managed Code"></a>Managed Code</h2><p>C#中的托管代码是指由.NET运行时环境（CLR）管理和执行的代码。当我们使用C#编写的代码被编译后，它会被转换成中间语言（IL）代码，也称为托管代码。托管代码在运行时由CLR加载和执行，CLR负责内存管理、垃圾回收、安全性等任务，开发者无需过度关注资源的释放。其实可以从字面上理解，托管代码委托给CLR进行管理，开发者不管。<br>而至于非托管代码是指不受CLR管理的代码，通常是使用其他编程语言（如C++）编写的代码，比如操作系统代码、C#中的Socket、Stream等，这些代码无法通过CLR的GC完全释放占用的资源。一般来说，非托管的功能都被包装过了，比如当我们访问文件的时候，肯定不会直接使用操作系统的CreateFile函数，而是使用System.IO.File类。</p>
+<p>托管代码具有以下特点：<br>自动内存管理：CLR负责分配和释放内存，开发人员无需手动管理内存。<br>垃圾回收：CLR会自动检测和回收不再使用的对象，减少内存泄漏的风险。<br>安全性：CLR提供了安全性机制，确保代码的执行不会对系统造成损害。<br>跨平台：托管代码可以在不同的操作系统上运行，只要有对应的CLR。</p>
+<p>相对应的，非托管代码直接操作计算机的硬件和操作系统资源，需要手动管理内存和资源的分配和释放。非托管代码在性能方面可能更高效，但也更容易出现内存泄漏和安全问题。C#可以通过使用InteropServices命名空间中的功能与非托管代码进行交互，这样可以在C#中调用非托管代码的功能。</p>
+<h2 id="FCL"><a href="#FCL" class="headerlink" title="FCL"></a>FCL</h2><p>The Framework Class Library or FCL provides the system functionality in the .NET Framework as it has various classes, data types, interfaces, etc. to build different types of applications including desktop applications, web applications, mobile applications. The Framework Class Library is integrated with the Common Language Runtime (CLR) and is used by all the .NET languages such as C#, F#, Visual Basic .NET, etc. </p>
+<h3 id="BCL-vs-FCL"><a href="#BCL-vs-FCL" class="headerlink" title="BCL vs. FCL"></a>BCL vs. FCL</h3><ul>
+<li>The Base Class Library (BCL) is literally that, the base. It contains basic, fundamental types like System.String and System.DateTime.</li>
+<li>The Framework Class Library (FCL) is the wider library that contains the totality: ASP.NET（web application framework 对标 Node.js）, WinForms, the XML stack, ADO.NET and more. You could say that the FCL includes the BCL.</li>
+</ul>
+<h1 id="C-Compilers"><a href="#C-Compilers" class="headerlink" title="C# Compilers"></a>C# Compilers</h1><p>C#源文件通过编译器（如CSC.exe）编译成中间语言（IL）和元数据，生成.exe或.dll文件。IL是一种伪代码，独立于任何CPU，可以在任何装有.Net Framework的机器上运行‌</p>
+<p>Common Intermediate Language (CIL), formerly called Microsoft Intermediate Language (MSIL) or Intermediate Language (IL) is the intermediate language binary instruction set defined within the Common Language Infrastructure (CLI) specification. CIL instructions are executed by a CIL-compatible runtime environment such as the Common Language Runtime. Languages which target the CLI compile to CIL. CIL is object-oriented, stack-based bytecode. Runtimes typically just-in-time compile CIL instructions into native code.</p>
+<ul>
+<li><strong>Just In Time compiler</strong><br>即时编译。当程序运行时，IL通过CLR中的即时编译器(JIT)将CIL的byte code编译为目标平台的原生码(针对特定CPU的机械码)。JIT编译是在程序运行时进行的，确保了代码的可移植性和执行效率‌程序运行过程中。</li>
+<li><strong>Ahead Of Time compiler</strong><br>提前编译。程序运行之前，提前编译器(AOT)将C#源码直接编译为目标平台的原生码并且存储。这种方式通常用于生成本地应用程序，提高启动速度和性能‌。</li>
+</ul>
+<p>将.exe或.dll文件中的CIL的byte code</p>
+<h2 id="Unity-compiler"><a href="#Unity-compiler" class="headerlink" title="Unity compiler"></a>Unity compiler</h2><p>Unity编译C#脚本的过程通常是自动进行的，当你在Unity编辑器中构建项目时（比如导出为执行文件或者打包为Android&#x2F;iOS应用），Unity会编译所有C#脚本。<br>如果你需要在Unity编辑器外部编译C#代码，你可以使用Mono的mcs编译器或者.NET Core SDK。</p>
+<p>以下是使用mcs编译器的基本命令行示例：</p>
+<blockquote>
+<p>mcs -out:YourGame.exe -recurse:*.cs</p>
+</blockquote>
+<h1 id="Mono"><a href="#Mono" class="headerlink" title="Mono"></a>Mono</h1><p>Mono, the open source development platform based on the .NET Framework, helps developers to build cross-platform applications. Mono’s .NET implementation is based on the ECMA standards for C# and the Common Language Infrastructure. Mono was originally reimplementation of the .NET for linux. Today is much more.</p>
+<h2 id="Unity-Mono"><a href="#Unity-Mono" class="headerlink" title="Unity Mono"></a>Unity Mono</h2><p>The Mono scripting backend compiles code at runtime, with a technique called just-in-time compilation (JIT). Unity uses a fork of the open source Mono project.<br>Some platforms don’t support JIT compilation, so the Mono backend doesn’t work on every platform. Other platforms support JIT and Mono but not ahead-of-time compilation (AOT), and so can’t support the IL2CPP backend. When a platform can support both backends, Mono is the default.</p>
+<h1 id="IL2CPP"><a href="#IL2CPP" class="headerlink" title="IL2CPP"></a>IL2CPP</h1><p>The IL2CPP backend converts MSIL (Microsoft Intermediate Language) code (for example, C# code in scripts) into C++ code, then uses the C++ code to create a native binary file (for example, .exe, .apk, or .xap) for your chosen platform. This type of compilation, in which Unity compiles code specifically for a target platform when it builds the native binary, is called ahead-of-time (AOT) compilation.</p>
+<h2 id="How-IL2CPP-works"><a href="#How-IL2CPP-works" class="headerlink" title="How IL2CPP works"></a>How IL2CPP works</h2><ol>
+<li>The Roslyn C# compiler compiles your application’s C# code and any required package code to .NET DLLs (managed assemblies).</li>
+<li>Unity applies managed bytecode stripping（代码裁剪）. This step can significantly reduce the size of a built application.</li>
+<li>The IL2CPP backend converts all managed assemblies into standard C++ code.</li>
+<li>The C++ compiler compiles the generated C++ code and the runtime part of IL2CPP with a native platform compiler.</li>
+<li>Unity creates either an executable file or a DLL, depending on the platform you target.</li>
+</ol>
+<h1 id="Mono-vs-IL2CPP-on-Unity"><a href="#Mono-vs-IL2CPP-on-Unity" class="headerlink" title="Mono vs. IL2CPP on Unity"></a>Mono vs. IL2CPP on Unity</h1><p>Unity中C#代码的处理过程</p>
+<ol>
+<li><p>编写C#代码：<br>开发者在Unity编辑器中编写C#脚本，这些脚本通常用于实现游戏逻辑、控制角色行为、处理用户输入等。</p>
+</li>
+<li><p>编译C#代码：<br>当开发者在Unity中保存C#脚本时，Unity会自动触发编译过程。Unity使用Mono或IL2CPP作为其脚本引擎。<br>Mono：在使用Mono时，Unity会将C#代码编译成CIL（Common Intermediate Language）。这个过程是在Unity编辑器中完成的，生成的CIL代码会被打包到Unity的可执行文件中。<br>IL2CPP：如果选择使用IL2CPP，Unity会将C#代码首先编译为CIL，然后将CIL代码转换为C++代码，最后再编译为本地机器代码。IL2CPP的主要优点是可以提高性能和安全性。</p>
+</li>
+<li><p>生成的CIL代码：<br>生成的CIL代码会被打包到Unity的可执行文件中，通常是一个DLL文件。这个DLL文件包含了所有的游戏逻辑和功能。</p>
+</li>
+<li><p>构建过程：<br>在构建游戏时，Unity会将所有的资源（如纹理、模型、音频等）和编译后的CIL代码打包成一个可执行文件（如EXE、APK、IPA等），具体取决于目标平台。<br>Unity的构建系统会处理所有的依赖关系，确保所有需要的资源和代码都包含在最终的构建中。</p>
+</li>
+<li><p>运行时执行：<br>当用户运行构建的游戏时，Unity的运行时环境会加载可执行文件。<br>如果使用Mono，运行时会在需要时将CIL代码即时编译为本地机器代码（JIT编译）。如果使用IL2CPP，CIL代码已经在构建时转换为本地机器代码，因此可以直接执行。<br>运行时会管理内存、处理输入、渲染图形等，确保游戏的正常运行。</p>
+</li>
+<li><p>总结<br>在Unity中，开发者编写的C#代码会经过编译过程，生成CIL代码，并在构建时打包到可执行文件中。Unity使用Mono或IL2CPP作为脚本引擎，分别通过JIT编译或AOT编译将CIL代码转换为本地机器代码。这个过程使得Unity能够在不同平台上运行相同的代码，同时也为开发者提供了灵活的开发环境。</p>
+</li>
+</ol>
+<h2 id="Cross-platform"><a href="#Cross-platform" class="headerlink" title="Cross-platform"></a>Cross-platform</h2><p>Mono运行时编译器支持将IL代码转为对应平台原生码<br>IL可以在任何支持CLI，通用语言环境的平台上运行，IL的运行是依托于Mono运行时。</p>
+<h2 id="IOS-Platform"><a href="#IOS-Platform" class="headerlink" title="IOS Platform"></a>IOS Platform</h2><p>IOS不支持动态生成的代码具有执行权限，而通常jit就是运行过程中动态编译代码为机器码并缓存&#x2F;执行（Mono运行时将IL编译成机械码），即封存了内存的可执行权限，变相的封锁了jit编译方式</p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>CLR简介：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_42186870/article/details/119621977/">https://blog.csdn.net/weixin_42186870/article/details/119621977/</a><br>Mono简介：<a target="_blank" rel="noopener" href="https://www.mono-project.com/docs/about-mono/">https://www.mono-project.com/docs/about-mono/</a><br>IL2CPP简介：<a target="_blank" rel="noopener" href="https://docs.unity3d.com/6000.0/Documentation/Manual/scripting-backends-il2cpp.html">https://docs.unity3d.com/6000.0/Documentation/Manual/scripting-backends-il2cpp.html</a><br>IOS平台代码热更：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_33060405/article/details/144314440">https://blog.csdn.net/qq_33060405/article/details/144314440</a></p>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Unity%E5%BC%95%E6%93%8E/" rel="tag"># Unity引擎</a>
+              <a href="/tags/%E7%BC%96%E8%AF%91%E5%99%A8/" rel="tag"># 编译器</a>
+              <a href="/tags/%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83/" rel="tag"># 运行环境</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/02/24/CNAME%E5%92%8CDNS/" rel="prev" title="CNAME和DNS">
+      <i class="fa fa-chevron-left"></i> CNAME和DNS
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Common-Language-Runtime"><span class="nav-number">1.</span> <span class="nav-text">Common Language Runtime</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Common-Language-Specification"><span class="nav-number">1.1.</span> <span class="nav-text">Common Language Specification</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Managed-Code"><span class="nav-number">1.2.</span> <span class="nav-text">Managed Code</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FCL"><span class="nav-number">1.3.</span> <span class="nav-text">FCL</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BCL-vs-FCL"><span class="nav-number">1.3.1.</span> <span class="nav-text">BCL vs. FCL</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#C-Compilers"><span class="nav-number">2.</span> <span class="nav-text">C# Compilers</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Unity-compiler"><span class="nav-number">2.1.</span> <span class="nav-text">Unity compiler</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Mono"><span class="nav-number">3.</span> <span class="nav-text">Mono</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Unity-Mono"><span class="nav-number">3.1.</span> <span class="nav-text">Unity Mono</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IL2CPP"><span class="nav-number">4.</span> <span class="nav-text">IL2CPP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#How-IL2CPP-works"><span class="nav-number">4.1.</span> <span class="nav-text">How IL2CPP works</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Mono-vs-IL2CPP-on-Unity"><span class="nav-number">5.</span> <span class="nav-text">Mono vs. IL2CPP on Unity</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Cross-platform"><span class="nav-number">5.1.</span> <span class="nav-text">Cross-platform</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IOS-Platform"><span class="nav-number">5.2.</span> <span class="nav-text">IOS Platform</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number">6.</span> <span class="nav-text">Credits</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Haotian Luo"
+      src="/images/exciting-usagi.gif">
+  <p class="site-author-name" itemprop="name">Haotian Luo</p>
+  <div class="site-description" itemprop="description"><font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/miaopasss" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;miaopasss" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hubery.luo@icloud.com" title="E-Mail → mailto:hubery.luo@icloud.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Haotian Luo</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/02/25/Mono-vs-IL2CPP/',]
+      });
+      });
+  </script>
+
+</body>
+</html>

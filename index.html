@@ -161,6 +161,148 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/25/Mono-vs-IL2CPP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/25/Mono-vs-IL2CPP/" class="post-title-link" itemprop="url">Mono vs. IL2CPP</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-25 17:50:04" itemprop="dateCreated datePublished" datetime="2025-02-25T17:50:04+08:00">2025-02-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-26 14:57:55" itemprop="dateModified" datetime="2025-02-26T14:57:55+08:00">2025-02-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C-%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">C#编程</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Common-Language-Runtime"><a href="#Common-Language-Runtime" class="headerlink" title="Common Language Runtime"></a>Common Language Runtime</h1><p>公共语言运行时</p>
+<p>VM和LR其实比较类似，有人说LR的创建就是为了对标VM。简单来说，就是一个程序运行所需要的环境，包括各种资源、各种操作等等。不同语言、不同操作系统所需要的运行时环境都不一样。举个例子，Windows上的可执行程序都被包装成了.exe格式，而这种.exe格式文件提供了一个程序从加载到运行所需要的所有资源和环境。</p>
+<p>而CLR提供了：</p>
+<ol>
+<li>一个支持GC的虚拟机，该虚拟机有自己的一套指令集，即CIL（公共中间语言，COmmon Intermediate Language）。高级语言最终会转化成CIL，</li>
+<li>一种丰富的元数据表示，用来描述数据类型、字段、方法等。通过这些统一的描述方法来生成对应的程序。</li>
+<li>一种文件格式，一种专属的不于操作系统和硬件绑定的格式，即跨平台。</li>
+<li>一套类库，提供了垃圾回收、异常、泛型等基本功能，提供了字符串、数组、列表、字典等数据结构，提供了文件、网络、交互等操作系统功能。</li>
+<li>一系列规则，定制了在运行时如果查找引用其他文件、生命周期等一系列规则。</li>
+</ol>
+<p><img src="/2025/02/25/Mono-vs-IL2CPP/CLR.png" title="高级语言、CLR与CIL之间的关系"> <br></p>
+<h2 id="Common-Language-Specification"><a href="#Common-Language-Specification" class="headerlink" title="Common Language Specification"></a>Common Language Specification</h2><p>CLR最大的优势就在于跨语言跨平台支持。目前微软已经为多种语言开发旅了基于CLR的编译器，包括C++、C#、Visual Basic、F#、Iron Python、 Iron Ruby和IL。还有一些大学、公司和机构为一些语言也开发了基于CLR的编译器，包括da、APL、Caml、COBOL、Eiffel、Forth、Fortran、Haskell、Lexicon、LISP、LOGO、Lua、Mercury、ML、Mondrian、Oberon、Pascal、Perl、PHP、Prolog、RPG、Scheme、Smaltak、Tcl&#x2F;Tk等。<br>CLR为不同的编程语言提供了统一的运行平台，对于开发者来说，他们无需考虑平台运行问题，无论使用什么语言开发，最终都会编译成IL，供CLR运行。对于CLR来说，它并不知道也无需知道IL是从什么语言编译过来的。</p>
+<p>但是这么多种各式各样的语言最终都要编译成IL，肯定需要一种规范，CLS就是用来规范语言的。CLS全称Common Language Specification，即公共语言规范。也就是说所有被CLR支持的高级语言都需要最少支持CLS所规定的功能集。只要高级语言最少支持了CLS之后，其它附加功能&#x2F;特性可自行实现。</p>
+<h2 id="Managed-Code"><a href="#Managed-Code" class="headerlink" title="Managed Code"></a>Managed Code</h2><p>C#中的托管代码是指由.NET运行时环境（CLR）管理和执行的代码。当我们使用C#编写的代码被编译后，它会被转换成中间语言（IL）代码，也称为托管代码。托管代码在运行时由CLR加载和执行，CLR负责内存管理、垃圾回收、安全性等任务，开发者无需过度关注资源的释放。其实可以从字面上理解，托管代码委托给CLR进行管理，开发者不管。<br>而至于非托管代码是指不受CLR管理的代码，通常是使用其他编程语言（如C++）编写的代码，比如操作系统代码、C#中的Socket、Stream等，这些代码无法通过CLR的GC完全释放占用的资源。一般来说，非托管的功能都被包装过了，比如当我们访问文件的时候，肯定不会直接使用操作系统的CreateFile函数，而是使用System.IO.File类。</p>
+<p>托管代码具有以下特点：<br>自动内存管理：CLR负责分配和释放内存，开发人员无需手动管理内存。<br>垃圾回收：CLR会自动检测和回收不再使用的对象，减少内存泄漏的风险。<br>安全性：CLR提供了安全性机制，确保代码的执行不会对系统造成损害。<br>跨平台：托管代码可以在不同的操作系统上运行，只要有对应的CLR。</p>
+<p>相对应的，非托管代码直接操作计算机的硬件和操作系统资源，需要手动管理内存和资源的分配和释放。非托管代码在性能方面可能更高效，但也更容易出现内存泄漏和安全问题。C#可以通过使用InteropServices命名空间中的功能与非托管代码进行交互，这样可以在C#中调用非托管代码的功能。</p>
+<h2 id="FCL"><a href="#FCL" class="headerlink" title="FCL"></a>FCL</h2><p>The Framework Class Library or FCL provides the system functionality in the .NET Framework as it has various classes, data types, interfaces, etc. to build different types of applications including desktop applications, web applications, mobile applications. The Framework Class Library is integrated with the Common Language Runtime (CLR) and is used by all the .NET languages such as C#, F#, Visual Basic .NET, etc. </p>
+<h3 id="BCL-vs-FCL"><a href="#BCL-vs-FCL" class="headerlink" title="BCL vs. FCL"></a>BCL vs. FCL</h3><ul>
+<li>The Base Class Library (BCL) is literally that, the base. It contains basic, fundamental types like System.String and System.DateTime.</li>
+<li>The Framework Class Library (FCL) is the wider library that contains the totality: ASP.NET（web application framework 对标 Node.js）, WinForms, the XML stack, ADO.NET and more. You could say that the FCL includes the BCL.</li>
+</ul>
+<h1 id="C-Compilers"><a href="#C-Compilers" class="headerlink" title="C# Compilers"></a>C# Compilers</h1><p>C#源文件通过编译器（如CSC.exe）编译成中间语言（IL）和元数据，生成.exe或.dll文件。IL是一种伪代码，独立于任何CPU，可以在任何装有.Net Framework的机器上运行‌</p>
+<p>Common Intermediate Language (CIL), formerly called Microsoft Intermediate Language (MSIL) or Intermediate Language (IL) is the intermediate language binary instruction set defined within the Common Language Infrastructure (CLI) specification. CIL instructions are executed by a CIL-compatible runtime environment such as the Common Language Runtime. Languages which target the CLI compile to CIL. CIL is object-oriented, stack-based bytecode. Runtimes typically just-in-time compile CIL instructions into native code.</p>
+<ul>
+<li><strong>Just In Time compiler</strong><br>即时编译。当程序运行时，IL通过CLR中的即时编译器(JIT)将CIL的byte code编译为目标平台的原生码(针对特定CPU的机械码)。JIT编译是在程序运行时进行的，确保了代码的可移植性和执行效率‌程序运行过程中。</li>
+<li><strong>Ahead Of Time compiler</strong><br>提前编译。程序运行之前，提前编译器(AOT)将C#源码直接编译为目标平台的原生码并且存储。这种方式通常用于生成本地应用程序，提高启动速度和性能‌。</li>
+</ul>
+<p>将.exe或.dll文件中的CIL的byte code</p>
+<h2 id="Unity-compiler"><a href="#Unity-compiler" class="headerlink" title="Unity compiler"></a>Unity compiler</h2><p>Unity编译C#脚本的过程通常是自动进行的，当你在Unity编辑器中构建项目时（比如导出为执行文件或者打包为Android&#x2F;iOS应用），Unity会编译所有C#脚本。<br>如果你需要在Unity编辑器外部编译C#代码，你可以使用Mono的mcs编译器或者.NET Core SDK。</p>
+<p>以下是使用mcs编译器的基本命令行示例：</p>
+<blockquote>
+<p>mcs -out:YourGame.exe -recurse:*.cs</p>
+</blockquote>
+<h1 id="Mono"><a href="#Mono" class="headerlink" title="Mono"></a>Mono</h1><p>Mono, the open source development platform based on the .NET Framework, helps developers to build cross-platform applications. Mono’s .NET implementation is based on the ECMA standards for C# and the Common Language Infrastructure. Mono was originally reimplementation of the .NET for linux. Today is much more.</p>
+<h2 id="Unity-Mono"><a href="#Unity-Mono" class="headerlink" title="Unity Mono"></a>Unity Mono</h2><p>The Mono scripting backend compiles code at runtime, with a technique called just-in-time compilation (JIT). Unity uses a fork of the open source Mono project.<br>Some platforms don’t support JIT compilation, so the Mono backend doesn’t work on every platform. Other platforms support JIT and Mono but not ahead-of-time compilation (AOT), and so can’t support the IL2CPP backend. When a platform can support both backends, Mono is the default.</p>
+<h1 id="IL2CPP"><a href="#IL2CPP" class="headerlink" title="IL2CPP"></a>IL2CPP</h1><p>The IL2CPP backend converts MSIL (Microsoft Intermediate Language) code (for example, C# code in scripts) into C++ code, then uses the C++ code to create a native binary file (for example, .exe, .apk, or .xap) for your chosen platform. This type of compilation, in which Unity compiles code specifically for a target platform when it builds the native binary, is called ahead-of-time (AOT) compilation.</p>
+<h2 id="How-IL2CPP-works"><a href="#How-IL2CPP-works" class="headerlink" title="How IL2CPP works"></a>How IL2CPP works</h2><ol>
+<li>The Roslyn C# compiler compiles your application’s C# code and any required package code to .NET DLLs (managed assemblies).</li>
+<li>Unity applies managed bytecode stripping（代码裁剪）. This step can significantly reduce the size of a built application.</li>
+<li>The IL2CPP backend converts all managed assemblies into standard C++ code.</li>
+<li>The C++ compiler compiles the generated C++ code and the runtime part of IL2CPP with a native platform compiler.</li>
+<li>Unity creates either an executable file or a DLL, depending on the platform you target.</li>
+</ol>
+<h1 id="Mono-vs-IL2CPP-on-Unity"><a href="#Mono-vs-IL2CPP-on-Unity" class="headerlink" title="Mono vs. IL2CPP on Unity"></a>Mono vs. IL2CPP on Unity</h1><p>Unity中C#代码的处理过程</p>
+<ol>
+<li><p>编写C#代码：<br>开发者在Unity编辑器中编写C#脚本，这些脚本通常用于实现游戏逻辑、控制角色行为、处理用户输入等。</p>
+</li>
+<li><p>编译C#代码：<br>当开发者在Unity中保存C#脚本时，Unity会自动触发编译过程。Unity使用Mono或IL2CPP作为其脚本引擎。<br>Mono：在使用Mono时，Unity会将C#代码编译成CIL（Common Intermediate Language）。这个过程是在Unity编辑器中完成的，生成的CIL代码会被打包到Unity的可执行文件中。<br>IL2CPP：如果选择使用IL2CPP，Unity会将C#代码首先编译为CIL，然后将CIL代码转换为C++代码，最后再编译为本地机器代码。IL2CPP的主要优点是可以提高性能和安全性。</p>
+</li>
+<li><p>生成的CIL代码：<br>生成的CIL代码会被打包到Unity的可执行文件中，通常是一个DLL文件。这个DLL文件包含了所有的游戏逻辑和功能。</p>
+</li>
+<li><p>构建过程：<br>在构建游戏时，Unity会将所有的资源（如纹理、模型、音频等）和编译后的CIL代码打包成一个可执行文件（如EXE、APK、IPA等），具体取决于目标平台。<br>Unity的构建系统会处理所有的依赖关系，确保所有需要的资源和代码都包含在最终的构建中。</p>
+</li>
+<li><p>运行时执行：<br>当用户运行构建的游戏时，Unity的运行时环境会加载可执行文件。<br>如果使用Mono，运行时会在需要时将CIL代码即时编译为本地机器代码（JIT编译）。如果使用IL2CPP，CIL代码已经在构建时转换为本地机器代码，因此可以直接执行。<br>运行时会管理内存、处理输入、渲染图形等，确保游戏的正常运行。</p>
+</li>
+<li><p>总结<br>在Unity中，开发者编写的C#代码会经过编译过程，生成CIL代码，并在构建时打包到可执行文件中。Unity使用Mono或IL2CPP作为脚本引擎，分别通过JIT编译或AOT编译将CIL代码转换为本地机器代码。这个过程使得Unity能够在不同平台上运行相同的代码，同时也为开发者提供了灵活的开发环境。</p>
+</li>
+</ol>
+<h2 id="Cross-platform"><a href="#Cross-platform" class="headerlink" title="Cross-platform"></a>Cross-platform</h2><p>Mono运行时编译器支持将IL代码转为对应平台原生码<br>IL可以在任何支持CLI，通用语言环境的平台上运行，IL的运行是依托于Mono运行时。</p>
+<h2 id="IOS-Platform"><a href="#IOS-Platform" class="headerlink" title="IOS Platform"></a>IOS Platform</h2><p>IOS不支持动态生成的代码具有执行权限，而通常jit就是运行过程中动态编译代码为机器码并缓存&#x2F;执行（Mono运行时将IL编译成机械码），即封存了内存的可执行权限，变相的封锁了jit编译方式</p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>CLR简介：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_42186870/article/details/119621977/">https://blog.csdn.net/weixin_42186870/article/details/119621977/</a><br>Mono简介：<a target="_blank" rel="noopener" href="https://www.mono-project.com/docs/about-mono/">https://www.mono-project.com/docs/about-mono/</a><br>IL2CPP简介：<a target="_blank" rel="noopener" href="https://docs.unity3d.com/6000.0/Documentation/Manual/scripting-backends-il2cpp.html">https://docs.unity3d.com/6000.0/Documentation/Manual/scripting-backends-il2cpp.html</a><br>IOS平台代码热更：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_33060405/article/details/144314440">https://blog.csdn.net/qq_33060405/article/details/144314440</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8CDNS/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -198,7 +340,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-25 15:52:53" itemprop="dateModified" datetime="2025-02-25T15:52:53+08:00">2025-02-25</time>
+                <time title="Modified: 2025-02-26 11:34:59" itemprop="dateModified" datetime="2025-02-26T11:34:59+08:00">2025-02-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -221,32 +363,27 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="域名解析协议-Domain-Name-System"><a href="#域名解析协议-Domain-Name-System" class="headerlink" title="域名解析协议 Domain Name System"></a>域名解析协议 Domain Name System</h2><pre><code>1. 通过域名访问网页
-2. 计算机会先将域名发送到一个解析域名的服务器上
-    2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server)
-    2.2. 域名解析(在服务器上查找IP地址)的过程有两种算法，迭代查询，递归查询。一般是两种查询的结合
-    2.3. 本机计算机找到其中一台解析域名的服务器(可能是.com)，如果没有找到对应的IP地址，那么就会去找根域名服务器，根域名服务器知道所有的子服务器，
-    所以他肯定知道该域名所对应的IP地址在那个子服务器中，所以告诉第一次查询的服务器要他去另一台服务器上找，找到了，就将其返回给计算机，
-    以后在有另一台计算机也通过这个域名访问，那么第一台服务器会有原来的域名IP地址的缓存，就不用去找根服务器了。
-    2.4. 找到了，就能找到我们要访问的服务器了。
-</code></pre>
+          <h1 id="域名解析协议-Domain-Name-System"><a href="#域名解析协议-Domain-Name-System" class="headerlink" title="域名解析协议 Domain Name System"></a>域名解析协议 Domain Name System</h1><ol>
+<li>通过域名访问网页</li>
+<li>计算机会先将域名发送到一个解析域名的服务器上<br> 2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server)<br> 2.2. 域名解析(在服务器上查找IP地址)的过程有两种算法，迭代查询，递归查询。一般是两种查询的结合<br> 2.3. 本机计算机找到其中一台解析域名的服务器(可能是.com)，如果没有找到对应的IP地址，那么就会去找根域名服务器，根域名服务器知道所有的子服务器，<br> 所以他肯定知道该域名所对应的IP地址在那个子服务器中，所以告诉第一次查询的服务器要他去另一台服务器上找，找到了，就将其返回给计算机，<br> 以后在有另一台计算机也通过这个域名访问，那么第一台服务器会有原来的域名IP地址的缓存，就不用去找根服务器了。<br> 2.4. 找到了，就能找到我们要访问的服务器了。</li>
+</ol>
 <hr>
-<h2 id="根域名"><a href="#根域名" class="headerlink" title="根域名"></a>根域名</h2><p><img src="/2025/02/24/CNAME%E5%92%8CDNS/RootDomain.jpg" alt="图片" title="域名结构"><br>Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).</p>
+<h1 id="根域名"><a href="#根域名" class="headerlink" title="根域名"></a>根域名</h1><p><img src="/2025/02/24/CNAME%E5%92%8CDNS/RootDomain.jpg" alt="图片" title="域名结构"><br>Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).</p>
 <hr>
-<h2 id="A-记录"><a href="#A-记录" class="headerlink" title="A 记录"></a>A 记录</h2><p>Address Record indicates the IP address of a given domain. For example, if you pull the DNS records of cloudflare.com, the A record currently returns an IP address of: 104.17.210.9. A records only hold IPv4 addresses. If a website has an IPv6 address, it will instead use an “AAAA” record.</p>
+<h1 id="A-记录"><a href="#A-记录" class="headerlink" title="A 记录"></a>A 记录</h1><p>Address Record indicates the IP address of a given domain. For example, if you pull the DNS records of cloudflare.com, the A record currently returns an IP address of: 104.17.210.9. A records only hold IPv4 addresses. If a website has an IPv6 address, it will instead use an “AAAA” record.</p>
 <p><img src="/2025/02/24/CNAME%E5%92%8CDNS/ARecord.png" alt="图片" title="A记录组成部分"></p>
 <p>The “@” symbol in this example indicates that this is a record for the root domain, and the “14400” value is the TTL (time to live), listed in seconds. The default TTL for A records is 14,400 seconds. This means that if an A record gets updated, it takes 240 minutes (14,400 seconds) to take effect.</p>
 <hr>
-<h2 id="内容分发网络"><a href="#内容分发网络" class="headerlink" title="内容分发网络"></a>内容分发网络</h2><p>内容分发网络 (CDN) 是一个分布在不同地理位置的服务器群，用于缓存靠近最终用户的内容。CDN 可以快速传输加载互联网内容所需的资产，包括 HTML 网页、JavaScript 文件、样式表、图像和视频。</p>
+<h1 id="内容分发网络"><a href="#内容分发网络" class="headerlink" title="内容分发网络"></a>内容分发网络</h1><p>内容分发网络 (CDN) 是一个分布在不同地理位置的服务器群，用于缓存靠近最终用户的内容。CDN 可以快速传输加载互联网内容所需的资产，包括 HTML 网页、JavaScript 文件、样式表、图像和视频。</p>
 <hr>
-<h2 id="CNAME-别名记录"><a href="#CNAME-别名记录" class="headerlink" title="CNAME 别名记录"></a>CNAME 别名记录</h2><p>CNAME记录，也叫别名记录，相当于给A记录中的域名起个小名儿，比如<a href="http://www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：">www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：</a></p>
+<h1 id="CNAME-别名记录"><a href="#CNAME-别名记录" class="headerlink" title="CNAME 别名记录"></a>CNAME 别名记录</h1><p>CNAME记录，也叫别名记录，相当于给A记录中的域名起个小名儿，比如<a href="http://www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：">www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：</a></p>
 <blockquote>
 <p><a target="_blank" rel="noopener" href="http://www.yy.com/">www.yy.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1</p>
 </blockquote>
 <p>这样一来就能通过它的小名儿直接访问1.1.1.1了。</p>
 <br>
 
-<h4 id="多个域名指向同一个地址"><a href="#多个域名指向同一个地址" class="headerlink" title="多个域名指向同一个地址"></a>多个域名指向同一个地址</h4><blockquote>
+<h2 id="多个域名指向同一个地址"><a href="#多个域名指向同一个地址" class="headerlink" title="多个域名指向同一个地址"></a>多个域名指向同一个地址</h2><blockquote>
 <p><a target="_blank" rel="noopener" href="http://www.yy.com/">www.yy.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.cc.com/">www.cc.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.kk.com/">www.kk.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1</p>
 </blockquote>
 <p>突然服务器的IP地址因为一些不可描述的原因要换了，不再是1.1.1.1了，换成了2.2.2.2，这时候你发现，只要把<a href="http://www.xx.com的指向修改一下即可：">www.xx.com的指向修改一下即可：</a></p>
@@ -259,7 +396,7 @@
 </blockquote>
 <br>
 
-<h4 id="使用CDN"><a href="#使用CDN" class="headerlink" title="使用CDN"></a>使用CDN</h4><p>假如你是DD公司老板，你公司中的一台IP为1.1.1.1的服务器，注册了域名为<a target="_blank" rel="noopener" href="http://www.dd.com,要对外提供客户访问.随着公司越做越大,访问量也越来越多,服务器顶不住了,你去找cdn提供商购买cdn加速服务,这个时候他们要求你的域名做个cname指向他们给你的一个域名叫www.dd.cdn.com/">www.dd.com，要对外提供客户访问。随着公司越做越大，访问量也越来越多，服务器顶不住了，你去找CDN提供商购买CDN加速服务，这个时候他们要求你的域名做个CNAME指向他们给你的一个域名叫www.dd.cdn.com</a></p>
+<h2 id="使用CDN"><a href="#使用CDN" class="headerlink" title="使用CDN"></a>使用CDN</h2><p>假如你是DD公司老板，你公司中的一台IP为1.1.1.1的服务器，注册了域名为<a target="_blank" rel="noopener" href="http://www.dd.com,要对外提供客户访问.随着公司越做越大,访问量也越来越多,服务器顶不住了,你去找cdn提供商购买cdn加速服务,这个时候他们要求你的域名做个cname指向他们给你的一个域名叫www.dd.cdn.com/">www.dd.com，要对外提供客户访问。随着公司越做越大，访问量也越来越多，服务器顶不住了，你去找CDN提供商购买CDN加速服务，这个时候他们要求你的域名做个CNAME指向他们给你的一个域名叫www.dd.cdn.com</a></p>
 <blockquote>
 <p><a target="_blank" rel="noopener" href="http://www.dd.com/">www.dd.com</a> → <a target="_blank" rel="noopener" href="http://www.dd.cdn.com/">www.dd.cdn.com</a></p>
 </blockquote>
@@ -324,7 +461,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-19 11:46:53" itemprop="dateModified" datetime="2025-02-19T11:46:53+08:00">2025-02-19</time>
+                <time title="Modified: 2025-02-26 11:36:31" itemprop="dateModified" datetime="2025-02-26T11:36:31+08:00">2025-02-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -348,10 +485,10 @@
 
       
           <h1 id="Unity-2022-3-55f1"><a href="#Unity-2022-3-55f1" class="headerlink" title="Unity 2022.3.55f1"></a>Unity 2022.3.55f1</h1><hr>
-<h4 id="问题：属性-Property-和访问器-Accessor"><a href="#问题：属性-Property-和访问器-Accessor" class="headerlink" title="问题：属性(Property)和访问器(Accessor)"></a>问题：属性(Property)和访问器(Accessor)</h4><p>如果在当前属性中直接添加自定义get和set访问器，在Unity引擎中访问&#x2F;修改此属性时游戏会闪退。</p>
+<h2 id="问题：属性-Property-和访问器-Accessor"><a href="#问题：属性-Property-和访问器-Accessor" class="headerlink" title="问题：属性(Property)和访问器(Accessor)"></a>问题：属性(Property)和访问器(Accessor)</h2><p>如果在当前属性中直接添加自定义get和set访问器，在Unity引擎中访问&#x2F;修改此属性时游戏会闪退。</p>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TestClass</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> TestProperty &#123;</span><br><span class="line">        <span class="keyword">get</span> &#123; <span class="keyword">return</span> TestProperty;&#125;</span><br><span class="line">        <span class="keyword">set</span> &#123;</span><br><span class="line">            TestProperty = <span class="keyword">value</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4><ol>
+<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><ol>
 <li>直接使用默认访问器</li>
 </ol>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">StartPage</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> TestProperty &#123;</span><br><span class="line">        <span class="keyword">get</span>;</span><br><span class="line">        <span class="keyword">set</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -361,10 +498,10 @@
 </ol>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">StartPage</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">int</span> testProperty;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> TestProperty &#123;</span><br><span class="line">        <span class="keyword">get</span> &#123; <span class="keyword">return</span> testProperty;&#125;</span><br><span class="line">        <span class="keyword">set</span> &#123;</span><br><span class="line">            testProperty = <span class="keyword">value</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h4 id="问题：Start函数中使用不当loop循环"><a href="#问题：Start函数中使用不当loop循环" class="headerlink" title="问题：Start函数中使用不当loop循环"></a>问题：Start函数中使用不当loop循环</h4><p>如果在start函数中使用while循环处理资源加载进度条，Unity引擎会在importing asset弹窗中卡死</p>
+<h2 id="问题：Start函数中使用不当loop循环"><a href="#问题：Start函数中使用不当loop循环" class="headerlink" title="问题：Start函数中使用不当loop循环"></a>问题：Start函数中使用不当loop循环</h2><p>如果在start函数中使用while循环处理资源加载进度条，Unity引擎会在importing asset弹窗中卡死</p>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TestClass</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> Progressbar loadingBar;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> AssetLabelReference gameImageAssets;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span> &#123;</span><br><span class="line">        AsyncOperationHandle asyncHandle = Addressables.LoadAssetsAsync&lt;Sprite&gt;(gameImageAssets, _ =&gt; &#123;&#125;);</span><br><span class="line">        asyncHandle.Completed += EnterGame;</span><br><span class="line">        StartCoroutine(GameLoadingCoroutine(asyncHandle));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> IEnumerator <span class="title">GameLoadingCoroutine</span>(<span class="params">AsyncOperationHandle handle</span>)</span> &#123;</span><br><span class="line">        <span class="comment">// yield return Addressables.LoadAssetsAsync&lt;Sprite&gt;(gameImageAssets, _ =&gt; &#123;&#125;);</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (!handle.IsDone &amp;&amp; handle.PercentComplete &lt; <span class="number">1f</span>)</span><br><span class="line">            loadingBar.SetProgressPercent(handle.PercentComplete);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">EnterGame</span>()</span> &#123;</span><br><span class="line">        <span class="comment">// Disable Loading bar</span></span><br><span class="line">        <span class="comment">// Enter gameplay</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h4 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h4><p>使用协程(Coroutine)将while操作与Unity生命周期同步</p>
+<h3 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h3><p>使用协程(Coroutine)将while操作与Unity生命周期同步</p>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TestClass</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> Progressbar loadingBar;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> AssetLabelReference gameImageAssets;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span> &#123;</span><br><span class="line">        AsyncOperationHandle asyncHandle = Addressables.LoadAssetsAsync&lt;Sprite&gt;(gameImageAssets, _ =&gt; &#123;&#125;);</span><br><span class="line">        StartCoroutine(GameLoadingCoroutine(asyncHandle));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> IEnumerator <span class="title">GameLoadingCoroutine</span>(<span class="params">AsyncOperationHandle handle</span>)</span> &#123;</span><br><span class="line">        <span class="keyword">while</span> (!handle.IsDone &amp;&amp; handle.PercentComplete &lt; <span class="number">1f</span>) &#123;</span><br><span class="line">            loadingBar.SetProgressPercent(handle.PercentComplete);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (handle.Status == AsyncOperationStatus.Succeeded)</span><br><span class="line">            EnterGame();</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            Debug.LogError(<span class="string">$&quot;Failed to load game asset sprites: <span class="subst">&#123;handle.Status&#125;</span>&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">EnterGame</span>()</span> &#123;</span><br><span class="line">        <span class="comment">// Disable Loading bar</span></span><br><span class="line">        <span class="comment">// Enter gameplay</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
@@ -421,7 +558,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-19 11:43:50" itemprop="dateModified" datetime="2025-02-19T11:43:50+08:00">2025-02-19</time>
+                <time title="Modified: 2025-02-26 10:38:29" itemprop="dateModified" datetime="2025-02-26T10:38:29+08:00">2025-02-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -491,7 +628,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/12/%E6%95%B0%E6%8D%AE%E5%8C%85%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/12/%E6%95%B0%E6%8D%AE%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/exciting-usagi.gif">
@@ -511,7 +648,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2025/02/12/%E6%95%B0%E6%8D%AE%E5%8C%85%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/" class="post-title-link" itemprop="url">数据包的封装与发送</a>
+            <a href="/2025/02/12/%E6%95%B0%E6%8D%AE%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/" class="post-title-link" itemprop="url">数据的封装与发送</a>
         </h2>
 
         <div class="post-meta">
@@ -528,7 +665,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-25 15:02:15" itemprop="dateModified" datetime="2025-02-25T15:02:15+08:00">2025-02-25</time>
+                <time title="Modified: 2025-02-26 11:42:52" itemprop="dateModified" datetime="2025-02-26T11:42:52+08:00">2025-02-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -551,43 +688,57 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="数据包"><a href="#数据包" class="headerlink" title="数据包"></a>数据包</h1><ul>
-<li><p>报文(message)<br>我们将位于应用层的信息分组称为报文。报文是网络中交换与传输的数据单元，也是网络传输的单元。报文包含了将要发送的完整的数据信息，其长短不需一致。报文在传输过程中会不断地封装成分组、包、帧来传输，封装的方式就是添加一些控制信息组成的首部，那些就是报文头。</p>
-</li>
-<li><p>报文段(segment)<br>通常是指起始点和目的地都是传输层的信息单元。</p>
-</li>
-<li><p>数据报(datagram)<br>面向无连接的数据传输，其工作过程类似于报文交换。采用数据报方式传输时，被传输的分组称为数据报。通常是指起始点和目的地都使用无连接网络服务的网络层的信息单元。(指IP数据报)</p>
-</li>
-<li><p>分组&#x2F;包(packet)<br>分组是在网络中传输的二进制格式的单元，为了提供通信性能和可靠性，每个用户发送的数据会被分成多个更小的部分。在每个部分的前面加上一些必要的控制信息组成的首部，有时也会加上尾部，就构成了一个分组。它的起始和目的地是网络层。</p>
-</li>
-<li><p>帧(frame)<br>帧是数据链路层的传输单元。它将上层传入的数据添加一个头部和尾部，组成了帧。它的起始点和目的点都是数据链路层。</p>
-</li>
+          <h1 id="各层数据的组成形式"><a href="#各层数据的组成形式" class="headerlink" title="各层数据的组成形式"></a>各层数据的组成形式</h1><ul>
 <li><p>数据单元（data unit）<br>指许多信息单元。常用的数据单元有服务数据单元（SDU）、协议数据单元（PDU）。SDU是在同一机器上的两层之间传送信息。PDU是发送机器上每层的信息发送到接收机器上的相应层（同等层间交流用的）。</p>
 </li>
+<li><p>分组&#x2F;分片<br>ip层的上层是传输层（tcp的头部为20Byte，udp头部字节是8Byte），ip层自己的头部需要占20字节，ip层的MTU &#x3D; 1500 - 20 &#x3D; 1480Byte, 超过1480Byte的数据，都需要被ip层分片，在达到目的前会自己重组</p>
+<ul>
+<li>tcp是可靠传输协议，通过超时与重传机制，来保证收到的数据是完整的。因为tcp是可靠传输协议，如果要传输的数据大于 1480 - 20(tcp头部) &#x3D;1460Byte时，在ip层被分片，而ip层分片会导致，如果其中的某一个分片丢失，因为tcp层不知道哪个ip数据片丢失，所以就需要重传整个数据段，这样就造成了很大空间和时间资源的浪费，为了解决这个问题，就有了tcp分组和MSS（最长报文大小）概念，利用tcp三次握手建立链接的过程，交互各自的MTU，然后用小的那个MTU-20-20 , 得到MSS，这样就避免在ip层被分片。</li>
+<li>由于udp是不可靠传输的，所以ip分片主要是为了upd服务的，所以就有了网上的 1500 - 20(ip头部) - 8(udp头部) &gt; 1472Byte 的说法，把1472作为ip分片的标准</li>
+</ul>
+</li>
+<li><p>报文(message) —— 应用层<br>报文是网络中交换与传输的数据单元，也是网络传输的单元。报文包含了将要发送的完整的数据信息，其长短不需一致。报文在传输过程中会不断地封装成分组、包、帧来传输，封装的方式就是添加一些控制信息组成的首部，那些就是报文头。</p>
+</li>
+<li><p>报文段(segment) —— 传输层<br>组成报文的每个分组，将传输层分组称为报文段（面向连接（TCP）的数据传输）。报文段是起始点和目的地都是传输层的信息单元。</p>
+</li>
+<li><p>数据报(datagram) —— 传输层<br>面向无连接(Connectionless Communication)的数据传输，其工作过程类似于报文交换。采用数据报方式传输时，被传输的分组称为数据报。通常是指起始点和目的地都使用无连接网络服务的网络层的信息单元。(指IP数据报)</p>
+</li>
+<li><p>数据包(packet) —— 网络层<br>是网络层传输的数据单元，也成为“包”。包中带有足够寻址信息（IP地址），可独立地从源主机传输到目的主机。它的起始和目的地是网络层。</p>
+</li>
+<li><p>帧(frame) —— 数据链路层<br>帧是数据链路层的传输单元。它将上层传入的数据添加一个头部和尾部，组成了帧。它的起始点和目的点都是数据链路层。</p>
+</li>
+</ul>
+<ul>
+<li><strong>以太网帧</strong><br><img src="/2025/02/12/%E6%95%B0%E6%8D%AE%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/ethernet-frame-format.png"></li>
+</ul>
+<p>在以太网链路上的数据包称作以太帧。以太帧起始部分由前导码和帧开始符组成。后面紧跟着一个以太网报头，以MAC地址说明目的地址和源地址。帧的中部是该帧负载的包含其他协议报头的数据包（例如IP协议）。以太帧由一个32位冗余校验码结尾。它用于检验数据传输是否出现损坏。<br>在以太网帧中，<em>Destination Address(目的地址)<em>放在最前面。接收方收到一个以太网帧后，最先处理</em>Destination Address</em>字段。如果发现该帧不是发给自己的，后面的字段以及数据就不需要处理了。</p>
+<p>什么是帧间距（IFG）</p>
+<p>网络设备和组件在接收一个帧之后，需要一段短暂的时间来恢复并为接收下一帧.做准备互联网帧间隙共20字节，包括：</p>
+<ul>
+<li>以太网最小帧间隙 12Byte</li>
+<li>数据链路层帧 前导码 7Byte，用于时钟同步 This is a sequence of alternate 0s and 1s that denotes the beginning of the frame and enables bit synchronization between the sender and receiver.</li>
+<li>帧开始标识 1Byte （标识帧的开始）</li>
+</ul>
+<ul>
+<li>比特流(bitstream) —— 物理层</li>
 </ul>
 <hr>
-<h4 id="数据的封装过程（从上至下）"><a href="#数据的封装过程（从上至下）" class="headerlink" title="数据的封装过程（从上至下）"></a>数据的封装过程（从上至下）</h4><p>各层PDU形式(Protocol Data Unit)</p>
-<ol>
-<li>应用层PDU——消息（message）</li>
-<li>传输层PDU——报文段(segment)&#x2F;数据报(datagram) (注：TCP叫TCP报文段，UDP叫UDP数据报,也有人叫UDP段)</li>
-<li>网络层PDU——分组、数据包（packet）</li>
-<li>链路层PDU——帧（frame）</li>
-<li>物理层PDU——比特流（bit）</li>
-</ol>
-<hr>
-<h4 id="各层间数据传递"><a href="#各层间数据传递" class="headerlink" title="各层间数据传递"></a>各层间数据传递</h4><ul>
-<li>不同的协议层对数据包有不同的称谓，在传输层叫做段(segment)，在⽹络层叫做数据报 (datagram)，在链路层叫做帧(frame)。</li>
+<h1 id="各层间数据传递"><a href="#各层间数据传递" class="headerlink" title="各层间数据传递"></a>各层间数据传递</h1><ul>
+<li>不同的协议层对数据包有不同的称谓，在传输层叫做段(segment)，在⽹络层叫做数据包 (datagram)，在链路层叫做帧(frame)。</li>
 <li>应⽤层数据通过协议栈发到⽹络上时，每层协议都要加上⼀个数据⾸部(header)，称为封装 (Encapsulation)。</li>
 <li>⾸部信息中包含了⼀些类似于⾸部有多⻓，载荷(payload)有多⻓，上层协议是什么等信息。</li>
 <li>数据封装成帧后发到传输介质上，到达⽬的主机后每层协议再剥掉相应的⾸部，根据⾸部中的 “上层协议字段” 将数据交给对应的上层协议处理。</li>
 </ul>
-<p><img src="/2025/02/12/%E6%95%B0%E6%8D%AE%E5%8C%85%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/NetworkPacket.png" alt="图片2" title="Dissecting a Network Packet"></p>
+<p><img src="/2025/02/12/%E6%95%B0%E6%8D%AE%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/NetworkPacket.png" title="Dissecting a Network Packet"></p>
 <hr>
-<h4 id="数据包的单位"><a href="#数据包的单位" class="headerlink" title="数据包的单位"></a>数据包的单位</h4><p>Maximum Transmission Unit：最大传输单元，链路层的帧中的数据部分的最大字节数，以太网中的一般为1500字节。</p>
-<p>Maximum Segment Size：最大报文段大小，TCP的报文段中的数据部分的最大字节数，MTU减去IPv4的Header和TCP的Header。IPv4的Header和TCP的Header一般都是20字节，则MSS&#x3D;1500-20-20 &#x3D; 1460字节。</p>
-<p>Maximum Segment Lifetime：报文最大生存时间，报文在网络上存在的最长时间，TCP连接必须经过时间2MSL后才真正释放掉。Windows默认MSL为2分钟。</p>
-<p>Round Trip Time：往返时间。</p>
-<p>Time To Live：表示IP数据报在网络中的寿命，其单位为秒。在目前的实际应用中，常以“跳”为单位。该字段指定IP包被路由器丢弃之前允许通过的最大网段数量。</p>
+<h1 id="数据的封装过程（从上至下）"><a href="#数据的封装过程（从上至下）" class="headerlink" title="数据的封装过程（从上至下）"></a>数据的封装过程（从上至下）</h1><p>传输层：报文被分为多个报文段，每个报文段上加上TCP首部（主要包含端口、源端口），变为TCP报文段；(注：TCP叫TCP报文段，UDP叫UDP数据报,也有人叫UDP段)<br>网络层：将TCP报文段加上IP数据包首部（主要包含目的IP，源IP），变成数据包；<br>数据链路层：将数据包加上目标MAC与源MAC、FCS(Frame Check Sequence)、变成MAC帧。<br>物理层：将帧变为比特流，传递给PC3物理层。</p>
+<hr>
+<h1 id="数据传输计量单位"><a href="#数据传输计量单位" class="headerlink" title="数据传输计量单位"></a>数据传输计量单位</h1><p>Maximum Transmission Unit：最大传输单元，链路层的帧中的数据部分的最大字节数，以太网中的一般为1500字节。</p>
+<p>Maximum Segment Size：TCP的报文段中的数据部分的最大字节数，MTU减去IPv4的Header和TCP的Header。IPv4的Header和TCP的Header一般都是20字节，则 1500-20-20 &#x3D; 1460字节。</p>
+<p>Maximum Segment Lifetime：报文最大生存时间。报文在网络上存在的最长时间，超过这个时间报文将被丢弃。当TCP执行一个主动关闭，并发回最后一个ACK,该连接必须在TIME_WAIT状态停留的时间为2倍的MSL。这样可让TCP再次发送最后的ACK以防这个ACK丢失（另一端超时并重发最后的FIN）。存在这个规则导致一个后果就是在这个2MSL的时间内，该地址上的链接（客户端地址、端口和服务器端的地址、端口）不能被使用。比如我们在建立一个链接后关闭链接然后迅速重启链接，那么就会出现端口不可用的情况。</p>
+<p><img src="/2025/02/12/%E6%95%B0%E6%8D%AE%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/TCP.png" title="Packet exchange for TCP connection"></p>
+<p>Round Trip Time：往返时延。在计算机网络中它是一个重要的性能指标，表示从发送端发送数据结束，到发送端收到来自接收端的确认数据总共经历的时延。RTT&#x3D;传播时延（往返哒）+ 排队时延（路由器和交换机的）+ 数据处理时延（应用程序的）。</p>
+<p>Time To Live：IP头部有一个TTL域，TTL是time to live的缩写，中文可以译为“生存时间”，这个生存时间是由源主机设置初始值，但不是具体的时间，而是存储了一个IP数据报可以经过的最大路由数，每经过一个路由器此值就减1，当此值为0则数据报将被丢弃，同时发送ICMP报文通知源主机。</p>
 <hr>
 <h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>数据包：<a target="_blank" rel="noopener" href="https://blog.csdn.net/a3192048/article/details/84671340">https://blog.csdn.net/a3192048/article/details/84671340</a></p>
 <hr>
@@ -647,7 +798,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-25 16:06:18" itemprop="dateModified" datetime="2025-02-25T16:06:18+08:00">2025-02-25</time>
+                <time title="Modified: 2025-02-26 14:38:10" itemprop="dateModified" datetime="2025-02-26T14:38:10+08:00">2025-02-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -670,31 +821,20 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="TCP-IP网络模型各层协议功能"><a href="#TCP-IP网络模型各层协议功能" class="headerlink" title="TCP&#x2F;IP网络模型各层协议功能"></a>TCP&#x2F;IP网络模型各层协议功能</h1><h4 id="1-应用层"><a href="#1-应用层" class="headerlink" title="1. 应用层"></a>1. 应用层</h4><p>应用层是网络通信的最高层，它定义了应用程序和网络之间的接口。在这一层，用户可以直接与应用程序进行交互。常见的应用层协议有HTTP、FTP、SMTP等。</p>
+          <h1 id="TCP-IP网络模型各层协议功能"><a href="#TCP-IP网络模型各层协议功能" class="headerlink" title="TCP&#x2F;IP网络模型各层协议功能"></a>TCP&#x2F;IP网络模型各层协议功能</h1><h2 id="1-应用层"><a href="#1-应用层" class="headerlink" title="1. 应用层"></a>1. 应用层</h2><p>应用层是网络通信的最高层，它定义了应用程序和网络之间的接口。在这一层，用户可以直接与应用程序进行交互。常见的应用层协议有HTTP、FTP、SMTP等。</p>
 <ul>
 <li><p><strong>Proxy</strong><br>A proxy server (forward proxy) takes requests from a client and forwards them to the internet, a reverse proxy takes requests from the internet and forwards them to a server.</p>
 </li>
 <li><p><strong>Transport Layer Security</strong><br>SSL&#x2F;TLS uses asymmetric encryption is used to establish a secure session between a client and a server, and symmetric encryption is used to exchange data within the secured session.<br>密钥：数据的加密是通过密钥进行的，通过密钥，明文被加密成密文。密钥分为对称加密密钥和非对称加密密钥。密钥为一段随机生成的数，通常以 .pem或者 .key文件保存，可以使用Openssl生成。<br>对称加密：加密解密都是使用同一个密钥。服务器使用该密钥进行加密，经过传输后客户端使用该密钥解密。该方式效率高，但存在安全隐患。<br>非对称加密：非对称加密具有一个密钥对，公钥和私钥，理论上来说公钥和私钥并不区分，便于区分将保存在本地的那个叫做私钥，将需要传输给对方的那个叫做公钥。数据经过私钥加密后，只能由对应的公钥解密，同样数据经过公钥加密后，只能由对应的私钥解密。那么只要客户端拥有服务器的公钥，通过公钥加密报文，服务器用自己的私钥解密就可以实现对传输过程的加密。非对称加密的效率比较低，而且仍有被中间人攻击的风险。<br>证书颁发机构：CA机构是权威的第三方，机构本身具有自己的CA公钥与CA私钥，CA公钥是发给全体互联网成员的，可以将其称为CA证书。服务器需要将自己的 公钥以及认证信息经过HASH加密后发改CA机构，CA机构使用CA私钥对提交的信息进行加密，这就得到了带有数字签名的数据。在使用时使用CA公钥对带有数字签名的数据解密，得到经HASH后的数据，同时将公钥以及认证信息 经过HASH加密后与CA解密后的数据比对，验证电子签名的安全性。</p>
 </li>
 </ul>
-<h4 id="2-传输层"><a href="#2-传输层" class="headerlink" title="2. 传输层"></a>2. 传输层</h4><p>传输层负责在源主机和目标主机（端到端）之间建立数据传输通道，主要协议有TCP和UDP。</p>
-<h4 id="3-网络层"><a href="#3-网络层" class="headerlink" title="3. 网络层"></a>3. 网络层</h4><p>网络层负责在网络上寻址和路由数据包。它定义了数据在网络中的传输路径，使得数据可以从源主机传输到目标主机。常见的网络层协议有IP协议。</p>
+<h2 id="2-传输层"><a href="#2-传输层" class="headerlink" title="2. 传输层"></a>2. 传输层</h2><p>传输层负责在源主机和目标主机（端到端）之间建立数据传输通道，主要协议有TCP和UDP。</p>
+<h2 id="3-网络层"><a href="#3-网络层" class="headerlink" title="3. 网络层"></a>3. 网络层</h2><p>网络层负责在网络上寻址和路由数据包。它定义了数据在网络中的传输路径，使得数据可以从源主机传输到目标主机。常见的网络层协议有IP协议。</p>
 <ul>
 <li><strong>地址解析协议</strong><br>ARP（Address Resolution Protocol，地址解析协议）是用来将IP地址解析为MAC地址的协议。主机或三层网络设备上会维护一张ARP表，用于存储IP地址和MAC地址的映射关系</li>
 </ul>
-<h4 id="4-数据链路层"><a href="#4-数据链路层" class="headerlink" title="4. 数据链路层"></a>4. 数据链路层</h4><p>数据链路层协议负责将网络层传输的数据分组封装成帧，传输到物理层，并通过物理介质进行传输。常见的数据链路层协议有以太网和Wi-Fi等。</p>
-<ul>
-<li><strong>以太网帧</strong><br><img src="/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/ethernet-frame-format.png"></li>
-</ul>
-<p>在以太网链路上的数据包称作以太帧。以太帧起始部分由前导码和帧开始符组成。后面紧跟着一个以太网报头，以MAC地址说明目的地址和源地址。帧的中部是该帧负载的包含其他协议报头的数据包（例如IP协议）。以太帧由一个32位冗余校验码结尾。它用于检验数据传输是否出现损坏。<br>在以太网帧中，<em>Destination Address(目的地址)<em>放在最前面。接收方收到一个以太网帧后，最先处理</em>Destination Address</em>字段。如果发现该帧不是发给自己的，后面的字段以及数据就不需要处理了。</p>
-<p>什么是帧间距（IFG）</p>
-<p>网络设备和组件在接收一个帧之后，需要一段短暂的时间来恢复并为接收下一帧.做准备互联网帧间隙共20字节，包括：</p>
-<ul>
-<li>以太网最小帧间隙 12Byte</li>
-<li>数据链路层帧 前导码 7Byte，用于时钟同步 This is a sequence of alternate 0s and 1s that denotes the beginning of the frame and enables bit synchronization between the sender and receiver.</li>
-<li>帧开始标识 1Byte （标识帧的开始）</li>
-</ul>
-<h4 id="5-物理层"><a href="#5-物理层" class="headerlink" title="5. 物理层"></a>5. 物理层</h4><p>物理层是网络通信的最底层，它负责在物理介质上传输比特流。它定义了物理连接的特性，如电压、频率等。常见的物理层介质有光纤、双绞线等。</p>
+<h2 id="4-数据链路层"><a href="#4-数据链路层" class="headerlink" title="4. 数据链路层"></a>4. 数据链路层</h2><p>数据链路层协议负责将网络层传输的数据分组封装成帧，传输到物理层，并通过物理介质进行传输。常见的数据链路层协议有以太网和Wi-Fi等。</p>
+<h2 id="5-物理层"><a href="#5-物理层" class="headerlink" title="5. 物理层"></a>5. 物理层</h2><p>物理层是网络通信的最底层，它负责在物理介质上传输比特流。它定义了物理连接的特性，如电压、频率等。常见的物理层介质有光纤、双绞线等。</p>
 <hr>
 <h1 id="二层设备和三层设备"><a href="#二层设备和三层设备" class="headerlink" title="二层设备和三层设备"></a>二层设备和三层设备</h1><p>二层设备是工作数据链路层的设备。二层交换机可以识别数据包中的MAC地址信息，根据MAC地址进行转发，并将这些MAC地址与对应的端口记录在自己内部的一个地址表中。具体的工作流程如下：<br>（1） 当交换机从某个端口收到一个数据包，它先读取包头中的源MAC地址，这样它就知道源MAC地址的机器是连在哪个端口上的；<br>（2） 再去读取包头中的目的MAC地址，并在地址表中查找相应的端口；<br>（3） 如表中有与这目的MAC地址对应的端口，把数据包直接复制到这端口上；<br>（4） 如表中找不到相应的端口则把数据包广播到所有端口上，当目的机器对源机器回应时，交换机又可以学习一目的MAC地址与哪个端口对应，在下次传送数据时就不再需要对所有端口进行广播了。<br>不断的循环这个过程，对于全网的MAC地址信息都可以学习到，二层交换机就是这样建立和维护它自己的地址表。</p>
 <p>三层设备是工作在网络层的设备。路由器是最常用的三层设备，利用不同网络的ID号（即IP地址）来确定数据转发的地址。IP地址是在软件中实现的，描述的是设备所在的网络，有时这些第三层的地址也称为协议地址或者网络地址。</p>
@@ -757,7 +897,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-19 11:48:14" itemprop="dateModified" datetime="2025-02-19T11:48:14+08:00">2025-02-19</time>
+                <time title="Modified: 2025-02-26 11:45:13" itemprop="dateModified" datetime="2025-02-26T11:45:13+08:00">2025-02-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -780,24 +920,24 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>In C#, primitive types such as int, double, and bool are all structs. Arrays of int are allocated on heap as int structs, only pointer to them will be allocated on stack.<br>To make a fixed size array be stored on stack, you need to use the <em>stackalloc</em> keyword, either with <em>unsafe</em> block or <em>Span</em> type.</p>
+          <h1 id="Stack-vs-Heap"><a href="#Stack-vs-Heap" class="headerlink" title="Stack vs. Heap"></a>Stack vs. Heap</h1><p>In C#, primitive types such as int, double, and bool are all structs. Arrays of int are allocated on heap as int structs, only pointer to them will be allocated on stack.<br>To make a fixed size array be stored on stack, you need to use the <em>stackalloc</em> keyword, either with <em>unsafe</em> block or <em>Span</em> type.</p>
 <figure class="highlight cs"><figcaption><span>unsafe关键词示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="keyword">unsafe</span> <span class="title">foo</span>(<span class="params"><span class="built_in">int</span> length</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">int</span>* bar = <span class="keyword">stackalloc</span> <span class="built_in">int</span> [length];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight cs"><figcaption><span>type Span示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">foo</span>(<span class="params"><span class="built_in">int</span> length</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    Span&lt;<span class="built_in">int</span>&gt; bar = <span class="keyword">stackalloc</span> <span class="built_in">int</span> [length];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="unsafe"><a href="#unsafe" class="headerlink" title="unsafe"></a>unsafe</h2><p>unsafe关键字用于声明不安全的代码块。在C#中，默认情况下，代码是安全的，这意味着它遵循.NET的安全规则，包括对内存的访问控制。使用unsafe关键字可以告诉编译器，你了解并信任这段代码，即使它可能违反安全规则。</p>
+<h1 id="unsafe"><a href="#unsafe" class="headerlink" title="unsafe"></a>unsafe</h1><p>unsafe关键字用于声明不安全的代码块。在C#中，默认情况下，代码是安全的，这意味着它遵循.NET的安全规则，包括对内存的访问控制。使用unsafe关键字可以告诉编译器，你了解并信任这段代码，即使它可能违反安全规则。</p>
 <p>使用unsafe关键字需要满足一些条件：</p>
 <ol>
 <li>你的项目必须被标记为允许不安全代码（通过在项目的属性中设置Allow Unsafe Code）。</li>
 <li>你的代码必须在unsafe代码块中。</li>
 <li>你必须使用fixed关键字来固定内存块。</li>
 </ol>
-<h2 id="fixed"><a href="#fixed" class="headerlink" title="fixed"></a>fixed</h2><p>fixed 关键字在 C# 中主要用于固定内存地址，通常与不安全代码（unsafe）一起使用。当你在不安全的代码中直接访问内存时，使用 fixed 关键字可以确保内存地址在程序运行期间保持不变。</p>
+<h1 id="fixed"><a href="#fixed" class="headerlink" title="fixed"></a>fixed</h1><p>fixed 关键字在 C# 中主要用于固定内存地址，通常与不安全代码（unsafe）一起使用。当你在不安全的代码中直接访问内存时，使用 fixed 关键字可以确保内存地址在程序运行期间保持不变。</p>
 <p>使用 fixed 关键字的主要原因是：在垃圾回收过程中，垃圾回收器可能会移动内存中的对象。如果一个指针指向一个对象，而该对象在垃圾回收过程中被移动，那么该指针就会变得无效。通过使用 fixed 关键字，你可以告诉垃圾回收器不要移动这个对象，从而确保指针始终指向有效的内存地址。</p>
 <figure class="highlight cs"><figcaption><span>fixed关键字示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsafe</span> <span class="keyword">class</span> <span class="title">Example</span>  </span><br><span class="line">&#123;  </span><br><span class="line">    <span class="built_in">int</span>[] array = <span class="keyword">new</span> <span class="built_in">int</span>[<span class="number">10</span>];  </span><br><span class="line">    <span class="keyword">fixed</span> <span class="built_in">int</span>* ptr = <span class="keyword">stackalloc</span> <span class="built_in">int</span>[] &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> &#125;;  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Method</span>()</span>  </span><br><span class="line">    &#123;  </span><br><span class="line">        <span class="built_in">int</span>* p = ptr; <span class="comment">// 这里的p指向一个固定的内存地址  </span></span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; array.Length; i++)  </span><br><span class="line">        &#123;  </span><br><span class="line">            *(p + i) = array[i]; <span class="comment">// 将数组的值赋给固定的内存地址  </span></span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>在这个例子中，我们创建了一个固定大小的数组 ptr，并在方法 Method 中使用它来修改另一个数组 array 的值。因为 ptr 是用 fixed 关键字声明的，所以它指向的内存地址在 Method 执行期间是固定的，不会发生位移</p>
-<h2 id="checked"><a href="#checked" class="headerlink" title="checked"></a>checked</h2><p>checked关键字用于在算术运算中控制溢出检查。默认情况下，当一个整数运算结果超出了该类型的表示范围时，会抛出System.OverflowException异常。使用checked关键字可以强制执行溢出检查，并在发生溢出时抛出异常。</p>
+<h1 id="checked"><a href="#checked" class="headerlink" title="checked"></a>checked</h1><p>checked关键字用于在算术运算中控制溢出检查。默认情况下，当一个整数运算结果超出了该类型的表示范围时，会抛出System.OverflowException异常。使用checked关键字可以强制执行溢出检查，并在发生溢出时抛出异常。</p>
 <figure class="highlight cs"><figcaption><span>checked关键字示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title">Program</span>  </span><br><span class="line">&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">unsafe</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] <span class="keyword">args</span></span>)</span>  </span><br><span class="line">    &#123;  </span><br><span class="line">        <span class="built_in">int</span> maxValue = <span class="built_in">int</span>.MaxValue;  </span><br><span class="line">        <span class="built_in">int</span>* ptr = <span class="keyword">stackalloc</span> <span class="built_in">int</span>[] &#123; maxValue &#125;; <span class="comment">// 创建一个固定大小的数组  </span></span><br><span class="line">        <span class="keyword">fixed</span> (<span class="built_in">int</span>* p = ptr) <span class="comment">// 使用fixed关键字固定内存地址  </span></span><br><span class="line">        &#123;  </span><br><span class="line">            *(p + <span class="number">1</span>) = <span class="number">0</span>; <span class="comment">// 尝试访问超出数组范围的内存，这会导致未定义的行为（除非使用unsafe代码）  </span></span><br><span class="line">        &#125;  </span><br><span class="line">        Console.WriteLine(ptr[<span class="number">1</span>]); <span class="comment">// 这将输出0，因为我们在不安全的代码中修改了内存  </span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">uint</span> a = <span class="built_in">uint</span>.MaxValue;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">unchecked</span></span><br><span class="line">&#123;</span><br><span class="line">    Console.WriteLine(a + <span class="number">3</span>);  <span class="comment">// output: 2</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">try</span></span><br><span class="line">&#123;</span><br><span class="line">    checked</span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(a + <span class="number">3</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span> (OverflowException e)</span><br><span class="line">&#123;</span><br><span class="line">    Console.WriteLine(e.Message);  <span class="comment">// output: Arithmetic operation resulted in an overflow.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <blockquote>
@@ -864,7 +1004,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-19 11:48:13" itemprop="dateModified" datetime="2025-02-19T11:48:13+08:00">2025-02-19</time>
+                <time title="Modified: 2025-02-26 11:43:17" itemprop="dateModified" datetime="2025-02-26T11:43:17+08:00">2025-02-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -887,7 +1027,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="显示器类别"><a href="#显示器类别" class="headerlink" title="显示器类别"></a>显示器类别</h2><p>根据显示技术和用途的不同，显示器可以分为多种类型，主要包括：</p>
+          <h1 id="显示器类别"><a href="#显示器类别" class="headerlink" title="显示器类别"></a>显示器类别</h1><p>根据显示技术和用途的不同，显示器可以分为多种类型，主要包括：</p>
 <ul>
 <li><strong>阴极射线管显示器（CRT）</strong></li>
 <li><strong>液晶显示器（LCD）</strong></li>
@@ -896,7 +1036,7 @@
 <li><strong>有机发光二极管显示器（OLED）</strong></li>
 <li><strong>量子点显示器（QLED）</strong></li>
 </ul>
-<h2 id="VSync-工作原理"><a href="#VSync-工作原理" class="headerlink" title="VSync 工作原理"></a>VSync 工作原理</h2><p>What is VSync? VSync stands for Vertical Synchronization. The basic idea is that synchronizes your FPS with your monitor’s refresh rate. The purpose is to eliminate something called “tearing”. I will describe all these things here.  </p>
+<h1 id="VSync-工作原理"><a href="#VSync-工作原理" class="headerlink" title="VSync 工作原理"></a>VSync 工作原理</h1><p>What is VSync? VSync stands for Vertical Synchronization. The basic idea is that synchronizes your FPS with your monitor’s refresh rate. The purpose is to eliminate something called “tearing”. I will describe all these things here.  </p>
 <p>Every CRT monitor has a refresh rate. It’s specified in Hz (Hertz, cycles per second). It is the number of times the monitor updates the display per second. Different monitors support different refresh rates at different resolutions. They range from 60Hz at the low end up to 100Hz and higher. Note that this isn’t your FPS as your games report it. If your monitor is set at a specific refresh rate, it always updates the screen at that rate, even if nothing on it is changing. On an LCD, things work differently. Pixels on an LCD stay lit until they are told to change; they don’t have to be refreshed. However, because of how VGA (and DVI) works, the LCD must still poll the video card at a certain rate for new frames. This is why LCD’s still have a “refresh rate” even though they don’t actually have to refresh.  </p>
 <p>I think everyone here understands FPS. It’s how many frames the video card can draw per second. Higher is obviously better. However, during a fast paced game, your FPS rarely stays the same all the time. It moves around as the complexity of the image the video card has to draw changes based on what you are seeing. This is where tearing comes in.  </p>
 <p>Tearing is a phenomenon that gives a disjointed image. The idea is as if you took a photograph of something, then rotated your vew maybe just 1 degree to the left and took a photograph of that, then cut the two pictures in half and taped the top half of one to the bottom half of the other. The images would be similar but there would be a notable difference in the top half from the bottom half. This is what is called tearing on a visual display. It doesn’t always have to be cut right in the middle. It can be near the top or the bottom and the separation point can actually move up or down the screen, or seem to jump back and forth between two points.  </p>
@@ -970,7 +1110,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-19 11:42:35" itemprop="dateModified" datetime="2025-02-19T11:42:35+08:00">2025-02-19</time>
+                <time title="Modified: 2025-02-26 11:37:11" itemprop="dateModified" datetime="2025-02-26T11:37:11+08:00">2025-02-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -993,7 +1133,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h3 id="其次函数：输入函数扩大-a-倍，其响应函数相应的也扩大-a-倍。"><a href="#其次函数：输入函数扩大-a-倍，其响应函数相应的也扩大-a-倍。" class="headerlink" title="其次函数：输入函数扩大  a  倍，其响应函数相应的也扩大  a  倍。"></a>其次函数：输入函数扩大  a  倍，其响应函数相应的也扩大  a  倍。</h3><p>Unity中的齐次坐标是一种在计算机图形学中常用的表示坐标的方式，通过引入一个额外的维度来扩展传统的笛卡尔坐标系，以便进行几何变换和矩阵运算。‌齐次坐标将n维的向量或矩阵用n+1维来表示，这样可以明确区分向量和点，并且能够方便地处理平移变换‌。</p>
+          <p><strong>其次函数：输入函数扩大 a 倍，其响应函数相应的也扩大 a 倍。</strong></p>
+<p>Unity中的齐次坐标是一种在计算机图形学中常用的表示坐标的方式，通过引入一个额外的维度来扩展传统的笛卡尔坐标系，以便进行几何变换和矩阵运算。‌齐次坐标将n维的向量或矩阵用n+1维来表示，这样可以明确区分向量和点，并且能够方便地处理平移变换‌。</p>
 <p>齐次坐标通过增加一个额外的分量w来实现。当w≠0时，可以将齐次坐标转化为普通的笛卡尔坐标；当w&#x3D;0时，表示一个无穷远的点‌。这种表示方法使得4x4矩阵（仿射矩阵）能够同时进行线性变换和平移变换，而3x3矩阵（线性矩阵）则只能进行旋转和缩放等线性变换‌。</p>
 <p>在Unity中，齐次坐标主要用于顶点着色器和片段着色器中，进行模型的变换、投影和视图转换等操作。通过使用齐次坐标，可以统一处理各种变换，使得着色器的实现更加统一和高效‌</p>
 <p><img src="/2025/02/10/%E5%85%B6%E6%AC%A1%E5%9D%90%E6%A0%87/p1.png" title="其次坐标的性质"> <br></p>
@@ -1056,7 +1197,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-19 11:42:48" itemprop="dateModified" datetime="2025-02-19T11:42:48+08:00">2025-02-19</time>
+                <time title="Modified: 2025-02-26 11:37:38" itemprop="dateModified" datetime="2025-02-26T11:37:38+08:00">2025-02-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1079,7 +1220,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="一、单一设计原则（Single-Responsibility-Principle，SRP）"><a href="#一、单一设计原则（Single-Responsibility-Principle，SRP）" class="headerlink" title="一、单一设计原则（Single Responsibility Principle，SRP）"></a>一、单一设计原则（Single Responsibility Principle，SRP）</h2><p>定义：<br>一个类应该只有一个引起变化的原因，或者说一个类应该只有一个责任。</p>
+          <h1 id="一、单一设计原则（Single-Responsibility-Principle，SRP）"><a href="#一、单一设计原则（Single-Responsibility-Principle，SRP）" class="headerlink" title="一、单一设计原则（Single Responsibility Principle，SRP）"></a>一、单一设计原则（Single Responsibility Principle，SRP）</h1><p>定义：<br>一个类应该只有一个引起变化的原因，或者说一个类应该只有一个责任。</p>
 <p>关键思想：</p>
 <ol>
 <li>一个类应该专注于一种类型的任务，只有一个责任；</li>
@@ -1087,7 +1228,7 @@
 </ol>
 <br>
 
-<h2 id="二、里氏替换原则（Liskov-Substitution-Principle，LSP）"><a href="#二、里氏替换原则（Liskov-Substitution-Principle，LSP）" class="headerlink" title="二、里氏替换原则（Liskov Substitution Principle，LSP）"></a>二、里氏替换原则（Liskov Substitution Principle，LSP）</h2><p>定义：<br>如果对于每一个类型为 S 的对象 o1，都有类型为 T 的对象 o2，使得以 T 定义的所有程序 P 在所有的对象 o1 都代换成 o2 时，程序 P 的行为没有发生变化，那么类型 S 是类型 T 的子类型。</p>
+<h1 id="二、里氏替换原则（Liskov-Substitution-Principle，LSP）"><a href="#二、里氏替换原则（Liskov-Substitution-Principle，LSP）" class="headerlink" title="二、里氏替换原则（Liskov Substitution Principle，LSP）"></a>二、里氏替换原则（Liskov Substitution Principle，LSP）</h1><p>定义：<br>如果对于每一个类型为 S 的对象 o1，都有类型为 T 的对象 o2，使得以 T 定义的所有程序 P 在所有的对象 o1 都代换成 o2 时，程序 P 的行为没有发生变化，那么类型 S 是类型 T 的子类型。</p>
 <p>任何基类可以被其子类替代，而程序仍然能够保持正确性。换句话说，子类应该能够替代其基类而不引起程序错误。</p>
 <p>关键思想：</p>
 <ol>
@@ -1096,7 +1237,7 @@
 </ol>
 <br>
 
-<h2 id="三、迪米特原则（Law-of-Demeter，LoD）"><a href="#三、迪米特原则（Law-of-Demeter，LoD）" class="headerlink" title="三、迪米特原则（Law of Demeter，LoD）"></a>三、迪米特原则（Law of Demeter，LoD）</h2><p>迪米特原则也被称为最少知识原则（Principle of Least Knowledge，PLK）或者直接调用原则（Least Knowledge for Law of Demeter，LKP），是面向对象设计中的一个原则，其核心思想是降低类之间的耦合度，减少对象之间的相互依赖。</p>
+<h1 id="三、迪米特原则（Law-of-Demeter，LoD）"><a href="#三、迪米特原则（Law-of-Demeter，LoD）" class="headerlink" title="三、迪米特原则（Law of Demeter，LoD）"></a>三、迪米特原则（Law of Demeter，LoD）</h1><p>迪米特原则也被称为最少知识原则（Principle of Least Knowledge，PLK）或者直接调用原则（Least Knowledge for Law of Demeter，LKP），是面向对象设计中的一个原则，其核心思想是降低类之间的耦合度，减少对象之间的相互依赖。</p>
 <p>定义：<br>一个对象应该对其他对象保持最少的了解。具体来说，一个类不应该直接调用其他类的内部方法，而是通过它自己的方法或者通过传递给它的对象来完成某项操作</p>
 <p>关键点：</p>
 <ol>
@@ -1106,7 +1247,7 @@
 </ol>
 <br>
 
-<h2 id="四、依赖倒置原则（Dependency-Inversion-Principle，DIP）"><a href="#四、依赖倒置原则（Dependency-Inversion-Principle，DIP）" class="headerlink" title="四、依赖倒置原则（Dependency Inversion Principle，DIP）"></a>四、依赖倒置原则（Dependency Inversion Principle，DIP）</h2><p>定义：<br>高层模块不应该依赖于低层模块，两者都应该依赖于抽象。</p>
+<h1 id="四、依赖倒置原则（Dependency-Inversion-Principle，DIP）"><a href="#四、依赖倒置原则（Dependency-Inversion-Principle，DIP）" class="headerlink" title="四、依赖倒置原则（Dependency Inversion Principle，DIP）"></a>四、依赖倒置原则（Dependency Inversion Principle，DIP）</h1><p>定义：<br>高层模块不应该依赖于低层模块，两者都应该依赖于抽象。</p>
 <p>抽象不应该依赖于细节，细节应该依赖于抽象。</p>
 <p>这意味着在设计系统时，应该避免高层次模块（比如模块的业务逻辑）依赖于低层次模块（比如数据库操作或具体实现类），而应该依赖于抽象，即接口或抽象类。这样可以使系统更加灵活，易于扩展和维护。</p>
 <p>关键点：</p>
@@ -1116,7 +1257,7 @@
 </ol>
 <br>
 
-<h2 id="五、接口隔离原则（Interface-Segregation-Principle，ISP）"><a href="#五、接口隔离原则（Interface-Segregation-Principle，ISP）" class="headerlink" title="五、接口隔离原则（Interface Segregation Principle，ISP）"></a>五、接口隔离原则（Interface Segregation Principle，ISP）</h2><p>定义：<br>接口隔离原则是面向对象设计中的一条原则，它强调一个类不应该强制依赖它不使用的接口。具体来说，一个类对其他类的依赖关系应该建立在最小的接口集上。</p>
+<h1 id="五、接口隔离原则（Interface-Segregation-Principle，ISP）"><a href="#五、接口隔离原则（Interface-Segregation-Principle，ISP）" class="headerlink" title="五、接口隔离原则（Interface Segregation Principle，ISP）"></a>五、接口隔离原则（Interface Segregation Principle，ISP）</h1><p>定义：<br>接口隔离原则是面向对象设计中的一条原则，它强调一个类不应该强制依赖它不使用的接口。具体来说，一个类对其他类的依赖关系应该建立在最小的接口集上。</p>
 <p>关键点：</p>
 <ol>
 <li>一个类不应该被迫依赖它不使用的接口。</li>
@@ -1125,7 +1266,7 @@
 <p>这两点意味着接口设计应该精简，只包含客户端需要的方法，避免将不相关的方法强行放在同一个接口中。</p>
 <br>
 
-<h2 id="六、开闭原则（Open-Closed-Principle，OCP）"><a href="#六、开闭原则（Open-Closed-Principle，OCP）" class="headerlink" title="六、开闭原则（Open&#x2F;Closed Principle，OCP）"></a>六、开闭原则（Open&#x2F;Closed Principle，OCP）</h2><p>定义：<br>开闭原则是面向对象设计中的一个基本原则，它由勃兰特·梅耶（Bertrand Meyer）提出，并由罗伯特·C·马丁（Robert C. Martin）进一步发扬光大。该原则的定义是：</p>
+<h1 id="六、开闭原则（Open-Closed-Principle，OCP）"><a href="#六、开闭原则（Open-Closed-Principle，OCP）" class="headerlink" title="六、开闭原则（Open&#x2F;Closed Principle，OCP）"></a>六、开闭原则（Open&#x2F;Closed Principle，OCP）</h1><p>定义：<br>开闭原则是面向对象设计中的一个基本原则，它由勃兰特·梅耶（Bertrand Meyer）提出，并由罗伯特·C·马丁（Robert C. Martin）进一步发扬光大。该原则的定义是：</p>
 <p>软件实体（类、模块、函数等）应该对扩展开放，对修改关闭。</p>
 <p>这意味着一个软件实体可以通过扩展来应对新的行为需求，而不需要修改已有的代码。这可以通过抽象和接口实现，以确保对于新增功能的引入，不需要修改现有的代码，而是通过扩展来实现。</p>
 <p>关键点：</p>
@@ -1225,7 +1366,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-count">10</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1283,6 +1424,26 @@
   </div>
 
         
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
 
 
 
