@@ -198,7 +198,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-28 15:35:00" itemprop="dateModified" datetime="2025-02-28T15:35:00+08:00">2025-02-28</time>
+                <time title="Modified: 2025-02-28 17:41:30" itemprop="dateModified" datetime="2025-02-28T17:41:30+08:00">2025-02-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -246,7 +246,8 @@
 <li>现在要给一个缓冲区塞数据，每个接口函数都可以通过说明文档来查看参数的意义和使用</li>
 <li>我们需要告诉着色器我们的数据是怎么样的， 或者说是怎么处理这些数据</li>
 </ol>
-<h2 id="glVertexAttribPointer函数"><a href="#glVertexAttribPointer函数" class="headerlink" title="glVertexAttribPointer函数"></a>glVertexAttribPointer函数</h2><p>void glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer);</p>
+<h2 id="glVertexAttribPointer函数"><a href="#glVertexAttribPointer函数" class="headerlink" title="glVertexAttribPointer函数"></a>glVertexAttribPointer函数</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">glVertexAttribPointer</span><span class="params">(GLuint index, GLint size, GLenum type,</span></span></span><br><span class="line"><span class="params"><span class="function">    GLboolean normalized, GLsizei stride, <span class="type">const</span> GLvoid * pointer)</span></span>;</span><br></pre></td></tr></table></figure>
+
 <p><img src="/2025/02/27/OpenGL%E9%A1%B6%E7%82%B9%E7%BB%98%E5%88%B6%E6%95%B0%E6%8D%AE/glVertexAttribPointer.png" title="glVertexAttribPointer函数参数解释"></p>
 <p>人话就是：</p>
 <p>index：我们从第几个顶点开始访问<br>size：一个顶点属性值里面有几个数值<br>type：每个值的数据类型<br>normalized：是否要转化为统一的值<br>stride：步幅 每个顶点属性值的大小，就是到下一个顶点的开始的字节偏移量。<br>pointer：在开始访问到顶点属性值的时候开始的指针位置（注意和Index的区别）<br>其实你就是把顶点属性值想象成结构体就行了，然后多个结构体一起存，和网络传输一样，我发送给了另一边需要解析网络包，是不是需要找我结构体开始的位置，然后一个结构体的大小，然后结构体对齐里面有什么，分别解析，还有步幅指针，我还可以跳过结构体，是一样的道理。</p>
