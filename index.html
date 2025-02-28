@@ -161,6 +161,135 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/27/OpenGL%E9%A1%B6%E7%82%B9%E7%BB%98%E5%88%B6%E6%95%B0%E6%8D%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/27/OpenGL%E9%A1%B6%E7%82%B9%E7%BB%98%E5%88%B6%E6%95%B0%E6%8D%AE/" class="post-title-link" itemprop="url">OpenGL顶点绘制数据</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-27 11:30:52" itemprop="dateCreated datePublished" datetime="2025-02-27T11:30:52+08:00">2025-02-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-28 15:35:00" itemprop="dateModified" datetime="2025-02-28T15:35:00+08:00">2025-02-28</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B8%B2%E6%9F%93/" itemprop="url" rel="index"><span itemprop="name">渲染</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li>VAO（vertex-array object）顶点数组对象，用来管理VBO。</li>
+<li>VBO（vertex buffer object）顶点缓冲对象，用来缓存用户传入的顶点数据。</li>
+<li>EBO（element buffer object）索引缓冲对象，用来存放顶点索引数据。</li>
+</ul>
+<p>A VAO is an array of VBOs</p>
+<p><img src="/2025/02/27/OpenGL%E9%A1%B6%E7%82%B9%E7%BB%98%E5%88%B6%E6%95%B0%E6%8D%AE/VAO.png" title="VAO和VBO之间的关系"> <br></p>
+<h1 id="一、什么是OpenGL"><a href="#一、什么是OpenGL" class="headerlink" title="一、什么是OpenGL"></a>一、什么是OpenGL</h1><p>OpenGL是一套方便于用户使用的规范，而其本身包含了调用不同厂商直接在GPU中写好的程序接口，那些接口完成所有的功能实现，如完成2D、3D矢量图形渲染等功能（跨语言，跨平台）。</p>
+<p>OpenGL by itself is not an API, but merely a specification. The OpenGL specification specifies exactly what the result&#x2F;output of each function should be and how it should perform. It is then up to the developers implementing this specification to come up with a solution of how this function should operate.<br>The people developing the actual OpenGL libraries are usually the graphics card manufacturers. Each graphics card that you buy supports specific versions of OpenGL which are the versions of OpenGL developed specifically for that card (series).</p>
+<h2 id="OpenGL-vs-OpenCL"><a href="#OpenGL-vs-OpenCL" class="headerlink" title="OpenGL vs OpenCL"></a>OpenGL vs OpenCL</h2><ol>
+<li>总体来说，OpenGL 主要做图形渲染，OpenCL 主要用 GPU 做通用计算。图形渲染的主要特点是 渲染管线基本单元，如光栅化、深度测试、模板测试、混合等等的实现。</li>
+<li>OpenGL 可以用 Compute Shader 实现 OpenCL 同样的功能，但一般厂商对 Compute Shader 中低精度计算的支持（fp16 &#x2F; int8 等）不如 OpenCL ，性能会差一些</li>
+<li>基于 OpenCL 编程可以自己实现 OpenGL 中的渲染操作，但由于没有图形接口，实现渲染管线基本单元效率较低。</li>
+<li>OpenCL 和 OpenGL 最终实现都是往 GPU 发 Command Buffer ，不会互相影响，最多就是互相抢GPU计算资源。但如果有数据依赖关系，因为管线不同，两者是需要做额外同步的。</li>
+</ol>
+<p>opengl里叫drawcall，opencl里叫enqueue，vulkan里叫commandbuffer，虽然叫法不一样，但目的都是把指令从CPU发到GPU上运算。</p>
+<p>cuda其实就是把kernel代码和c代码混合到一起写而已，最终也要把数据发到GPU去算，属于编译器支持的隐式发送。就好比写c&#x2F;c++调其他库api的时候，可以配置好库lib或者so位置，包个头文件就直接用，也可以自己动态加载对应库API一样。</p>
+<h2 id="OpenGL渲染过程"><a href="#OpenGL渲染过程" class="headerlink" title="OpenGL渲染过程"></a>OpenGL渲染过程</h2><p>因为c++写的程序都是在cpu上运行的，但是OpenGL的接口是在GPU上运行的，而且OpenGL并不能凭空做程序中的数据或者是取代一些程序上的事，它是一种状态机，程序从cpu发数据到缓冲区并且告诉GPU你从哪一块缓冲区取数据画什么，然后提前设计好的着色器开始根据数据画图最后显示在显示器上。</p>
+<p>画图渲染的顺序如下：</p>
+<ol>
+<li>声明一个缓冲区</li>
+<li>声明之后需要绑定，因为在GPU中的缓冲区都是有编号的，或者说是有管理的</li>
+<li>现在要给一个缓冲区塞数据，每个接口函数都可以通过说明文档来查看参数的意义和使用</li>
+<li>我们需要告诉着色器我们的数据是怎么样的， 或者说是怎么处理这些数据</li>
+</ol>
+<h2 id="glVertexAttribPointer函数"><a href="#glVertexAttribPointer函数" class="headerlink" title="glVertexAttribPointer函数"></a>glVertexAttribPointer函数</h2><p>void glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer);</p>
+<p><img src="/2025/02/27/OpenGL%E9%A1%B6%E7%82%B9%E7%BB%98%E5%88%B6%E6%95%B0%E6%8D%AE/glVertexAttribPointer.png" title="glVertexAttribPointer函数参数解释"></p>
+<p>人话就是：</p>
+<p>index：我们从第几个顶点开始访问<br>size：一个顶点属性值里面有几个数值<br>type：每个值的数据类型<br>normalized：是否要转化为统一的值<br>stride：步幅 每个顶点属性值的大小，就是到下一个顶点的开始的字节偏移量。<br>pointer：在开始访问到顶点属性值的时候开始的指针位置（注意和Index的区别）<br>其实你就是把顶点属性值想象成结构体就行了，然后多个结构体一起存，和网络传输一样，我发送给了另一边需要解析网络包，是不是需要找我结构体开始的位置，然后一个结构体的大小，然后结构体对齐里面有什么，分别解析，还有步幅指针，我还可以跳过结构体，是一样的道理。</p>
+<h1 id="二、VBO"><a href="#二、VBO" class="headerlink" title="二、VBO"></a>二、VBO</h1><h2 id="glVertex"><a href="#glVertex" class="headerlink" title="glVertex"></a>glVertex</h2><p>最原始的设置顶点方法，在glBegin和glEnd之间使用。OpenGL3.0已经废弃此方法。每个glVertex与GPU进行一次通信，十分低效。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">glBegin</span>(GL_TRIANGLES);</span><br><span class="line">    <span class="built_in">glVertex</span>(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="built_in">glVertex</span>(<span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line">    <span class="built_in">glVertex</span>(<span class="number">2</span>, <span class="number">2</span>);</span><br><span class="line"><span class="built_in">glEnd</span>();</span><br></pre></td></tr></table></figure>
+
+<h2 id="顶点数组-Vertex-Array"><a href="#顶点数组-Vertex-Array" class="headerlink" title="顶点数组 Vertex Array"></a>顶点数组 Vertex Array</h2><p>顶点数组也是收集好所有的顶点，一次性发送给GPU。不过数据不是存储于GPU中的，绘制速度上没有显示列表快，优点是可以修改数据。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> MEDIUM_STARS 40</span></span><br><span class="line">M3DVector2f vMediumStars[MEDIUM_STARS];</span><br><span class="line"><span class="comment">//在这做点vMediumStars的设置//</span></span><br><span class="line"><span class="built_in">glVertexPointer</span>(<span class="number">2</span>, GL_FLOAT, <span class="number">0</span>, vMediumStars);</span><br><span class="line"><span class="built_in">glDrawArrays</span>(GL_POINTS, <span class="number">0</span>, MEDIUM_STARS);</span><br></pre></td></tr></table></figure>
+
+<h2 id="VBO-顶点缓冲对象"><a href="#VBO-顶点缓冲对象" class="headerlink" title="VBO 顶点缓冲对象"></a>VBO 顶点缓冲对象</h2><p>VBO，全称为Vertex Buffer Object，与FBO，PBO并称，但它实际上老不少。就某种意义来说，他就是VA（Vertex Array）的升级版。VBO出现的背景是人们发现VA和显示列表还有让人不满足的地方。一般，在OpenGL里，提高顶点绘制的办法：</p>
+<p>(1)显示列表：把常规的glBegin()-glEnd()中的代码放到一个显示列表中（通常在初始化阶段完成），然后每遍渲染都调用这个显示列表。<br>(2)VA：使用顶点数组，把顶点以及顶点属性数据作为数组，渲染的时候直接用一个或几个函数调动这些数组里的数据进行绘制，形式上是减少函数调用的次数（告别glVertex），提高绘制效率。</p>
+<p>但是，这两种方法都有缺点。VA是在客户端设置的，所以执行这类函数（glDrawArray或glDrawElement）后，客户端还得把得到的顶点数据向服务端传输一次（所谓的“二次处理”），这样一来就有了不必要的动作了，降低了效率——如果我们写的函数能直接把顶点数据发送给服务端就好了——这正是VBO的特性之一。显示列表的缺点在于它的古板，一旦设定就不容许修改，所以它只适合对一些“固定”的东西的绘制进行包装。（我们无办法直接在硬件层改顶点数据，因为这是脱离了流水线的事物）。<br>而VBO直接把顶点数据交到流水线的第一步，与显示列表的效率还是有差距，但它这样就得到了操作数据的弹性——渲染阶段，我们的VBO绘制函数持续把顶点数据交给流水线，在某一刻我们可以把该帧到达了流水线的顶点数据取回客户端修改(Vertex mapping)，再提交回流水线(Vertex unmapping)，或者用 glBufferData&#x2F;glBufferSubData 重新全部或buffer提交修改了的顶点数据，这是VBO的另一个特性。</p>
+<p>VBO结合了VA和显示列表这个说法不太妥当，应该说它结合了两者的一些特性，绘制效率在两者之间，且拥有良好的数据更改弹性。这种折衷造就了它一直为目前最高的地位。</p>
+<p>当我们在顶点着色器中把顶点传送到GPU中的时候，不能每个顶点数据传送一次，因为太耗时而且造成资源浪费，所以就要用到缓冲对象，我们把大量的数据存储在GPU内存上，然后一次传输大量数据到显卡上，顶点缓冲对象就是帮助我们来管理GPU内存的。</p>
+<h2 id="顶点缓冲流程"><a href="#顶点缓冲流程" class="headerlink" title="顶点缓冲流程"></a>顶点缓冲流程</h2><p>首先我们需要使用glVertexAttribPointer函数告诉OpenGL该如何解析顶点数据，一定要使用该函数来配置各个属性的数据，因为顶点数据不只包含位置，还可能会包含顶点颜色、顶点法线等等，那一个顶点数据是如何被OpenGL解析然后放入到顶点着色器的各个属性中，就需要通过该函数进行准确的配置。<br>每个顶点属性从一个VBO管理的内存中获得它的数据，而具体是从哪个VBO（程序中可以有多个VBO）获取则是通过在调用glVetexAttribPointer时绑定到GL_ARRAY_BUFFER的VBO决定的，因为同一个类型的缓冲区同时最多绑定一个目标缓冲。</p>
+<h1 id="三、VAO"><a href="#三、VAO" class="headerlink" title="三、VAO"></a>三、VAO</h1><h2 id="VAO-顶点数组对象"><a href="#VAO-顶点数组对象" class="headerlink" title="VAO 顶点数组对象"></a>VAO 顶点数组对象</h2><p>VAO并不是必须的，VBO可以独立使用，VBO缓存了数据，而数据的使用 方式（glVertexAttribPointer 指定的数据宽度等信息）并没有缓存，VBO将顶点信息放到GPU中，GPU在渲染时去缓存中取数据，二者中间的桥梁是GL-Context。GL-Context整个程序一般只有一个，所以如果一个渲染流程里有两份不同的绘制代码，当切换VBO时（有多个VBO时，通过glBindBuffer切换 ），数据使用方式信息就丢失了。而GL-context就负责在他们之间进行切换。这也是为什么要在渲染过程中，在每份绘制代码之中会有glBindbuffer、glEnableVertexAttribArray、glVertexAttribPointer。VAO记录该次绘制所需要的所有VBO所需信息，把它保存到VBO特定位置，绘制的时候直接在这个位置取信息绘制。　</p>
+<p>VAO的全名是Vertex Array Object，首先，它不是Buffer-Object，所以不用作存储数据；其次，它针对“顶点”而言，也就是说它跟“顶点的绘制”息息相关。我们每一次绘制的时候，都需要绑定缓冲对象以此来拿到顶点数据，都需要去配置顶点属性指针以便OpenGL知道如何来解析顶点数据，这是相当麻烦的，对一个多边形而言，它每次的配置都是相同的，如何来存储这个相同的配置呢。<br>VAO为我们解决了这个大麻烦，当配置顶点属性数据的时候，只需要将配置函数调用执行一次，随后再绘制该物体的时候就只需要绑定相应的VAO即可，这样，我们就可以通过绑定不同的VAO（提醒，与VBO一样，同一时刻只能绑定一个VAO），使得在不同的顶点数据和属性配置切换变得非常简单。VAO记录的是一次绘制中所需要的信息，这包括“数据在哪里glBindBuffer”、“数据的格式是怎么样的glVertexAttribPointer”、shader-attribute的location的启用glEnableVertexAttribArray。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);</span><br><span class="line">glEnableVertexAttribArray(0);</span><br></pre></td></tr></table></figure>
+
+<p>VAO的使用非常简单，要想使用VAO，要做的只是使用glBindVertexArray绑定VAO。从绑定之后起，我们应该绑定和配置对应的VBO和属性指针，配置完以后，VAO中就存储了我们想要的各种数据，之后解绑VAO供之后使用，再次使用需要我们再次绑定。</p>
+<p>注意：glVertexAttribPointer()这个函数会自动从当前绑定的VBO里获取顶点数据，所以在第一节VBO里如果想要使用正确的顶点数据，每次都要绑定相应的VBO，但是现在，我们在绑定VBO之前绑定了VAO，那么glEnableVertexAttribPointer()所进行的配置就会保存在VAO中。我们可以通过不同的配置从一个VBO内拿到不同的数据放入不同的VAO中，这样VAO中就有了我们所需要的数据，它根据顶点配置到VBO中索取到数据，之后直接绑定相应的VAO即可，glDrawArrays()函数就是需要从VAO中拿到数据进行绘制。但是要明白的是，我们是通过VAO来间接绑定VBO的，实际上数据还是要存储在VBO中的，VAO内并没有存储顶点的数据，如果我们要绘制两个不同的三角形，我们可能需要定义两个VBO，每个VBO内有三个顶点数据。</p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>OpenGL: <a target="_blank" rel="noopener" href="https://learnopengl.com/Getting-started/OpenGL">https://learnopengl.com/Getting-started/OpenGL</a><br>VAO和VBO: <a target="_blank" rel="noopener" href="https://blog.csdn.net/p942005405/article/details/103770259">https://blog.csdn.net/p942005405/article/details/103770259</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/25/Mono-vs-IL2CPP/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -198,7 +327,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-26 14:57:55" itemprop="dateModified" datetime="2025-02-26T14:57:55+08:00">2025-02-26</time>
+                <time title="Modified: 2025-02-28 15:54:31" itemprop="dateModified" datetime="2025-02-28T15:54:31+08:00">2025-02-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -303,7 +432,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8CDNS/">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/exciting-usagi.gif">
@@ -323,7 +452,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2025/02/24/CNAME%E5%92%8CDNS/" class="post-title-link" itemprop="url">CNAME和DNS</a>
+            <a href="/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/" class="post-title-link" itemprop="url">CNAME和域名解析</a>
         </h2>
 
         <div class="post-meta">
@@ -340,7 +469,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-26 11:34:59" itemprop="dateModified" datetime="2025-02-26T11:34:59+08:00">2025-02-26</time>
+                <time title="Modified: 2025-02-27 14:51:26" itemprop="dateModified" datetime="2025-02-27T14:51:26+08:00">2025-02-27</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -348,7 +477,7 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index"><span itemprop="name">网络模型</span></a>
+                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a>
                 </span>
             </span>
 
@@ -364,14 +493,14 @@
 
       
           <h1 id="域名解析协议-Domain-Name-System"><a href="#域名解析协议-Domain-Name-System" class="headerlink" title="域名解析协议 Domain Name System"></a>域名解析协议 Domain Name System</h1><ol>
-<li>通过域名访问网页</li>
+<li>DNS让用户能够通过域名访问网页(<a target="_blank" rel="noopener" href="http://www.baidu.com/">www.baidu.com</a> -&gt; 36.152.44.95)</li>
 <li>计算机会先将域名发送到一个解析域名的服务器上<br> 2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server)<br> 2.2. 域名解析(在服务器上查找IP地址)的过程有两种算法，迭代查询，递归查询。一般是两种查询的结合<br> 2.3. 本机计算机找到其中一台解析域名的服务器(可能是.com)，如果没有找到对应的IP地址，那么就会去找根域名服务器，根域名服务器知道所有的子服务器，<br> 所以他肯定知道该域名所对应的IP地址在那个子服务器中，所以告诉第一次查询的服务器要他去另一台服务器上找，找到了，就将其返回给计算机，<br> 以后在有另一台计算机也通过这个域名访问，那么第一台服务器会有原来的域名IP地址的缓存，就不用去找根服务器了。<br> 2.4. 找到了，就能找到我们要访问的服务器了。</li>
 </ol>
 <hr>
-<h1 id="根域名"><a href="#根域名" class="headerlink" title="根域名"></a>根域名</h1><p><img src="/2025/02/24/CNAME%E5%92%8CDNS/RootDomain.jpg" alt="图片" title="域名结构"><br>Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).</p>
+<h1 id="根域名"><a href="#根域名" class="headerlink" title="根域名"></a>根域名</h1><p><img src="/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/RootDomain.jpg" alt="图片" title="域名结构"><br>Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).</p>
 <hr>
 <h1 id="A-记录"><a href="#A-记录" class="headerlink" title="A 记录"></a>A 记录</h1><p>Address Record indicates the IP address of a given domain. For example, if you pull the DNS records of cloudflare.com, the A record currently returns an IP address of: 104.17.210.9. A records only hold IPv4 addresses. If a website has an IPv6 address, it will instead use an “AAAA” record.</p>
-<p><img src="/2025/02/24/CNAME%E5%92%8CDNS/ARecord.png" alt="图片" title="A记录组成部分"></p>
+<p><img src="/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/ARecord.png" alt="图片" title="A记录组成部分"></p>
 <p>The “@” symbol in this example indicates that this is a record for the root domain, and the “14400” value is the TTL (time to live), listed in seconds. The default TTL for A records is 14,400 seconds. This means that if an A record gets updated, it takes 240 minutes (14,400 seconds) to take effect.</p>
 <hr>
 <h1 id="内容分发网络"><a href="#内容分发网络" class="headerlink" title="内容分发网络"></a>内容分发网络</h1><p>内容分发网络 (CDN) 是一个分布在不同地理位置的服务器群，用于缓存靠近最终用户的内容。CDN 可以快速传输加载互联网内容所需的资产，包括 HTML 网页、JavaScript 文件、样式表、图像和视频。</p>
@@ -401,7 +530,7 @@
 <p><a target="_blank" rel="noopener" href="http://www.dd.com/">www.dd.com</a> → <a target="_blank" rel="noopener" href="http://www.dd.cdn.com/">www.dd.cdn.com</a></p>
 </blockquote>
 <p>当用户访问<a href="http://www.dd.com的时候，本地DNS会获得CDN提供的CNAME域名：www.dd.cdn.com，然后再次向DNS调度系统发出请求，通过DNS调度系统的智能解析，把离客户端地理位置最近的（或者相对负载低的，主要看CDN那边智能解析的策略）CDN提供商的服务器IP返回给本地DNS，然后再由本地DNS回给客户端，让用户就近取到想要的资源（如访问网站），大大降低了延迟。">www.dd.com的时候，本地DNS会获得CDN提供的CNAME域名：www.dd.cdn.com，然后再次向DNS调度系统发出请求，通过DNS调度系统的智能解析，把离客户端地理位置最近的（或者相对负载低的，主要看CDN那边智能解析的策略）CDN提供商的服务器IP返回给本地DNS，然后再由本地DNS回给客户端，让用户就近取到想要的资源（如访问网站），大大降低了延迟。</a></p>
-<p><img src="/2025/02/24/CNAME%E5%92%8CDNS/CDN.png" alt="图片" title="使用CNAME配置使用CDN服务器"></p>
+<p><img src="/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/CDN.png" alt="图片" title="使用CNAME配置使用CDN服务器"></p>
 <hr>
 <h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>域名解析：<a target="_blank" rel="noopener" href="https://www.cloudflare.com/learning/dns/what-is-dns/">https://www.cloudflare.com/learning/dns/what-is-dns/</a><br>CNAME别名记录：<a target="_blank" rel="noopener" href="https://blog.csdn.net/DD_orz/article/details/100034049">https://blog.csdn.net/DD_orz/article/details/100034049</a></p>
 <hr>
@@ -461,7 +590,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-26 11:36:31" itemprop="dateModified" datetime="2025-02-26T11:36:31+08:00">2025-02-26</time>
+                <time title="Modified: 2025-02-27 14:51:37" itemprop="dateModified" datetime="2025-02-27T14:51:37+08:00">2025-02-27</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -558,7 +687,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-26 10:38:29" itemprop="dateModified" datetime="2025-02-26T10:38:29+08:00">2025-02-26</time>
+                <time title="Modified: 2025-02-27 14:51:40" itemprop="dateModified" datetime="2025-02-27T14:51:40+08:00">2025-02-27</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -566,7 +695,7 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index"><span itemprop="name">网络模型</span></a>
+                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a>
                 </span>
             </span>
 
@@ -665,7 +794,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-26 11:42:52" itemprop="dateModified" datetime="2025-02-26T11:42:52+08:00">2025-02-26</time>
+                <time title="Modified: 2025-02-27 14:43:06" itemprop="dateModified" datetime="2025-02-27T14:43:06+08:00">2025-02-27</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -673,7 +802,7 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index"><span itemprop="name">网络模型</span></a>
+                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a>
                 </span>
             </span>
 
@@ -798,7 +927,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-26 14:38:10" itemprop="dateModified" datetime="2025-02-26T14:38:10+08:00">2025-02-26</time>
+                <time title="Modified: 2025-02-28 15:58:52" itemprop="dateModified" datetime="2025-02-28T15:58:52+08:00">2025-02-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -806,7 +935,7 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index"><span itemprop="name">网络模型</span></a>
+                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a>
                 </span>
             </span>
 
@@ -897,7 +1026,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-26 11:45:13" itemprop="dateModified" datetime="2025-02-26T11:45:13+08:00">2025-02-26</time>
+                <time title="Modified: 2025-02-28 15:54:40" itemprop="dateModified" datetime="2025-02-28T15:54:40+08:00">2025-02-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1004,7 +1133,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-26 11:43:17" itemprop="dateModified" datetime="2025-02-26T11:43:17+08:00">2025-02-26</time>
+                <time title="Modified: 2025-02-27 14:42:35" itemprop="dateModified" datetime="2025-02-27T14:42:35+08:00">2025-02-27</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1012,7 +1141,7 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%94%BB%E9%9D%A2%E6%B8%B2%E6%9F%93/" itemprop="url" rel="index"><span itemprop="name">画面渲染</span></a>
+                  <a href="/categories/%E6%B8%B2%E6%9F%93/" itemprop="url" rel="index"><span itemprop="name">渲染</span></a>
                 </span>
             </span>
 
@@ -1156,144 +1285,11 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/" class="post-title-link" itemprop="url">设计模式六大原则</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-10 13:34:28" itemprop="dateCreated datePublished" datetime="2025-02-10T13:34:28+08:00">2025-02-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-26 11:37:38" itemprop="dateModified" datetime="2025-02-26T11:37:38+08:00">2025-02-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="一、单一设计原则（Single-Responsibility-Principle，SRP）"><a href="#一、单一设计原则（Single-Responsibility-Principle，SRP）" class="headerlink" title="一、单一设计原则（Single Responsibility Principle，SRP）"></a>一、单一设计原则（Single Responsibility Principle，SRP）</h1><p>定义：<br>一个类应该只有一个引起变化的原因，或者说一个类应该只有一个责任。</p>
-<p>关键思想：</p>
-<ol>
-<li>一个类应该专注于一种类型的任务，只有一个责任；</li>
-<li>一个类应该只有一个原因引起它变化。</li>
-</ol>
-<br>
-
-<h1 id="二、里氏替换原则（Liskov-Substitution-Principle，LSP）"><a href="#二、里氏替换原则（Liskov-Substitution-Principle，LSP）" class="headerlink" title="二、里氏替换原则（Liskov Substitution Principle，LSP）"></a>二、里氏替换原则（Liskov Substitution Principle，LSP）</h1><p>定义：<br>如果对于每一个类型为 S 的对象 o1，都有类型为 T 的对象 o2，使得以 T 定义的所有程序 P 在所有的对象 o1 都代换成 o2 时，程序 P 的行为没有发生变化，那么类型 S 是类型 T 的子类型。</p>
-<p>任何基类可以被其子类替代，而程序仍然能够保持正确性。换句话说，子类应该能够替代其基类而不引起程序错误。</p>
-<p>关键思想：</p>
-<ol>
-<li>子类型必须能够替代基类型，而程序的行为不会发生变化。</li>
-<li>子类型应该继承基类型的行为，并且能够按照期望使用。</li>
-</ol>
-<br>
-
-<h1 id="三、迪米特原则（Law-of-Demeter，LoD）"><a href="#三、迪米特原则（Law-of-Demeter，LoD）" class="headerlink" title="三、迪米特原则（Law of Demeter，LoD）"></a>三、迪米特原则（Law of Demeter，LoD）</h1><p>迪米特原则也被称为最少知识原则（Principle of Least Knowledge，PLK）或者直接调用原则（Least Knowledge for Law of Demeter，LKP），是面向对象设计中的一个原则，其核心思想是降低类之间的耦合度，减少对象之间的相互依赖。</p>
-<p>定义：<br>一个对象应该对其他对象保持最少的了解。具体来说，一个类不应该直接调用其他类的内部方法，而是通过它自己的方法或者通过传递给它的对象来完成某项操作</p>
-<p>关键点：</p>
-<ol>
-<li>一个对象应该对其他对象有最少的了解。</li>
-<li>类与类之间应该尽量减少耦合。</li>
-<li>不要直接访问其他对象的内部成员，而应该通过该对象提供的公共方法来进行间接访问。</li>
-</ol>
-<br>
-
-<h1 id="四、依赖倒置原则（Dependency-Inversion-Principle，DIP）"><a href="#四、依赖倒置原则（Dependency-Inversion-Principle，DIP）" class="headerlink" title="四、依赖倒置原则（Dependency Inversion Principle，DIP）"></a>四、依赖倒置原则（Dependency Inversion Principle，DIP）</h1><p>定义：<br>高层模块不应该依赖于低层模块，两者都应该依赖于抽象。</p>
-<p>抽象不应该依赖于细节，细节应该依赖于抽象。</p>
-<p>这意味着在设计系统时，应该避免高层次模块（比如模块的业务逻辑）依赖于低层次模块（比如数据库操作或具体实现类），而应该依赖于抽象，即接口或抽象类。这样可以使系统更加灵活，易于扩展和维护。</p>
-<p>关键点：</p>
-<ol>
-<li>高层次的模块（例如业务逻辑）不应该依赖于低层次的模块（例如具体实现），两者都应该依赖于抽象（接口或抽象类）。</li>
-<li>抽象不应该依赖于具体的实现，具体的实现应该依赖于抽象。</li>
-</ol>
-<br>
-
-<h1 id="五、接口隔离原则（Interface-Segregation-Principle，ISP）"><a href="#五、接口隔离原则（Interface-Segregation-Principle，ISP）" class="headerlink" title="五、接口隔离原则（Interface Segregation Principle，ISP）"></a>五、接口隔离原则（Interface Segregation Principle，ISP）</h1><p>定义：<br>接口隔离原则是面向对象设计中的一条原则，它强调一个类不应该强制依赖它不使用的接口。具体来说，一个类对其他类的依赖关系应该建立在最小的接口集上。</p>
-<p>关键点：</p>
-<ol>
-<li>一个类不应该被迫依赖它不使用的接口。</li>
-<li>客户端不应该被迫依赖它不使用的方法。</li>
-</ol>
-<p>这两点意味着接口设计应该精简，只包含客户端需要的方法，避免将不相关的方法强行放在同一个接口中。</p>
-<br>
-
-<h1 id="六、开闭原则（Open-Closed-Principle，OCP）"><a href="#六、开闭原则（Open-Closed-Principle，OCP）" class="headerlink" title="六、开闭原则（Open&#x2F;Closed Principle，OCP）"></a>六、开闭原则（Open&#x2F;Closed Principle，OCP）</h1><p>定义：<br>开闭原则是面向对象设计中的一个基本原则，它由勃兰特·梅耶（Bertrand Meyer）提出，并由罗伯特·C·马丁（Robert C. Martin）进一步发扬光大。该原则的定义是：</p>
-<p>软件实体（类、模块、函数等）应该对扩展开放，对修改关闭。</p>
-<p>这意味着一个软件实体可以通过扩展来应对新的行为需求，而不需要修改已有的代码。这可以通过抽象和接口实现，以确保对于新增功能的引入，不需要修改现有的代码，而是通过扩展来实现。</p>
-<p>关键点：</p>
-<ol>
-<li>对扩展开放： 新的功能应该通过新增代码而不是修改已有代码的方式引入。</li>
-<li>对修改关闭： 已有的代码在引入新的功能时不应该被修改，以确保稳定性。</li>
-</ol>
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>六大设计原则举例说明：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45165610/article/details/136027921">https://blog.csdn.net/qq_45165610/article/details/136027921</a></p>
-<hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+  </nav>
 
 
 
@@ -1366,7 +1362,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">11</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1379,7 +1375,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

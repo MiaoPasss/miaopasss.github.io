@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="VAO（vertex-array object）顶点数组对象，用来管理VBO。 VBO（vertex buffer object）顶点缓冲对象，用来缓存用户传入的顶点数据。 EBO（element buffer object）索引缓冲对象，用来存放顶点索引数据。  A VAO is an array of VBOs   一、什么是OpenGLOpenGL是一套方便于用户使用的规范，而其本身包含了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenGL顶点绘制数据">
+<meta property="og:url" content="https://miaopasss.github.io/2025/02/27/OpenGL%E9%A1%B6%E7%82%B9%E7%BB%98%E5%88%B6%E6%95%B0%E6%8D%AE/index.html">
+<meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
+<meta property="og:description" content="VAO（vertex-array object）顶点数组对象，用来管理VBO。 VBO（vertex buffer object）顶点缓冲对象，用来缓存用户传入的顶点数据。 EBO（element buffer object）索引缓冲对象，用来存放顶点索引数据。  A VAO is an array of VBOs   一、什么是OpenGLOpenGL是一套方便于用户使用的规范，而其本身包含了">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://miaopasss.github.io/2025/02/27/OpenGL%E9%A1%B6%E7%82%B9%E7%BB%98%E5%88%B6%E6%95%B0%E6%8D%AE/VAO.png">
+<meta property="og:image" content="https://miaopasss.github.io/2025/02/27/OpenGL%E9%A1%B6%E7%82%B9%E7%BB%98%E5%88%B6%E6%95%B0%E6%8D%AE/glVertexAttribPointer.png">
+<meta property="article:published_time" content="2025-02-27T03:30:52.000Z">
+<meta property="article:modified_time" content="2025-02-28T07:35:00.170Z">
+<meta property="article:author" content="Haotian Luo">
+<meta property="article:tag" content="OpenGL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://miaopasss.github.io/2025/02/27/OpenGL%E9%A1%B6%E7%82%B9%E7%BB%98%E5%88%B6%E6%95%B0%E6%8D%AE/VAO.png">
+
+<link rel="canonical" href="https://miaopasss.github.io/2025/02/27/OpenGL%E9%A1%B6%E7%82%B9%E7%BB%98%E5%88%B6%E6%95%B0%E6%8D%AE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>OpenGL顶点绘制数据 | 乌啦呀哈呀哈乌啦！</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">乌啦呀哈呀哈乌啦！</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">欢迎光临，这里是喵pass的个人博客，希望有能帮到你的地方
+</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页 | Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类 | Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签 | Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档 | Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/miaopasss" class="github-corner" title="Check out my GitHub" aria-label="Check out my GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/27/OpenGL%E9%A1%B6%E7%82%B9%E7%BB%98%E5%88%B6%E6%95%B0%E6%8D%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OpenGL顶点绘制数据
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-27 11:30:52" itemprop="dateCreated datePublished" datetime="2025-02-27T11:30:52+08:00">2025-02-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-28 15:35:00" itemprop="dateModified" datetime="2025-02-28T15:35:00+08:00">2025-02-28</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B8%B2%E6%9F%93/" itemprop="url" rel="index"><span itemprop="name">渲染</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li>VAO（vertex-array object）顶点数组对象，用来管理VBO。</li>
+<li>VBO（vertex buffer object）顶点缓冲对象，用来缓存用户传入的顶点数据。</li>
+<li>EBO（element buffer object）索引缓冲对象，用来存放顶点索引数据。</li>
+</ul>
+<p>A VAO is an array of VBOs</p>
+<p><img src="/2025/02/27/OpenGL%E9%A1%B6%E7%82%B9%E7%BB%98%E5%88%B6%E6%95%B0%E6%8D%AE/VAO.png" title="VAO和VBO之间的关系"> <br></p>
+<h1 id="一、什么是OpenGL"><a href="#一、什么是OpenGL" class="headerlink" title="一、什么是OpenGL"></a>一、什么是OpenGL</h1><p>OpenGL是一套方便于用户使用的规范，而其本身包含了调用不同厂商直接在GPU中写好的程序接口，那些接口完成所有的功能实现，如完成2D、3D矢量图形渲染等功能（跨语言，跨平台）。</p>
+<p>OpenGL by itself is not an API, but merely a specification. The OpenGL specification specifies exactly what the result&#x2F;output of each function should be and how it should perform. It is then up to the developers implementing this specification to come up with a solution of how this function should operate.<br>The people developing the actual OpenGL libraries are usually the graphics card manufacturers. Each graphics card that you buy supports specific versions of OpenGL which are the versions of OpenGL developed specifically for that card (series).</p>
+<h2 id="OpenGL-vs-OpenCL"><a href="#OpenGL-vs-OpenCL" class="headerlink" title="OpenGL vs OpenCL"></a>OpenGL vs OpenCL</h2><ol>
+<li>总体来说，OpenGL 主要做图形渲染，OpenCL 主要用 GPU 做通用计算。图形渲染的主要特点是 渲染管线基本单元，如光栅化、深度测试、模板测试、混合等等的实现。</li>
+<li>OpenGL 可以用 Compute Shader 实现 OpenCL 同样的功能，但一般厂商对 Compute Shader 中低精度计算的支持（fp16 &#x2F; int8 等）不如 OpenCL ，性能会差一些</li>
+<li>基于 OpenCL 编程可以自己实现 OpenGL 中的渲染操作，但由于没有图形接口，实现渲染管线基本单元效率较低。</li>
+<li>OpenCL 和 OpenGL 最终实现都是往 GPU 发 Command Buffer ，不会互相影响，最多就是互相抢GPU计算资源。但如果有数据依赖关系，因为管线不同，两者是需要做额外同步的。</li>
+</ol>
+<p>opengl里叫drawcall，opencl里叫enqueue，vulkan里叫commandbuffer，虽然叫法不一样，但目的都是把指令从CPU发到GPU上运算。</p>
+<p>cuda其实就是把kernel代码和c代码混合到一起写而已，最终也要把数据发到GPU去算，属于编译器支持的隐式发送。就好比写c&#x2F;c++调其他库api的时候，可以配置好库lib或者so位置，包个头文件就直接用，也可以自己动态加载对应库API一样。</p>
+<h2 id="OpenGL渲染过程"><a href="#OpenGL渲染过程" class="headerlink" title="OpenGL渲染过程"></a>OpenGL渲染过程</h2><p>因为c++写的程序都是在cpu上运行的，但是OpenGL的接口是在GPU上运行的，而且OpenGL并不能凭空做程序中的数据或者是取代一些程序上的事，它是一种状态机，程序从cpu发数据到缓冲区并且告诉GPU你从哪一块缓冲区取数据画什么，然后提前设计好的着色器开始根据数据画图最后显示在显示器上。</p>
+<p>画图渲染的顺序如下：</p>
+<ol>
+<li>声明一个缓冲区</li>
+<li>声明之后需要绑定，因为在GPU中的缓冲区都是有编号的，或者说是有管理的</li>
+<li>现在要给一个缓冲区塞数据，每个接口函数都可以通过说明文档来查看参数的意义和使用</li>
+<li>我们需要告诉着色器我们的数据是怎么样的， 或者说是怎么处理这些数据</li>
+</ol>
+<h2 id="glVertexAttribPointer函数"><a href="#glVertexAttribPointer函数" class="headerlink" title="glVertexAttribPointer函数"></a>glVertexAttribPointer函数</h2><p>void glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer);</p>
+<p><img src="/2025/02/27/OpenGL%E9%A1%B6%E7%82%B9%E7%BB%98%E5%88%B6%E6%95%B0%E6%8D%AE/glVertexAttribPointer.png" title="glVertexAttribPointer函数参数解释"></p>
+<p>人话就是：</p>
+<p>index：我们从第几个顶点开始访问<br>size：一个顶点属性值里面有几个数值<br>type：每个值的数据类型<br>normalized：是否要转化为统一的值<br>stride：步幅 每个顶点属性值的大小，就是到下一个顶点的开始的字节偏移量。<br>pointer：在开始访问到顶点属性值的时候开始的指针位置（注意和Index的区别）<br>其实你就是把顶点属性值想象成结构体就行了，然后多个结构体一起存，和网络传输一样，我发送给了另一边需要解析网络包，是不是需要找我结构体开始的位置，然后一个结构体的大小，然后结构体对齐里面有什么，分别解析，还有步幅指针，我还可以跳过结构体，是一样的道理。</p>
+<h1 id="二、VBO"><a href="#二、VBO" class="headerlink" title="二、VBO"></a>二、VBO</h1><h2 id="glVertex"><a href="#glVertex" class="headerlink" title="glVertex"></a>glVertex</h2><p>最原始的设置顶点方法，在glBegin和glEnd之间使用。OpenGL3.0已经废弃此方法。每个glVertex与GPU进行一次通信，十分低效。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">glBegin</span>(GL_TRIANGLES);</span><br><span class="line">    <span class="built_in">glVertex</span>(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="built_in">glVertex</span>(<span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line">    <span class="built_in">glVertex</span>(<span class="number">2</span>, <span class="number">2</span>);</span><br><span class="line"><span class="built_in">glEnd</span>();</span><br></pre></td></tr></table></figure>
+
+<h2 id="顶点数组-Vertex-Array"><a href="#顶点数组-Vertex-Array" class="headerlink" title="顶点数组 Vertex Array"></a>顶点数组 Vertex Array</h2><p>顶点数组也是收集好所有的顶点，一次性发送给GPU。不过数据不是存储于GPU中的，绘制速度上没有显示列表快，优点是可以修改数据。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> MEDIUM_STARS 40</span></span><br><span class="line">M3DVector2f vMediumStars[MEDIUM_STARS];</span><br><span class="line"><span class="comment">//在这做点vMediumStars的设置//</span></span><br><span class="line"><span class="built_in">glVertexPointer</span>(<span class="number">2</span>, GL_FLOAT, <span class="number">0</span>, vMediumStars);</span><br><span class="line"><span class="built_in">glDrawArrays</span>(GL_POINTS, <span class="number">0</span>, MEDIUM_STARS);</span><br></pre></td></tr></table></figure>
+
+<h2 id="VBO-顶点缓冲对象"><a href="#VBO-顶点缓冲对象" class="headerlink" title="VBO 顶点缓冲对象"></a>VBO 顶点缓冲对象</h2><p>VBO，全称为Vertex Buffer Object，与FBO，PBO并称，但它实际上老不少。就某种意义来说，他就是VA（Vertex Array）的升级版。VBO出现的背景是人们发现VA和显示列表还有让人不满足的地方。一般，在OpenGL里，提高顶点绘制的办法：</p>
+<p>(1)显示列表：把常规的glBegin()-glEnd()中的代码放到一个显示列表中（通常在初始化阶段完成），然后每遍渲染都调用这个显示列表。<br>(2)VA：使用顶点数组，把顶点以及顶点属性数据作为数组，渲染的时候直接用一个或几个函数调动这些数组里的数据进行绘制，形式上是减少函数调用的次数（告别glVertex），提高绘制效率。</p>
+<p>但是，这两种方法都有缺点。VA是在客户端设置的，所以执行这类函数（glDrawArray或glDrawElement）后，客户端还得把得到的顶点数据向服务端传输一次（所谓的“二次处理”），这样一来就有了不必要的动作了，降低了效率——如果我们写的函数能直接把顶点数据发送给服务端就好了——这正是VBO的特性之一。显示列表的缺点在于它的古板，一旦设定就不容许修改，所以它只适合对一些“固定”的东西的绘制进行包装。（我们无办法直接在硬件层改顶点数据，因为这是脱离了流水线的事物）。<br>而VBO直接把顶点数据交到流水线的第一步，与显示列表的效率还是有差距，但它这样就得到了操作数据的弹性——渲染阶段，我们的VBO绘制函数持续把顶点数据交给流水线，在某一刻我们可以把该帧到达了流水线的顶点数据取回客户端修改(Vertex mapping)，再提交回流水线(Vertex unmapping)，或者用 glBufferData&#x2F;glBufferSubData 重新全部或buffer提交修改了的顶点数据，这是VBO的另一个特性。</p>
+<p>VBO结合了VA和显示列表这个说法不太妥当，应该说它结合了两者的一些特性，绘制效率在两者之间，且拥有良好的数据更改弹性。这种折衷造就了它一直为目前最高的地位。</p>
+<p>当我们在顶点着色器中把顶点传送到GPU中的时候，不能每个顶点数据传送一次，因为太耗时而且造成资源浪费，所以就要用到缓冲对象，我们把大量的数据存储在GPU内存上，然后一次传输大量数据到显卡上，顶点缓冲对象就是帮助我们来管理GPU内存的。</p>
+<h2 id="顶点缓冲流程"><a href="#顶点缓冲流程" class="headerlink" title="顶点缓冲流程"></a>顶点缓冲流程</h2><p>首先我们需要使用glVertexAttribPointer函数告诉OpenGL该如何解析顶点数据，一定要使用该函数来配置各个属性的数据，因为顶点数据不只包含位置，还可能会包含顶点颜色、顶点法线等等，那一个顶点数据是如何被OpenGL解析然后放入到顶点着色器的各个属性中，就需要通过该函数进行准确的配置。<br>每个顶点属性从一个VBO管理的内存中获得它的数据，而具体是从哪个VBO（程序中可以有多个VBO）获取则是通过在调用glVetexAttribPointer时绑定到GL_ARRAY_BUFFER的VBO决定的，因为同一个类型的缓冲区同时最多绑定一个目标缓冲。</p>
+<h1 id="三、VAO"><a href="#三、VAO" class="headerlink" title="三、VAO"></a>三、VAO</h1><h2 id="VAO-顶点数组对象"><a href="#VAO-顶点数组对象" class="headerlink" title="VAO 顶点数组对象"></a>VAO 顶点数组对象</h2><p>VAO并不是必须的，VBO可以独立使用，VBO缓存了数据，而数据的使用 方式（glVertexAttribPointer 指定的数据宽度等信息）并没有缓存，VBO将顶点信息放到GPU中，GPU在渲染时去缓存中取数据，二者中间的桥梁是GL-Context。GL-Context整个程序一般只有一个，所以如果一个渲染流程里有两份不同的绘制代码，当切换VBO时（有多个VBO时，通过glBindBuffer切换 ），数据使用方式信息就丢失了。而GL-context就负责在他们之间进行切换。这也是为什么要在渲染过程中，在每份绘制代码之中会有glBindbuffer、glEnableVertexAttribArray、glVertexAttribPointer。VAO记录该次绘制所需要的所有VBO所需信息，把它保存到VBO特定位置，绘制的时候直接在这个位置取信息绘制。　</p>
+<p>VAO的全名是Vertex Array Object，首先，它不是Buffer-Object，所以不用作存储数据；其次，它针对“顶点”而言，也就是说它跟“顶点的绘制”息息相关。我们每一次绘制的时候，都需要绑定缓冲对象以此来拿到顶点数据，都需要去配置顶点属性指针以便OpenGL知道如何来解析顶点数据，这是相当麻烦的，对一个多边形而言，它每次的配置都是相同的，如何来存储这个相同的配置呢。<br>VAO为我们解决了这个大麻烦，当配置顶点属性数据的时候，只需要将配置函数调用执行一次，随后再绘制该物体的时候就只需要绑定相应的VAO即可，这样，我们就可以通过绑定不同的VAO（提醒，与VBO一样，同一时刻只能绑定一个VAO），使得在不同的顶点数据和属性配置切换变得非常简单。VAO记录的是一次绘制中所需要的信息，这包括“数据在哪里glBindBuffer”、“数据的格式是怎么样的glVertexAttribPointer”、shader-attribute的location的启用glEnableVertexAttribArray。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);</span><br><span class="line">glEnableVertexAttribArray(0);</span><br></pre></td></tr></table></figure>
+
+<p>VAO的使用非常简单，要想使用VAO，要做的只是使用glBindVertexArray绑定VAO。从绑定之后起，我们应该绑定和配置对应的VBO和属性指针，配置完以后，VAO中就存储了我们想要的各种数据，之后解绑VAO供之后使用，再次使用需要我们再次绑定。</p>
+<p>注意：glVertexAttribPointer()这个函数会自动从当前绑定的VBO里获取顶点数据，所以在第一节VBO里如果想要使用正确的顶点数据，每次都要绑定相应的VBO，但是现在，我们在绑定VBO之前绑定了VAO，那么glEnableVertexAttribPointer()所进行的配置就会保存在VAO中。我们可以通过不同的配置从一个VBO内拿到不同的数据放入不同的VAO中，这样VAO中就有了我们所需要的数据，它根据顶点配置到VBO中索取到数据，之后直接绑定相应的VAO即可，glDrawArrays()函数就是需要从VAO中拿到数据进行绘制。但是要明白的是，我们是通过VAO来间接绑定VBO的，实际上数据还是要存储在VBO中的，VAO内并没有存储顶点的数据，如果我们要绘制两个不同的三角形，我们可能需要定义两个VBO，每个VBO内有三个顶点数据。</p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>OpenGL: <a target="_blank" rel="noopener" href="https://learnopengl.com/Getting-started/OpenGL">https://learnopengl.com/Getting-started/OpenGL</a><br>VAO和VBO: <a target="_blank" rel="noopener" href="https://blog.csdn.net/p942005405/article/details/103770259">https://blog.csdn.net/p942005405/article/details/103770259</a></p>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/OpenGL/" rel="tag"># OpenGL</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/02/25/Mono-vs-IL2CPP/" rel="prev" title="Mono vs. IL2CPP">
+      <i class="fa fa-chevron-left"></i> Mono vs. IL2CPP
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AFOpenGL"><span class="nav-number">1.</span> <span class="nav-text">一、什么是OpenGL</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#OpenGL-vs-OpenCL"><span class="nav-number">1.1.</span> <span class="nav-text">OpenGL vs OpenCL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#OpenGL%E6%B8%B2%E6%9F%93%E8%BF%87%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">OpenGL渲染过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#glVertexAttribPointer%E5%87%BD%E6%95%B0"><span class="nav-number">1.3.</span> <span class="nav-text">glVertexAttribPointer函数</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81VBO"><span class="nav-number">2.</span> <span class="nav-text">二、VBO</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#glVertex"><span class="nav-number">2.1.</span> <span class="nav-text">glVertex</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%B6%E7%82%B9%E6%95%B0%E7%BB%84-Vertex-Array"><span class="nav-number">2.2.</span> <span class="nav-text">顶点数组 Vertex Array</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VBO-%E9%A1%B6%E7%82%B9%E7%BC%93%E5%86%B2%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.3.</span> <span class="nav-text">VBO 顶点缓冲对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%B6%E7%82%B9%E7%BC%93%E5%86%B2%E6%B5%81%E7%A8%8B"><span class="nav-number">2.4.</span> <span class="nav-text">顶点缓冲流程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81VAO"><span class="nav-number">3.</span> <span class="nav-text">三、VAO</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#VAO-%E9%A1%B6%E7%82%B9%E6%95%B0%E7%BB%84%E5%AF%B9%E8%B1%A1"><span class="nav-number">3.1.</span> <span class="nav-text">VAO 顶点数组对象</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number">4.</span> <span class="nav-text">Credits</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Haotian Luo"
+      src="/images/exciting-usagi.gif">
+  <p class="site-author-name" itemprop="name">Haotian Luo</p>
+  <div class="site-description" itemprop="description"><font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/miaopasss" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;miaopasss" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hubery.luo@icloud.com" title="E-Mail → mailto:hubery.luo@icloud.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Haotian Luo</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/02/27/OpenGL%E9%A1%B6%E7%82%B9%E7%BB%98%E5%88%B6%E6%95%B0%E6%8D%AE/',]
+      });
+      });
+  </script>
+
+</body>
+</html>
