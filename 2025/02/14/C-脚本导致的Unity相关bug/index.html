@@ -20,20 +20,20 @@
     var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Unity 2022.3.55f1 问题：属性(Property)和访问器(Accessor)如果在当前属性中直接添加自定义get和set访问器，在Unity引擎中访问&#x2F;修改此属性时游戏会闪退。 123456789public class TestClass : MonoBehaviour&#123;    public int TestProperty &#123;        ge">
+  <meta name="description" content="问题：属性(Property)和访问器(Accessor)如果在当前属性中直接添加自定义get和set访问器，在Unity引擎中访问&#x2F;修改此属性时游戏会闪退。 123456789public class TestClass : MonoBehaviour&#123;    public int TestProperty &#123;        get &#123; return T">
 <meta property="og:type" content="article">
-<meta property="og:title" content="目前遇到的所有C#脚本导致Unity卡死&#x2F;闪退的bug">
-<meta property="og:url" content="https://miaopasss.github.io/2025/02/14/%E7%9B%AE%E5%89%8D%E9%81%87%E5%88%B0%E7%9A%84%E6%89%80%E6%9C%89C-%E8%84%9A%E6%9C%AC%E5%AF%BC%E8%87%B4Unity%E5%8D%A1%E6%AD%BB-%E9%97%AA%E9%80%80%E7%9A%84%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:title" content="C#脚本导致的Unity相关bug">
+<meta property="og:url" content="https://miaopasss.github.io/2025/02/14/C-%E8%84%9A%E6%9C%AC%E5%AF%BC%E8%87%B4%E7%9A%84Unity%E7%9B%B8%E5%85%B3bug/index.html">
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:description" content="Unity 2022.3.55f1 问题：属性(Property)和访问器(Accessor)如果在当前属性中直接添加自定义get和set访问器，在Unity引擎中访问&#x2F;修改此属性时游戏会闪退。 123456789public class TestClass : MonoBehaviour&#123;    public int TestProperty &#123;        ge">
+<meta property="og:description" content="问题：属性(Property)和访问器(Accessor)如果在当前属性中直接添加自定义get和set访问器，在Unity引擎中访问&#x2F;修改此属性时游戏会闪退。 123456789public class TestClass : MonoBehaviour&#123;    public int TestProperty &#123;        get &#123; return T">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-02-14T05:14:58.000Z">
-<meta property="article:modified_time" content="2025-03-07T03:47:55.037Z">
+<meta property="article:modified_time" content="2025-03-12T09:49:44.480Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Unity">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://miaopasss.github.io/2025/02/14/%E7%9B%AE%E5%89%8D%E9%81%87%E5%88%B0%E7%9A%84%E6%89%80%E6%9C%89C-%E8%84%9A%E6%9C%AC%E5%AF%BC%E8%87%B4Unity%E5%8D%A1%E6%AD%BB-%E9%97%AA%E9%80%80%E7%9A%84%E9%97%AE%E9%A2%98/">
+<link rel="canonical" href="https://miaopasss.github.io/2025/02/14/C-%E8%84%9A%E6%9C%AC%E5%AF%BC%E8%87%B4%E7%9A%84Unity%E7%9B%B8%E5%85%B3bug/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>目前遇到的所有C#脚本导致Unity卡死/闪退的bug | 乌啦呀哈呀哈乌啦！</title>
+  <title>C#脚本导致的Unity相关bug | 乌啦呀哈呀哈乌啦！</title>
   
 
 
@@ -165,7 +165,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/14/%E7%9B%AE%E5%89%8D%E9%81%87%E5%88%B0%E7%9A%84%E6%89%80%E6%9C%89C-%E8%84%9A%E6%9C%AC%E5%AF%BC%E8%87%B4Unity%E5%8D%A1%E6%AD%BB-%E9%97%AA%E9%80%80%E7%9A%84%E9%97%AE%E9%A2%98/">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/14/C-%E8%84%9A%E6%9C%AC%E5%AF%BC%E8%87%B4%E7%9A%84Unity%E7%9B%B8%E5%85%B3bug/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/exciting-usagi.gif">
@@ -184,7 +184,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          目前遇到的所有C#脚本导致Unity卡死/闪退的bug
+          C#脚本导致的Unity相关bug
         </h1>
 
         <div class="post-meta">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-07 11:47:55" itemprop="dateModified" datetime="2025-03-07T11:47:55+08:00">2025-03-07</time>
+                <time title="Modified: 2025-03-12 17:49:44" itemprop="dateModified" datetime="2025-03-12T17:49:44+08:00">2025-03-12</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -231,11 +231,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Unity-2022-3-55f1"><a href="#Unity-2022-3-55f1" class="headerlink" title="Unity 2022.3.55f1"></a>Unity 2022.3.55f1</h1><hr>
-<h2 id="问题：属性-Property-和访问器-Accessor"><a href="#问题：属性-Property-和访问器-Accessor" class="headerlink" title="问题：属性(Property)和访问器(Accessor)"></a>问题：属性(Property)和访问器(Accessor)</h2><p>如果在当前属性中直接添加自定义get和set访问器，在Unity引擎中访问&#x2F;修改此属性时游戏会闪退。</p>
+        <hr>
+<h1 id="问题：属性-Property-和访问器-Accessor"><a href="#问题：属性-Property-和访问器-Accessor" class="headerlink" title="问题：属性(Property)和访问器(Accessor)"></a>问题：属性(Property)和访问器(Accessor)</h1><p>如果在当前属性中直接添加自定义get和set访问器，在Unity引擎中访问&#x2F;修改此属性时游戏会闪退。</p>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TestClass</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> TestProperty &#123;</span><br><span class="line">        <span class="keyword">get</span> &#123; <span class="keyword">return</span> TestProperty;&#125;</span><br><span class="line">        <span class="keyword">set</span> &#123;</span><br><span class="line">            TestProperty = <span class="keyword">value</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><ol>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><ol>
 <li>直接使用默认访问器</li>
 </ol>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">StartPage</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> TestProperty &#123;</span><br><span class="line">        <span class="keyword">get</span>;</span><br><span class="line">        <span class="keyword">set</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -245,11 +245,28 @@
 </ol>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">StartPage</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">int</span> testProperty;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> TestProperty &#123;</span><br><span class="line">        <span class="keyword">get</span> &#123; <span class="keyword">return</span> testProperty;&#125;</span><br><span class="line">        <span class="keyword">set</span> &#123;</span><br><span class="line">            testProperty = <span class="keyword">value</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="问题：Start函数中使用不当loop循环"><a href="#问题：Start函数中使用不当loop循环" class="headerlink" title="问题：Start函数中使用不当loop循环"></a>问题：Start函数中使用不当loop循环</h2><p>如果在start函数中使用while循环处理资源加载进度条，Unity引擎会在importing asset弹窗中卡死</p>
+<hr>
+<h1 id="问题：Start函数中使用不当loop循环"><a href="#问题：Start函数中使用不当loop循环" class="headerlink" title="问题：Start函数中使用不当loop循环"></a>问题：Start函数中使用不当loop循环</h1><p>如果在start函数中使用while循环处理资源加载进度条，Unity引擎会在importing asset弹窗中卡死</p>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TestClass</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> Progressbar loadingBar;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> AssetLabelReference gameImageAssets;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span> &#123;</span><br><span class="line">        AsyncOperationHandle asyncHandle = Addressables.LoadAssetsAsync&lt;Sprite&gt;(gameImageAssets, _ =&gt; &#123;&#125;);</span><br><span class="line">        asyncHandle.Completed += EnterGame;</span><br><span class="line">        StartCoroutine(GameLoadingCoroutine(asyncHandle));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> IEnumerator <span class="title">GameLoadingCoroutine</span>(<span class="params">AsyncOperationHandle handle</span>)</span> &#123;</span><br><span class="line">        <span class="comment">// yield return Addressables.LoadAssetsAsync&lt;Sprite&gt;(gameImageAssets, _ =&gt; &#123;&#125;);</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (!handle.IsDone &amp;&amp; handle.PercentComplete &lt; <span class="number">1f</span>)</span><br><span class="line">            loadingBar.SetProgressPercent(handle.PercentComplete);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">EnterGame</span>()</span> &#123;</span><br><span class="line">        <span class="comment">// Disable Loading bar</span></span><br><span class="line">        <span class="comment">// Enter gameplay</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h3><p>使用协程(Coroutine)将while操作与Unity生命周期同步</p>
+<h2 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h2><p>使用协程(Coroutine)将while操作与Unity生命周期同步</p>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TestClass</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> Progressbar loadingBar;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> AssetLabelReference gameImageAssets;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span> &#123;</span><br><span class="line">        AsyncOperationHandle asyncHandle = Addressables.LoadAssetsAsync&lt;Sprite&gt;(gameImageAssets, _ =&gt; &#123;&#125;);</span><br><span class="line">        StartCoroutine(GameLoadingCoroutine(asyncHandle));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> IEnumerator <span class="title">GameLoadingCoroutine</span>(<span class="params">AsyncOperationHandle handle</span>)</span> &#123;</span><br><span class="line">        <span class="keyword">while</span> (!handle.IsDone &amp;&amp; handle.PercentComplete &lt; <span class="number">1f</span>) &#123;</span><br><span class="line">            loadingBar.SetProgressPercent(handle.PercentComplete);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (handle.Status == AsyncOperationStatus.Succeeded)</span><br><span class="line">            EnterGame();</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            Debug.LogError(<span class="string">$&quot;Failed to load game asset sprites: <span class="subst">&#123;handle.Status&#125;</span>&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">EnterGame</span>()</span> &#123;</span><br><span class="line">        <span class="comment">// Disable Loading bar</span></span><br><span class="line">        <span class="comment">// Enter gameplay</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="问题：在Awake-Start函数中修改GameObject位置"><a href="#问题：在Awake-Start函数中修改GameObject位置" class="headerlink" title="问题：在Awake&#x2F;Start函数中修改GameObject位置"></a>问题：在Awake&#x2F;Start函数中修改GameObject位置</h1><p>在Awake&#x2F;Start函数中GameObject的position component尚未初始化完成，此时修改位置将不会起作用</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">Start</span>()</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> newPos = transform.localPosition;</span><br><span class="line">    newPos.y += <span class="number">100</span>;</span><br><span class="line">    </span><br><span class="line">    transform.localPosition = newPos;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="解决方案-2"><a href="#解决方案-2" class="headerlink" title="解决方案"></a>解决方案</h2><ol>
+<li>在Start函数中等待一帧后再修改位置，此时GameObject的position component可使用</li>
+</ol>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> IEnumerator <span class="title">Start</span>()</span> &#123;</span><br><span class="line">    <span class="keyword">yield</span> <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> newPos = transform.localPosition;</span><br><span class="line">    newPos.y += <span class="number">100</span>;</span><br><span class="line">    </span><br><span class="line">    transform.localPosition = newPos;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>在Awake&#x2F;Start函数之后的函数进行修改位置操作</li>
+</ol>
+<hr>
+<h1 id="问题：使用dotween移动layout-group中的游戏对象会影响其他游戏对象"><a href="#问题：使用dotween移动layout-group中的游戏对象会影响其他游戏对象" class="headerlink" title="问题：使用dotween移动layout group中的游戏对象会影响其他游戏对象"></a>问题：使用dotween移动layout group中的游戏对象会影响其他游戏对象</h1><h2 id="举例：一个老虎机有5个转轴Reel-reels，移动reels-2-会将reels-0-和reels-1-的position清零"><a href="#举例：一个老虎机有5个转轴Reel-reels，移动reels-2-会将reels-0-和reels-1-的position清零" class="headerlink" title="举例：一个老虎机有5个转轴Reel[] reels，移动reels[2]会将reels[0]和reels[1]的position清零"></a>举例：一个老虎机有5个转轴Reel[] reels，移动reels[2]会将reels[0]和reels[1]的position清零</h2><hr>
+
     </div>
 
     
@@ -332,7 +349,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Unity-2022-3-55f1"><span class="nav-number">1.</span> <span class="nav-text">Unity 2022.3.55f1</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A%E5%B1%9E%E6%80%A7-Property-%E5%92%8C%E8%AE%BF%E9%97%AE%E5%99%A8-Accessor"><span class="nav-number">1.1.</span> <span class="nav-text">问题：属性(Property)和访问器(Accessor)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">1.1.1.</span> <span class="nav-text">解决方案</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9AStart%E5%87%BD%E6%95%B0%E4%B8%AD%E4%BD%BF%E7%94%A8%E4%B8%8D%E5%BD%93loop%E5%BE%AA%E7%8E%AF"><span class="nav-number">1.2.</span> <span class="nav-text">问题：Start函数中使用不当loop循环</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">解决方案</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A%E5%B1%9E%E6%80%A7-Property-%E5%92%8C%E8%AE%BF%E9%97%AE%E5%99%A8-Accessor"><span class="nav-number">1.</span> <span class="nav-text">问题：属性(Property)和访问器(Accessor)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">1.1.</span> <span class="nav-text">解决方案</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9AStart%E5%87%BD%E6%95%B0%E4%B8%AD%E4%BD%BF%E7%94%A8%E4%B8%8D%E5%BD%93loop%E5%BE%AA%E7%8E%AF"><span class="nav-number">2.</span> <span class="nav-text">问题：Start函数中使用不当loop循环</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88-1"><span class="nav-number">2.1.</span> <span class="nav-text">解决方案</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A%E5%9C%A8Awake-Start%E5%87%BD%E6%95%B0%E4%B8%AD%E4%BF%AE%E6%94%B9GameObject%E4%BD%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">问题：在Awake&#x2F;Start函数中修改GameObject位置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88-2"><span class="nav-number">3.1.</span> <span class="nav-text">解决方案</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A%E4%BD%BF%E7%94%A8dotween%E7%A7%BB%E5%8A%A8layout-group%E4%B8%AD%E7%9A%84%E6%B8%B8%E6%88%8F%E5%AF%B9%E8%B1%A1%E4%BC%9A%E5%BD%B1%E5%93%8D%E5%85%B6%E4%BB%96%E6%B8%B8%E6%88%8F%E5%AF%B9%E8%B1%A1"><span class="nav-number">4.</span> <span class="nav-text">问题：使用dotween移动layout group中的游戏对象会影响其他游戏对象</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BE%E4%BE%8B%EF%BC%9A%E4%B8%80%E4%B8%AA%E8%80%81%E8%99%8E%E6%9C%BA%E6%9C%895%E4%B8%AA%E8%BD%AC%E8%BD%B4Reel-reels%EF%BC%8C%E7%A7%BB%E5%8A%A8reels-2-%E4%BC%9A%E5%B0%86reels-0-%E5%92%8Creels-1-%E7%9A%84position%E6%B8%85%E9%9B%B6"><span class="nav-number">4.1.</span> <span class="nav-text">举例：一个老虎机有5个转轴Reel[] reels，移动reels[2]会将reels[0]和reels[1]的position清零</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -487,7 +504,7 @@
       quicklink({
         timeout : 3000,
         priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/02/14/%E7%9B%AE%E5%89%8D%E9%81%87%E5%88%B0%E7%9A%84%E6%89%80%E6%9C%89C-%E8%84%9A%E6%9C%AC%E5%AF%BC%E8%87%B4Unity%E5%8D%A1%E6%AD%BB-%E9%97%AA%E9%80%80%E7%9A%84%E9%97%AE%E9%A2%98/',]
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/02/14/C-%E8%84%9A%E6%9C%AC%E5%AF%BC%E8%87%B4%E7%9A%84Unity%E7%9B%B8%E5%85%B3bug/',]
       });
       });
   </script>
