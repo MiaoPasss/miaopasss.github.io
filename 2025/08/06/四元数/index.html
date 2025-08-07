@@ -20,24 +20,30 @@
     var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="域名解析协议 Domain Name System DNS让用户能够通过域名访问网页(www.baidu.com -&gt; 36.152.44.95) 计算机会先将域名发送到一个解析域名的服务器上 2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server) 2.2. 域名解析">
+  <meta name="description" content="四元数的定义四元数(Quaternion)是带有一个实部和三个虚部的一种扩展复数，有两种表达方式  标量形式   标量+向量形式   由于标量表达式中的 i，j，k 可以理解为相互正交的3个单位向量，于是四元数也可以表示为标量+向量的形式  四元数相关运算存在qa，qb两个四元数  共轭（conjugate）：  取逆（inverse）：  取模（magnitude）：  乘法：  四元数表示旋转">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CNAME和域名解析">
-<meta property="og:url" content="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:title" content="四元数">
+<meta property="og:url" content="https://miaopasss.github.io/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/index.html">
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:description" content="域名解析协议 Domain Name System DNS让用户能够通过域名访问网页(www.baidu.com -&gt; 36.152.44.95) 计算机会先将域名发送到一个解析域名的服务器上 2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server) 2.2. 域名解析">
+<meta property="og:description" content="四元数的定义四元数(Quaternion)是带有一个实部和三个虚部的一种扩展复数，有两种表达方式  标量形式   标量+向量形式   由于标量表达式中的 i，j，k 可以理解为相互正交的3个单位向量，于是四元数也可以表示为标量+向量的形式  四元数相关运算存在qa，qb两个四元数  共轭（conjugate）：  取逆（inverse）：  取模（magnitude）：  乘法：  四元数表示旋转">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/RootDomain.jpg">
-<meta property="og:image" content="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/ARecord.png">
-<meta property="og:image" content="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/CDN.png">
-<meta property="article:published_time" content="2025-02-24T05:34:05.000Z">
-<meta property="article:modified_time" content="2025-03-07T08:14:25.787Z">
+<meta property="og:image" content="https://miaopasss.github.io/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p1.png">
+<meta property="og:image" content="https://miaopasss.github.io/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p2.png">
+<meta property="og:image" content="https://miaopasss.github.io/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p3.png">
+<meta property="og:image" content="https://miaopasss.github.io/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p4.png">
+<meta property="og:image" content="https://miaopasss.github.io/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p5.png">
+<meta property="og:image" content="https://miaopasss.github.io/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p6.png">
+<meta property="og:image" content="https://miaopasss.github.io/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p7.png">
+<meta property="og:image" content="https://miaopasss.github.io/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p8.png">
+<meta property="article:published_time" content="2025-08-06T09:52:15.000Z">
+<meta property="article:modified_time" content="2025-08-07T09:42:32.277Z">
 <meta property="article:author" content="Haotian Luo">
-<meta property="article:tag" content="Domain Name Resolution">
+<meta property="article:tag" content="Geometry">
+<meta property="article:tag" content="Rotation">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/RootDomain.jpg">
+<meta name="twitter:image" content="https://miaopasss.github.io/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p1.png">
 
-<link rel="canonical" href="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/">
+<link rel="canonical" href="https://miaopasss.github.io/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/">
 
 
 <script id="page-configurations">
@@ -50,7 +56,7 @@
   };
 </script>
 
-  <title>CNAME和域名解析 | 乌啦呀哈呀哈乌啦！</title>
+  <title>四元数 | 乌啦呀哈呀哈乌啦！</title>
   
 
 
@@ -169,7 +175,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/exciting-usagi.gif">
@@ -188,7 +194,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          CNAME和域名解析
+          四元数
         </h1>
 
         <div class="post-meta">
@@ -198,14 +204,14 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2025-02-24 13:34:05" itemprop="dateCreated datePublished" datetime="2025-02-24T13:34:05+08:00">2025-02-24</time>
+              <time title="Created: 2025-08-06 17:52:15" itemprop="dateCreated datePublished" datetime="2025-08-06T17:52:15+08:00">2025-08-06</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-07 16:14:25" itemprop="dateModified" datetime="2025-03-07T16:14:25+08:00">2025-03-07</time>
+                <time title="Modified: 2025-08-07 17:42:32" itemprop="dateModified" datetime="2025-08-07T17:42:32+08:00">2025-08-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -213,7 +219,7 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Networks/" itemprop="url" rel="index"><span itemprop="name">Networks</span></a>
+                  <a href="/categories/Math/" itemprop="url" rel="index"><span itemprop="name">Math</span></a>
                 </span>
             </span>
 
@@ -235,47 +241,27 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="域名解析协议-Domain-Name-System"><a href="#域名解析协议-Domain-Name-System" class="headerlink" title="域名解析协议 Domain Name System"></a>域名解析协议 Domain Name System</h1><ol>
-<li>DNS让用户能够通过域名访问网页(<a target="_blank" rel="noopener" href="http://www.baidu.com/">www.baidu.com</a> -&gt; 36.152.44.95)</li>
-<li>计算机会先将域名发送到一个解析域名的服务器上<br> 2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server)<br> 2.2. 域名解析(在服务器上查找IP地址)的过程有两种算法，迭代查询，递归查询。一般是两种查询的结合<br> 2.3. 本机计算机找到其中一台解析域名的服务器(可能是.com)，如果没有找到对应的IP地址，那么就会去找根域名服务器，根域名服务器知道所有的子服务器，<br> 所以他肯定知道该域名所对应的IP地址在那个子服务器中，所以告诉第一次查询的服务器要他去另一台服务器上找，找到了，就将其返回给计算机，<br> 以后在有另一台计算机也通过这个域名访问，那么第一台服务器会有原来的域名IP地址的缓存，就不用去找根服务器了。<br> 2.4. 找到了，就能找到我们要访问的服务器了。</li>
+        <h1 id="四元数的定义"><a href="#四元数的定义" class="headerlink" title="四元数的定义"></a>四元数的定义</h1><p>四元数(Quaternion)是带有一个实部和三个虚部的一种扩展复数，有两种表达方式</p>
+<ol>
+<li><p>标量形式<br><img src="/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p1.png" title="标量表达式"> <br></p>
+</li>
+<li><p>标量+向量形式</p>
+</li>
 </ol>
-<hr>
-<h1 id="根域名"><a href="#根域名" class="headerlink" title="根域名"></a>根域名</h1><p><img src="/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/RootDomain.jpg" alt="图片" title="域名结构"><br>Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).</p>
-<hr>
-<h1 id="A-记录"><a href="#A-记录" class="headerlink" title="A 记录"></a>A 记录</h1><p>Address Record indicates the IP address of a given domain. For example, if you pull the DNS records of cloudflare.com, the A record currently returns an IP address of: 104.17.210.9. A records only hold IPv4 addresses. If a website has an IPv6 address, it will instead use an “AAAA” record.</p>
-<p><img src="/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/ARecord.png" alt="图片" title="A记录组成部分"></p>
-<p>The “@” symbol in this example indicates that this is a record for the root domain, and the “14400” value is the TTL (time to live), listed in seconds. The default TTL for A records is 14,400 seconds. This means that if an A record gets updated, it takes 240 minutes (14,400 seconds) to take effect.</p>
-<hr>
-<h1 id="内容分发网络"><a href="#内容分发网络" class="headerlink" title="内容分发网络"></a>内容分发网络</h1><p>内容分发网络 (CDN) 是一个分布在不同地理位置的服务器群，用于缓存靠近最终用户的内容。CDN 可以快速传输加载互联网内容所需的资产，包括 HTML 网页、JavaScript 文件、样式表、图像和视频。</p>
-<hr>
-<h1 id="CNAME-别名记录"><a href="#CNAME-别名记录" class="headerlink" title="CNAME 别名记录"></a>CNAME 别名记录</h1><p>CNAME记录，也叫别名记录，相当于给A记录中的域名起个小名儿，比如<a href="http://www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：">www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：</a></p>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="http://www.yy.com/">www.yy.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1</p>
-</blockquote>
-<p>这样一来就能通过它的小名儿直接访问1.1.1.1了。</p>
-<br>
+<p>由于标量表达式中的 i，j，k 可以理解为相互正交的3个单位向量，于是四元数也可以表示为标量+向量的形式<br><img src="/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p2.png" title="标量+向量表达式"> <br></p>
+<h1 id="四元数相关运算"><a href="#四元数相关运算" class="headerlink" title="四元数相关运算"></a>四元数相关运算</h1><p>存在qa，qb两个四元数<br><img src="/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p3.png" title="四元数qaqb"> <br></p>
+<p>共轭（conjugate）：<br><img src="/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p4.png" title="共轭"> <br></p>
+<p>取逆（inverse）：<br><img src="/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p5.png" title="取逆"> <br></p>
+<p>取模（magnitude）：<br><img src="/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p6.png" title="取模"> <br></p>
+<p>乘法：<br><img src="/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p7.png" title="乘法"> <br></p>
+<h1 id="四元数表示旋转"><a href="#四元数表示旋转" class="headerlink" title="四元数表示旋转"></a>四元数表示旋转</h1><p>从二维平面复数的乘法中，我们可知：<br>表示某条射线的复数 和 表示旋转角度的复数，其乘积为该射线按旋转角度旋转后的射线所表示的复数，那么四元数可以理解为其在三维空间的拓展应用。<br>实际上，四元数是一种表示三维姿态的方法，其特点是紧凑、易于迭代、又不会出现奇异值。</p>
+<p><img src="/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/p8.png" title="旋转公式推导"> <br></p>
+<h1 id="Unity-C-四元数代码实现旋转"><a href="#Unity-C-四元数代码实现旋转" class="headerlink" title="Unity C#四元数代码实现旋转"></a>Unity C#四元数代码实现旋转</h1><figure class="highlight cs"><figcaption><span>从欧拉角转换为四元数</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Vector3 eulerAngles = <span class="keyword">new</span> Vector3(<span class="number">45f</span>, <span class="number">30f</span>, <span class="number">60f</span>); <span class="comment">// 欧拉角</span></span><br><span class="line">Quaternion quaternion = Quaternion.Euler(eulerAngles); <span class="comment">// 转换为四元数</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="多个域名指向同一个地址"><a href="#多个域名指向同一个地址" class="headerlink" title="多个域名指向同一个地址"></a>多个域名指向同一个地址</h2><blockquote>
-<p><a target="_blank" rel="noopener" href="http://www.yy.com/">www.yy.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.cc.com/">www.cc.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.kk.com/">www.kk.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1</p>
-</blockquote>
-<p>突然服务器的IP地址因为一些不可描述的原因要换了，不再是1.1.1.1了，换成了2.2.2.2，这时候你发现，只要把<a href="http://www.xx.com的指向修改一下即可：">www.xx.com的指向修改一下即可：</a></p>
-<blockquote>
-<p>域名 <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 2.2.2.2<br>这时候你又发现了，原来他的小名儿不需要做更改，直接就能访问服务器，因为他们都只指向了<a target="_blank" rel="noopener" href="http://www.xx.com,服务器ip改没改它们不管./">www.xx.com，服务器IP改没改它们不管。</a></p>
-</blockquote>
-<p>那么假如不用CNAME，直接做A记录，那么当1.1.1.1更改的时候，全部相关A记录指向关系都要做更改</p>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="http://www.yy.com/">www.yy.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.cc.com/">www.cc.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.kk.com/">www.kk.com</a> → 1.1.1.1</p>
-</blockquote>
-<br>
+<figure class="highlight cs"><figcaption><span>从欧拉角转换为四元数</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">RotateByQuaternion</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">float</span> rotateSpeed = <span class="number">300.0f</span>; <span class="comment">// 旋转速度</span></span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Update</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 如果用户按下鼠标左键，则旋转对象</span></span><br><span class="line">        <span class="keyword">if</span> (Input.GetMouseButton(<span class="number">0</span>))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 获取鼠标移动的x和y量</span></span><br><span class="line">            <span class="built_in">float</span> mouseX = Input.GetAxis(<span class="string">&quot;Mouse X&quot;</span>) * rotateSpeed * Time.deltaTime;</span><br><span class="line">            <span class="built_in">float</span> mouseY = Input.GetAxis(<span class="string">&quot;Mouse Y&quot;</span>) * rotateSpeed * Time.deltaTime;</span><br><span class="line"> </span><br><span class="line">            <span class="comment">// 创建一个四元数，表示绕Vector3.up轴旋转mouseY度，绕Vector3.right轴旋转mouseX度</span></span><br><span class="line">            Quaternion rotation = Quaternion.AngleAxis(mouseY, Vector3.up) * Quaternion.AngleAxis(mouseX, Vector3.right);</span><br><span class="line"> </span><br><span class="line">            <span class="comment">// 应用这个旋转到游戏对象上</span></span><br><span class="line">            transform.rotation *= rotation;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="使用CDN"><a href="#使用CDN" class="headerlink" title="使用CDN"></a>使用CDN</h2><p>假如你是DD公司老板，你公司中的一台IP为1.1.1.1的服务器，注册了域名为<a target="_blank" rel="noopener" href="http://www.dd.com,要对外提供客户访问.随着公司越做越大,访问量也越来越多,服务器顶不住了,你去找cdn提供商购买cdn加速服务,这个时候他们要求你的域名做个cname指向他们给你的一个域名叫www.dd.cdn.com/">www.dd.com，要对外提供客户访问。随着公司越做越大，访问量也越来越多，服务器顶不住了，你去找CDN提供商购买CDN加速服务，这个时候他们要求你的域名做个CNAME指向他们给你的一个域名叫www.dd.cdn.com</a></p>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="http://www.dd.com/">www.dd.com</a> → <a target="_blank" rel="noopener" href="http://www.dd.cdn.com/">www.dd.cdn.com</a></p>
-</blockquote>
-<p>当用户访问<a href="http://www.dd.com的时候，本地DNS会获得CDN提供的CNAME域名：www.dd.cdn.com，然后再次向DNS调度系统发出请求，通过DNS调度系统的智能解析，把离客户端地理位置最近的（或者相对负载低的，主要看CDN那边智能解析的策略）CDN提供商的服务器IP返回给本地DNS，然后再由本地DNS回给客户端，让用户就近取到想要的资源（如访问网站），大大降低了延迟。">www.dd.com的时候，本地DNS会获得CDN提供的CNAME域名：www.dd.cdn.com，然后再次向DNS调度系统发出请求，通过DNS调度系统的智能解析，把离客户端地理位置最近的（或者相对负载低的，主要看CDN那边智能解析的策略）CDN提供商的服务器IP返回给本地DNS，然后再由本地DNS回给客户端，让用户就近取到想要的资源（如访问网站），大大降低了延迟。</a></p>
-<p><img src="/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/CDN.png" alt="图片" title="使用CNAME配置使用CDN服务器"></p>
 <hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>域名解析：<a target="_blank" rel="noopener" href="https://www.cloudflare.com/learning/dns/what-is-dns/">https://www.cloudflare.com/learning/dns/what-is-dns/</a><br>CNAME别名记录：<a target="_blank" rel="noopener" href="https://blog.csdn.net/DD_orz/article/details/100034049">https://blog.csdn.net/DD_orz/article/details/100034049</a></p>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>利用四元数表示空间向量的旋转：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_42648534/article/details/124072859">https://blog.csdn.net/qq_42648534/article/details/124072859</a></p>
 <hr>
 
     </div>
@@ -286,7 +272,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Domain-Name-Resolution/" rel="tag"># Domain Name Resolution</a>
+              <a href="/tags/Geometry/" rel="tag"># Geometry</a>
+              <a href="/tags/Rotation/" rel="tag"># Rotation</a>
           </div>
 
         
@@ -295,13 +282,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2025/02/14/C-%E8%84%9A%E6%9C%AC%E5%AF%BC%E8%87%B4%E7%9A%84Unity%E7%9B%B8%E5%85%B3bug/" rel="prev" title="C#脚本导致的Unity相关bug">
-      <i class="fa fa-chevron-left"></i> C#脚本导致的Unity相关bug
+    <a href="/2025/03/07/Unity%E6%91%84%E5%83%8F%E5%A4%B4%E5%8F%82%E6%95%B0/" rel="prev" title="Unity摄像头参数">
+      <i class="fa fa-chevron-left"></i> Unity摄像头参数
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2025/02/25/Mono-vs-IL2CPP/" rel="next" title="Mono vs. IL2CPP">
-      Mono vs. IL2CPP <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -360,7 +344,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90%E5%8D%8F%E8%AE%AE-Domain-Name-System"><span class="nav-number">1.</span> <span class="nav-text">域名解析协议 Domain Name System</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%B9%E5%9F%9F%E5%90%8D"><span class="nav-number">2.</span> <span class="nav-text">根域名</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#A-%E8%AE%B0%E5%BD%95"><span class="nav-number">3.</span> <span class="nav-text">A 记录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AE%B9%E5%88%86%E5%8F%91%E7%BD%91%E7%BB%9C"><span class="nav-number">4.</span> <span class="nav-text">内容分发网络</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CNAME-%E5%88%AB%E5%90%8D%E8%AE%B0%E5%BD%95"><span class="nav-number">5.</span> <span class="nav-text">CNAME 别名记录</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E4%B8%AA%E5%9F%9F%E5%90%8D%E6%8C%87%E5%90%91%E5%90%8C%E4%B8%80%E4%B8%AA%E5%9C%B0%E5%9D%80"><span class="nav-number">5.1.</span> <span class="nav-text">多个域名指向同一个地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8CDN"><span class="nav-number">5.2.</span> <span class="nav-text">使用CDN</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number">6.</span> <span class="nav-text">Credits</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E5%85%83%E6%95%B0%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">四元数的定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E5%85%83%E6%95%B0%E7%9B%B8%E5%85%B3%E8%BF%90%E7%AE%97"><span class="nav-number">2.</span> <span class="nav-text">四元数相关运算</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E5%85%83%E6%95%B0%E8%A1%A8%E7%A4%BA%E6%97%8B%E8%BD%AC"><span class="nav-number">3.</span> <span class="nav-text">四元数表示旋转</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Unity-C-%E5%9B%9B%E5%85%83%E6%95%B0%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%E6%97%8B%E8%BD%AC"><span class="nav-number">4.</span> <span class="nav-text">Unity C#四元数代码实现旋转</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number">5.</span> <span class="nav-text">Credits</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -515,7 +499,7 @@
       quicklink({
         timeout : 3000,
         priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/',]
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/',]
       });
       });
   </script>
