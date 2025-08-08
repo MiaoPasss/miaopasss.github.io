@@ -161,6 +161,113 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/11/C-%E4%B8%AD%E7%9A%84unsafe%E3%80%81fixed%E5%92%8Cchecked%E5%85%B3%E9%94%AE%E5%AD%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/11/C-%E4%B8%AD%E7%9A%84unsafe%E3%80%81fixed%E5%92%8Cchecked%E5%85%B3%E9%94%AE%E5%AD%97/" class="post-title-link" itemprop="url">C#中的unsafe、fixed和checked关键字</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-11 15:19:51" itemprop="dateCreated datePublished" datetime="2025-02-11T15:19:51+08:00">2025-02-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-03-07 11:44:24" itemprop="dateModified" datetime="2025-03-07T11:44:24+08:00">2025-03-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Stack-vs-Heap"><a href="#Stack-vs-Heap" class="headerlink" title="Stack vs. Heap"></a>Stack vs. Heap</h1><p>In C#, primitive types such as int, double, and bool are all structs. Arrays of int are allocated on heap as int structs, only pointer to them will be allocated on stack.<br>To make a fixed size array be stored on stack, you need to use the <em>stackalloc</em> keyword, either with <em>unsafe</em> block or <em>Span</em> type.</p>
+<figure class="highlight cs"><figcaption><span>unsafe关键词示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="keyword">unsafe</span> <span class="title">foo</span>(<span class="params"><span class="built_in">int</span> length</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">int</span>* bar = <span class="keyword">stackalloc</span> <span class="built_in">int</span> [length];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cs"><figcaption><span>type Span示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">foo</span>(<span class="params"><span class="built_in">int</span> length</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    Span&lt;<span class="built_in">int</span>&gt; bar = <span class="keyword">stackalloc</span> <span class="built_in">int</span> [length];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="unsafe"><a href="#unsafe" class="headerlink" title="unsafe"></a>unsafe</h1><p>unsafe关键字用于声明不安全的代码块。在C#中，默认情况下，代码是安全的，这意味着它遵循.NET的安全规则，包括对内存的访问控制。使用unsafe关键字可以告诉编译器，你了解并信任这段代码，即使它可能违反安全规则。</p>
+<p>使用unsafe关键字需要满足一些条件：</p>
+<ol>
+<li>你的项目必须被标记为允许不安全代码（通过在项目的属性中设置Allow Unsafe Code）。</li>
+<li>你的代码必须在unsafe代码块中。</li>
+<li>你必须使用fixed关键字来固定内存块。</li>
+</ol>
+<h1 id="fixed"><a href="#fixed" class="headerlink" title="fixed"></a>fixed</h1><p>fixed 关键字在 C# 中主要用于固定内存地址，通常与不安全代码（unsafe）一起使用。当你在不安全的代码中直接访问内存时，使用 fixed 关键字可以确保内存地址在程序运行期间保持不变。</p>
+<p>使用 fixed 关键字的主要原因是：在垃圾回收过程中，垃圾回收器可能会移动内存中的对象。如果一个指针指向一个对象，而该对象在垃圾回收过程中被移动，那么该指针就会变得无效。通过使用 fixed 关键字，你可以告诉垃圾回收器不要移动这个对象，从而确保指针始终指向有效的内存地址。</p>
+<figure class="highlight cs"><figcaption><span>fixed关键字示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsafe</span> <span class="keyword">class</span> <span class="title">Example</span>  </span><br><span class="line">&#123;  </span><br><span class="line">    <span class="built_in">int</span>[] array = <span class="keyword">new</span> <span class="built_in">int</span>[<span class="number">10</span>];  </span><br><span class="line">    <span class="keyword">fixed</span> <span class="built_in">int</span>* ptr = <span class="keyword">stackalloc</span> <span class="built_in">int</span>[] &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> &#125;;  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Method</span>()</span>  </span><br><span class="line">    &#123;  </span><br><span class="line">        <span class="built_in">int</span>* p = ptr; <span class="comment">// 这里的p指向一个固定的内存地址  </span></span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; array.Length; i++)  </span><br><span class="line">        &#123;  </span><br><span class="line">            *(p + i) = array[i]; <span class="comment">// 将数组的值赋给固定的内存地址  </span></span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，我们创建了一个固定大小的数组 ptr，并在方法 Method 中使用它来修改另一个数组 array 的值。因为 ptr 是用 fixed 关键字声明的，所以它指向的内存地址在 Method 执行期间是固定的，不会发生位移</p>
+<h1 id="checked"><a href="#checked" class="headerlink" title="checked"></a>checked</h1><p>checked关键字用于在算术运算中控制溢出检查。默认情况下，当一个整数运算结果超出了该类型的表示范围时，会抛出System.OverflowException异常。使用checked关键字可以强制执行溢出检查，并在发生溢出时抛出异常。</p>
+<figure class="highlight cs"><figcaption><span>checked关键字示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title">Program</span>  </span><br><span class="line">&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">unsafe</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] <span class="keyword">args</span></span>)</span>  </span><br><span class="line">    &#123;  </span><br><span class="line">        <span class="built_in">int</span> maxValue = <span class="built_in">int</span>.MaxValue;  </span><br><span class="line">        <span class="built_in">int</span>* ptr = <span class="keyword">stackalloc</span> <span class="built_in">int</span>[] &#123; maxValue &#125;; <span class="comment">// 创建一个固定大小的数组  </span></span><br><span class="line">        <span class="keyword">fixed</span> (<span class="built_in">int</span>* p = ptr) <span class="comment">// 使用fixed关键字固定内存地址  </span></span><br><span class="line">        &#123;  </span><br><span class="line">            *(p + <span class="number">1</span>) = <span class="number">0</span>; <span class="comment">// 尝试访问超出数组范围的内存，这会导致未定义的行为（除非使用unsafe代码）  </span></span><br><span class="line">        &#125;  </span><br><span class="line">        Console.WriteLine(ptr[<span class="number">1</span>]); <span class="comment">// 这将输出0，因为我们在不安全的代码中修改了内存  </span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">uint</span> a = <span class="built_in">uint</span>.MaxValue;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">unchecked</span></span><br><span class="line">&#123;</span><br><span class="line">    Console.WriteLine(a + <span class="number">3</span>);  <span class="comment">// output: 2</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">try</span></span><br><span class="line">&#123;</span><br><span class="line">    checked</span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(a + <span class="number">3</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span> (OverflowException e)</span><br><span class="line">&#123;</span><br><span class="line">    Console.WriteLine(e.Message);  <span class="comment">// output: Arithmetic operation resulted in an overflow.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>输出:<br>2<br>Arithmetic operation resulted in an overflow.</p>
+</blockquote>
+<p>如果没有checked，那么输出的就是2，不会抛出异常也不会提示结果实际上已经超出范围了。导致程序发生一些不可预估的问题；</p>
+<p>在这个例子中，我们创建了一个固定大小的数组，并在一个fixed代码块中修改了数组外的内存。因为我们使用了unsafe和fixed关键字，所以这是合法的。但请注意，试图访问数组外的内存是一种未定义的行为，可能会导致程序崩溃或其他不可预测的结果。</p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_31418645/article/details/135245645">https://blog.csdn.net/qq_31418645/article/details/135245645</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/11/%E6%98%BE%E7%A4%BA%E5%99%A8%E5%92%8CVSync%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -391,7 +498,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-07 11:46:45" itemprop="dateModified" datetime="2025-03-07T11:46:45+08:00">2025-03-07</time>
+                <time title="Modified: 2025-08-08 15:25:06" itemprop="dateModified" datetime="2025-08-08T15:25:06+08:00">2025-08-08</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -422,8 +529,7 @@
 </ol>
 <br>
 
-<h1 id="二、里氏替换原则（Liskov-Substitution-Principle，LSP）"><a href="#二、里氏替换原则（Liskov-Substitution-Principle，LSP）" class="headerlink" title="二、里氏替换原则（Liskov Substitution Principle，LSP）"></a>二、里氏替换原则（Liskov Substitution Principle，LSP）</h1><p>定义：<br>如果对于每一个类型为 S 的对象 o1，都有类型为 T 的对象 o2，使得以 T 定义的所有程序 P 在所有的对象 o1 都代换成 o2 时，程序 P 的行为没有发生变化，那么类型 S 是类型 T 的子类型。</p>
-<p>任何基类可以被其子类替代，而程序仍然能够保持正确性。换句话说，子类应该能够替代其基类而不引起程序错误。</p>
+<h1 id="二、里氏替换原则（Liskov-Substitution-Principle，LSP）"><a href="#二、里氏替换原则（Liskov-Substitution-Principle，LSP）" class="headerlink" title="二、里氏替换原则（Liskov Substitution Principle，LSP）"></a>二、里氏替换原则（Liskov Substitution Principle，LSP）</h1><p>定义：<br>任何基类可以出现的地方，其子类一定可以出现，而程序仍然能够保持正确性。换句话说，子类应该能够替代其基类而不引起程序错误。</p>
 <p>关键思想：</p>
 <ol>
 <li>子类型必须能够替代基类型，而程序的行为不会发生变化。</li>
@@ -563,7 +669,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-count">14</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
