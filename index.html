@@ -161,6 +161,121 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/" class="post-title-link" itemprop="url">渲染管线概览</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-08-14 17:45:38" itemprop="dateCreated datePublished" datetime="2025-08-14T17:45:38+08:00">2025-08-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-08-15 17:58:21" itemprop="dateModified" datetime="2025-08-15T17:58:21+08:00">2025-08-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p2.png" title="渲染图元"> <br></p>
+<h1 id="CPU-GPU工作流程"><a href="#CPU-GPU工作流程" class="headerlink" title="CPU + GPU工作流程"></a>CPU + GPU工作流程</h1><ol>
+<li>剔除，把一些不想看到的，或者看不到的东西排除掉</li>
+<li>确定物体的先后渲染顺序</li>
+<li>将对应的模型数据、材质等打包发送给GPU</li>
+<li>发送SetPassCall和Drawcall告诉GPU渲染管线渲染模型数据所需的shader</li>
+<li>数据在GPU渲染管线中绘制，将3D物体渲染为2D图像</li>
+<li>将渲染图像存放在帧缓冲区（FrameBuffer）中。可以理解为一个和屏幕大小等大的临时画布</li>
+<li>后处理操作。通过CPU拿到帧缓冲区的图像，调用shader再进入GPU渲染管线，对帧缓冲区的图像进行二次的修改，比如调色、bloom等操作</li>
+<li>显示在屏幕上</li>
+</ol>
+<p>CPU应用程序端逻辑：经过剔除、排序等等，将模型数据打包发给GPU渲染管线<br>GPU渲染管线：拿到模型数据后，讲图像画出来，存放在对应的帧缓冲区中</p>
+<p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p3.png" title="CPU打包数据"> <br></p>
+<h1 id="GPU渲染管线"><a href="#GPU渲染管线" class="headerlink" title="GPU渲染管线"></a>GPU渲染管线</h1><ol start="0">
+<li>CPU打包数据：vertex buffer&#x2F;index buffer&#x2F;frustum视锥&#x2F;directional light平行光&#x2F;texture+shader<br> • SetPass Call：设定好渲染设置后，告诉GPU使用哪个shader，使用哪种混合模式、设置背面剔除等等，当使用不同的材质或者相同的材质下不同的Pass时需要设置切换多个渲染状态，就会增加SetPassCall，所以SetPassCall的次数也能反映性能<br> • Draw Call（绘制调用）：CPU打包数据发送给GPU，告诉GPU使用哪些模型数据进行渲染</li>
+<li>Vertex Shader: 使用顶点&#x2F;视锥信息将模型空间变换到屏幕空间</li>
+<li>Triangle Processing 图元装配：把顶点信息按照缓存连接成三角形图元</li>
+<li>Rasterization：插值计算出三角形每个像素的深度&#x2F;颜色</li>
+<li>Pixel Shader (i.e. Fragment Shader)：根据灯光&#x2F;纹理贴图采样</li>
+<li>Frame Buffer：post processing 抗锯齿 校色 景深（DOF） 动态模糊</li>
+</ol>
+<p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p1.jpg" title="全览图"> <br></p>
+<h1 id="图元-vs-片元"><a href="#图元-vs-片元" class="headerlink" title="图元 vs 片元"></a>图元 vs 片元</h1><ul>
+<li>图元</li>
+</ul>
+<p>渲染图元（rendering primitives）为图形渲染开发接口中用来描述各种图形元素的图形数据，所对应的就是绘图界面上看得见的实体，它包括了渲染所需的几何信息，可以是顶点数据、线段、多边形等。</p>
+<p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p4.png" title="图元的数据类型"> <br></p>
+<p>图元至少要包含一个顶点（Vertex）；一个顶点定义了2D或3D坐标系中一个点，也同样定义了若干个可以影响如何把顶点渲染到屏幕上的属性，如：</p>
+<p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p5.png" title="图元顶点所包含的信息"> <br></p>
+<ul>
+<li>片元</li>
+</ul>
+<p>在GPU流水线中的三角形遍历阶段，将会检查每个像素是否被一个三角网格所覆盖；如果被覆盖的话，就会生成一个片元（fragment）；需要注意的是，一个片元并不是真正意义上的像素，而是包括了很多状态的集合，这些状态用于计算每个像素的最终颜色；这些状态包括了（但不限于）它的屏幕坐标、深度信息，以及其它从几何阶段输出的顶点信息，例如法线、纹理坐标等。</p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/lel18570471704/article/details/134708949">https://blog.csdn.net/lel18570471704/article/details/134708949</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/667522425">https://zhuanlan.zhihu.com/p/667522425</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/407046161">https://zhuanlan.zhihu.com/p/407046161</a><br>图元vs片元：<a target="_blank" rel="noopener" href="https://blog.csdn.net/DoomGT/article/details/115806364">https://blog.csdn.net/DoomGT/article/details/115806364</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -370,10 +485,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2025-03-07 11:30:06 / Modified: 16:13:36" itemprop="dateCreated datePublished" datetime="2025-03-07T11:30:06+08:00">2025-03-07</time>
+              <time title="Created: 2025-03-07 11:30:06" itemprop="dateCreated datePublished" datetime="2025-03-07T11:30:06+08:00">2025-03-07</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-08-11 14:49:56" itemprop="dateModified" datetime="2025-08-11T14:49:56+08:00">2025-08-11</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -450,6 +571,10 @@
 <h2 id="Target-Texture-目标纹理"><a href="#Target-Texture-目标纹理" class="headerlink" title="Target Texture(目标纹理):"></a>Target Texture(目标纹理):</h2><p>相机渲染不再显示在屏幕上，而是映射到纹理上。一般用于制作导航图或者画中画等效果。</p>
 <p>Reference to a Render Texture that will contain the output of the Camera view. Setting this reference will disable this Camera’s capability to render to the screen.<br>Render Texture is a special type of Texture that is created and updated at runtime. To use them, first create a new Render Texture and designate one of your Cameras to render into it. Then you can use the Render Texture in a Material just like a regular Texture.</p>
 <h2 id="Occlusion-Culling-遮挡剔除"><a href="#Occlusion-Culling-遮挡剔除" class="headerlink" title="Occlusion Culling(遮挡剔除):"></a>Occlusion Culling(遮挡剔除):</h2><p>Occlusion culling is a process which prevents Unity from performing rendering calculations for GameObjects that are completely hidden from view (occluded) by other GameObjects, for example if they are behind walls. (<a target="_blank" rel="noopener" href="https://docs.unity.cn/Manual/OcclusionCulling.html">https://docs.unity.cn/Manual/OcclusionCulling.html</a>)</p>
+<ul>
+<li>Unity can bake static GameObjects (does not move at runtime) into the occlusion culling data as a Static Occluder and&#x2F;or a Static Occludee.</li>
+<li>Unity cannot bake dynamic GameObjects into the occlusion culling data. A dynamic GameObject can be an occludee at runtime, but it cannot be an occluder.</li>
+</ul>
 <h2 id="Allow-HDR-渲染高动态色彩画面"><a href="#Allow-HDR-渲染高动态色彩画面" class="headerlink" title="Allow HDR(渲染高动态色彩画面):"></a>Allow HDR(渲染高动态色彩画面):</h2><p>Enables High Dynamic Range rendering for this camera.</p>
 <h2 id="Allow-MSAA-硬件抗锯齿"><a href="#Allow-MSAA-硬件抗锯齿" class="headerlink" title="Allow MSAA(硬件抗锯齿):"></a>Allow MSAA(硬件抗锯齿):</h2><p>Enables multi sample antialiasing for this camera.</p>
 <h2 id="Allow-Dynamic-Resolution-动态分辨率渲染"><a href="#Allow-Dynamic-Resolution-动态分辨率渲染" class="headerlink" title="Allow Dynamic Resolution(动态分辨率渲染):"></a>Allow Dynamic Resolution(动态分辨率渲染):</h2><p>Enables Dynamic Resolution rendering for this camera.</p>
@@ -513,7 +638,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-07 11:37:13" itemprop="dateModified" datetime="2025-03-07T11:37:13+08:00">2025-03-07</time>
+                <time title="Modified: 2025-08-14 17:42:45" itemprop="dateModified" datetime="2025-08-14T17:42:45+08:00">2025-08-14</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -521,7 +646,7 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Rendering/" itemprop="url" rel="index"><span itemprop="name">Rendering</span></a>
+                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
                 </span>
             </span>
 
@@ -1219,105 +1344,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/" class="post-title-link" itemprop="url">TCP/IP 五层网络模型</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-12 17:26:08" itemprop="dateCreated datePublished" datetime="2025-02-12T17:26:08+08:00">2025-02-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-07 16:14:31" itemprop="dateModified" datetime="2025-03-07T16:14:31+08:00">2025-03-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Networks/" itemprop="url" rel="index"><span itemprop="name">Networks</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="TCP-IP网络模型各层协议功能"><a href="#TCP-IP网络模型各层协议功能" class="headerlink" title="TCP&#x2F;IP网络模型各层协议功能"></a>TCP&#x2F;IP网络模型各层协议功能</h1><h2 id="1-应用层"><a href="#1-应用层" class="headerlink" title="1. 应用层"></a>1. 应用层</h2><p>应用层是网络通信的最高层，它定义了应用程序和网络之间的接口。在这一层，用户可以直接与应用程序进行交互。常见的应用层协议有HTTP、FTP、SMTP等。</p>
-<ul>
-<li><p><strong>Proxy</strong><br>A proxy server (forward proxy) takes requests from a client and forwards them to the internet, a reverse proxy takes requests from the internet and forwards them to a server.</p>
-</li>
-<li><p><strong>Transport Layer Security</strong><br>SSL&#x2F;TLS uses asymmetric encryption is used to establish a secure session between a client and a server, and symmetric encryption is used to exchange data within the secured session.<br>密钥：数据的加密是通过密钥进行的，通过密钥，明文被加密成密文。密钥分为对称加密密钥和非对称加密密钥。密钥为一段随机生成的数，通常以 .pem或者 .key文件保存，可以使用Openssl生成。<br>对称加密：加密解密都是使用同一个密钥。服务器使用该密钥进行加密，经过传输后客户端使用该密钥解密。该方式效率高，但存在安全隐患。<br>非对称加密：非对称加密具有一个密钥对，公钥和私钥，理论上来说公钥和私钥并不区分，便于区分将保存在本地的那个叫做私钥，将需要传输给对方的那个叫做公钥。数据经过私钥加密后，只能由对应的公钥解密，同样数据经过公钥加密后，只能由对应的私钥解密。那么只要客户端拥有服务器的公钥，通过公钥加密报文，服务器用自己的私钥解密就可以实现对传输过程的加密。非对称加密的效率比较低，而且仍有被中间人攻击的风险。<br>证书颁发机构：CA机构是权威的第三方，机构本身具有自己的CA公钥与CA私钥，CA公钥是发给全体互联网成员的，可以将其称为CA证书。服务器需要将自己的 公钥以及认证信息经过HASH加密后发改CA机构，CA机构使用CA私钥对提交的信息进行加密，这就得到了带有数字签名的数据。在使用时使用CA公钥对带有数字签名的数据解密，得到经HASH后的数据，同时将公钥以及认证信息 经过HASH加密后与CA解密后的数据比对，验证电子签名的安全性。</p>
-</li>
-</ul>
-<h2 id="2-传输层"><a href="#2-传输层" class="headerlink" title="2. 传输层"></a>2. 传输层</h2><p>传输层负责在源主机和目标主机（端到端）之间建立数据传输通道，主要协议有TCP和UDP。</p>
-<h2 id="3-网络层"><a href="#3-网络层" class="headerlink" title="3. 网络层"></a>3. 网络层</h2><p>网络层负责在网络上寻址和路由数据包。它定义了数据在网络中的传输路径，使得数据可以从源主机传输到目标主机。常见的网络层协议有IP协议。</p>
-<ul>
-<li><strong>地址解析协议</strong><br>ARP（Address Resolution Protocol，地址解析协议）是用来将IP地址解析为MAC地址的协议。主机或三层网络设备上会维护一张ARP表，用于存储IP地址和MAC地址的映射关系</li>
-</ul>
-<h2 id="4-数据链路层"><a href="#4-数据链路层" class="headerlink" title="4. 数据链路层"></a>4. 数据链路层</h2><p>数据链路层协议负责将网络层传输的数据分组封装成帧，传输到物理层，并通过物理介质进行传输。常见的数据链路层协议有以太网和Wi-Fi等。</p>
-<h2 id="5-物理层"><a href="#5-物理层" class="headerlink" title="5. 物理层"></a>5. 物理层</h2><p>物理层是网络通信的最底层，它负责在物理介质上传输比特流。它定义了物理连接的特性，如电压、频率等。常见的物理层介质有光纤、双绞线等。</p>
-<hr>
-<h1 id="二层设备和三层设备"><a href="#二层设备和三层设备" class="headerlink" title="二层设备和三层设备"></a>二层设备和三层设备</h1><p>二层设备是工作数据链路层的设备。二层交换机可以识别数据包中的MAC地址信息，根据MAC地址进行转发，并将这些MAC地址与对应的端口记录在自己内部的一个地址表中。具体的工作流程如下：<br>（1） 当交换机从某个端口收到一个数据包，它先读取包头中的源MAC地址，这样它就知道源MAC地址的机器是连在哪个端口上的；<br>（2） 再去读取包头中的目的MAC地址，并在地址表中查找相应的端口；<br>（3） 如表中有与这目的MAC地址对应的端口，把数据包直接复制到这端口上；<br>（4） 如表中找不到相应的端口则把数据包广播到所有端口上，当目的机器对源机器回应时，交换机又可以学习一目的MAC地址与哪个端口对应，在下次传送数据时就不再需要对所有端口进行广播了。<br>不断的循环这个过程，对于全网的MAC地址信息都可以学习到，二层交换机就是这样建立和维护它自己的地址表。</p>
-<p>三层设备是工作在网络层的设备。路由器是最常用的三层设备，利用不同网络的ID号（即IP地址）来确定数据转发的地址。IP地址是在软件中实现的，描述的是设备所在的网络，有时这些第三层的地址也称为协议地址或者网络地址。</p>
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>详解TCP&#x2F;IP五层网络模型：<a target="_blank" rel="noopener" href="https://blog.csdn.net/2201_75437633/article/details/137373813">https://blog.csdn.net/2201_75437633/article/details/137373813</a><br>TLS&#x2F;SSL：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44640149/article/details/134667685">https://blog.csdn.net/weixin_44640149/article/details/134667685</a></p>
-<hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1395,7 +1421,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-count">15</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1408,7 +1434,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://miaopasss.github.io/2025/03/07/Unity%E6%91%84%E5%83%8F%E5%A4%B4%E5%8F%82%E6%95%B0/image.png">
 <meta property="article:published_time" content="2025-03-07T03:30:06.000Z">
-<meta property="article:modified_time" content="2025-03-07T08:13:36.067Z">
+<meta property="article:modified_time" content="2025-08-11T06:49:56.735Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Unity">
 <meta property="article:tag" content="Camera">
@@ -196,10 +196,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2025-03-07 11:30:06 / Modified: 16:13:36" itemprop="dateCreated datePublished" datetime="2025-03-07T11:30:06+08:00">2025-03-07</time>
+              <time title="Created: 2025-03-07 11:30:06" itemprop="dateCreated datePublished" datetime="2025-03-07T11:30:06+08:00">2025-03-07</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-08-11 14:49:56" itemprop="dateModified" datetime="2025-08-11T14:49:56+08:00">2025-08-11</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -283,6 +289,10 @@
 <h2 id="Target-Texture-目标纹理"><a href="#Target-Texture-目标纹理" class="headerlink" title="Target Texture(目标纹理):"></a>Target Texture(目标纹理):</h2><p>相机渲染不再显示在屏幕上，而是映射到纹理上。一般用于制作导航图或者画中画等效果。</p>
 <p>Reference to a Render Texture that will contain the output of the Camera view. Setting this reference will disable this Camera’s capability to render to the screen.<br>Render Texture is a special type of Texture that is created and updated at runtime. To use them, first create a new Render Texture and designate one of your Cameras to render into it. Then you can use the Render Texture in a Material just like a regular Texture.</p>
 <h2 id="Occlusion-Culling-遮挡剔除"><a href="#Occlusion-Culling-遮挡剔除" class="headerlink" title="Occlusion Culling(遮挡剔除):"></a>Occlusion Culling(遮挡剔除):</h2><p>Occlusion culling is a process which prevents Unity from performing rendering calculations for GameObjects that are completely hidden from view (occluded) by other GameObjects, for example if they are behind walls. (<a target="_blank" rel="noopener" href="https://docs.unity.cn/Manual/OcclusionCulling.html">https://docs.unity.cn/Manual/OcclusionCulling.html</a>)</p>
+<ul>
+<li>Unity can bake static GameObjects (does not move at runtime) into the occlusion culling data as a Static Occluder and&#x2F;or a Static Occludee.</li>
+<li>Unity cannot bake dynamic GameObjects into the occlusion culling data. A dynamic GameObject can be an occludee at runtime, but it cannot be an occluder.</li>
+</ul>
 <h2 id="Allow-HDR-渲染高动态色彩画面"><a href="#Allow-HDR-渲染高动态色彩画面" class="headerlink" title="Allow HDR(渲染高动态色彩画面):"></a>Allow HDR(渲染高动态色彩画面):</h2><p>Enables High Dynamic Range rendering for this camera.</p>
 <h2 id="Allow-MSAA-硬件抗锯齿"><a href="#Allow-MSAA-硬件抗锯齿" class="headerlink" title="Allow MSAA(硬件抗锯齿):"></a>Allow MSAA(硬件抗锯齿):</h2><p>Enables multi sample antialiasing for this camera.</p>
 <h2 id="Allow-Dynamic-Resolution-动态分辨率渲染"><a href="#Allow-Dynamic-Resolution-动态分辨率渲染" class="headerlink" title="Allow Dynamic Resolution(动态分辨率渲染):"></a>Allow Dynamic Resolution(动态分辨率渲染):</h2><p>Enables Dynamic Resolution rendering for this camera.</p>
@@ -396,7 +406,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-count">15</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -409,7 +419,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
