@@ -20,21 +20,23 @@
     var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Socket vs Port A TCP socket is an endpoint instance defined by an IP address and a port in the context of either a particular TCP connection or the listening state. A port is a virtualisation identifi">
+  <meta name="description" content="坐标空间转换：在渲染管线中，把一个点或一个向量从一个坐标空间转换到另一个坐标空间，比如模型空间 -&gt; 裁剪空间 变换矩阵：实现坐标空间转换的过程，则需要用到变换矩阵 顶点着色器：顶点着色器是图形渲染管线中对每个顶点进行坐标变换的程序，而MVP变换（模型Model - 视图View - 投影Projection）是顶点着色器中一种将顶点坐标从模型空间转换为裁剪空间的常用技术。   1. 模">
 <meta property="og:type" content="article">
-<meta property="og:title" content="网络编程与套接字(Socket)">
-<meta property="og:url" content="https://miaopasss.github.io/2025/02/13/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97-Socket/index.html">
+<meta property="og:title" content="坐标空间和MVP变换">
+<meta property="og:url" content="https://miaopasss.github.io/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/index.html">
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:description" content="Socket vs Port A TCP socket is an endpoint instance defined by an IP address and a port in the context of either a particular TCP connection or the listening state. A port is a virtualisation identifi">
+<meta property="og:description" content="坐标空间转换：在渲染管线中，把一个点或一个向量从一个坐标空间转换到另一个坐标空间，比如模型空间 -&gt; 裁剪空间 变换矩阵：实现坐标空间转换的过程，则需要用到变换矩阵 顶点着色器：顶点着色器是图形渲染管线中对每个顶点进行坐标变换的程序，而MVP变换（模型Model - 视图View - 投影Projection）是顶点着色器中一种将顶点坐标从模型空间转换为裁剪空间的常用技术。   1. 模">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2025-02-13T01:35:34.000Z">
-<meta property="article:modified_time" content="2025-03-07T08:14:19.751Z">
+<meta property="article:published_time" content="2025-08-26T09:47:30.000Z">
+<meta property="article:modified_time" content="2025-08-28T08:30:13.340Z">
 <meta property="article:author" content="Haotian Luo">
-<meta property="article:tag" content="Network Programming">
-<meta property="article:tag" content="Network Connection">
+<meta property="article:tag" content="Geometry">
+<meta property="article:tag" content="Matrix">
+<meta property="article:tag" content="Transformation">
+<meta property="article:tag" content="Rendering pipeline">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://miaopasss.github.io/2025/02/13/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97-Socket/">
+<link rel="canonical" href="https://miaopasss.github.io/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/">
 
 
 <script id="page-configurations">
@@ -47,7 +49,7 @@
   };
 </script>
 
-  <title>网络编程与套接字(Socket) | 乌啦呀哈呀哈乌啦！</title>
+  <title>坐标空间和MVP变换 | 乌啦呀哈呀哈乌啦！</title>
   
 
 
@@ -166,7 +168,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/13/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97-Socket/">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/exciting-usagi.gif">
@@ -185,7 +187,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          网络编程与套接字(Socket)
+          坐标空间和MVP变换
         </h1>
 
         <div class="post-meta">
@@ -195,14 +197,14 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2025-02-13 09:35:34" itemprop="dateCreated datePublished" datetime="2025-02-13T09:35:34+08:00">2025-02-13</time>
+              <time title="Created: 2025-08-26 17:47:30" itemprop="dateCreated datePublished" datetime="2025-08-26T17:47:30+08:00">2025-08-26</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-07 16:14:19" itemprop="dateModified" datetime="2025-03-07T16:14:19+08:00">2025-03-07</time>
+                <time title="Modified: 2025-08-28 16:30:13" itemprop="dateModified" datetime="2025-08-28T16:30:13+08:00">2025-08-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -210,7 +212,7 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Networks/" itemprop="url" rel="index"><span itemprop="name">Networks</span></a>
+                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
                 </span>
             </span>
 
@@ -232,33 +234,22 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Socket-vs-Port"><a href="#Socket-vs-Port" class="headerlink" title="Socket vs Port"></a>Socket vs Port</h1><ul>
-<li>A TCP socket is an endpoint instance defined by an IP address and a port in the context of either a particular TCP connection or the listening state.</li>
-<li>A port is a virtualisation identifier defining a service endpoint (as distinct from a service instance endpoint aka session identifier).</li>
-<li>A TCP socket is not a connection, it is the endpoint of a specific connection.</li>
-<li>There can be concurrent connections to a service endpoint, because a connection is identified by both its local and remote endpoints, allowing traffic to be routed to a specific service instance.</li>
-<li>There can only be one listener socket for a given address&#x2F;port combination.</li>
-</ul>
-<p>Specifically, a TCP socket consists of five things:</p>
-<ol>
-<li>transport layer protocol,</li>
-<li>local address,</li>
-<li>local port, </li>
-<li>remote address, </li>
-<li>remote port</li>
-</ol>
-<p>A port is a number between 1 and 65535 inclusive that signifies a logical gate in a device. Every connection between a client and server requires a unique socket.</p>
-<p>For example:</p>
+        <hr>
 <ul>
-<li><em>33123</em> is a port.</li>
-<li><em>(localhost, 33123, 69.59.196.211, 80, TCP)</em> is a socket.</li>
+<li>坐标空间转换：在渲染管线中，把一个点或一个向量从一个坐标空间转换到另一个坐标空间，比如模型空间 -&gt; 裁剪空间</li>
+<li>变换矩阵：实现坐标空间转换的过程，则需要用到变换矩阵</li>
+<li>顶点着色器：顶点着色器是图形渲染管线中对每个顶点进行坐标变换的程序，而MVP变换（模型Model - 视图View - 投影Projection）是顶点着色器中一种将顶点坐标从模型空间转换为裁剪空间的常用技术。</li>
 </ul>
-<blockquote>
-<p>Firefox (localhost:33123) &lt;———–&gt; stackoverflow.com (69.59.196.211:80)<br>Chrome  (localhost:33124) &lt;———–&gt; stackoverflow.com (69.59.196.211:80)</p>
-</blockquote>
-<p>When a client device accesses a website (such as Chrome sending HTTP requests), it automatically connects to port 80 on the web server to retrieve the requested content. When the web server receives the answer, it sends a response that has 80 as source port and 33123 as destination port.</p>
 <hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>网络编程与套接字：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/Sunbreaker/p/11318288.html">https://www.cnblogs.com/Sunbreaker/p/11318288.html</a></p>
+<h1 id="1-模型空间-Model-Space"><a href="#1-模型空间-Model-Space" class="headerlink" title="1. 模型空间(Model Space)"></a>1. 模型空间(Model Space)</h1><p>又称为对象空间(Object Space)或局部空间(Local Space)，每个模型都有属于自己的模型空间</p>
+<ul>
+<li>以模型本身为参考系，会随着模型的旋转&#x2F;移动而旋转&#x2F;移动</li>
+<li>包含前、后、左、右等自然方向概念.</li>
+</ul>
+<p>在模型空间中描述模型上的某一点位置时，坐标会被扩展到齐次坐标系下：(1,0,0) -&gt; (1,0,0,1)，为顶点变换中的平移变换做准备</p>
+<hr>
+<h1 id="2-世界空间-World-Space"><a href="#2-世界空间-World-Space" class="headerlink" title="2. 世界空间(World Space)"></a>2. 世界空间(World Space)</h1><hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits:"></a>Credits:</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41835314/article/details/126851074">https://blog.csdn.net/qq_41835314/article/details/126851074</a></p>
 <hr>
 
     </div>
@@ -269,8 +260,10 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Network-Programming/" rel="tag"># Network Programming</a>
-              <a href="/tags/Network-Connection/" rel="tag"># Network Connection</a>
+              <a href="/tags/Geometry/" rel="tag"># Geometry</a>
+              <a href="/tags/Matrix/" rel="tag"># Matrix</a>
+              <a href="/tags/Transformation/" rel="tag"># Transformation</a>
+              <a href="/tags/Rendering-pipeline/" rel="tag"># Rendering pipeline</a>
           </div>
 
         
@@ -279,12 +272,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2025/02/12/%E6%95%B0%E6%8D%AE%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/" rel="prev" title="数据的封装与发送">
-      <i class="fa fa-chevron-left"></i> 数据的封装与发送
+    <a href="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/" rel="prev" title="渲染管线概览">
+      <i class="fa fa-chevron-left"></i> 渲染管线概览
     </a></div>
       <div class="post-nav-item">
-    <a href="/2025/02/14/C-%E8%84%9A%E6%9C%AC%E5%AF%BC%E8%87%B4%E7%9A%84Unity%E7%9B%B8%E5%85%B3bug/" rel="next" title="C#脚本导致的Unity相关bug">
-      C#脚本导致的Unity相关bug <i class="fa fa-chevron-right"></i>
+    <a href="/2025/08/28/C-%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5/" rel="next" title="C# 依赖注入">
+      C# 依赖注入 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -344,7 +337,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Socket-vs-Port"><span class="nav-number">1.</span> <span class="nav-text">Socket vs Port</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number">2.</span> <span class="nav-text">Credits</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E6%A8%A1%E5%9E%8B%E7%A9%BA%E9%97%B4-Model-Space"><span class="nav-number">1.</span> <span class="nav-text">1. 模型空间(Model Space)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E4%B8%96%E7%95%8C%E7%A9%BA%E9%97%B4-World-Space"><span class="nav-number">2.</span> <span class="nav-text">2. 世界空间(World Space)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number">3.</span> <span class="nav-text">Credits:</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -499,7 +492,7 @@
       quicklink({
         timeout : 3000,
         priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/02/13/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97-Socket/',]
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/',]
       });
       });
   </script>
