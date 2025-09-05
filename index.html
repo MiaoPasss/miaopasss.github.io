@@ -161,6 +161,96 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/" class="post-title-link" itemprop="url">裁剪空间和NDC</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-09-05 11:35:46 / Modified: 17:39:21" itemprop="dateCreated datePublished" datetime="2025-09-05T11:35:46+08:00">2025-09-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Vertex Shader的输出在Clip Space，然后GPU自己做透视除法变到了NDC（取值范围[-1, 1]）。</p>
+<hr>
+<h1 id="裁剪空间"><a href="#裁剪空间" class="headerlink" title="裁剪空间"></a>裁剪空间</h1><p>裁剪空间变换的思路是，对平截头体进行缩放，使近裁剪面和远裁剪面变成正方形，使坐标的w分量表示裁剪范围，此时，只需要简单的比较x,y,z和w分量的大小即可裁剪图元。<br>完全位于这块空间内部的图元将会被保留，完全位于这块空间外部的图元将会被剔除，与这块空间边界相交的图元就会被裁剪。而这块空间就是由视椎体来决定的。</p>
+<p>In clip space, clipping is not done against a unit cube. It is done against a cube with side-length w. Points are inside the visible area if each of their x,y,z coordinate is smaller than their w coordinate.</p>
+<p>In the example you have, the point [6, 0, 6.29, 7] is visible because all three coordinates (x,y,z) are smaller than 7.</p>
+<h3 id="透视投影矩阵"><a href="#透视投影矩阵" class="headerlink" title="透视投影矩阵"></a>透视投影矩阵</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p1.jpg" title="Perspective Projection Matrix"> <br></p>
+<p>此时我们就可以按如下不等式来判断一个变换后的顶点是否位于视椎体内<br><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p3.png" title="Clipping"> <br></p>
+<h3 id="正交投影矩阵"><a href="#正交投影矩阵" class="headerlink" title="正交投影矩阵"></a>正交投影矩阵</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p2.jpg" title="Orthogonal Projection Matrix"> <br></p>
+<p>判断一个变换后的顶点是否位于视椎体内使用的不等式和透视投影中的一样，这种通用性也是为什么要使用投影矩阵的原因之一。</p>
+<h1 id="NDC"><a href="#NDC" class="headerlink" title="NDC"></a>NDC</h1><p>齐次除法将Clip Space顶点的4个分量都除以w分量，就从Clip Space转换到了NDC了。<br>细心一点会发现，齐次坐标对于透视投影空的裁剪空间变化更大，而对正交投影的裁剪空间没有影响（正交投影的裁剪空间中顶点的w已经是1了）。</p>
+<h3 id="透视投影除法"><a href="#透视投影除法" class="headerlink" title="透视投影除法"></a>透视投影除法</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p5.png" title="齐次除法"> <br></p>
+<h3 id="正交投影除法"><a href="#正交投影除法" class="headerlink" title="正交投影除法"></a>正交投影除法</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p6.png" title="齐次除法"> <br></p>
+<p>而NDC是一个长宽高取值范围为[-1, 1]的立方体，超过这个范围的顶点，会被GPU剪裁。也就是说，每个顶点的x，y，z坐标都应该在-1.0到1.0之间，超出这个坐标范围的顶点都将不可见。</p>
+<h3 id="视口变换-Viewport-Transformation"><a href="#视口变换-Viewport-Transformation" class="headerlink" title="视口变换(Viewport Transformation)"></a>视口变换(Viewport Transformation)</h3><p>At this moment, we’re still in 3D space.How do we get to 2D space?</p>
+<p>We need to transform our vertex from 3D NDC to 2D screen coordinates.</p>
+<p>When initializing the Canvas, we are responsible for configuring its size. This size is used to convert our NDC coordinates to screen coordinates.</p>
+<p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p4.png" title="viewport transformation"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/28/C-%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -300,7 +390,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-08-28 16:30:13" itemprop="dateModified" datetime="2025-08-28T16:30:13+08:00">2025-08-28</time>
+                <time title="Modified: 2025-09-05 17:42:25" itemprop="dateModified" datetime="2025-09-05T17:42:25+08:00">2025-09-05</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -323,7 +413,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <hr>
+          <p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p9.png" title="空间变换总览"></p>
+<p>坐标空间有：世界空间、模型空间、摄像机空间、齐次裁剪空间、屏幕空间，以及法线映射会用到的切线空间（之前的纹理基础篇就讲到过）。 </p>
+<p><strong>那为什么会有这么多个坐标空间呢？</strong></p>
+<blockquote>
+<p>一些概念只有在特定的坐标空间下才有意义，才更容易理解。这就是为什么在渲染中我们要使用这么多坐标空间。</p>
+</blockquote>
+<div style="text-align: right">——《Unity Shader 入门精要》</div>
+
+<hr>
 <ul>
 <li>坐标空间转换：在渲染管线中，把一个点或一个向量从一个坐标空间转换到另一个坐标空间，比如模型空间 -&gt; 裁剪空间</li>
 <li>变换矩阵：实现坐标空间转换的过程，则需要用到变换矩阵</li>
@@ -336,9 +434,65 @@
 <li>包含前、后、左、右等自然方向概念.</li>
 </ul>
 <p>在模型空间中描述模型上的某一点位置时，坐标会被扩展到齐次坐标系下：(1,0,0) -&gt; (1,0,0,1)，为顶点变换中的平移变换做准备</p>
+<h3 id="顶点变换Step-1-模型变换-MVP中的M"><a href="#顶点变换Step-1-模型变换-MVP中的M" class="headerlink" title="顶点变换Step 1 - 模型变换(MVP中的M)"></a>顶点变换Step 1 - 模型变换(MVP中的M)</h3><p>Model Transformation 把3D物体从模型空间变换到世界空间</p>
+<p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p1.png" title="cube坐标变换前"></p>
+<p>在Unity中，我们直接给Cube拖出来就行</p>
+<p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p2.png" title="cube坐标变换后"></p>
+<p>我们发现，Cube位置从(0, 2, 4, 1) -&gt; (9, 4, 18.071)，unity帮助我们把Cube的坐标完成了模型变换</p>
 <hr>
-<h1 id="2-世界空间-World-Space"><a href="#2-世界空间-World-Space" class="headerlink" title="2. 世界空间(World Space)"></a>2. 世界空间(World Space)</h1><hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits:"></a>Credits:</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41835314/article/details/126851074">https://blog.csdn.net/qq_41835314/article/details/126851074</a></p>
+<h1 id="2-世界空间-World-Space"><a href="#2-世界空间-World-Space" class="headerlink" title="2. 世界空间(World Space)"></a>2. 世界空间(World Space)</h1><p>游戏场景中的最大空间，一般世界空间的原点会放在游戏空间的正中心，同时世界空间的位置就是绝对位置——这个绝对位置你可以理解成Unity里没有父节点（parent）的游戏对象的位置。</p>
+<h3 id="顶点变换Step-2-观察变换-MVP中的V"><a href="#顶点变换Step-2-观察变换-MVP中的V" class="headerlink" title="顶点变换Step 2 - 观察变换(MVP中的V)"></a>顶点变换Step 2 - 观察变换(MVP中的V)</h3><p>View Transformation 把3D物体从世界空间变换到观察空间</p>
+<p>此时的变换矩阵等于：把观察空间当做一个模型空间，将其变换到世界空间（用模型变换的方法），然后取此变换矩阵的逆即为 观察空间 &lt;- 世界空间</p>
+<p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p4.png" title="cube坐标变换前"></p>
+<p>在unity中，我们可以直接把Cube从世界空间拖到Main Camera下，此时Cube的Transform组件变为观察空间下的坐标信息</p>
+<p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p5.png" title="cube坐标变换后"></p>
+<p>我们发现Cube位置变为(9, 8.839, 27.310)，但此时Transform信息是左手坐标系下的，因此正确描述在观察空间中的Cube坐标应为(9, 8.839, -27.310)</p>
+<hr>
+<h1 id="3-观察空间-View-Space"><a href="#3-观察空间-View-Space" class="headerlink" title="3. 观察空间(View Space)"></a>3. 观察空间(View Space)</h1><p>也叫做摄像机空间(Camera Space)，摄像机在场景中不可见，但是一般会给它生成一个图标并在场景窗口可视化，例如：</p>
+<p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p3.png" title="摄像机在场景中可视化"></p>
+<ul>
+<li>In Unity’s camera&#x2F;view space, the forward direction (the direction the camera is looking) is along the negative Z-axis. This means objects further away from the camera will have larger negative Z values in view space.</li>
+<li>注意区分<em>观察空间</em>和<em>屏幕空间</em>，观察空间是3d，屏幕空间是2d，观察空间 -&gt; 屏幕空间需要经过投影操作</li>
+</ul>
+<h3 id="顶点变换Step-3-投影变换-MVP中的P"><a href="#顶点变换Step-3-投影变换-MVP中的P" class="headerlink" title="顶点变换Step 3 - 投影变换(MVP中的P)"></a>顶点变换Step 3 - 投影变换(MVP中的P)</h3><p>Projection Transformation 把3D物体从观察空间变换到裁剪空间</p>
+<p>观察空间-&gt;裁剪空间的变换矩阵有更准确的称呼 —— 裁剪矩阵(Clipping Matrix)，也被叫做投影矩阵(Projection Matrix)。<br>此时的坐标为顶点着色器的输出，即图元顶点在裁剪空间中的坐标。</p>
+<p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p10.jpg" title="投影矩阵"></p>
+<hr>
+<h1 id="4-裁剪空间-Clip-Space"><a href="#4-裁剪空间-Clip-Space" class="headerlink" title="4. 裁剪空间(Clip Space)"></a>4. 裁剪空间(Clip Space)</h1><p>也被称为其次裁剪空间，渲染管线中几何阶段的裁剪步骤在这一环节完成，这一环节里我们无法操控(Non-programmable)，完全由GPU去做</p>
+<h2 id="4-1-视锥体"><a href="#4-1-视锥体" class="headerlink" title="4.1 视锥体"></a>4.1 视锥体</h2><p>从观察空间到屏幕空间的途中，需要经过裁剪空间，其目的在于剔除在视野范围外的图元，而由视锥体(Frustum)决定的裁剪空间为这一剔除过程提供了便利。<br>很显然，场景越大，裁剪的优越性更加突出，如果不进行裁剪就直接投影到2d屏幕空间，后续会产生非常多不必要的开销，例如渲染完全在电脑屏幕外的图元。</p>
+<p>视锥体是观察空间中的一块区域，决定着摄像机的可见范围（即最终在屏幕上可见并渲染的物体），它由六个面组成，被称为裁剪平面(Clipping Planes)。</p>
+<h2 id="4-1-1-透视投影"><a href="#4-1-1-透视投影" class="headerlink" title="4.1.1 透视投影"></a>4.1.1 透视投影</h2><p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p6.png" title="透视投影参数"></p>
+<ul>
+<li>FOV: 视角度数，同时FOV Axis决定这个视角是横向还是纵向</li>
+<li>Clipping Planes: 设置近裁剪平面距离 和 远裁剪平面距离</li>
+<li>Viewport Rect: This refers to the Camera.rect property, which defines the portion of the screen where a camera’s view is drawn. By adjusting these values, you can control where a camera renders on the screen and how much of the screen it occupies. This config is commonly used for split-screen effects.</li>
+<li>Depth: This property controls the order in which multiple cameras in a scene render their output. A camera with a lower depth value renders before a camera with a higher depth value. This is crucial for achieving effects like picture-in-picture, UI overlays, or rendering specific layers with different cameras. If multiple cameras have the same depth value, their rendering order is determined by their order in the scene hierarchy.</li>
+</ul>
+<h2 id="4-1-2-正交投影"><a href="#4-1-2-正交投影" class="headerlink" title="4.1.2 正交投影"></a>4.1.2 正交投影</h2><p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p7.png" title="正交投影参数"></p>
+<h2 id="4-2-投影矩阵的目的"><a href="#4-2-投影矩阵的目的" class="headerlink" title="4.2 投影矩阵的目的"></a>4.2 投影矩阵的目的</h2><p>前面已经讨论过了裁剪的必要性 —— 进行渲染提出视野范围外的图元；这里需要讨论的是，为何不在视锥体裁剪，而是要先变换到裁剪空间再进行裁剪？</p>
+<p>《Unity Shader 入门精要》中做了很清楚的解释：“直接在视锥体定义的空间进行裁剪，对于透视投影的视锥体想要判断一个顶点是否在这个空间内是十分麻烦的，我们需要一种更加通用、整洁方便的方式进行裁剪，因此就需要一个投影矩阵将顶点转换到一个裁剪空间(Clip space)中。”</p>
+<p>从观察空间到裁剪空间的变换叫做投影变换。虽然叫做投影变换，但是投影变换并没有进行真正的投影。</p>
+<h2 id="4-2-1-为真正的投影做准备"><a href="#4-2-1-为真正的投影做准备" class="headerlink" title="4.2.1 为真正的投影做准备"></a>4.2.1 为真正的投影做准备</h2><p>真正的投影可以理解成空间的降维，4d -&gt; 3d，3d -&gt; 2d，真正的投影发生在屏幕映射过程中对顶点进行齐次除法后获得其二维坐标这一步，而投影矩阵只是进行了坐标空间转换，并没有实实在在地进行投影这一操作。<br>齐次（裁剪）空间实质上是一个四维空间，变换到齐次空间的顶点之间仍然是线性相关的，可以使用线性插值。（此时没有除以W变成3D坐标，是齐次坐标）</p>
+<h2 id="4-2-2-对x、y、z进行缩放"><a href="#4-2-2-对x、y、z进行缩放" class="headerlink" title="4.2.2 对x、y、z进行缩放"></a>4.2.2 对x、y、z进行缩放</h2><p>投影矩阵虽然叫做投影矩阵，但并没有真正进行投影，而是为投影做准备。经过投影矩阵的缩放后，我们可以直接使用w分量作为范围值，只有x，y，z分量都位于这个范围内的顶点才认为是在裁剪空间内。并且w分量在真正的投影时也会用到。</p>
+<hr>
+<h1 id="标准化设备坐标-Normalized-Device-Coordinate"><a href="#标准化设备坐标-Normalized-Device-Coordinate" class="headerlink" title="标准化设备坐标(Normalized Device Coordinate)"></a>标准化设备坐标(Normalized Device Coordinate)</h1><p>在齐次裁剪空间的基础上进行透视除法(Perspective division)或称齐次除法(Homogeneous division)，得到的坐标叫做NDC空间坐标。</p>
+<ul>
+<li>裁剪空间是顶点乘以MVP矩阵之后所在的空间，<strong>Vertex Shader的输出就是在裁剪空间上</strong>（划重点）。</li>
+<li>接着由GPU自己做<strong>透视除法</strong>，将顶点转移到标准化设备坐标(NDC)。</li>
+</ul>
+<p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p8.png" title="透视除法"></p>
+<hr>
+<h1 id="5-屏幕空间-Screen-Space"><a href="#5-屏幕空间-Screen-Space" class="headerlink" title="5. 屏幕空间(Screen Space)"></a>5. 屏幕空间(Screen Space)</h1><p>完成了裁剪工作，下一步就是进行真正的投影了，将视锥体投影到屏幕空间中，这一步会得到真正的像素位置，而不是虚拟的三维坐标。<br>这一环节可以理解为做了以下两步：</p>
+<h3 id="5-1-齐次除法"><a href="#5-1-齐次除法" class="headerlink" title="5.1 齐次除法"></a>5.1 齐次除法</h3><p>首先进行标准齐次除法（homogeneous division），也被称为透视除法（perspective division），其实就是x、y、z分别除以w，经过齐次除法后的裁剪空间会变成一个单位立方体，这个立方体空间里的坐标叫做归一化的设备坐标（也就是之前提到的NDC）。因此，也可以说齐次除法是做了空间裁剪坐标到NDC坐标的转换操作。</p>
+<h3 id="5-2-屏幕映射（渲染管线中几何阶段的一步）"><a href="#5-2-屏幕映射（渲染管线中几何阶段的一步）" class="headerlink" title="5.2 屏幕映射（渲染管线中几何阶段的一步）"></a>5.2 屏幕映射（渲染管线中几何阶段的一步）</h3><p>这里就顺利的跟之前的渲染管线GPU负责的几何阶段部分联系在一起了。在获得了NDC立方体后，接下来就是根据变换后的x、y坐标映射输出窗口对应的像素坐标，本质就是个缩放的过程。</p>
+<ul>
+<li>虽然屏幕是2d空间，但z分量此时并没有被抛弃，会被储存起来（深度缓存或者其他的储存格式）</li>
+</ul>
+<p>我们前面说到Vertex Shader的输出在Clip Space，接着GPU会做透视除法变到NDC。这之后GPU还有一步，应用视口变换(Viewport Transformation)，转换到屏幕空间，输入给Fragment Shader：</p>
+<p><strong>(Vertex Shader) &#x3D;&gt; Clip Space &#x3D;&gt; (透视除法) &#x3D;&gt; NDC &#x3D;&gt; (视口变换) &#x3D;&gt; Window Space &#x3D;&gt; (Fragment Shader)</strong></p>
+<p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p11.png" title="总流程"></p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits:"></a>Credits:</h1><p>MVP矩阵：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41835314/article/details/126851074">https://blog.csdn.net/qq_41835314/article/details/126851074</a></p>
 <hr>
 
       
@@ -1188,120 +1342,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/14/C-%E8%84%9A%E6%9C%AC%E5%AF%BC%E8%87%B4%E7%9A%84Unity%E7%9B%B8%E5%85%B3bug/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/14/C-%E8%84%9A%E6%9C%AC%E5%AF%BC%E8%87%B4%E7%9A%84Unity%E7%9B%B8%E5%85%B3bug/" class="post-title-link" itemprop="url">C#脚本导致的Unity相关bug</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-14 13:14:58" itemprop="dateCreated datePublished" datetime="2025-02-14T13:14:58+08:00">2025-02-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-12 17:49:44" itemprop="dateModified" datetime="2025-03-12T17:49:44+08:00">2025-03-12</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="问题：属性-Property-和访问器-Accessor"><a href="#问题：属性-Property-和访问器-Accessor" class="headerlink" title="问题：属性(Property)和访问器(Accessor)"></a>问题：属性(Property)和访问器(Accessor)</h1><p>如果在当前属性中直接添加自定义get和set访问器，在Unity引擎中访问&#x2F;修改此属性时游戏会闪退。</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TestClass</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> TestProperty &#123;</span><br><span class="line">        <span class="keyword">get</span> &#123; <span class="keyword">return</span> TestProperty;&#125;</span><br><span class="line">        <span class="keyword">set</span> &#123;</span><br><span class="line">            TestProperty = <span class="keyword">value</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><ol>
-<li>直接使用默认访问器</li>
-</ol>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">StartPage</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> TestProperty &#123;</span><br><span class="line">        <span class="keyword">get</span>;</span><br><span class="line">        <span class="keyword">set</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>创建一个新属性专门用于访问</li>
-</ol>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">StartPage</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">int</span> testProperty;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> TestProperty &#123;</span><br><span class="line">        <span class="keyword">get</span> &#123; <span class="keyword">return</span> testProperty;&#125;</span><br><span class="line">        <span class="keyword">set</span> &#123;</span><br><span class="line">            testProperty = <span class="keyword">value</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h1 id="问题：Start函数中使用不当loop循环"><a href="#问题：Start函数中使用不当loop循环" class="headerlink" title="问题：Start函数中使用不当loop循环"></a>问题：Start函数中使用不当loop循环</h1><p>如果在start函数中使用while循环处理资源加载进度条，Unity引擎会在importing asset弹窗中卡死</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TestClass</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> Progressbar loadingBar;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> AssetLabelReference gameImageAssets;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span> &#123;</span><br><span class="line">        AsyncOperationHandle asyncHandle = Addressables.LoadAssetsAsync&lt;Sprite&gt;(gameImageAssets, _ =&gt; &#123;&#125;);</span><br><span class="line">        asyncHandle.Completed += EnterGame;</span><br><span class="line">        StartCoroutine(GameLoadingCoroutine(asyncHandle));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> IEnumerator <span class="title">GameLoadingCoroutine</span>(<span class="params">AsyncOperationHandle handle</span>)</span> &#123;</span><br><span class="line">        <span class="comment">// yield return Addressables.LoadAssetsAsync&lt;Sprite&gt;(gameImageAssets, _ =&gt; &#123;&#125;);</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (!handle.IsDone &amp;&amp; handle.PercentComplete &lt; <span class="number">1f</span>)</span><br><span class="line">            loadingBar.SetProgressPercent(handle.PercentComplete);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">EnterGame</span>()</span> &#123;</span><br><span class="line">        <span class="comment">// Disable Loading bar</span></span><br><span class="line">        <span class="comment">// Enter gameplay</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h2><p>使用协程(Coroutine)将while操作与Unity生命周期同步</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TestClass</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> Progressbar loadingBar;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> AssetLabelReference gameImageAssets;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span> &#123;</span><br><span class="line">        AsyncOperationHandle asyncHandle = Addressables.LoadAssetsAsync&lt;Sprite&gt;(gameImageAssets, _ =&gt; &#123;&#125;);</span><br><span class="line">        StartCoroutine(GameLoadingCoroutine(asyncHandle));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> IEnumerator <span class="title">GameLoadingCoroutine</span>(<span class="params">AsyncOperationHandle handle</span>)</span> &#123;</span><br><span class="line">        <span class="keyword">while</span> (!handle.IsDone &amp;&amp; handle.PercentComplete &lt; <span class="number">1f</span>) &#123;</span><br><span class="line">            loadingBar.SetProgressPercent(handle.PercentComplete);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (handle.Status == AsyncOperationStatus.Succeeded)</span><br><span class="line">            EnterGame();</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            Debug.LogError(<span class="string">$&quot;Failed to load game asset sprites: <span class="subst">&#123;handle.Status&#125;</span>&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">EnterGame</span>()</span> &#123;</span><br><span class="line">        <span class="comment">// Disable Loading bar</span></span><br><span class="line">        <span class="comment">// Enter gameplay</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h1 id="问题：在Awake-Start函数中修改GameObject位置"><a href="#问题：在Awake-Start函数中修改GameObject位置" class="headerlink" title="问题：在Awake&#x2F;Start函数中修改GameObject位置"></a>问题：在Awake&#x2F;Start函数中修改GameObject位置</h1><p>在Awake&#x2F;Start函数中GameObject的position component尚未初始化完成，此时修改位置将不会起作用</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">Start</span>()</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> newPos = transform.localPosition;</span><br><span class="line">    newPos.y += <span class="number">100</span>;</span><br><span class="line">    </span><br><span class="line">    transform.localPosition = newPos;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="解决方案-2"><a href="#解决方案-2" class="headerlink" title="解决方案"></a>解决方案</h2><ol>
-<li>在Start函数中等待一帧后再修改位置，此时GameObject的position component可使用</li>
-</ol>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> IEnumerator <span class="title">Start</span>()</span> &#123;</span><br><span class="line">    <span class="keyword">yield</span> <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> newPos = transform.localPosition;</span><br><span class="line">    newPos.y += <span class="number">100</span>;</span><br><span class="line">    </span><br><span class="line">    transform.localPosition = newPos;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>在Awake&#x2F;Start函数之后的函数进行修改位置操作</li>
-</ol>
-<hr>
-<h1 id="问题：使用dotween移动layout-group中的游戏对象会影响其他游戏对象"><a href="#问题：使用dotween移动layout-group中的游戏对象会影响其他游戏对象" class="headerlink" title="问题：使用dotween移动layout group中的游戏对象会影响其他游戏对象"></a>问题：使用dotween移动layout group中的游戏对象会影响其他游戏对象</h1><h2 id="举例：一个老虎机有5个转轴Reel-reels，移动reels-2-会将reels-0-和reels-1-的position清零"><a href="#举例：一个老虎机有5个转轴Reel-reels，移动reels-2-会将reels-0-和reels-1-的position清零" class="headerlink" title="举例：一个老虎机有5个转轴Reel[] reels，移动reels[2]会将reels[0]和reels[1]的position清零"></a>举例：一个老虎机有5个转轴Reel[] reels，移动reels[2]会将reels[0]和reels[1]的position清零</h2><hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1379,7 +1419,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-count">18</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
