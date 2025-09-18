@@ -161,6 +161,97 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/09/18/%E7%9D%80%E8%89%B2%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/09/18/%E7%9D%80%E8%89%B2%E5%99%A8/" class="post-title-link" itemprop="url">着色器</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-09-18 16:43:49 / Modified: 16:49:11" itemprop="dateCreated datePublished" datetime="2025-09-18T16:43:49+08:00">2025-09-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="顶点着色器-vs-片元着色器"><a href="#顶点着色器-vs-片元着色器" class="headerlink" title="顶点着色器 vs 片元着色器"></a>顶点着色器 vs 片元着色器</h1><p>One main difference is that a vertex shader can manipulate the attributes of vertices. which are the corner points of your polygons.<br>The fragment shader on the other hand takes care of how the pixels between the vertices look. They are interpolated between the defined vertices following specific rules.</p>
+<p>白话：顶点着色器负责定位三角形位置！片段着色器负责修改像素颜色！！</p>
+<h1 id="顶点着色器-Vertex-Shader"><a href="#顶点着色器-Vertex-Shader" class="headerlink" title="顶点着色器(Vertex Shader)"></a>顶点着色器(Vertex Shader)</h1><p>顶点着色器是图形渲染管线中的第一个可编程阶段。它的主要任务是处理从CPU发送到GPU的顶点数据。每个顶点都会通过顶点着色器进行一次，通常用于执行以下操作：</p>
+<ul>
+<li>变换：将顶点从模型空间转换到世界空间，然后进一步转换到视图空间和投影空间。这通常涉及到矩阵乘法运算，用于实现平移、旋转和缩放等变换。</li>
+<li>光照计算（可选）：在某些情况下，顶点着色器也用于执行初步的光照计算，但这通常是在更简单的渲染场景中，或者作为更复杂的片元级光照计算的一个初步步骤。</li>
+<li>传递数据：顶点着色器可以计算并传递额外的数据到后续的渲染阶段，如片元着色器。这些数据可以是颜色、纹理坐标或其他自定义属性。</li>
+</ul>
+<h1 id="片元着色器"><a href="#片元着色器" class="headerlink" title="片元着色器"></a>片元着色器</h1><p>片元着色器是图形渲染管线中处理像素级渲染的阶段。它接收由顶点着色器插值得到的片元（即屏幕上的像素或像素的候选者），并生成最终的颜色和其他与像素相关的数据。以下是片元着色器的一些主要用途：</p>
+<ul>
+<li>纹理映射：从纹理中读取颜色信息，并应用到相应的像素上。这可以用于实现贴图、细节增强等效果。</li>
+<li>光照计算：执行更详细的光照计算，如计算每个像素上的光照强度和颜色。这可以包括漫反射、镜面反射、环境光等多种光照模型。</li>
+<li>颜色混合和特殊效果：实现各种颜色混合模式，以及应用如模糊、发光、深度测试等后处理效果。</li>
+<li>输出最终颜色：基于上述计算，确定每个像素的最终颜色，并将其发送到渲染管线的下一个阶段（通常是帧缓冲区）。</li>
+</ul>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits:"></a>Credits:</h1><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/718015588">https://zhuanlan.zhihu.com/p/718015588</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -192,7 +283,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2025-09-05 11:35:46 / Modified: 17:39:21" itemprop="dateCreated datePublished" datetime="2025-09-05T11:35:46+08:00">2025-09-05</time>
+              <time title="Created: 2025-09-05 11:35:46 / Modified: 17:44:27" itemprop="dateCreated datePublished" datetime="2025-09-05T11:35:46+08:00">2025-09-05</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -215,7 +306,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>Vertex Shader的输出在Clip Space，然后GPU自己做透视除法变到了NDC（取值范围[-1, 1]）。</p>
+          <p>Vertex Shader的输出在Clip Space，然后GPU自己做透视除法变到了NDC( 取值范围[-1, 1] )。</p>
 <hr>
 <h1 id="裁剪空间"><a href="#裁剪空间" class="headerlink" title="裁剪空间"></a>裁剪空间</h1><p>裁剪空间变换的思路是，对平截头体进行缩放，使近裁剪面和远裁剪面变成正方形，使坐标的w分量表示裁剪范围，此时，只需要简单的比较x,y,z和w分量的大小即可裁剪图元。<br>完全位于这块空间内部的图元将会被保留，完全位于这块空间外部的图元将会被剔除，与这块空间边界相交的图元就会被裁剪。而这块空间就是由视椎体来决定的。</p>
 <p>In clip space, clipping is not done against a unit cube. It is done against a cube with side-length w. Points are inside the visible area if each of their x,y,z coordinate is smaller than their w coordinate.</p>
@@ -224,10 +315,11 @@
 <p>此时我们就可以按如下不等式来判断一个变换后的顶点是否位于视椎体内<br><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p3.png" title="Clipping"> <br></p>
 <h3 id="正交投影矩阵"><a href="#正交投影矩阵" class="headerlink" title="正交投影矩阵"></a>正交投影矩阵</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p2.jpg" title="Orthogonal Projection Matrix"> <br></p>
 <p>判断一个变换后的顶点是否位于视椎体内使用的不等式和透视投影中的一样，这种通用性也是为什么要使用投影矩阵的原因之一。</p>
-<h1 id="NDC"><a href="#NDC" class="headerlink" title="NDC"></a>NDC</h1><p>齐次除法将Clip Space顶点的4个分量都除以w分量，就从Clip Space转换到了NDC了。<br>细心一点会发现，齐次坐标对于透视投影空的裁剪空间变化更大，而对正交投影的裁剪空间没有影响（正交投影的裁剪空间中顶点的w已经是1了）。</p>
-<h3 id="透视投影除法"><a href="#透视投影除法" class="headerlink" title="透视投影除法"></a>透视投影除法</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p5.png" title="齐次除法"> <br></p>
+<hr>
+<h1 id="NDC"><a href="#NDC" class="headerlink" title="NDC"></a>NDC</h1><p>齐次除法将Clip Space顶点的4个分量都除以w分量，就从Clip Space转换到了NDC了。<br>而NDC是一个长宽高取值范围为[-1, 1]的立方体，超过这个范围的顶点，会被GPU剪裁。也就是说，每个顶点的x，y，z坐标都应该在-1.0到1.0之间，超出这个坐标范围的顶点都将不可见。</p>
+<h3 id="透视投影除法"><a href="#透视投影除法" class="headerlink" title="透视投影除法"></a>透视投影除法</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p5.png" title="齐次除法"></p>
 <h3 id="正交投影除法"><a href="#正交投影除法" class="headerlink" title="正交投影除法"></a>正交投影除法</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p6.png" title="齐次除法"> <br></p>
-<p>而NDC是一个长宽高取值范围为[-1, 1]的立方体，超过这个范围的顶点，会被GPU剪裁。也就是说，每个顶点的x，y，z坐标都应该在-1.0到1.0之间，超出这个坐标范围的顶点都将不可见。</p>
+<p>细心一点会发现，齐次坐标对于透视投影空的裁剪空间变化更大，而对正交投影的裁剪空间没有影响（正交投影的裁剪空间中顶点的w已经是1了）。</p>
 <h3 id="视口变换-Viewport-Transformation"><a href="#视口变换-Viewport-Transformation" class="headerlink" title="视口变换(Viewport Transformation)"></a>视口变换(Viewport Transformation)</h3><p>At this moment, we’re still in 3D space.How do we get to 2D space?</p>
 <p>We need to transform our vertex from 3D NDC to 2D screen coordinates.</p>
 <p>When initializing the Canvas, we are responsible for configuring its size. This size is used to convert our NDC coordinates to screen coordinates.</p>
@@ -1221,127 +1313,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/" class="post-title-link" itemprop="url">CNAME和域名解析</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-24 13:34:05" itemprop="dateCreated datePublished" datetime="2025-02-24T13:34:05+08:00">2025-02-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-07 16:14:25" itemprop="dateModified" datetime="2025-03-07T16:14:25+08:00">2025-03-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Networks/" itemprop="url" rel="index"><span itemprop="name">Networks</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="域名解析协议-Domain-Name-System"><a href="#域名解析协议-Domain-Name-System" class="headerlink" title="域名解析协议 Domain Name System"></a>域名解析协议 Domain Name System</h1><ol>
-<li>DNS让用户能够通过域名访问网页(<a target="_blank" rel="noopener" href="http://www.baidu.com/">www.baidu.com</a> -&gt; 36.152.44.95)</li>
-<li>计算机会先将域名发送到一个解析域名的服务器上<br> 2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server)<br> 2.2. 域名解析(在服务器上查找IP地址)的过程有两种算法，迭代查询，递归查询。一般是两种查询的结合<br> 2.3. 本机计算机找到其中一台解析域名的服务器(可能是.com)，如果没有找到对应的IP地址，那么就会去找根域名服务器，根域名服务器知道所有的子服务器，<br> 所以他肯定知道该域名所对应的IP地址在那个子服务器中，所以告诉第一次查询的服务器要他去另一台服务器上找，找到了，就将其返回给计算机，<br> 以后在有另一台计算机也通过这个域名访问，那么第一台服务器会有原来的域名IP地址的缓存，就不用去找根服务器了。<br> 2.4. 找到了，就能找到我们要访问的服务器了。</li>
-</ol>
-<hr>
-<h1 id="根域名"><a href="#根域名" class="headerlink" title="根域名"></a>根域名</h1><p><img src="/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/RootDomain.jpg" alt="图片" title="域名结构"><br>Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).</p>
-<hr>
-<h1 id="A-记录"><a href="#A-记录" class="headerlink" title="A 记录"></a>A 记录</h1><p>Address Record indicates the IP address of a given domain. For example, if you pull the DNS records of cloudflare.com, the A record currently returns an IP address of: 104.17.210.9. A records only hold IPv4 addresses. If a website has an IPv6 address, it will instead use an “AAAA” record.</p>
-<p><img src="/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/ARecord.png" alt="图片" title="A记录组成部分"></p>
-<p>The “@” symbol in this example indicates that this is a record for the root domain, and the “14400” value is the TTL (time to live), listed in seconds. The default TTL for A records is 14,400 seconds. This means that if an A record gets updated, it takes 240 minutes (14,400 seconds) to take effect.</p>
-<hr>
-<h1 id="内容分发网络"><a href="#内容分发网络" class="headerlink" title="内容分发网络"></a>内容分发网络</h1><p>内容分发网络 (CDN) 是一个分布在不同地理位置的服务器群，用于缓存靠近最终用户的内容。CDN 可以快速传输加载互联网内容所需的资产，包括 HTML 网页、JavaScript 文件、样式表、图像和视频。</p>
-<hr>
-<h1 id="CNAME-别名记录"><a href="#CNAME-别名记录" class="headerlink" title="CNAME 别名记录"></a>CNAME 别名记录</h1><p>CNAME记录，也叫别名记录，相当于给A记录中的域名起个小名儿，比如<a href="http://www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：">www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：</a></p>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="http://www.yy.com/">www.yy.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1</p>
-</blockquote>
-<p>这样一来就能通过它的小名儿直接访问1.1.1.1了。</p>
-<br>
-
-<h2 id="多个域名指向同一个地址"><a href="#多个域名指向同一个地址" class="headerlink" title="多个域名指向同一个地址"></a>多个域名指向同一个地址</h2><blockquote>
-<p><a target="_blank" rel="noopener" href="http://www.yy.com/">www.yy.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.cc.com/">www.cc.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.kk.com/">www.kk.com</a> → <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1</p>
-</blockquote>
-<p>突然服务器的IP地址因为一些不可描述的原因要换了，不再是1.1.1.1了，换成了2.2.2.2，这时候你发现，只要把<a href="http://www.xx.com的指向修改一下即可：">www.xx.com的指向修改一下即可：</a></p>
-<blockquote>
-<p>域名 <a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 2.2.2.2<br>这时候你又发现了，原来他的小名儿不需要做更改，直接就能访问服务器，因为他们都只指向了<a target="_blank" rel="noopener" href="http://www.xx.com,服务器ip改没改它们不管./">www.xx.com，服务器IP改没改它们不管。</a></p>
-</blockquote>
-<p>那么假如不用CNAME，直接做A记录，那么当1.1.1.1更改的时候，全部相关A记录指向关系都要做更改</p>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="http://www.yy.com/">www.yy.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.cc.com/">www.cc.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.xx.com/">www.xx.com</a> → 1.1.1.1<br><a target="_blank" rel="noopener" href="http://www.kk.com/">www.kk.com</a> → 1.1.1.1</p>
-</blockquote>
-<br>
-
-<h2 id="使用CDN"><a href="#使用CDN" class="headerlink" title="使用CDN"></a>使用CDN</h2><p>假如你是DD公司老板，你公司中的一台IP为1.1.1.1的服务器，注册了域名为<a target="_blank" rel="noopener" href="http://www.dd.com,要对外提供客户访问.随着公司越做越大,访问量也越来越多,服务器顶不住了,你去找cdn提供商购买cdn加速服务,这个时候他们要求你的域名做个cname指向他们给你的一个域名叫www.dd.cdn.com/">www.dd.com，要对外提供客户访问。随着公司越做越大，访问量也越来越多，服务器顶不住了，你去找CDN提供商购买CDN加速服务，这个时候他们要求你的域名做个CNAME指向他们给你的一个域名叫www.dd.cdn.com</a></p>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="http://www.dd.com/">www.dd.com</a> → <a target="_blank" rel="noopener" href="http://www.dd.cdn.com/">www.dd.cdn.com</a></p>
-</blockquote>
-<p>当用户访问<a href="http://www.dd.com的时候，本地DNS会获得CDN提供的CNAME域名：www.dd.cdn.com，然后再次向DNS调度系统发出请求，通过DNS调度系统的智能解析，把离客户端地理位置最近的（或者相对负载低的，主要看CDN那边智能解析的策略）CDN提供商的服务器IP返回给本地DNS，然后再由本地DNS回给客户端，让用户就近取到想要的资源（如访问网站），大大降低了延迟。">www.dd.com的时候，本地DNS会获得CDN提供的CNAME域名：www.dd.cdn.com，然后再次向DNS调度系统发出请求，通过DNS调度系统的智能解析，把离客户端地理位置最近的（或者相对负载低的，主要看CDN那边智能解析的策略）CDN提供商的服务器IP返回给本地DNS，然后再由本地DNS回给客户端，让用户就近取到想要的资源（如访问网站），大大降低了延迟。</a></p>
-<p><img src="/2025/02/24/CNAME%E5%92%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/CDN.png" alt="图片" title="使用CNAME配置使用CDN服务器"></p>
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>域名解析：<a target="_blank" rel="noopener" href="https://www.cloudflare.com/learning/dns/what-is-dns/">https://www.cloudflare.com/learning/dns/what-is-dns/</a><br>CNAME别名记录：<a target="_blank" rel="noopener" href="https://blog.csdn.net/DD_orz/article/details/100034049">https://blog.csdn.net/DD_orz/article/details/100034049</a></p>
-<hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1419,7 +1390,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-count">19</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

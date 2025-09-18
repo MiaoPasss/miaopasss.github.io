@@ -20,30 +20,21 @@
     var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Vertex Shader的输出在Clip Space，然后GPU自己做透视除法变到了NDC( 取值范围[-1, 1] )。  裁剪空间裁剪空间变换的思路是，对平截头体进行缩放，使近裁剪面和远裁剪面变成正方形，使坐标的w分量表示裁剪范围，此时，只需要简单的比较x,y,z和w分量的大小即可裁剪图元。完全位于这块空间内部的图元将会被保留，完全位于这块空间外部的图元将会被剔除，与这块空间边界相交的图元就">
+  <meta name="description" content="顶点着色器 vs 片元着色器One main difference is that a vertex shader can manipulate the attributes of vertices. which are the corner points of your polygons.The fragment shader on the other hand takes care of ho">
 <meta property="og:type" content="article">
-<meta property="og:title" content="裁剪空间和NDC">
-<meta property="og:url" content="https://miaopasss.github.io/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/index.html">
+<meta property="og:title" content="着色器">
+<meta property="og:url" content="https://miaopasss.github.io/2025/09/18/%E7%9D%80%E8%89%B2%E5%99%A8/index.html">
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:description" content="Vertex Shader的输出在Clip Space，然后GPU自己做透视除法变到了NDC( 取值范围[-1, 1] )。  裁剪空间裁剪空间变换的思路是，对平截头体进行缩放，使近裁剪面和远裁剪面变成正方形，使坐标的w分量表示裁剪范围，此时，只需要简单的比较x,y,z和w分量的大小即可裁剪图元。完全位于这块空间内部的图元将会被保留，完全位于这块空间外部的图元将会被剔除，与这块空间边界相交的图元就">
+<meta property="og:description" content="顶点着色器 vs 片元着色器One main difference is that a vertex shader can manipulate the attributes of vertices. which are the corner points of your polygons.The fragment shader on the other hand takes care of ho">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://miaopasss.github.io/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p1.jpg">
-<meta property="og:image" content="https://miaopasss.github.io/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p3.png">
-<meta property="og:image" content="https://miaopasss.github.io/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p2.jpg">
-<meta property="og:image" content="https://miaopasss.github.io/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p5.png">
-<meta property="og:image" content="https://miaopasss.github.io/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p6.png">
-<meta property="og:image" content="https://miaopasss.github.io/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p4.png">
-<meta property="article:published_time" content="2025-09-05T03:35:46.000Z">
-<meta property="article:modified_time" content="2025-09-05T09:44:27.735Z">
+<meta property="article:published_time" content="2025-09-18T08:43:49.000Z">
+<meta property="article:modified_time" content="2025-09-18T08:49:11.956Z">
 <meta property="article:author" content="Haotian Luo">
-<meta property="article:tag" content="Geometry">
-<meta property="article:tag" content="Matrix">
-<meta property="article:tag" content="Transformation">
 <meta property="article:tag" content="Rendering pipeline">
+<meta property="article:tag" content="Shader">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://miaopasss.github.io/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p1.jpg">
 
-<link rel="canonical" href="https://miaopasss.github.io/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/">
+<link rel="canonical" href="https://miaopasss.github.io/2025/09/18/%E7%9D%80%E8%89%B2%E5%99%A8/">
 
 
 <script id="page-configurations">
@@ -56,7 +47,7 @@
   };
 </script>
 
-  <title>裁剪空间和NDC | 乌啦呀哈呀哈乌啦！</title>
+  <title>着色器 | 乌啦呀哈呀哈乌啦！</title>
   
 
 
@@ -175,7 +166,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/09/18/%E7%9D%80%E8%89%B2%E5%99%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/exciting-usagi.gif">
@@ -194,7 +185,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          裁剪空间和NDC
+          着色器
         </h1>
 
         <div class="post-meta">
@@ -205,7 +196,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2025-09-05 11:35:46 / Modified: 17:44:27" itemprop="dateCreated datePublished" datetime="2025-09-05T11:35:46+08:00">2025-09-05</time>
+              <time title="Created: 2025-09-18 16:43:49 / Modified: 16:49:11" itemprop="dateCreated datePublished" datetime="2025-09-18T16:43:49+08:00">2025-09-18</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -235,24 +226,24 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>Vertex Shader的输出在Clip Space，然后GPU自己做透视除法变到了NDC( 取值范围[-1, 1] )。</p>
+        <h1 id="顶点着色器-vs-片元着色器"><a href="#顶点着色器-vs-片元着色器" class="headerlink" title="顶点着色器 vs 片元着色器"></a>顶点着色器 vs 片元着色器</h1><p>One main difference is that a vertex shader can manipulate the attributes of vertices. which are the corner points of your polygons.<br>The fragment shader on the other hand takes care of how the pixels between the vertices look. They are interpolated between the defined vertices following specific rules.</p>
+<p>白话：顶点着色器负责定位三角形位置！片段着色器负责修改像素颜色！！</p>
+<h1 id="顶点着色器-Vertex-Shader"><a href="#顶点着色器-Vertex-Shader" class="headerlink" title="顶点着色器(Vertex Shader)"></a>顶点着色器(Vertex Shader)</h1><p>顶点着色器是图形渲染管线中的第一个可编程阶段。它的主要任务是处理从CPU发送到GPU的顶点数据。每个顶点都会通过顶点着色器进行一次，通常用于执行以下操作：</p>
+<ul>
+<li>变换：将顶点从模型空间转换到世界空间，然后进一步转换到视图空间和投影空间。这通常涉及到矩阵乘法运算，用于实现平移、旋转和缩放等变换。</li>
+<li>光照计算（可选）：在某些情况下，顶点着色器也用于执行初步的光照计算，但这通常是在更简单的渲染场景中，或者作为更复杂的片元级光照计算的一个初步步骤。</li>
+<li>传递数据：顶点着色器可以计算并传递额外的数据到后续的渲染阶段，如片元着色器。这些数据可以是颜色、纹理坐标或其他自定义属性。</li>
+</ul>
+<h1 id="片元着色器"><a href="#片元着色器" class="headerlink" title="片元着色器"></a>片元着色器</h1><p>片元着色器是图形渲染管线中处理像素级渲染的阶段。它接收由顶点着色器插值得到的片元（即屏幕上的像素或像素的候选者），并生成最终的颜色和其他与像素相关的数据。以下是片元着色器的一些主要用途：</p>
+<ul>
+<li>纹理映射：从纹理中读取颜色信息，并应用到相应的像素上。这可以用于实现贴图、细节增强等效果。</li>
+<li>光照计算：执行更详细的光照计算，如计算每个像素上的光照强度和颜色。这可以包括漫反射、镜面反射、环境光等多种光照模型。</li>
+<li>颜色混合和特殊效果：实现各种颜色混合模式，以及应用如模糊、发光、深度测试等后处理效果。</li>
+<li>输出最终颜色：基于上述计算，确定每个像素的最终颜色，并将其发送到渲染管线的下一个阶段（通常是帧缓冲区）。</li>
+</ul>
 <hr>
-<h1 id="裁剪空间"><a href="#裁剪空间" class="headerlink" title="裁剪空间"></a>裁剪空间</h1><p>裁剪空间变换的思路是，对平截头体进行缩放，使近裁剪面和远裁剪面变成正方形，使坐标的w分量表示裁剪范围，此时，只需要简单的比较x,y,z和w分量的大小即可裁剪图元。<br>完全位于这块空间内部的图元将会被保留，完全位于这块空间外部的图元将会被剔除，与这块空间边界相交的图元就会被裁剪。而这块空间就是由视椎体来决定的。</p>
-<p>In clip space, clipping is not done against a unit cube. It is done against a cube with side-length w. Points are inside the visible area if each of their x,y,z coordinate is smaller than their w coordinate.</p>
-<p>In the example you have, the point [6, 0, 6.29, 7] is visible because all three coordinates (x,y,z) are smaller than 7.</p>
-<h3 id="透视投影矩阵"><a href="#透视投影矩阵" class="headerlink" title="透视投影矩阵"></a>透视投影矩阵</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p1.jpg" title="Perspective Projection Matrix"> <br></p>
-<p>此时我们就可以按如下不等式来判断一个变换后的顶点是否位于视椎体内<br><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p3.png" title="Clipping"> <br></p>
-<h3 id="正交投影矩阵"><a href="#正交投影矩阵" class="headerlink" title="正交投影矩阵"></a>正交投影矩阵</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p2.jpg" title="Orthogonal Projection Matrix"> <br></p>
-<p>判断一个变换后的顶点是否位于视椎体内使用的不等式和透视投影中的一样，这种通用性也是为什么要使用投影矩阵的原因之一。</p>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits:"></a>Credits:</h1><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/718015588">https://zhuanlan.zhihu.com/p/718015588</a></p>
 <hr>
-<h1 id="NDC"><a href="#NDC" class="headerlink" title="NDC"></a>NDC</h1><p>齐次除法将Clip Space顶点的4个分量都除以w分量，就从Clip Space转换到了NDC了。<br>而NDC是一个长宽高取值范围为[-1, 1]的立方体，超过这个范围的顶点，会被GPU剪裁。也就是说，每个顶点的x，y，z坐标都应该在-1.0到1.0之间，超出这个坐标范围的顶点都将不可见。</p>
-<h3 id="透视投影除法"><a href="#透视投影除法" class="headerlink" title="透视投影除法"></a>透视投影除法</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p5.png" title="齐次除法"></p>
-<h3 id="正交投影除法"><a href="#正交投影除法" class="headerlink" title="正交投影除法"></a>正交投影除法</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p6.png" title="齐次除法"> <br></p>
-<p>细心一点会发现，齐次坐标对于透视投影空的裁剪空间变化更大，而对正交投影的裁剪空间没有影响（正交投影的裁剪空间中顶点的w已经是1了）。</p>
-<h3 id="视口变换-Viewport-Transformation"><a href="#视口变换-Viewport-Transformation" class="headerlink" title="视口变换(Viewport Transformation)"></a>视口变换(Viewport Transformation)</h3><p>At this moment, we’re still in 3D space.How do we get to 2D space?</p>
-<p>We need to transform our vertex from 3D NDC to 2D screen coordinates.</p>
-<p>When initializing the Canvas, we are responsible for configuring its size. This size is used to convert our NDC coordinates to screen coordinates.</p>
-<p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p4.png" title="viewport transformation"></p>
 
     </div>
 
@@ -262,10 +253,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Geometry/" rel="tag"># Geometry</a>
-              <a href="/tags/Matrix/" rel="tag"># Matrix</a>
-              <a href="/tags/Transformation/" rel="tag"># Transformation</a>
               <a href="/tags/Rendering-pipeline/" rel="tag"># Rendering pipeline</a>
+              <a href="/tags/Shader/" rel="tag"># Shader</a>
           </div>
 
         
@@ -274,13 +263,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2025/08/28/C-%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5/" rel="prev" title="C# 依赖注入">
-      <i class="fa fa-chevron-left"></i> C# 依赖注入
+    <a href="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/" rel="prev" title="裁剪空间和NDC">
+      <i class="fa fa-chevron-left"></i> 裁剪空间和NDC
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2025/09/18/%E7%9D%80%E8%89%B2%E5%99%A8/" rel="next" title="着色器">
-      着色器 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -339,7 +325,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4"><span class="nav-number">1.</span> <span class="nav-text">裁剪空间</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%8F%E8%A7%86%E6%8A%95%E5%BD%B1%E7%9F%A9%E9%98%B5"><span class="nav-number">1.0.1.</span> <span class="nav-text">透视投影矩阵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E4%BA%A4%E6%8A%95%E5%BD%B1%E7%9F%A9%E9%98%B5"><span class="nav-number">1.0.2.</span> <span class="nav-text">正交投影矩阵</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NDC"><span class="nav-number">2.</span> <span class="nav-text">NDC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%8F%E8%A7%86%E6%8A%95%E5%BD%B1%E9%99%A4%E6%B3%95"><span class="nav-number">2.0.1.</span> <span class="nav-text">透视投影除法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E4%BA%A4%E6%8A%95%E5%BD%B1%E9%99%A4%E6%B3%95"><span class="nav-number">2.0.2.</span> <span class="nav-text">正交投影除法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E5%8F%A3%E5%8F%98%E6%8D%A2-Viewport-Transformation"><span class="nav-number">2.0.3.</span> <span class="nav-text">视口变换(Viewport Transformation)</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A1%B6%E7%82%B9%E7%9D%80%E8%89%B2%E5%99%A8-vs-%E7%89%87%E5%85%83%E7%9D%80%E8%89%B2%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">顶点着色器 vs 片元着色器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A1%B6%E7%82%B9%E7%9D%80%E8%89%B2%E5%99%A8-Vertex-Shader"><span class="nav-number">2.</span> <span class="nav-text">顶点着色器(Vertex Shader)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%89%87%E5%85%83%E7%9D%80%E8%89%B2%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">片元着色器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number">4.</span> <span class="nav-text">Credits:</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -494,7 +480,7 @@
       quicklink({
         timeout : 3000,
         priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/',]
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/09/18/%E7%9D%80%E8%89%B2%E5%99%A8/',]
       });
       });
   </script>
