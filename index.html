@@ -161,6 +161,114 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/02/04/%E6%A8%A1%E5%9E%8B%E5%92%8C%E5%8A%A8%E7%94%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/02/04/%E6%A8%A1%E5%9E%8B%E5%92%8C%E5%8A%A8%E7%94%BB/" class="post-title-link" itemprop="url">模型和动画</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-02-04 20:37:14 / Modified: 20:57:08" itemprop="dateCreated datePublished" datetime="2026-02-04T20:37:14+08:00">2026-02-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Animation/" itemprop="url" rel="index"><span itemprop="name">Animation</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="关节坐标的定义和计算方法"><a href="#关节坐标的定义和计算方法" class="headerlink" title="关节坐标的定义和计算方法"></a>关节坐标的定义和计算方法</h1><ol>
+<li>绑定姿势：这是网格绑定到骨骼之前的姿势，通常是设计师在绑定模型时预设的。绑定姿势通常在一个T型姿势（T-Pose）下进行记录‌。</li>
+<li>局部姿势：这是关节相对于父关节来指定的常见姿势。局部姿势存储为TQS格式，表示相对于父关节的位置、朝向和缩放。根关节的父节点可以认为是世界坐标系的原点。在数学上，关节姿势是一个仿射变换，由平移向量、旋转矩阵和对角缩放矩阵组成‌。</li>
+</ol>
+<p>骨架由一系列具有层次关系的关节（骨骼）和关节链组成，是一种树结构，选择其中一个是根关节，其它关节是根关节的子孙，可以通过平移和旋转根关节移动并确定整个骨架在世界空间中的位置和方向。父关节运动能影响子关节运动，但子关节运动对父关节不产生影响，因此，平移或旋转父关节时，也会同时平移或旋转其所有子关节。</p>
+<p><img src="/2026/02/04/%E6%A8%A1%E5%9E%8B%E5%92%8C%E5%8A%A8%E7%94%BB/p1.png" title="骨骼节点的父子关系"> <br></p>
+<h1 id="Unity动画系统"><a href="#Unity动画系统" class="headerlink" title="Unity动画系统"></a>Unity动画系统</h1><p>分为旧版动画系统和新版动画系统，即AnimationClip 与 Animator（Mecanim）</p>
+<ul>
+<li><p>AnimationClip<br>Plays specific Animation Clips directly via script (e.g., animation.Play(“Jump”)). It has no built-in state machine or visual graph.</p>
+</li>
+<li><p>Animator&#x2F;Mecanim (New)<br>Attach a animator component to your GameObject. It requires an Animator Controller asset to function.<br>It uses a visual graph to manage states. You rarely tell it to “Play” a clip; instead, you change a parameter (e.g., animator.SetFloat(“Speed”, 5.0f)), and the state machine decides which animation to play.</p>
+</li>
+</ul>
+<h1 id="3D模型"><a href="#3D模型" class="headerlink" title="3D模型"></a>3D模型</h1><ol>
+<li>绑定 (Rigging)<br>指为3D模型创建内部骨骼、关节及控制器系统，定义运动逻辑，给角色搭建“骨架”和“控制系统”的过程，类似于给木偶安装操纵线。</li>
+</ol>
+<ul>
+<li>目的： 赋予模型生命，使动画师能方便地操纵复杂的几何体。</li>
+<li>组成： 包含骨骼（Joints）、控制器（Controllers）、IK&#x2F;FK（逆向&#x2F;正向动力学）链。<br>工作内容： 放置关节、设置骨骼层级、添加IK把手、创建控制器。</li>
+</ul>
+<ol start="2">
+<li>蒙皮 (Skinning)<br>蒙皮是绑定完成后的步骤，将模型的顶点（Vertex）“绑定”到骨骼上。<br>目的： 让骨骼驱动模型网格变形。当骨骼移动时，皮肤上的顶点会随之移动。<br>方法：</li>
+</ol>
+<ul>
+<li>平滑蒙皮（Smooth Skinning）： 顶点受多个骨骼影响，变形平滑自然（最常用）。</li>
+<li>刚性蒙皮（Rigid Skinning）： 一个顶点只受一个骨骼影响，变形较生硬。<br><strong>关键概念——刷权重（Weighting）： 定义顶点受特定骨骼影响的程度（0-1之间）。将Mesh网格的顶点与骨骼节点对应，从而决定模型的不同部位要跟着关节位移的程度</strong></li>
+</ul>
+<ol start="3">
+<li>制作关键帧动画<br>IK骨（Inverse Kinematics，反向动力学）通过设置骨骼末端（如手、脚）的目标位置，计算系统会自动推算出其他关节（如手腕、肘部）的移动</li>
+</ol>
+<ul>
+<li>IK骨不是被反推的骨头的子节点，而是以外的骨头（例如大腿-&gt;小腿-&gt;脚，此时IK骨则不为这三个骨头的子节点）</li>
+<li>Chain Length：有多少根节点骨头要反算</li>
+<li>Pole Target：被影响关节的朝向方向</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/09/18/%E7%9D%80%E8%89%B2%E5%99%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -190,10 +298,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2025-09-18 16:43:49 / Modified: 16:49:11" itemprop="dateCreated datePublished" datetime="2025-09-18T16:43:49+08:00">2025-09-18</time>
+              <time title="Created: 2025-09-18 16:43:49" itemprop="dateCreated datePublished" datetime="2025-09-18T16:43:49+08:00">2025-09-18</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-09-29 10:10:03" itemprop="dateModified" datetime="2025-09-29T10:10:03+08:00">2025-09-29</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -281,10 +395,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2025-09-05 11:35:46 / Modified: 17:44:27" itemprop="dateCreated datePublished" datetime="2025-09-05T11:35:46+08:00">2025-09-05</time>
+              <time title="Created: 2025-09-05 11:35:46" itemprop="dateCreated datePublished" datetime="2025-09-05T11:35:46+08:00">2025-09-05</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-02-04 20:36:17" itemprop="dateModified" datetime="2026-02-04T20:36:17+08:00">2026-02-04</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -311,16 +431,16 @@
 <h1 id="裁剪空间"><a href="#裁剪空间" class="headerlink" title="裁剪空间"></a>裁剪空间</h1><p>裁剪空间变换的思路是，对平截头体进行缩放，使近裁剪面和远裁剪面变成正方形，使坐标的w分量表示裁剪范围，此时，只需要简单的比较x,y,z和w分量的大小即可裁剪图元。<br>完全位于这块空间内部的图元将会被保留，完全位于这块空间外部的图元将会被剔除，与这块空间边界相交的图元就会被裁剪。而这块空间就是由视椎体来决定的。</p>
 <p>In clip space, clipping is not done against a unit cube. It is done against a cube with side-length w. Points are inside the visible area if each of their x,y,z coordinate is smaller than their w coordinate.</p>
 <p>In the example you have, the point [6, 0, 6.29, 7] is visible because all three coordinates (x,y,z) are smaller than 7.</p>
-<h3 id="透视投影矩阵"><a href="#透视投影矩阵" class="headerlink" title="透视投影矩阵"></a>透视投影矩阵</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p1.jpg" title="Perspective Projection Matrix"> <br></p>
+<h2 id="透视投影矩阵"><a href="#透视投影矩阵" class="headerlink" title="透视投影矩阵"></a>透视投影矩阵</h2><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p1.jpg" title="Perspective Projection Matrix"> <br></p>
 <p>此时我们就可以按如下不等式来判断一个变换后的顶点是否位于视椎体内<br><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p3.png" title="Clipping"> <br></p>
-<h3 id="正交投影矩阵"><a href="#正交投影矩阵" class="headerlink" title="正交投影矩阵"></a>正交投影矩阵</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p2.jpg" title="Orthogonal Projection Matrix"> <br></p>
+<h2 id="正交投影矩阵"><a href="#正交投影矩阵" class="headerlink" title="正交投影矩阵"></a>正交投影矩阵</h2><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p2.jpg" title="Orthogonal Projection Matrix"> <br></p>
 <p>判断一个变换后的顶点是否位于视椎体内使用的不等式和透视投影中的一样，这种通用性也是为什么要使用投影矩阵的原因之一。</p>
 <hr>
 <h1 id="NDC"><a href="#NDC" class="headerlink" title="NDC"></a>NDC</h1><p>齐次除法将Clip Space顶点的4个分量都除以w分量，就从Clip Space转换到了NDC了。<br>而NDC是一个长宽高取值范围为[-1, 1]的立方体，超过这个范围的顶点，会被GPU剪裁。也就是说，每个顶点的x，y，z坐标都应该在-1.0到1.0之间，超出这个坐标范围的顶点都将不可见。</p>
-<h3 id="透视投影除法"><a href="#透视投影除法" class="headerlink" title="透视投影除法"></a>透视投影除法</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p5.png" title="齐次除法"></p>
-<h3 id="正交投影除法"><a href="#正交投影除法" class="headerlink" title="正交投影除法"></a>正交投影除法</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p6.png" title="齐次除法"> <br></p>
+<h2 id="透视投影除法"><a href="#透视投影除法" class="headerlink" title="透视投影除法"></a>透视投影除法</h2><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p5.png" title="齐次除法"></p>
+<h2 id="正交投影除法"><a href="#正交投影除法" class="headerlink" title="正交投影除法"></a>正交投影除法</h2><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p6.png" title="齐次除法"> <br></p>
 <p>细心一点会发现，齐次坐标对于透视投影空的裁剪空间变化更大，而对正交投影的裁剪空间没有影响（正交投影的裁剪空间中顶点的w已经是1了）。</p>
-<h3 id="视口变换-Viewport-Transformation"><a href="#视口变换-Viewport-Transformation" class="headerlink" title="视口变换(Viewport Transformation)"></a>视口变换(Viewport Transformation)</h3><p>At this moment, we’re still in 3D space.How do we get to 2D space?</p>
+<h2 id="视口变换-Viewport-Transformation"><a href="#视口变换-Viewport-Transformation" class="headerlink" title="视口变换(Viewport Transformation)"></a>视口变换(Viewport Transformation)</h2><p>At this moment, we’re still in 3D space.How do we get to 2D space?</p>
 <p>We need to transform our vertex from 3D NDC to 2D screen coordinates.</p>
 <p>When initializing the Canvas, we are responsible for configuring its size. This size is used to convert our NDC coordinates to screen coordinates.</p>
 <p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p4.png" title="viewport transformation"></p>
@@ -1171,148 +1291,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/25/Mono-vs-IL2CPP/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/25/Mono-vs-IL2CPP/" class="post-title-link" itemprop="url">Mono vs. IL2CPP</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-25 17:50:04" itemprop="dateCreated datePublished" datetime="2025-02-25T17:50:04+08:00">2025-02-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-08-08 15:25:06" itemprop="dateModified" datetime="2025-08-08T15:25:06+08:00">2025-08-08</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Common-Language-Runtime"><a href="#Common-Language-Runtime" class="headerlink" title="Common Language Runtime"></a>Common Language Runtime</h1><p>公共语言运行时</p>
-<p>VM和LR其实比较类似，有人说LR的创建就是为了对标VM。简单来说，就是一个程序运行所需要的环境，包括各种资源、各种操作等等。不同语言、不同操作系统所需要的运行时环境都不一样。举个例子，Windows上的可执行程序都被包装成了.exe格式，而这种.exe格式文件提供了一个程序从加载到运行所需要的所有资源和环境。</p>
-<p>而CLR提供了：</p>
-<ol>
-<li>一个支持GC的虚拟机，该虚拟机有自己的一套指令集，即CIL（公共中间语言，COmmon Intermediate Language）。高级语言最终会转化成CIL，</li>
-<li>一种丰富的元数据表示，用来描述数据类型、字段、方法等。通过这些统一的描述方法来生成对应的程序。</li>
-<li>一种文件格式，一种专属的不于操作系统和硬件绑定的格式，即跨平台。</li>
-<li>一套类库，提供了垃圾回收、异常、泛型等基本功能，提供了字符串、数组、列表、字典等数据结构，提供了文件、网络、交互等操作系统功能。</li>
-<li>一系列规则，定制了在运行时如果查找引用其他文件、生命周期等一系列规则。</li>
-</ol>
-<p><img src="/2025/02/25/Mono-vs-IL2CPP/CLR.png" title="高级语言、CLR与CIL之间的关系"> <br></p>
-<h2 id="Common-Language-Specification"><a href="#Common-Language-Specification" class="headerlink" title="Common Language Specification"></a>Common Language Specification</h2><p>CLR最大的优势就在于跨语言跨平台支持。目前微软已经为多种语言开发旅了基于CLR的编译器，包括C++、C#、Visual Basic、F#、Iron Python、 Iron Ruby和IL。还有一些大学、公司和机构为一些语言也开发了基于CLR的编译器，包括da、APL、Caml、COBOL、Eiffel、Forth、Fortran、Haskell、Lexicon、LISP、LOGO、Lua、Mercury、ML、Mondrian、Oberon、Pascal、Perl、PHP、Prolog、RPG、Scheme、Smaltak、Tcl&#x2F;Tk等。<br>CLR为不同的编程语言提供了统一的运行平台，对于开发者来说，他们无需考虑平台运行问题，无论使用什么语言开发，最终都会编译成IL，供CLR运行。对于CLR来说，它并不知道也无需知道IL是从什么语言编译过来的。</p>
-<p>但是这么多种各式各样的语言最终都要编译成IL，肯定需要一种规范，CLS就是用来规范语言的。CLS全称Common Language Specification，即公共语言规范。也就是说所有被CLR支持的高级语言都需要最少支持CLS所规定的功能集。只要高级语言最少支持了CLS之后，其它附加功能&#x2F;特性可自行实现。</p>
-<h2 id="Managed-Code"><a href="#Managed-Code" class="headerlink" title="Managed Code"></a>Managed Code</h2><p>C#中的托管代码是指由.NET运行时环境（CLR）管理和执行的代码。当我们使用C#编写的代码被编译后，它会被转换成中间语言（IL）代码，也称为托管代码。托管代码在运行时由CLR加载和执行，CLR负责内存管理、垃圾回收、安全性等任务，开发者无需过度关注资源的释放。其实可以从字面上理解，托管代码委托给CLR进行管理，开发者不管。<br>而至于非托管代码是指不受CLR管理的代码，通常是使用其他编程语言（如C++）编写的代码，比如操作系统代码、C#中的Socket、Stream等，这些代码无法通过CLR的GC完全释放占用的资源。一般来说，非托管的功能都被包装过了，比如当我们访问文件的时候，肯定不会直接使用操作系统的CreateFile函数，而是使用System.IO.File类。</p>
-<p>托管代码具有以下特点：<br>自动内存管理：CLR负责分配和释放内存，开发人员无需手动管理内存。<br>垃圾回收：CLR会自动检测和回收不再使用的对象，减少内存泄漏的风险。<br>安全性：CLR提供了安全性机制，确保代码的执行不会对系统造成损害。<br>跨平台：托管代码可以在不同的操作系统上运行，只要有对应的CLR。</p>
-<p>相对应的，非托管代码直接操作计算机的硬件和操作系统资源，需要手动管理内存和资源的分配和释放。非托管代码在性能方面可能更高效，但也更容易出现内存泄漏和安全问题。C#可以通过使用InteropServices命名空间中的功能与非托管代码进行交互，这样可以在C#中调用非托管代码的功能。</p>
-<h2 id="FCL"><a href="#FCL" class="headerlink" title="FCL"></a>FCL</h2><p>The Framework Class Library or FCL provides the system functionality in the .NET Framework as it has various classes, data types, interfaces, etc. to build different types of applications including desktop applications, web applications, mobile applications. The Framework Class Library is integrated with the Common Language Runtime (CLR) and is used by all the .NET languages such as C#, F#, Visual Basic .NET, etc. </p>
-<h3 id="BCL-vs-FCL"><a href="#BCL-vs-FCL" class="headerlink" title="BCL vs. FCL"></a>BCL vs. FCL</h3><ul>
-<li>The Base Class Library (BCL) is literally that, the base. It contains basic, fundamental types like System.String and System.DateTime.</li>
-<li>The Framework Class Library (FCL) is the wider library that contains the totality: ASP.NET（web application framework 对标 Node.js）, WinForms, the XML stack, ADO.NET and more. You could say that the FCL includes the BCL.</li>
-</ul>
-<h1 id="C-Compilers"><a href="#C-Compilers" class="headerlink" title="C# Compilers"></a>C# Compilers</h1><p>C#源文件通过编译器（如CSC.exe）编译成中间语言（IL）和元数据，生成.exe或.dll文件。IL是一种伪代码，独立于任何CPU，可以在任何装有.Net Framework的机器上运行‌</p>
-<p>Common Intermediate Language (CIL), formerly called Microsoft Intermediate Language (MSIL) or Intermediate Language (IL) is the intermediate language binary instruction set defined within the Common Language Infrastructure (CLI) specification. CIL instructions are executed by a CIL-compatible runtime environment such as the Common Language Runtime. Languages which target the CLI compile to CIL. CIL is object-oriented, stack-based bytecode. Runtimes typically just-in-time compile CIL instructions into native code.</p>
-<ul>
-<li><strong>Just In Time compiler</strong><br>即时编译。当程序运行时，IL通过CLR中的即时编译器(JIT)将CIL的byte code编译为目标平台的原生码(针对特定CPU的机械码)。JIT编译是在程序运行时进行的，确保了代码的可移植性和执行效率‌程序运行过程中。</li>
-<li><strong>Ahead Of Time compiler</strong><br>提前编译。程序运行之前，提前编译器(AOT)将C#源码直接编译为目标平台的原生码并且存储。这种方式通常用于生成本地应用程序，提高启动速度和性能‌。</li>
-</ul>
-<p>将.exe或.dll文件中的CIL的byte code</p>
-<h2 id="Unity-compiler"><a href="#Unity-compiler" class="headerlink" title="Unity compiler"></a>Unity compiler</h2><p>Unity编译C#脚本的过程通常是自动进行的，当你在Unity编辑器中构建项目时（比如导出为执行文件或者打包为Android&#x2F;iOS应用），Unity会编译所有C#脚本。<br>如果你需要在Unity编辑器外部编译C#代码，你可以使用Mono的mcs编译器或者.NET Core SDK。</p>
-<p>以下是使用mcs编译器的基本命令行示例：</p>
-<blockquote>
-<p>mcs -out:YourGame.exe -recurse:*.cs</p>
-</blockquote>
-<h1 id="Mono"><a href="#Mono" class="headerlink" title="Mono"></a>Mono</h1><p>Mono, the open source development platform based on the .NET Framework, helps developers to build cross-platform applications. Mono’s .NET implementation is based on the ECMA standards for C# and the Common Language Infrastructure. Mono was originally reimplementation of the .NET for linux. Today is much more.</p>
-<h2 id="Unity-Mono"><a href="#Unity-Mono" class="headerlink" title="Unity Mono"></a>Unity Mono</h2><p>The Mono scripting backend compiles code at runtime, with a technique called just-in-time compilation (JIT). Unity uses a fork of the open source Mono project.<br>Some platforms don’t support JIT compilation, so the Mono backend doesn’t work on every platform. Other platforms support JIT and Mono but not ahead-of-time compilation (AOT), and so can’t support the IL2CPP backend. When a platform can support both backends, Mono is the default.</p>
-<h1 id="IL2CPP"><a href="#IL2CPP" class="headerlink" title="IL2CPP"></a>IL2CPP</h1><p>The IL2CPP backend converts MSIL (Microsoft Intermediate Language) code (for example, C# code in scripts) into C++ code, then uses the C++ code to create a native binary file (for example, .exe, .apk, or .xap) for your chosen platform. This type of compilation, in which Unity compiles code specifically for a target platform when it builds the native binary, is called ahead-of-time (AOT) compilation.</p>
-<h2 id="How-IL2CPP-works"><a href="#How-IL2CPP-works" class="headerlink" title="How IL2CPP works"></a>How IL2CPP works</h2><ol>
-<li>The Roslyn C# compiler compiles your application’s C# code and any required package code to .NET DLLs (managed assemblies).</li>
-<li>Unity applies managed bytecode stripping（代码裁剪）. This step can significantly reduce the size of a built application.</li>
-<li>The IL2CPP backend converts all managed assemblies into standard C++ code.</li>
-<li>The C++ compiler compiles the generated C++ code and the runtime part of IL2CPP with a native platform compiler.</li>
-<li>Unity creates either an executable file or a DLL, depending on the platform you target.</li>
-</ol>
-<h1 id="Mono-vs-IL2CPP-on-Unity"><a href="#Mono-vs-IL2CPP-on-Unity" class="headerlink" title="Mono vs. IL2CPP on Unity"></a>Mono vs. IL2CPP on Unity</h1><p>Unity中C#代码的处理过程</p>
-<ol>
-<li><p>编写C#代码：<br>开发者在Unity编辑器中编写C#脚本，这些脚本通常用于实现游戏逻辑、控制角色行为、处理用户输入等。</p>
-</li>
-<li><p>编译C#代码：<br>当开发者在Unity中保存C#脚本时，Unity会自动触发编译过程。Unity使用Mono或IL2CPP作为其脚本引擎。<br>Mono：在使用Mono时，Unity会将C#代码编译成CIL（Common Intermediate Language）。这个过程是在Unity编辑器中完成的，生成的CIL代码会被打包到Unity的可执行文件中。<br>IL2CPP：如果选择使用IL2CPP，Unity会将C#代码首先编译为CIL，然后将CIL代码转换为C++代码，最后再编译为本地机器代码。IL2CPP的主要优点是可以提高性能和安全性。</p>
-</li>
-<li><p>生成的CIL代码：<br>生成的CIL代码会被打包到Unity的可执行文件中，通常是一个DLL文件。这个DLL文件包含了所有的游戏逻辑和功能。</p>
-</li>
-<li><p>构建过程：<br>在构建游戏时，Unity会将所有的资源（如纹理、模型、音频等）和编译后的CIL代码打包成一个可执行文件（如EXE、APK、IPA等），具体取决于目标平台。<br>Unity的构建系统会处理所有的依赖关系，确保所有需要的资源和代码都包含在最终的构建中。</p>
-</li>
-<li><p>运行时执行：<br>当用户运行构建的游戏时，Unity的运行时环境会加载可执行文件。<br>如果使用Mono，运行时会在需要时将CIL代码即时编译为本地机器代码（JIT编译）。如果使用IL2CPP，CIL代码已经在构建时转换为本地机器代码，因此可以直接执行。<br>运行时会管理内存、处理输入、渲染图形等，确保游戏的正常运行。</p>
-</li>
-<li><p>总结<br>在Unity中，开发者编写的C#代码会经过编译过程，生成CIL代码，并在构建时打包到可执行文件中。Unity使用Mono或IL2CPP作为脚本引擎，分别通过JIT编译或AOT编译将CIL代码转换为本地机器代码。这个过程使得Unity能够在不同平台上运行相同的代码，同时也为开发者提供了灵活的开发环境。</p>
-</li>
-</ol>
-<h2 id="Cross-platform"><a href="#Cross-platform" class="headerlink" title="Cross-platform"></a>Cross-platform</h2><p>Mono运行时编译器支持将IL代码转为对应平台原生码<br>IL可以在任何支持CLI（Common Language Infrastructure，通用语言架构&#x2F;环境）的平台上运行，IL的运行是依托于Mono运行时。</p>
-<h2 id="IOS-Platform"><a href="#IOS-Platform" class="headerlink" title="IOS Platform"></a>IOS Platform</h2><p>IOS不支持动态生成的代码具有执行权限，而通常jit就是运行过程中动态编译代码为机器码并缓存&#x2F;执行（Mono运行时将IL编译成机械码），所以：封存了内存的可执行权限 等于 变相的封锁了jit编译方式</p>
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>CLR简介：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_42186870/article/details/119621977/">https://blog.csdn.net/weixin_42186870/article/details/119621977/</a><br>Mono简介：<a target="_blank" rel="noopener" href="https://www.mono-project.com/docs/about-mono/">https://www.mono-project.com/docs/about-mono/</a><br>IL2CPP简介：<a target="_blank" rel="noopener" href="https://docs.unity3d.com/6000.0/Documentation/Manual/scripting-backends-il2cpp.html">https://docs.unity3d.com/6000.0/Documentation/Manual/scripting-backends-il2cpp.html</a><br>IOS平台代码热更：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_33060405/article/details/144314440">https://blog.csdn.net/qq_33060405/article/details/144314440</a></p>
-<hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1390,20 +1368,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1438,7 +1416,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2025</span>
+  <span itemprop="copyrightYear">2026</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

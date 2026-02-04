@@ -34,7 +34,7 @@
 <meta property="og:image" content="https://miaopasss.github.io/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p6.png">
 <meta property="og:image" content="https://miaopasss.github.io/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p4.png">
 <meta property="article:published_time" content="2025-09-05T03:35:46.000Z">
-<meta property="article:modified_time" content="2025-09-05T09:44:27.735Z">
+<meta property="article:modified_time" content="2026-02-04T12:36:17.986Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Geometry">
 <meta property="article:tag" content="Matrix">
@@ -203,10 +203,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2025-09-05 11:35:46 / Modified: 17:44:27" itemprop="dateCreated datePublished" datetime="2025-09-05T11:35:46+08:00">2025-09-05</time>
+              <time title="Created: 2025-09-05 11:35:46" itemprop="dateCreated datePublished" datetime="2025-09-05T11:35:46+08:00">2025-09-05</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-02-04 20:36:17" itemprop="dateModified" datetime="2026-02-04T20:36:17+08:00">2026-02-04</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -240,16 +246,16 @@
 <h1 id="裁剪空间"><a href="#裁剪空间" class="headerlink" title="裁剪空间"></a>裁剪空间</h1><p>裁剪空间变换的思路是，对平截头体进行缩放，使近裁剪面和远裁剪面变成正方形，使坐标的w分量表示裁剪范围，此时，只需要简单的比较x,y,z和w分量的大小即可裁剪图元。<br>完全位于这块空间内部的图元将会被保留，完全位于这块空间外部的图元将会被剔除，与这块空间边界相交的图元就会被裁剪。而这块空间就是由视椎体来决定的。</p>
 <p>In clip space, clipping is not done against a unit cube. It is done against a cube with side-length w. Points are inside the visible area if each of their x,y,z coordinate is smaller than their w coordinate.</p>
 <p>In the example you have, the point [6, 0, 6.29, 7] is visible because all three coordinates (x,y,z) are smaller than 7.</p>
-<h3 id="透视投影矩阵"><a href="#透视投影矩阵" class="headerlink" title="透视投影矩阵"></a>透视投影矩阵</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p1.jpg" title="Perspective Projection Matrix"> <br></p>
+<h2 id="透视投影矩阵"><a href="#透视投影矩阵" class="headerlink" title="透视投影矩阵"></a>透视投影矩阵</h2><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p1.jpg" title="Perspective Projection Matrix"> <br></p>
 <p>此时我们就可以按如下不等式来判断一个变换后的顶点是否位于视椎体内<br><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p3.png" title="Clipping"> <br></p>
-<h3 id="正交投影矩阵"><a href="#正交投影矩阵" class="headerlink" title="正交投影矩阵"></a>正交投影矩阵</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p2.jpg" title="Orthogonal Projection Matrix"> <br></p>
+<h2 id="正交投影矩阵"><a href="#正交投影矩阵" class="headerlink" title="正交投影矩阵"></a>正交投影矩阵</h2><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p2.jpg" title="Orthogonal Projection Matrix"> <br></p>
 <p>判断一个变换后的顶点是否位于视椎体内使用的不等式和透视投影中的一样，这种通用性也是为什么要使用投影矩阵的原因之一。</p>
 <hr>
 <h1 id="NDC"><a href="#NDC" class="headerlink" title="NDC"></a>NDC</h1><p>齐次除法将Clip Space顶点的4个分量都除以w分量，就从Clip Space转换到了NDC了。<br>而NDC是一个长宽高取值范围为[-1, 1]的立方体，超过这个范围的顶点，会被GPU剪裁。也就是说，每个顶点的x，y，z坐标都应该在-1.0到1.0之间，超出这个坐标范围的顶点都将不可见。</p>
-<h3 id="透视投影除法"><a href="#透视投影除法" class="headerlink" title="透视投影除法"></a>透视投影除法</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p5.png" title="齐次除法"></p>
-<h3 id="正交投影除法"><a href="#正交投影除法" class="headerlink" title="正交投影除法"></a>正交投影除法</h3><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p6.png" title="齐次除法"> <br></p>
+<h2 id="透视投影除法"><a href="#透视投影除法" class="headerlink" title="透视投影除法"></a>透视投影除法</h2><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p5.png" title="齐次除法"></p>
+<h2 id="正交投影除法"><a href="#正交投影除法" class="headerlink" title="正交投影除法"></a>正交投影除法</h2><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p6.png" title="齐次除法"> <br></p>
 <p>细心一点会发现，齐次坐标对于透视投影空的裁剪空间变化更大，而对正交投影的裁剪空间没有影响（正交投影的裁剪空间中顶点的w已经是1了）。</p>
-<h3 id="视口变换-Viewport-Transformation"><a href="#视口变换-Viewport-Transformation" class="headerlink" title="视口变换(Viewport Transformation)"></a>视口变换(Viewport Transformation)</h3><p>At this moment, we’re still in 3D space.How do we get to 2D space?</p>
+<h2 id="视口变换-Viewport-Transformation"><a href="#视口变换-Viewport-Transformation" class="headerlink" title="视口变换(Viewport Transformation)"></a>视口变换(Viewport Transformation)</h2><p>At this moment, we’re still in 3D space.How do we get to 2D space?</p>
 <p>We need to transform our vertex from 3D NDC to 2D screen coordinates.</p>
 <p>When initializing the Canvas, we are responsible for configuring its size. This size is used to convert our NDC coordinates to screen coordinates.</p>
 <p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p4.png" title="viewport transformation"></p>
@@ -339,7 +345,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4"><span class="nav-number">1.</span> <span class="nav-text">裁剪空间</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%8F%E8%A7%86%E6%8A%95%E5%BD%B1%E7%9F%A9%E9%98%B5"><span class="nav-number">1.0.1.</span> <span class="nav-text">透视投影矩阵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E4%BA%A4%E6%8A%95%E5%BD%B1%E7%9F%A9%E9%98%B5"><span class="nav-number">1.0.2.</span> <span class="nav-text">正交投影矩阵</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NDC"><span class="nav-number">2.</span> <span class="nav-text">NDC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%8F%E8%A7%86%E6%8A%95%E5%BD%B1%E9%99%A4%E6%B3%95"><span class="nav-number">2.0.1.</span> <span class="nav-text">透视投影除法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E4%BA%A4%E6%8A%95%E5%BD%B1%E9%99%A4%E6%B3%95"><span class="nav-number">2.0.2.</span> <span class="nav-text">正交投影除法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E5%8F%A3%E5%8F%98%E6%8D%A2-Viewport-Transformation"><span class="nav-number">2.0.3.</span> <span class="nav-text">视口变换(Viewport Transformation)</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4"><span class="nav-number">1.</span> <span class="nav-text">裁剪空间</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%8F%E8%A7%86%E6%8A%95%E5%BD%B1%E7%9F%A9%E9%98%B5"><span class="nav-number">1.1.</span> <span class="nav-text">透视投影矩阵</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%A3%E4%BA%A4%E6%8A%95%E5%BD%B1%E7%9F%A9%E9%98%B5"><span class="nav-number">1.2.</span> <span class="nav-text">正交投影矩阵</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NDC"><span class="nav-number">2.</span> <span class="nav-text">NDC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%8F%E8%A7%86%E6%8A%95%E5%BD%B1%E9%99%A4%E6%B3%95"><span class="nav-number">2.1.</span> <span class="nav-text">透视投影除法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%A3%E4%BA%A4%E6%8A%95%E5%BD%B1%E9%99%A4%E6%B3%95"><span class="nav-number">2.2.</span> <span class="nav-text">正交投影除法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%86%E5%8F%A3%E5%8F%98%E6%8D%A2-Viewport-Transformation"><span class="nav-number">2.3.</span> <span class="nav-text">视口变换(Viewport Transformation)</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -361,20 +367,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -409,7 +415,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2025</span>
+  <span itemprop="copyrightYear">2026</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
