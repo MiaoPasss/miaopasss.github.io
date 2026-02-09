@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://miaopasss.github.io/2025/02/25/Mono-vs-IL2CPP/CLR.png">
 <meta property="article:published_time" content="2025-02-25T09:50:04.000Z">
-<meta property="article:modified_time" content="2025-08-08T07:25:06.354Z">
+<meta property="article:modified_time" content="2026-02-09T09:30:33.563Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Unity">
 <meta property="article:tag" content="C#">
@@ -206,7 +206,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-08-08 15:25:06" itemprop="dateModified" datetime="2025-08-08T15:25:06+08:00">2025-08-08</time>
+                <time title="Modified: 2026-02-09 17:30:33" itemprop="dateModified" datetime="2026-02-09T17:30:33+08:00">2026-02-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -261,9 +261,8 @@
 <p>Common Intermediate Language (CIL), formerly called Microsoft Intermediate Language (MSIL) or Intermediate Language (IL) is the intermediate language binary instruction set defined within the Common Language Infrastructure (CLI) specification. CIL instructions are executed by a CIL-compatible runtime environment such as the Common Language Runtime. Languages which target the CLI compile to CIL. CIL is object-oriented, stack-based bytecode. Runtimes typically just-in-time compile CIL instructions into native code.</p>
 <ul>
 <li><strong>Just In Time compiler</strong><br>即时编译。当程序运行时，IL通过CLR中的即时编译器(JIT)将CIL的byte code编译为目标平台的原生码(针对特定CPU的机械码)。JIT编译是在程序运行时进行的，确保了代码的可移植性和执行效率‌程序运行过程中。</li>
-<li><strong>Ahead Of Time compiler</strong><br>提前编译。程序运行之前，提前编译器(AOT)将C#源码直接编译为目标平台的原生码并且存储。这种方式通常用于生成本地应用程序，提高启动速度和性能‌。</li>
+<li><strong>Ahead Of Time compiler</strong><br>将.exe或.dll文件中的CIL的byte code提前编译。程序运行之前，提前编译器(AOT)将C#源码直接编译为目标平台的原生码并且存储。这种方式通常用于生成本地应用程序，提高启动速度和性能‌。</li>
 </ul>
-<p>将.exe或.dll文件中的CIL的byte code</p>
 <h2 id="Unity-compiler"><a href="#Unity-compiler" class="headerlink" title="Unity compiler"></a>Unity compiler</h2><p>Unity编译C#脚本的过程通常是自动进行的，当你在Unity编辑器中构建项目时（比如导出为执行文件或者打包为Android&#x2F;iOS应用），Unity会编译所有C#脚本。<br>如果你需要在Unity编辑器外部编译C#代码，你可以使用Mono的mcs编译器或者.NET Core SDK。</p>
 <p>以下是使用mcs编译器的基本命令行示例：</p>
 <blockquote>
@@ -407,7 +406,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-count">21</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -420,7 +419,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

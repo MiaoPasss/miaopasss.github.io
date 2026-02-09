@@ -20,17 +20,21 @@
     var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="赤团开时斜飞去， 最不安神晴又复雨。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:url" content="https://miaopasss.github.io/tags/Compiler/index.html">
+  <meta name="description" content="HybridCLR扩充了IL2CPP的代码，使它由纯AOT Runtime变成“AOT+Interpreter“混合Runtime，进而原生支持动态加载Assembly，使得基于IL2CPP Backend打包的游戏不仅能在Android平台，也能在iOS、Consoles等限制了JIT的平台上高效地以AOT+interpreter混合模式执行。 通过 “Differential Hybrid d">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HybridCLR简述">
+<meta property="og:url" content="https://miaopasss.github.io/2026/02/09/HybridCLR/index.html">
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:description" content="赤团开时斜飞去， 最不安神晴又复雨。">
+<meta property="og:description" content="HybridCLR扩充了IL2CPP的代码，使它由纯AOT Runtime变成“AOT+Interpreter“混合Runtime，进而原生支持动态加载Assembly，使得基于IL2CPP Backend打包的游戏不仅能在Android平台，也能在iOS、Consoles等限制了JIT的平台上高效地以AOT+interpreter混合模式执行。 通过 “Differential Hybrid d">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-02-09T09:31:56.000Z">
+<meta property="article:modified_time" content="2026-02-09T09:57:42.128Z">
 <meta property="article:author" content="Haotian Luo">
+<meta property="article:tag" content="C#">
+<meta property="article:tag" content="Hotfix">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://miaopasss.github.io/tags/Compiler/">
+<link rel="canonical" href="https://miaopasss.github.io/2026/02/09/HybridCLR/">
 
 
 <script id="page-configurations">
@@ -38,12 +42,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'en'
   };
 </script>
 
-  <title>Tag: Compiler | 乌啦呀哈呀哈乌啦！</title>
+  <title>HybridCLR简述 | 乌啦呀哈呀哈乌啦！</title>
   
 
 
@@ -155,51 +159,114 @@
         <div class="content-wrap">
           
 
-          <div class="content tag">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <h2 class="collection-header">Compiler
-          <small>Tag</small>
-        </h2>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/02/09/HybridCLR/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          HybridCLR简述
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-02-09 17:31:56 / Modified: 17:57:42" itemprop="dateCreated datePublished" datetime="2026-02-09T17:31:56+08:00">2026-02-09</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2025</span>
+        <p>HybridCLR扩充了IL2CPP的代码，使它由纯AOT Runtime变成“AOT+Interpreter“混合Runtime，进而原生支持动态加载Assembly，使得基于IL2CPP Backend打包的游戏不仅能在Android平台，也能在iOS、Consoles等限制了JIT的平台上高效地以AOT+interpreter混合模式执行。</p>
+<p>通过 “Differential Hybrid dll” 技术，可以对 AOT dll 实现任意增删改，会智能地让<em>被修改或者新增的类和方法</em>以 Interpreter 模式运行，但 <em>未被修改的类</em> 以AOT方式运行，从而使<em>热更新的游戏逻辑</em>的运行性能基本达到原生AOT的水平。</p>
+<hr>
+<h1 id="基础原理"><a href="#基础原理" class="headerlink" title="基础原理"></a>基础原理</h1><p>CLR，即Common Language Runtime，中文叫公共语言运行时，是让.NET程序执行所需的外部服务的集合，是.NET平台的核心和最重要的组件，类似于Java的JVM。</p>
+<p>IL2CPP是Unity开发的跨平台CLR解决方案，诞生它的一个关键原因是Unity需要跨平台运行。但一些平台如iOS，这种禁止JIT并导致依赖JIT的官方CLR虚拟机无法运行，而是必须使用AOT技术将Mananged程序提前转化为目标平台的静态原生程序后再运行。而Mono虽然也支持AOT，但性能较差以及跨平台支持不佳。The IL2CPP backend converts MSIL (Microsoft Intermediate Language) code (for example, C# code in scripts) into C++ code, then uses the C++ code to create a native binary file (for example, .exe, .apk, or .xap) for your chosen platform.</p>
+<p>IL2CPP方案包含一套AOT运行时以及一套DLL到C++代码及元数据的转换工具，使得原始的C#开发的代码最终能在iOS这样的平台运行起来。因为 IL2CPP 生成的 C++ 代码不是普通的 C++，它本质上还是在模拟 C# 的行为。很多 C# 特性在 C++ 里根本不存在，必须有额外代码来支撑。IL2CPP 只是把计算逻辑翻译成了 C++，但 C# 作为托管语言的那些”托管服务”，必须由运行时来提供。生成的 C++ 代码到处都在调用 il2cpp_xxx() 这类运行时 API，离开运行时根本跑不起来。</p>
+<p>IL2CPP是一个纯静态的AOT运行时，不支持运行时加载DLL，因此不支持热更新；不像Mono有Hybrid mode execution，可支持动态加载DLL。</p>
+<p>目前Unity平台的主流热更新方案xLua、ILRuntime之类都是引入一个第三方VM（Virtual Machine），在VM中解释执行代码，来实现热更新。这里我们只分析使用C#为开发语言的热更新方案。这些热更新方案的VM与IL2CPP是独立的，意味着它们的元数据系统是不相通的，在热更新里新增一个类型是无法被IL2CPP所识别的（例如，通过System.Activator.CreateInstance是不可能创建出这个热更新类型的实例），这种看起来像，但实际上又不是的伪CLR虚拟机，在与IL2CPP这种复杂的CLR运行时交互时，会产生极大量的兼容性问题，另外还有严重的性能问题。</p>
+<p>HybridCLR 对 IL2CPP运行时进行扩充，添加Interpreter模块，将它由AOT运行时改造为“AOT + interpreter”双引擎的混合运行时，进而实现Mono hybrid mode execution这样的机制。这样一来就能彻底支持热更新，并且兼容性极佳。对开发者来说，除了解释模式运行的部分执行得比较慢，其他方面跟标准的运行时没有区别，完美支持在iOS这种禁止JIT的平台上以解释模式无缝地运行动态加载的DLL。</p>
+<h1 id="与其他热更新方案对比"><a href="#与其他热更新方案对比" class="headerlink" title="与其他热更新方案对比"></a>与其他热更新方案对比</h1><p>HybridCLR是原生的C#热更新方案。通俗地说，IL2CPP相当于Mono的AOT模块，HybridCLR相当于Mono的Interpreter模块，两者合一成为完整Mono。HybridCLR使得IL2CPP变成一个全功能的Runtime，原生（即通过System.Reflection.Assembly.Load）支持动态加载DLL，从而支持iOS平台的热更新。</p>
+<p>正因为HybridCLR是原生Runtime级别实现，热更新部分的类型与主工程AOT部分类型是完全等价并且无缝统一的。可以随意调用、继承、反射或多线程，不需要生成代码或者写适配器。</p>
+<p>其他热更新方案则是独立VM，与IL2CPP的关系本质上相当于Mono中嵌入Lua的关系。因此类型系统不统一，为了让热更新类型能够继承AOT部分类型，需要写适配器，并且解释器中的类型不能为主工程的类型系统所识别。特性不完整、开发麻烦、运行效率低下。</p>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-02-25T17:50:04+08:00"
-              content="2025-02-25">
-          02-25
-        </time>
-      </div>
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C#</a>
+              <a href="/tags/Hotfix/" rel="tag"># Hotfix</a>
+          </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2025/02/25/Mono-vs-IL2CPP/" itemprop="url">
-            <span itemprop="name">Mono vs. IL2CPP</span>
-          </a>
-      </div>
+        
 
-    </header>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/02/04/%E6%A8%A1%E5%9E%8B%E5%92%8C%E5%8A%A8%E7%94%BB/" rel="prev" title="模型和动画">
+      <i class="fa fa-chevron-left"></i> 模型和动画
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
   </article>
-
-    </div>
-  </div>
   
   
-  
-
   
 
 
@@ -252,6 +319,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">基础原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8E%E5%85%B6%E4%BB%96%E7%83%AD%E6%9B%B4%E6%96%B0%E6%96%B9%E6%A1%88%E5%AF%B9%E6%AF%94"><span class="nav-number">2.</span> <span class="nav-text">与其他热更新方案对比</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -406,7 +474,7 @@
       quicklink({
         timeout : 3000,
         priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/tags/Compiler/',]
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2026/02/09/HybridCLR/',]
       });
       });
   </script>
