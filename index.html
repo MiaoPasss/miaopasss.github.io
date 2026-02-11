@@ -161,6 +161,122 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/02/11/%E4%BA%8B%E4%BB%B6%E5%92%8C%E5%A7%94%E6%89%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/02/11/%E4%BA%8B%E4%BB%B6%E5%92%8C%E5%A7%94%E6%89%98/" class="post-title-link" itemprop="url">事件和委托</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-02-11 17:12:52 / Modified: 17:56:53" itemprop="dateCreated datePublished" datetime="2026-02-11T17:12:52+08:00">2026-02-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="观察者模式"><a href="#观察者模式" class="headerlink" title="观察者模式"></a>观察者模式</h1><figure class="highlight cs"><figcaption><span>通过事件实现的观察者模式</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Publisher</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 声明一个事件</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">event</span> Action OnEventPublished;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Update</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (Input.GetKeyDown(KeyCode.Space))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 发布事件</span></span><br><span class="line">            OnEventPublished?.Invoke();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Subscriber</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnEnable</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 订阅事件</span></span><br><span class="line">        Publisher.OnEventPublished += HandleEvent;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnDisable</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 取消订阅事件</span></span><br><span class="line">        Publisher.OnEventPublished -= HandleEvent;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 事件处理方法</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">HandleEvent</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Event received!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="委托"><a href="#委托" class="headerlink" title="委托"></a>委托</h1><p>委托是个类，分为Delegate自定义委托类型，Func有返回值的委托类型，Action无返回值的委托类型</p>
+<p>Func和Action的底层原理便是用Delegate声明一个委托类型（有返回值和无返回值），并且通过泛型参数（最多十六个）来实现自定义参数类型和参数<br>其中，Func委托类型的最后一个参数为返回值</p>
+<p>委托需要先定义后使用</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">delegate</span> <span class="keyword">void</span> <span class="title">IntMethodInvoker</span>(<span class="params"><span class="built_in">int</span> x</span>)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>如上定义了一个委托InMethodInvoker，这个委托可以指向一个 <strong>int类型参数，返回值为void</strong> 的方法</p>
+<h2 id="Action委托-和-Func委托"><a href="#Action委托-和-Func委托" class="headerlink" title="Action委托 和 Func委托"></a>Action委托 和 Func委托</h2><p>Action委托引用了一个void返回类型的方法，T表示方法参数</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Action</span><br><span class="line">Action&lt;<span class="keyword">in</span> T&gt;</span><br><span class="line">Action&lt;<span class="keyword">in</span> t1,<span class="keyword">in</span> t2&gt;</span><br><span class="line">Action&lt;<span class="keyword">in</span> t1,<span class="keyword">in</span> t2,···,t16&gt;</span><br></pre></td></tr></table></figure>
+
+<p>Func引用了一个带有一个返回值的方法，它可以传递0或者多到16个参数类型，和一个返回值类型</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Func&lt;<span class="keyword">out</span> TResult&gt;</span><br><span class="line">Func&lt;<span class="keyword">in</span> t,<span class="keyword">out</span> TResult&gt;</span><br><span class="line">Function&lt;<span class="keyword">in</span> t1,<span class="keyword">in</span> t2,···,<span class="keyword">in</span> t16,<span class="keyword">out</span> TResult&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="多播委托"><a href="#多播委托" class="headerlink" title="多播委托"></a>多播委托</h2><p>前面是用的委托都只包含一个方法调用，但是委托也可以包含多个方法，这种委托叫做多播委托。使用多播委托可以按照顺序调用多个方法，多播委托只能得到调用的最后一个方法结果，一般我们把多播委托的返回值类型声明为void。<br>多播委托包含一个逐个调用的委托集合，如果通过委托调用的其中一个方法抛出异常，整个迭代就会停止。</p>
+<h2 id="使用匿名方法给委托赋值"><a href="#使用匿名方法给委托赋值" class="headerlink" title="使用匿名方法给委托赋值"></a>使用匿名方法给委托赋值</h2><p>前面使用委托都是先定义一个方法，然后把方法给委托的实例。但还有另外一种使用委托的方式，不用去定义一个方法，直接使用匿名方法（lambda expression）</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Func&lt;<span class="built_in">int</span>,<span class="built_in">int</span>,<span class="built_in">int</span>&gt; plus = <span class="built_in">delegate</span>(<span class="built_in">int</span> a, <span class="built_in">int</span> b)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">int</span> temp = a+b;</span><br><span class="line">  <span class="keyword">return</span> temp;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">int</span> res = plus(<span class="number">34</span>,<span class="number">34</span>)</span><br><span class="line">Console.WriteLine(res);</span><br><span class="line"></span><br><span class="line"><span class="comment">//上述代码可以换成下面一行</span></span><br><span class="line">Func&lt;<span class="built_in">int</span>, <span class="built_in">int</span>, <span class="built_in">int</span>&gt; plus = (a, b) =&gt; &#123; <span class="keyword">return</span> a + b; &#125;;</span><br></pre></td></tr></table></figure>
+
+<h1 id="事件"><a href="#事件" class="headerlink" title="事件"></a>事件</h1><p>用event关键词修饰的字段，一种类型成员，有能力使一个类或者对象去通知其他类、对象们</p>
+<p>事件是基于委托的，委托是事件的“底层基础”，事件是委托的“上层建筑”<br>委托类型定义了事件的有无返回值和参数类型，事件处理器必须和事件的有无返回值和参数类型一致，即双方都要遵守同一个约定（有无返回值和参数类型），我们把这叫做事件和事件处理器必须是匹配的</p>
+<h2 id="自定义事件"><a href="#自定义事件" class="headerlink" title="自定义事件"></a>自定义事件</h2><p>先声明该事件的委托类型，再声明事件</p>
+<ul>
+<li>在声明委托类型的时候，如果这个委托，是为了声明某个事件而准备的委托，那么这个委托的名字，就要去使用：事件名+EventHandler的格式，由于委托是一种引用类型，所以事件名首字母要大写</li>
+<li>在定义事件参数的时候，即在定义该事件的委托类型的参数的类型的时候，要遵循：类型名+EventArgs这个格式</li>
+</ul>
+<figure class="highlight cs"><figcaption><span>事件声明示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 声明该事件的委托类型：事件名 + EventHandler</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">delegate</span> <span class="keyword">void</span> <span class="title">OrderEventHandler</span>(<span class="params">Customer customer, OrderEventArgs e</span>)</span>;<span class="comment">//声明一个委托类型</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 声明事件：访问修饰符 + event + 事件处理器（委托类型的实例、字段）+ 事件名称（一定要注意命名规范：On+事件名）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">event</span> OrderEventHandler OnOrder;</span><br></pre></td></tr></table></figure>
+
+<p>微软提供了一个EventHandler委托类型</p>
+<p>其中用来传递事件数据的类EventArgs，凡是用来传递事件数据的类，都是从这个类派生出来的<br>让自定义的传递事件数据的类继承EventArgs，就可以作为参数传入EventHandler委托类型了<br>将Object类型的变量转换为Customer类型的变量，我们可以用as操作符</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">delegate</span> <span class="keyword">void</span> <span class="title">EventHandler</span>(<span class="params"><span class="built_in">object</span>? sender, EventArgs e</span>)</span>;</span><br><span class="line"></span><br><span class="line">Customer customer1 = _sender <span class="keyword">as</span> Customer;</span><br></pre></td></tr></table></figure>
+
+<h2 id="事件和委托的区别"><a href="#事件和委托的区别" class="headerlink" title="事件和委托的区别"></a>事件和委托的区别</h2><ul>
+<li>事件其实是委托类型字段的包装器、限制器，限制外界对委托类型字段的访问。</li>
+<li>外界只能通过“+&#x3D;”和“-&#x3D;”两个操作符对事件进行添加事件处理器和移除事件处理器的操作，并不能去赋值和触发事件。</li>
+<li>事件是用来阻挡非法操作的“蒙版”，它绝对不是委托字段的本身</li>
+<li>类似的情况有字段和属性，属性是字段的包装器。字段能做的，属性都能做；属性能做的，字段不一定都能做</li>
+</ul>
+<p>总结：事件是用来“阉割”委托实例的，事件只能添加、删除事件处理器，不能赋值。外界只能用“+&#x3D;”和“-&#x3D;”去访问它，不能&#x3D;，不能从外部触发事件，也就是说，事件包含了委托类型字段的所有功能，但只是对外部暴露了“+&#x3D;”和“-&#x3D;”操作符。</p>
+<h2 id="事件和委托的关系"><a href="#事件和委托的关系" class="headerlink" title="事件和委托的关系"></a>事件和委托的关系</h2><p>委托类型规定了事件拥有者和事件响应者通知和接收的消息必须是同一类型的消息<br>约束了添加和移除事件时必须要使用与之匹配（同样类型）的事件处理器，即使用与之匹配（同样类型）的方法来处理响应这个事件</p>
+<figure class="highlight cs"><figcaption><span>完整示例（顾客点单）</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Collections.Generic;</span><br><span class="line"><span class="keyword">using</span> System.Linq;</span><br><span class="line"><span class="keyword">using</span> System.Text;</span><br><span class="line"><span class="keyword">using</span> System.Threading.Tasks;</span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 事件的拥有者：顾客</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 事件：点单</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 事件的响应者：服务员</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 事件处理器：计算最后金额</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 事件订阅（+=操作符）</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">EventDemo</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//声明一个委托类型</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">delegate</span> <span class="keyword">void</span> <span class="title">OrderEventHandler</span>(<span class="params">Customer customer, OrderEventArgs e</span>)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title">EventExample</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> Customer customer = <span class="keyword">new</span> Customer();</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> Customer customer2 = <span class="keyword">new</span> Customer();</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> Waiter waiter = <span class="keyword">new</span> Waiter();</span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            customer.OnOrder += waiter.CalculateBill;</span><br><span class="line">            customer2.OnOrder += waiter.CalculateBill;</span><br><span class="line"> </span><br><span class="line">            <span class="comment">//使用事件，事件只能由事件拥有者触发，不能在外部去触发</span></span><br><span class="line">            <span class="comment">//顾客1点了超大杯摩卡15+6 = 21</span></span><br><span class="line">            customer.Order(<span class="string">&quot;摩卡&quot;</span>, <span class="number">15</span>, OrderEventArgs.CoffeeSizeEnum.Venti);</span><br><span class="line">            <span class="comment">//顾客1点了中杯拿铁20</span></span><br><span class="line">            customer.Order(<span class="string">&quot;拿铁&quot;</span>, <span class="number">20</span>, OrderEventArgs.CoffeeSizeEnum.Tall);</span><br><span class="line">            <span class="comment">//顾客2点了中杯卡布奇诺</span></span><br><span class="line">            customer2.Order(<span class="string">&quot;卡布奇诺&quot;</span>, <span class="number">25</span>, OrderEventArgs.CoffeeSizeEnum.Tall);</span><br><span class="line">            customer.PayTheBill();</span><br><span class="line">            customer2.PayTheBill();</span><br><span class="line"> </span><br><span class="line">            <span class="comment">/*//如果使用委托，不使用事件，委托类型的字段可以在外部进行调用，意味着顾客2可以把自己点的东西记在顾客1的账单上</span></span><br><span class="line"><span class="comment">            //顾客1点了超大杯摩卡15+6 = 21</span></span><br><span class="line"><span class="comment">            OrderEventArgs e1 = new OrderEventArgs();</span></span><br><span class="line"><span class="comment">            e1.CoffeeName = &quot;摩卡&quot;;</span></span><br><span class="line"><span class="comment">            e1.CoffeePrice = 15;</span></span><br><span class="line"><span class="comment">            e1.CoffeeSize = OrderEventArgs.CoffeeSizeEnum.Venti;</span></span><br><span class="line"><span class="comment">            customer.OnOrder(customer, e1);</span></span><br><span class="line"><span class="comment">            //顾客1点了超大杯拿铁20+6 = 26，并记在了倒霉蛋顾客1的账单上</span></span><br><span class="line"><span class="comment">            OrderEventArgs e2 = new OrderEventArgs();</span></span><br><span class="line"><span class="comment">            e2.CoffeeName = &quot;拿铁&quot;;</span></span><br><span class="line"><span class="comment">            e2.CoffeePrice = 20;</span></span><br><span class="line"><span class="comment">            e2.CoffeeSize = OrderEventArgs.CoffeeSizeEnum.Venti;</span></span><br><span class="line"><span class="comment">            customer2.OnOrder(customer, e2);</span></span><br><span class="line"><span class="comment">            customer.PayTheBill();</span></span><br><span class="line"><span class="comment">            customer2.PayTheBill();*/</span></span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">            Console.Read();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Customer</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//声明一个点单事件</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">event</span> OrderEventHandler OnOrder;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">float</span> Bill &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">PayTheBill</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            Console.WriteLine(<span class="string">&quot;I have to pay : &quot;</span> + Bill);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">        <span class="comment"><span class="doctag">///</span> 点餐（咖啡名称、价格、大小）</span></span><br><span class="line">        <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">        <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;coffeeName&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line">        <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;coffeePrice&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line">        <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;coffeeSize&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Order</span>(<span class="params"><span class="built_in">string</span> coffeeName,<span class="built_in">float</span> coffeePrice, OrderEventArgs.CoffeeSizeEnum coffeeSize</span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//语法糖：如果事件不为空（因为简略声明事件时委托类型的字段被隐藏了）</span></span><br><span class="line">            <span class="keyword">if</span> (OnOrder != <span class="literal">null</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                OrderEventArgs e = <span class="keyword">new</span> OrderEventArgs();</span><br><span class="line">                e.CoffeeName = coffeeName;</span><br><span class="line">                e.CoffeePrice = coffeePrice;</span><br><span class="line">                e.CoffeeSize = coffeeSize;</span><br><span class="line">                <span class="comment">//事件只能由事件拥有者触发：限制只能自己给自己点单</span></span><br><span class="line">                OnOrder(<span class="keyword">this</span>, e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Waiter</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//计算账单金额</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">CalculateBill</span>(<span class="params">Customer customer, OrderEventArgs e</span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">float</span> finalPrice = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">switch</span> (e.CoffeeSize)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">case</span> OrderEventArgs.CoffeeSizeEnum.Tall:</span><br><span class="line">                    finalPrice = e.CoffeePrice; <span class="comment">//中杯，原价</span></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> OrderEventArgs.CoffeeSizeEnum.Grand:</span><br><span class="line">                    finalPrice = e.CoffeePrice + <span class="number">3</span>; <span class="comment">//大杯：原价+3元</span></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> OrderEventArgs.CoffeeSizeEnum.Venti:</span><br><span class="line">                    finalPrice = e.CoffeePrice + <span class="number">6</span>; <span class="comment">//超大杯：原价+6元</span></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            customer.Bill += finalPrice;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">OrderEventArgs</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 咖啡是大杯、中杯还是小杯</span></span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">enum</span> CoffeeSizeEnum &#123; Tall,Grand,Venti&#125;<span class="comment">//默认为静态</span></span><br><span class="line">        <span class="keyword">public</span> CoffeeSizeEnum CoffeeSize &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">        <span class="comment">// 咖啡价格</span></span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">float</span> CoffeePrice &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">        <span class="comment">// 咖啡名称</span></span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">string</span> CoffeeName &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Hotgun2222/article/details/139901041">https://blog.csdn.net/Hotgun2222/article/details/139901041</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/02/11/%E7%BA%BF%E6%80%A7%E4%B8%8E%E9%9D%9E%E7%BA%BF%E6%80%A7%E8%A1%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1090,85 +1206,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/" class="post-title-link" itemprop="url">变换矩阵</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2025-08-08 11:42:32 / Modified: 15:25:06" itemprop="dateCreated datePublished" datetime="2025-08-08T11:42:32+08:00">2025-08-08</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Math/" itemprop="url" rel="index"><span itemprop="name">Math</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>固定坐标系下，一个对象的变换等价于固定对象所处的坐标系变换。</p>
-<p><img src="/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/p1.png" title="标量"> <br></p>
-<p>经过线性变换(直线依旧是直线，保持网格线平等且等距分布，并且原点保持固定)：</p>
-<p><img src="/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/p2.png" title="标量变换"> <br></p>
-<p>如图，新坐标系的基就是那个绿箭头和红箭头，在原来的ij坐标系下的坐标值是[1,-2]和[3,0]。经过如图的计算过程，坐标系的变化，导致原来的V向量变成了[5,2]，实现了移动。</p>
-<h1 id="Transformation-Matrix"><a href="#Transformation-Matrix" class="headerlink" title="Transformation Matrix"></a>Transformation Matrix</h1><p>常见的变换矩阵类型：<br><img src="/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/p3.png" title="变换矩阵举例"> <br></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1246,7 +1283,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-count">24</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
