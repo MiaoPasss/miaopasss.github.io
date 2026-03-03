@@ -161,6 +161,281 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/" class="post-title-link" itemprop="url">坐标空间和MVP变换</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-08-26 17:47:30" itemprop="dateCreated datePublished" datetime="2025-08-26T17:47:30+08:00">2025-08-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-09-05 17:42:25" itemprop="dateModified" datetime="2025-09-05T17:42:25+08:00">2025-09-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p9.png" title="空间变换总览"></p>
+<p>坐标空间有：世界空间、模型空间、摄像机空间、齐次裁剪空间、屏幕空间，以及法线映射会用到的切线空间（之前的纹理基础篇就讲到过）。 </p>
+<p><strong>那为什么会有这么多个坐标空间呢？</strong></p>
+<blockquote>
+<p>一些概念只有在特定的坐标空间下才有意义，才更容易理解。这就是为什么在渲染中我们要使用这么多坐标空间。</p>
+</blockquote>
+<div style="text-align: right">——《Unity Shader 入门精要》</div>
+
+<hr>
+<ul>
+<li>坐标空间转换：在渲染管线中，把一个点或一个向量从一个坐标空间转换到另一个坐标空间，比如模型空间 -&gt; 裁剪空间</li>
+<li>变换矩阵：实现坐标空间转换的过程，则需要用到变换矩阵</li>
+<li>顶点着色器：顶点着色器是图形渲染管线中对每个顶点进行坐标变换的程序，而MVP变换（模型Model - 视图View - 投影Projection）是顶点着色器中一种将顶点坐标从模型空间转换为裁剪空间的常用技术。</li>
+</ul>
+<hr>
+<h1 id="1-模型空间-Model-Space"><a href="#1-模型空间-Model-Space" class="headerlink" title="1. 模型空间(Model Space)"></a>1. 模型空间(Model Space)</h1><p>又称为对象空间(Object Space)或局部空间(Local Space)，每个模型都有属于自己的模型空间</p>
+<ul>
+<li>以模型本身为参考系，会随着模型的旋转&#x2F;移动而旋转&#x2F;移动</li>
+<li>包含前、后、左、右等自然方向概念.</li>
+</ul>
+<p>在模型空间中描述模型上的某一点位置时，坐标会被扩展到齐次坐标系下：(1,0,0) -&gt; (1,0,0,1)，为顶点变换中的平移变换做准备</p>
+<h3 id="顶点变换Step-1-模型变换-MVP中的M"><a href="#顶点变换Step-1-模型变换-MVP中的M" class="headerlink" title="顶点变换Step 1 - 模型变换(MVP中的M)"></a>顶点变换Step 1 - 模型变换(MVP中的M)</h3><p>Model Transformation 把3D物体从模型空间变换到世界空间</p>
+<p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p1.png" title="cube坐标变换前"></p>
+<p>在Unity中，我们直接给Cube拖出来就行</p>
+<p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p2.png" title="cube坐标变换后"></p>
+<p>我们发现，Cube位置从(0, 2, 4, 1) -&gt; (9, 4, 18.071)，unity帮助我们把Cube的坐标完成了模型变换</p>
+<hr>
+<h1 id="2-世界空间-World-Space"><a href="#2-世界空间-World-Space" class="headerlink" title="2. 世界空间(World Space)"></a>2. 世界空间(World Space)</h1><p>游戏场景中的最大空间，一般世界空间的原点会放在游戏空间的正中心，同时世界空间的位置就是绝对位置——这个绝对位置你可以理解成Unity里没有父节点（parent）的游戏对象的位置。</p>
+<h3 id="顶点变换Step-2-观察变换-MVP中的V"><a href="#顶点变换Step-2-观察变换-MVP中的V" class="headerlink" title="顶点变换Step 2 - 观察变换(MVP中的V)"></a>顶点变换Step 2 - 观察变换(MVP中的V)</h3><p>View Transformation 把3D物体从世界空间变换到观察空间</p>
+<p>此时的变换矩阵等于：把观察空间当做一个模型空间，将其变换到世界空间（用模型变换的方法），然后取此变换矩阵的逆即为 观察空间 &lt;- 世界空间</p>
+<p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p4.png" title="cube坐标变换前"></p>
+<p>在unity中，我们可以直接把Cube从世界空间拖到Main Camera下，此时Cube的Transform组件变为观察空间下的坐标信息</p>
+<p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p5.png" title="cube坐标变换后"></p>
+<p>我们发现Cube位置变为(9, 8.839, 27.310)，但此时Transform信息是左手坐标系下的，因此正确描述在观察空间中的Cube坐标应为(9, 8.839, -27.310)</p>
+<hr>
+<h1 id="3-观察空间-View-Space"><a href="#3-观察空间-View-Space" class="headerlink" title="3. 观察空间(View Space)"></a>3. 观察空间(View Space)</h1><p>也叫做摄像机空间(Camera Space)，摄像机在场景中不可见，但是一般会给它生成一个图标并在场景窗口可视化，例如：</p>
+<p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p3.png" title="摄像机在场景中可视化"></p>
+<ul>
+<li>In Unity’s camera&#x2F;view space, the forward direction (the direction the camera is looking) is along the negative Z-axis. This means objects further away from the camera will have larger negative Z values in view space.</li>
+<li>注意区分<em>观察空间</em>和<em>屏幕空间</em>，观察空间是3d，屏幕空间是2d，观察空间 -&gt; 屏幕空间需要经过投影操作</li>
+</ul>
+<h3 id="顶点变换Step-3-投影变换-MVP中的P"><a href="#顶点变换Step-3-投影变换-MVP中的P" class="headerlink" title="顶点变换Step 3 - 投影变换(MVP中的P)"></a>顶点变换Step 3 - 投影变换(MVP中的P)</h3><p>Projection Transformation 把3D物体从观察空间变换到裁剪空间</p>
+<p>观察空间-&gt;裁剪空间的变换矩阵有更准确的称呼 —— 裁剪矩阵(Clipping Matrix)，也被叫做投影矩阵(Projection Matrix)。<br>此时的坐标为顶点着色器的输出，即图元顶点在裁剪空间中的坐标。</p>
+<p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p10.jpg" title="投影矩阵"></p>
+<hr>
+<h1 id="4-裁剪空间-Clip-Space"><a href="#4-裁剪空间-Clip-Space" class="headerlink" title="4. 裁剪空间(Clip Space)"></a>4. 裁剪空间(Clip Space)</h1><p>也被称为其次裁剪空间，渲染管线中几何阶段的裁剪步骤在这一环节完成，这一环节里我们无法操控(Non-programmable)，完全由GPU去做</p>
+<h2 id="4-1-视锥体"><a href="#4-1-视锥体" class="headerlink" title="4.1 视锥体"></a>4.1 视锥体</h2><p>从观察空间到屏幕空间的途中，需要经过裁剪空间，其目的在于剔除在视野范围外的图元，而由视锥体(Frustum)决定的裁剪空间为这一剔除过程提供了便利。<br>很显然，场景越大，裁剪的优越性更加突出，如果不进行裁剪就直接投影到2d屏幕空间，后续会产生非常多不必要的开销，例如渲染完全在电脑屏幕外的图元。</p>
+<p>视锥体是观察空间中的一块区域，决定着摄像机的可见范围（即最终在屏幕上可见并渲染的物体），它由六个面组成，被称为裁剪平面(Clipping Planes)。</p>
+<h2 id="4-1-1-透视投影"><a href="#4-1-1-透视投影" class="headerlink" title="4.1.1 透视投影"></a>4.1.1 透视投影</h2><p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p6.png" title="透视投影参数"></p>
+<ul>
+<li>FOV: 视角度数，同时FOV Axis决定这个视角是横向还是纵向</li>
+<li>Clipping Planes: 设置近裁剪平面距离 和 远裁剪平面距离</li>
+<li>Viewport Rect: This refers to the Camera.rect property, which defines the portion of the screen where a camera’s view is drawn. By adjusting these values, you can control where a camera renders on the screen and how much of the screen it occupies. This config is commonly used for split-screen effects.</li>
+<li>Depth: This property controls the order in which multiple cameras in a scene render their output. A camera with a lower depth value renders before a camera with a higher depth value. This is crucial for achieving effects like picture-in-picture, UI overlays, or rendering specific layers with different cameras. If multiple cameras have the same depth value, their rendering order is determined by their order in the scene hierarchy.</li>
+</ul>
+<h2 id="4-1-2-正交投影"><a href="#4-1-2-正交投影" class="headerlink" title="4.1.2 正交投影"></a>4.1.2 正交投影</h2><p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p7.png" title="正交投影参数"></p>
+<h2 id="4-2-投影矩阵的目的"><a href="#4-2-投影矩阵的目的" class="headerlink" title="4.2 投影矩阵的目的"></a>4.2 投影矩阵的目的</h2><p>前面已经讨论过了裁剪的必要性 —— 进行渲染提出视野范围外的图元；这里需要讨论的是，为何不在视锥体裁剪，而是要先变换到裁剪空间再进行裁剪？</p>
+<p>《Unity Shader 入门精要》中做了很清楚的解释：“直接在视锥体定义的空间进行裁剪，对于透视投影的视锥体想要判断一个顶点是否在这个空间内是十分麻烦的，我们需要一种更加通用、整洁方便的方式进行裁剪，因此就需要一个投影矩阵将顶点转换到一个裁剪空间(Clip space)中。”</p>
+<p>从观察空间到裁剪空间的变换叫做投影变换。虽然叫做投影变换，但是投影变换并没有进行真正的投影。</p>
+<h2 id="4-2-1-为真正的投影做准备"><a href="#4-2-1-为真正的投影做准备" class="headerlink" title="4.2.1 为真正的投影做准备"></a>4.2.1 为真正的投影做准备</h2><p>真正的投影可以理解成空间的降维，4d -&gt; 3d，3d -&gt; 2d，真正的投影发生在屏幕映射过程中对顶点进行齐次除法后获得其二维坐标这一步，而投影矩阵只是进行了坐标空间转换，并没有实实在在地进行投影这一操作。<br>齐次（裁剪）空间实质上是一个四维空间，变换到齐次空间的顶点之间仍然是线性相关的，可以使用线性插值。（此时没有除以W变成3D坐标，是齐次坐标）</p>
+<h2 id="4-2-2-对x、y、z进行缩放"><a href="#4-2-2-对x、y、z进行缩放" class="headerlink" title="4.2.2 对x、y、z进行缩放"></a>4.2.2 对x、y、z进行缩放</h2><p>投影矩阵虽然叫做投影矩阵，但并没有真正进行投影，而是为投影做准备。经过投影矩阵的缩放后，我们可以直接使用w分量作为范围值，只有x，y，z分量都位于这个范围内的顶点才认为是在裁剪空间内。并且w分量在真正的投影时也会用到。</p>
+<hr>
+<h1 id="标准化设备坐标-Normalized-Device-Coordinate"><a href="#标准化设备坐标-Normalized-Device-Coordinate" class="headerlink" title="标准化设备坐标(Normalized Device Coordinate)"></a>标准化设备坐标(Normalized Device Coordinate)</h1><p>在齐次裁剪空间的基础上进行透视除法(Perspective division)或称齐次除法(Homogeneous division)，得到的坐标叫做NDC空间坐标。</p>
+<ul>
+<li>裁剪空间是顶点乘以MVP矩阵之后所在的空间，<strong>Vertex Shader的输出就是在裁剪空间上</strong>（划重点）。</li>
+<li>接着由GPU自己做<strong>透视除法</strong>，将顶点转移到标准化设备坐标(NDC)。</li>
+</ul>
+<p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p8.png" title="透视除法"></p>
+<hr>
+<h1 id="5-屏幕空间-Screen-Space"><a href="#5-屏幕空间-Screen-Space" class="headerlink" title="5. 屏幕空间(Screen Space)"></a>5. 屏幕空间(Screen Space)</h1><p>完成了裁剪工作，下一步就是进行真正的投影了，将视锥体投影到屏幕空间中，这一步会得到真正的像素位置，而不是虚拟的三维坐标。<br>这一环节可以理解为做了以下两步：</p>
+<h3 id="5-1-齐次除法"><a href="#5-1-齐次除法" class="headerlink" title="5.1 齐次除法"></a>5.1 齐次除法</h3><p>首先进行标准齐次除法（homogeneous division），也被称为透视除法（perspective division），其实就是x、y、z分别除以w，经过齐次除法后的裁剪空间会变成一个单位立方体，这个立方体空间里的坐标叫做归一化的设备坐标（也就是之前提到的NDC）。因此，也可以说齐次除法是做了空间裁剪坐标到NDC坐标的转换操作。</p>
+<h3 id="5-2-屏幕映射（渲染管线中几何阶段的一步）"><a href="#5-2-屏幕映射（渲染管线中几何阶段的一步）" class="headerlink" title="5.2 屏幕映射（渲染管线中几何阶段的一步）"></a>5.2 屏幕映射（渲染管线中几何阶段的一步）</h3><p>这里就顺利的跟之前的渲染管线GPU负责的几何阶段部分联系在一起了。在获得了NDC立方体后，接下来就是根据变换后的x、y坐标映射输出窗口对应的像素坐标，本质就是个缩放的过程。</p>
+<ul>
+<li>虽然屏幕是2d空间，但z分量此时并没有被抛弃，会被储存起来（深度缓存或者其他的储存格式）</li>
+</ul>
+<p>我们前面说到Vertex Shader的输出在Clip Space，接着GPU会做透视除法变到NDC。这之后GPU还有一步，应用视口变换(Viewport Transformation)，转换到屏幕空间，输入给Fragment Shader：</p>
+<p><strong>(Vertex Shader) &#x3D;&gt; Clip Space &#x3D;&gt; (透视除法) &#x3D;&gt; NDC &#x3D;&gt; (视口变换) &#x3D;&gt; Window Space &#x3D;&gt; (Fragment Shader)</strong></p>
+<p><img src="/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/p11.png" title="总流程"></p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits:"></a>Credits:</h1><p>MVP矩阵：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41835314/article/details/126851074">https://blog.csdn.net/qq_41835314/article/details/126851074</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/" class="post-title-link" itemprop="url">渲染管线概览</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-08-14 17:45:38" itemprop="dateCreated datePublished" datetime="2025-08-14T17:45:38+08:00">2025-08-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-08-15 17:58:21" itemprop="dateModified" datetime="2025-08-15T17:58:21+08:00">2025-08-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p2.png" title="渲染图元"> <br></p>
+<h1 id="CPU-GPU工作流程"><a href="#CPU-GPU工作流程" class="headerlink" title="CPU + GPU工作流程"></a>CPU + GPU工作流程</h1><ol>
+<li>剔除，把一些不想看到的，或者看不到的东西排除掉</li>
+<li>确定物体的先后渲染顺序</li>
+<li>将对应的模型数据、材质等打包发送给GPU</li>
+<li>发送SetPassCall和Drawcall告诉GPU渲染管线渲染模型数据所需的shader</li>
+<li>数据在GPU渲染管线中绘制，将3D物体渲染为2D图像</li>
+<li>将渲染图像存放在帧缓冲区（FrameBuffer）中。可以理解为一个和屏幕大小等大的临时画布</li>
+<li>后处理操作。通过CPU拿到帧缓冲区的图像，调用shader再进入GPU渲染管线，对帧缓冲区的图像进行二次的修改，比如调色、bloom等操作</li>
+<li>显示在屏幕上</li>
+</ol>
+<p>CPU应用程序端逻辑：经过剔除、排序等等，将模型数据打包发给GPU渲染管线<br>GPU渲染管线：拿到模型数据后，讲图像画出来，存放在对应的帧缓冲区中</p>
+<p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p3.png" title="CPU打包数据"> <br></p>
+<h1 id="GPU渲染管线"><a href="#GPU渲染管线" class="headerlink" title="GPU渲染管线"></a>GPU渲染管线</h1><ol start="0">
+<li>CPU打包数据：vertex buffer&#x2F;index buffer&#x2F;frustum视锥&#x2F;directional light平行光&#x2F;texture+shader<br> • SetPass Call：设定好渲染设置后，告诉GPU使用哪个shader，使用哪种混合模式、设置背面剔除等等，当使用不同的材质或者相同的材质下不同的Pass时需要设置切换多个渲染状态，就会增加SetPassCall，所以SetPassCall的次数也能反映性能<br> • Draw Call（绘制调用）：CPU打包数据发送给GPU，告诉GPU使用哪些模型数据进行渲染</li>
+<li>Vertex Shader: 使用顶点&#x2F;视锥信息将模型空间变换到屏幕空间</li>
+<li>Triangle Processing 图元装配：把顶点信息按照缓存连接成三角形图元</li>
+<li>Rasterization：插值计算出三角形每个像素的深度&#x2F;颜色</li>
+<li>Pixel Shader (i.e. Fragment Shader)：根据灯光&#x2F;纹理贴图采样</li>
+<li>Frame Buffer：post processing 抗锯齿 校色 景深（DOF） 动态模糊</li>
+</ol>
+<p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p1.jpg" title="全览图"> <br></p>
+<h1 id="图元-vs-片元"><a href="#图元-vs-片元" class="headerlink" title="图元 vs 片元"></a>图元 vs 片元</h1><ul>
+<li>图元</li>
+</ul>
+<p>渲染图元（rendering primitives）为图形渲染开发接口中用来描述各种图形元素的图形数据，所对应的就是绘图界面上看得见的实体，它包括了渲染所需的几何信息，可以是顶点数据、线段、多边形等。</p>
+<p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p4.png" title="图元的数据类型"> <br></p>
+<p>图元至少要包含一个顶点（Vertex）；一个顶点定义了2D或3D坐标系中一个点，也同样定义了若干个可以影响如何把顶点渲染到屏幕上的属性，如：</p>
+<p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p5.png" title="图元顶点所包含的信息"> <br></p>
+<ul>
+<li>片元</li>
+</ul>
+<p>在GPU流水线中的三角形遍历阶段，将会检查每个像素是否被一个三角网格所覆盖；如果被覆盖的话，就会生成一个片元（fragment）；需要注意的是，一个片元并不是真正意义上的像素，而是包括了很多状态的集合，这些状态用于计算每个像素的最终颜色；这些状态包括了（但不限于）它的屏幕坐标、深度信息，以及其它从几何阶段输出的顶点信息，例如法线、纹理坐标等。</p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/lel18570471704/article/details/134708949">https://blog.csdn.net/lel18570471704/article/details/134708949</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/667522425">https://zhuanlan.zhihu.com/p/667522425</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/407046161">https://zhuanlan.zhihu.com/p/407046161</a><br>图元vs片元：<a target="_blank" rel="noopener" href="https://blog.csdn.net/DoomGT/article/details/115806364">https://blog.csdn.net/DoomGT/article/details/115806364</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1095,238 +1370,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/12/%E6%95%B0%E6%8D%AE%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/12/%E6%95%B0%E6%8D%AE%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/" class="post-title-link" itemprop="url">数据的封装与发送</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-12 17:46:00" itemprop="dateCreated datePublished" datetime="2025-02-12T17:46:00+08:00">2025-02-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-07 16:14:17" itemprop="dateModified" datetime="2025-03-07T16:14:17+08:00">2025-03-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Networks/" itemprop="url" rel="index"><span itemprop="name">Networks</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="各层数据的组成形式"><a href="#各层数据的组成形式" class="headerlink" title="各层数据的组成形式"></a>各层数据的组成形式</h1><ul>
-<li><p>数据单元（data unit）<br>指许多信息单元。常用的数据单元有服务数据单元（SDU）、协议数据单元（PDU）。SDU是在同一机器上的两层之间传送信息。PDU是发送机器上每层的信息发送到接收机器上的相应层（同等层间交流用的）。</p>
-</li>
-<li><p>分组&#x2F;分片<br>ip层的上层是传输层（tcp的头部为20Byte，udp头部字节是8Byte），ip层自己的头部需要占20字节，ip层的MTU &#x3D; 1500 - 20 &#x3D; 1480Byte, 超过1480Byte的数据，都需要被ip层分片，在达到目的前会自己重组</p>
-<ul>
-<li>tcp是可靠传输协议，通过超时与重传机制，来保证收到的数据是完整的。因为tcp是可靠传输协议，如果要传输的数据大于 1480 - 20(tcp头部) &#x3D;1460Byte时，在ip层被分片，而ip层分片会导致，如果其中的某一个分片丢失，因为tcp层不知道哪个ip数据片丢失，所以就需要重传整个数据段，这样就造成了很大空间和时间资源的浪费，为了解决这个问题，就有了tcp分组和MSS（最长报文大小）概念，利用tcp三次握手建立链接的过程，交互各自的MTU，然后用小的那个MTU-20-20 , 得到MSS，这样就避免在ip层被分片。</li>
-<li>由于udp是不可靠传输的，所以ip分片主要是为了upd服务的，所以就有了网上的 1500 - 20(ip头部) - 8(udp头部) &gt; 1472Byte 的说法，把1472作为ip分片的标准</li>
-</ul>
-</li>
-<li><p>报文(message) —— 应用层<br>报文是网络中交换与传输的数据单元，也是网络传输的单元。报文包含了将要发送的完整的数据信息，其长短不需一致。报文在传输过程中会不断地封装成分组、包、帧来传输，封装的方式就是添加一些控制信息组成的首部，那些就是报文头。</p>
-</li>
-<li><p>报文段(segment) —— 传输层<br>组成报文的每个分组，将传输层分组称为报文段（面向连接（TCP）的数据传输）。报文段是起始点和目的地都是传输层的信息单元。</p>
-</li>
-<li><p>数据报(datagram) —— 传输层<br>面向无连接(Connectionless Communication)的数据传输，其工作过程类似于报文交换。采用数据报方式传输时，被传输的分组称为数据报。通常是指起始点和目的地都使用无连接网络服务的网络层的信息单元。(指IP数据报)</p>
-</li>
-<li><p>数据包(packet) —— 网络层<br>是网络层传输的数据单元，也成为“包”。包中带有足够寻址信息（IP地址），可独立地从源主机传输到目的主机。它的起始和目的地是网络层。</p>
-</li>
-<li><p>帧(frame) —— 数据链路层<br>帧是数据链路层的传输单元。它将上层传入的数据添加一个头部和尾部，组成了帧。它的起始点和目的点都是数据链路层。</p>
-</li>
-</ul>
-<ul>
-<li><strong>以太网帧</strong><br><img src="/2025/02/12/%E6%95%B0%E6%8D%AE%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/ethernet-frame-format.png"></li>
-</ul>
-<p>在以太网链路上的数据包称作以太帧。以太帧起始部分由前导码和帧开始符组成。后面紧跟着一个以太网报头，以MAC地址说明目的地址和源地址。帧的中部是该帧负载的包含其他协议报头的数据包（例如IP协议）。以太帧由一个32位冗余校验码结尾。它用于检验数据传输是否出现损坏。<br>在以太网帧中，<em>Destination Address(目的地址)<em>放在最前面。接收方收到一个以太网帧后，最先处理</em>Destination Address</em>字段。如果发现该帧不是发给自己的，后面的字段以及数据就不需要处理了。</p>
-<p>什么是帧间距（IFG）</p>
-<p>网络设备和组件在接收一个帧之后，需要一段短暂的时间来恢复并为接收下一帧.做准备互联网帧间隙共20字节，包括：</p>
-<ul>
-<li>以太网最小帧间隙 12Byte</li>
-<li>数据链路层帧 前导码 7Byte，用于时钟同步 This is a sequence of alternate 0s and 1s that denotes the beginning of the frame and enables bit synchronization between the sender and receiver.</li>
-<li>帧开始标识 1Byte （标识帧的开始）</li>
-</ul>
-<ul>
-<li>比特流(bitstream) —— 物理层</li>
-</ul>
-<hr>
-<h1 id="各层间数据传递"><a href="#各层间数据传递" class="headerlink" title="各层间数据传递"></a>各层间数据传递</h1><ul>
-<li>不同的协议层对数据包有不同的称谓，在传输层叫做段(segment)，在⽹络层叫做数据包 (datagram)，在链路层叫做帧(frame)。</li>
-<li>应⽤层数据通过协议栈发到⽹络上时，每层协议都要加上⼀个数据⾸部(header)，称为封装 (Encapsulation)。</li>
-<li>⾸部信息中包含了⼀些类似于⾸部有多⻓，载荷(payload)有多⻓，上层协议是什么等信息。</li>
-<li>数据封装成帧后发到传输介质上，到达⽬的主机后每层协议再剥掉相应的⾸部，根据⾸部中的 “上层协议字段” 将数据交给对应的上层协议处理。</li>
-</ul>
-<p><img src="/2025/02/12/%E6%95%B0%E6%8D%AE%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/NetworkPacket.png" title="Dissecting a Network Packet"></p>
-<hr>
-<h1 id="数据的封装过程（从上至下）"><a href="#数据的封装过程（从上至下）" class="headerlink" title="数据的封装过程（从上至下）"></a>数据的封装过程（从上至下）</h1><p>传输层：报文被分为多个报文段，每个报文段上加上TCP首部（主要包含端口、源端口），变为TCP报文段；(注：TCP叫TCP报文段，UDP叫UDP数据报,也有人叫UDP段)<br>网络层：将TCP报文段加上IP数据包首部（主要包含目的IP，源IP），变成数据包；<br>数据链路层：将数据包加上目标MAC与源MAC、FCS(Frame Check Sequence)、变成MAC帧。<br>物理层：将帧变为比特流，传递给PC3物理层。</p>
-<hr>
-<h1 id="数据传输计量单位"><a href="#数据传输计量单位" class="headerlink" title="数据传输计量单位"></a>数据传输计量单位</h1><p>Maximum Transmission Unit：最大传输单元，链路层的帧中的数据部分的最大字节数，以太网中的一般为1500字节。</p>
-<p>Maximum Segment Size：TCP的报文段中的数据部分的最大字节数，MTU减去IPv4的Header和TCP的Header。IPv4的Header和TCP的Header一般都是20字节，则 1500-20-20 &#x3D; 1460字节。</p>
-<p>Maximum Segment Lifetime：报文最大生存时间。报文在网络上存在的最长时间，超过这个时间报文将被丢弃。当TCP执行一个主动关闭，并发回最后一个ACK,该连接必须在TIME_WAIT状态停留的时间为2倍的MSL。这样可让TCP再次发送最后的ACK以防这个ACK丢失（另一端超时并重发最后的FIN）。存在这个规则导致一个后果就是在这个2MSL的时间内，该地址上的链接（客户端地址、端口和服务器端的地址、端口）不能被使用。比如我们在建立一个链接后关闭链接然后迅速重启链接，那么就会出现端口不可用的情况。</p>
-<p><img src="/2025/02/12/%E6%95%B0%E6%8D%AE%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/TCP.png" title="Packet exchange for TCP connection"></p>
-<p>Round Trip Time：往返时延。在计算机网络中它是一个重要的性能指标，表示从发送端发送数据结束，到发送端收到来自接收端的确认数据总共经历的时延。RTT&#x3D;传播时延（往返哒）+ 排队时延（路由器和交换机的）+ 数据处理时延（应用程序的）。</p>
-<p>Time To Live：IP头部有一个TTL域，TTL是time to live的缩写，中文可以译为“生存时间”，这个生存时间是由源主机设置初始值，但不是具体的时间，而是存储了一个IP数据报可以经过的最大路由数，每经过一个路由器此值就减1，当此值为0则数据报将被丢弃，同时发送ICMP报文通知源主机。</p>
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>数据包：<a target="_blank" rel="noopener" href="https://blog.csdn.net/a3192048/article/details/84671340">https://blog.csdn.net/a3192048/article/details/84671340</a></p>
-<hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/" class="post-title-link" itemprop="url">TCP/IP 五层网络模型</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-12 17:26:08" itemprop="dateCreated datePublished" datetime="2025-02-12T17:26:08+08:00">2025-02-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-07 16:14:31" itemprop="dateModified" datetime="2025-03-07T16:14:31+08:00">2025-03-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Networks/" itemprop="url" rel="index"><span itemprop="name">Networks</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="TCP-IP网络模型各层协议功能"><a href="#TCP-IP网络模型各层协议功能" class="headerlink" title="TCP&#x2F;IP网络模型各层协议功能"></a>TCP&#x2F;IP网络模型各层协议功能</h1><h2 id="1-应用层"><a href="#1-应用层" class="headerlink" title="1. 应用层"></a>1. 应用层</h2><p>应用层是网络通信的最高层，它定义了应用程序和网络之间的接口。在这一层，用户可以直接与应用程序进行交互。常见的应用层协议有HTTP、FTP、SMTP等。</p>
-<ul>
-<li><p><strong>Proxy</strong><br>A proxy server (forward proxy) takes requests from a client and forwards them to the internet, a reverse proxy takes requests from the internet and forwards them to a server.</p>
-</li>
-<li><p><strong>Transport Layer Security</strong><br>SSL&#x2F;TLS uses asymmetric encryption is used to establish a secure session between a client and a server, and symmetric encryption is used to exchange data within the secured session.<br>密钥：数据的加密是通过密钥进行的，通过密钥，明文被加密成密文。密钥分为对称加密密钥和非对称加密密钥。密钥为一段随机生成的数，通常以 .pem或者 .key文件保存，可以使用Openssl生成。<br>对称加密：加密解密都是使用同一个密钥。服务器使用该密钥进行加密，经过传输后客户端使用该密钥解密。该方式效率高，但存在安全隐患。<br>非对称加密：非对称加密具有一个密钥对，公钥和私钥，理论上来说公钥和私钥并不区分，便于区分将保存在本地的那个叫做私钥，将需要传输给对方的那个叫做公钥。数据经过私钥加密后，只能由对应的公钥解密，同样数据经过公钥加密后，只能由对应的私钥解密。那么只要客户端拥有服务器的公钥，通过公钥加密报文，服务器用自己的私钥解密就可以实现对传输过程的加密。非对称加密的效率比较低，而且仍有被中间人攻击的风险。<br>证书颁发机构：CA机构是权威的第三方，机构本身具有自己的CA公钥与CA私钥，CA公钥是发给全体互联网成员的，可以将其称为CA证书。服务器需要将自己的 公钥以及认证信息经过HASH加密后发改CA机构，CA机构使用CA私钥对提交的信息进行加密，这就得到了带有数字签名的数据。在使用时使用CA公钥对带有数字签名的数据解密，得到经HASH后的数据，同时将公钥以及认证信息 经过HASH加密后与CA解密后的数据比对，验证电子签名的安全性。</p>
-</li>
-</ul>
-<h2 id="2-传输层"><a href="#2-传输层" class="headerlink" title="2. 传输层"></a>2. 传输层</h2><p>传输层负责在源主机和目标主机（端到端）之间建立数据传输通道，主要协议有TCP和UDP。</p>
-<h2 id="3-网络层"><a href="#3-网络层" class="headerlink" title="3. 网络层"></a>3. 网络层</h2><p>网络层负责在网络上寻址和路由数据包。它定义了数据在网络中的传输路径，使得数据可以从源主机传输到目标主机。常见的网络层协议有IP协议。</p>
-<ul>
-<li><strong>地址解析协议</strong><br>ARP（Address Resolution Protocol，地址解析协议）是用来将IP地址解析为MAC地址的协议。主机或三层网络设备上会维护一张ARP表，用于存储IP地址和MAC地址的映射关系</li>
-</ul>
-<h2 id="4-数据链路层"><a href="#4-数据链路层" class="headerlink" title="4. 数据链路层"></a>4. 数据链路层</h2><p>数据链路层协议负责将网络层传输的数据分组封装成帧，传输到物理层，并通过物理介质进行传输。常见的数据链路层协议有以太网和Wi-Fi等。</p>
-<h2 id="5-物理层"><a href="#5-物理层" class="headerlink" title="5. 物理层"></a>5. 物理层</h2><p>物理层是网络通信的最底层，它负责在物理介质上传输比特流。它定义了物理连接的特性，如电压、频率等。常见的物理层介质有光纤、双绞线等。</p>
-<hr>
-<h1 id="二层设备和三层设备"><a href="#二层设备和三层设备" class="headerlink" title="二层设备和三层设备"></a>二层设备和三层设备</h1><p>二层设备是工作数据链路层的设备。二层交换机可以识别数据包中的MAC地址信息，根据MAC地址进行转发，并将这些MAC地址与对应的端口记录在自己内部的一个地址表中。具体的工作流程如下：<br>（1） 当交换机从某个端口收到一个数据包，它先读取包头中的源MAC地址，这样它就知道源MAC地址的机器是连在哪个端口上的；<br>（2） 再去读取包头中的目的MAC地址，并在地址表中查找相应的端口；<br>（3） 如表中有与这目的MAC地址对应的端口，把数据包直接复制到这端口上；<br>（4） 如表中找不到相应的端口则把数据包广播到所有端口上，当目的机器对源机器回应时，交换机又可以学习一目的MAC地址与哪个端口对应，在下次传送数据时就不再需要对所有端口进行广播了。<br>不断的循环这个过程，对于全网的MAC地址信息都可以学习到，二层交换机就是这样建立和维护它自己的地址表。</p>
-<p>三层设备是工作在网络层的设备。路由器是最常用的三层设备，利用不同网络的ID号（即IP地址）来确定数据转发的地址。IP地址是在软件中实现的，描述的是设备所在的网络，有时这些第三层的地址也称为协议地址或者网络地址。</p>
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>详解TCP&#x2F;IP五层网络模型：<a target="_blank" rel="noopener" href="https://blog.csdn.net/2201_75437633/article/details/137373813">https://blog.csdn.net/2201_75437633/article/details/137373813</a><br>TLS&#x2F;SSL：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44640149/article/details/134667685">https://blog.csdn.net/weixin_44640149/article/details/134667685</a></p>
-<hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1404,7 +1447,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-count">26</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
