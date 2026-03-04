@@ -161,6 +161,108 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/28/C-%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/08/28/C-%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5/" class="post-title-link" itemprop="url">C# 依赖注入</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-08-28 16:30:54 / Modified: 17:33:12" itemprop="dateCreated datePublished" datetime="2025-08-28T16:30:54+08:00">2025-08-28</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="No-Dependency-Injection"><a href="#No-Dependency-Injection" class="headerlink" title="No Dependency Injection"></a>No Dependency Injection</h1><p>不使用依赖注入，必须在依赖方(Dependent Class)中主动创建或者获取被依赖方(Denpendency Class)</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ClassA</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> ClassB _classB;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ClassA</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _classB = <span class="keyword">new</span> ClassB(); <span class="comment">//主动创建对象B</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Process</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;Class A start process&quot;</span>);</span><br><span class="line">        _classB.DoSomething();</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;Class A finish process&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ClassB</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">DoSomething</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// ClassB performs some logic</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Denpendency-Injection-and-IoC"><a href="#Denpendency-Injection-and-IoC" class="headerlink" title="Denpendency Injection and IoC"></a>Denpendency Injection and IoC</h1><p>使用依赖注入，不需要在依赖方的代码里主动创建或者获取被依赖方，反而，只需要在构造器参数里声明需要对象B的引用。</p>
+<figure class="highlight cs"><figcaption><span>ClassA.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ClassA</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> IInterfaceB _b;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ClassA</span>(<span class="params">IInterfaceB b</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _b = b;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Process</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;Class A start process&quot;</span>);</span><br><span class="line">        _b.DoSomething();</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;Class A finish process&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在使用依赖注入时，更多时候，对于依赖更提倡使用接口，这样解耦了接口和实现：ClassA不需要知道ClassB的内部，只需要知道IClassB有个叫DoSomething的方法可以调用<br>并且，业务代码中不需要主动实例化对象，即无需这样主动调用构造函数 new ClassA(new ClassB())</p>
+<figure class="highlight cs"><figcaption><span>ClassB.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ClassB</span> : <span class="title">IClassB</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">DoSomething</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;class B is doing something ...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cs"><figcaption><span>IClassB.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IClassB</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">DoSomething</span>()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cs"><figcaption><span>Program.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">internal</span> <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] <span class="keyword">args</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        IHost host = Host.CreateDefaultBuilder(<span class="keyword">args</span>)</span><br><span class="line">                        .ConfigureServices((context, services) =&gt;</span><br><span class="line">                        &#123;</span><br><span class="line">                            services.AddSingleton&lt;ClassA&gt;();</span><br><span class="line">                            services.AddSingleton&lt;IInterfaceB, ClassB&gt;();</span><br><span class="line">                        &#125;).Build();</span><br><span class="line"></span><br><span class="line">        ClassA a = host.Services.GetRequiredService&lt;ClassA&gt;();</span><br><span class="line">        a.Process();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>原本是在ClassA内部决定使用怎样的ClassB实例，使用了依赖注入设计后，这种控制关系（决定关系）变为由外部控制了，这就是所谓的“控制反转”(Inversion of Control)</p>
+<ul>
+<li>Host 以及它内部的 Services可以理解为 C# 提供的依赖注入系统</li>
+<li>通过 GetRequiredService 可以获得对应的实例并执行业务逻辑（此处为ClassA实例）</li>
+</ul>
+<h1 id="使用依赖注入系统实例化对象"><a href="#使用依赖注入系统实例化对象" class="headerlink" title="使用依赖注入系统实例化对象"></a>使用依赖注入系统实例化对象</h1><p>如果我们想要达到不需要手动实例化ClassA的效果，可以新建一个类并实现IHostedService接口</p>
+<figure class="highlight cs"><figcaption><span>DoSomethingHostedService.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">DoSomethingHostedService</span> : <span class="title">IHostedService</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> ClassA _a;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DoSomethingHostedService</span>(<span class="params">ClassA a</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _a = a;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Task <span class="title">StartAsync</span>(<span class="params">CancellationToken cancellationToken</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _a.Process();</span><br><span class="line">        <span class="keyword">return</span> Task.CompletedTask;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Task <span class="title">StopAsync</span>(<span class="params">CancellationToken cancellationToken</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> Task.CompletedTask;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cs"><figcaption><span>修改 Program.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">internal</span> <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">async</span> Task <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] <span class="keyword">args</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        IHost host = Host.CreateDefaultBuilder(<span class="keyword">args</span>)</span><br><span class="line">                        .ConfigureServices((context, services) =&gt;</span><br><span class="line">                        &#123;</span><br><span class="line">                            services.AddSingleton&lt;ClassA&gt;();</span><br><span class="line">                            services.AddSingleton&lt;IInterfaceB, ClassB&gt;();</span><br><span class="line"></span><br><span class="line">                            services.AddHostedService&lt;DoSomethingHostedService&gt;();</span><br><span class="line">                        &#125;).Build();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">await</span> host.RunAsync();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>IHostedService 是一个特殊的接口，实现这个接口的类通过在Host中的services里注册后，可以在Host运行时自动实例化并执行</li>
+<li>services.AddHostedService&lt;&gt;() 用于注册要自动执行的类</li>
+<li>await host.RunAsync() 运行Host实例</li>
+</ul>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits:"></a>Credits:</h1><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/592698341">https://zhuanlan.zhihu.com/p/592698341</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/26/%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4%E5%92%8CMVP%E5%8F%98%E6%8D%A2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1263,113 +1365,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/13/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97-Socket/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/13/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97-Socket/" class="post-title-link" itemprop="url">网络编程与套接字(Socket)</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-13 09:35:34" itemprop="dateCreated datePublished" datetime="2025-02-13T09:35:34+08:00">2025-02-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-07 16:14:19" itemprop="dateModified" datetime="2025-03-07T16:14:19+08:00">2025-03-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Networks/" itemprop="url" rel="index"><span itemprop="name">Networks</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Socket-vs-Port"><a href="#Socket-vs-Port" class="headerlink" title="Socket vs Port"></a>Socket vs Port</h1><ul>
-<li>A TCP socket is an endpoint instance defined by an IP address and a port in the context of either a particular TCP connection or the listening state.</li>
-<li>A port is a virtualisation identifier defining a service endpoint (as distinct from a service instance endpoint aka session identifier).</li>
-<li>A TCP socket is not a connection, it is the endpoint of a specific connection.</li>
-<li>There can be concurrent connections to a service endpoint, because a connection is identified by both its local and remote endpoints, allowing traffic to be routed to a specific service instance.</li>
-<li>There can only be one listener socket for a given address&#x2F;port combination.</li>
-</ul>
-<p>Specifically, a TCP socket consists of five things:</p>
-<ol>
-<li>transport layer protocol,</li>
-<li>local address,</li>
-<li>local port, </li>
-<li>remote address, </li>
-<li>remote port</li>
-</ol>
-<p>A port is a number between 1 and 65535 inclusive that signifies a logical gate in a device. Every connection between a client and server requires a unique socket.</p>
-<p>For example:</p>
-<ul>
-<li><em>33123</em> is a port.</li>
-<li><em>(localhost, 33123, 69.59.196.211, 80, TCP)</em> is a socket.</li>
-</ul>
-<blockquote>
-<p>Firefox (localhost:33123) &lt;———–&gt; stackoverflow.com (69.59.196.211:80)<br>Chrome  (localhost:33124) &lt;———–&gt; stackoverflow.com (69.59.196.211:80)</p>
-</blockquote>
-<p>When a client device accesses a website (such as Chrome sending HTTP requests), it automatically connects to port 80 on the web server to retrieve the requested content. When the web server receives the answer, it sends a response that has 80 as source port and 33123 as destination port.</p>
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>网络编程与套接字：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/Sunbreaker/p/11318288.html">https://www.cnblogs.com/Sunbreaker/p/11318288.html</a></p>
-<hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1447,7 +1442,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-count">27</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1460,7 +1455,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

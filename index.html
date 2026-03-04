@@ -161,6 +161,132 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/04/MVC%E5%92%8CMVVM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/03/04/MVC%E5%92%8CMVVM/" class="post-title-link" itemprop="url">MVC和MVVM</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-03-04 17:46:46 / Modified: 18:04:32" itemprop="dateCreated datePublished" datetime="2026-03-04T17:46:46+08:00">2026-03-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Design-Paradigm/" itemprop="url" rel="index"><span itemprop="name">Design Paradigm</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="MVC"><a href="#MVC" class="headerlink" title="MVC"></a>MVC</h1><ul>
+<li>Model：纯数据容器（如：PlayerState），不包含 UI 或游戏逻辑。</li>
+<li>View：负责渲染数据（如：UI 文本、生命值条），通常直接监听（观察） Model 的变化。</li>
+<li>Controller：处理用户输入（如：点击按钮）并修改 Model。</li>
+</ul>
+<p>特点：View 和 Model 之间仍有直接关联（View 需要知道 Model 的存在以进行监听），这使得 View 难以独立测试。</p>
+<h1 id="MVP"><a href="#MVP" class="headerlink" title="MVP"></a>MVP</h1><ul>
+<li>Model：纯数据，不包含业务逻辑，不依赖其他层。</li>
+<li>View：被动视图，不直接访问 Model。它只负责将用户操作传给 Presenter，并提供更新 UI 的公共接口。</li>
+<li>Presenter：核心中间层。它监听 Model 的变化，格式化数据后手动调用 View 的接口更新 UI；同时监听 View 的事件来修改 Model。</li>
+</ul>
+<p>特点：View 和 Model 完全解耦。由于 View 非常“薄”，你可以轻松编写 Presenter 的单元测试。</p>
+<h1 id="MVC-和-MVP-的区别"><a href="#MVC-和-MVP-的区别" class="headerlink" title="MVC 和 MVP 的区别"></a>MVC 和 MVP 的区别</h1><p>MVC（模型-视图-控制器）和MVP（模型-视图-表示器）的核心区别在于View与Model的解耦程度和通信方式。<br>MVC中View可直接访问Model，耦合度较高；而MVP通过接口将View与Model完全隔绝，所有交互由Presenter中转，使代码更易于测试和维护。</p>
+<h2 id="View-与-Model-的关系"><a href="#View-与-Model-的关系" class="headerlink" title="View 与 Model 的关系"></a>View 与 Model 的关系</h2><ul>
+<li>MVC： View 可以直接读取 Model 数据（View 依赖 Model），View 中可能包含部分业务逻辑。</li>
+<li>MVP： View 与 Model 彻底解耦。View 只能通过接口与 Presenter 通信，无法感知 Model。</li>
+</ul>
+<h2 id="交互逻辑"><a href="#交互逻辑" class="headerlink" title="交互逻辑"></a>交互逻辑</h2><ul>
+<li>MVC： Controller 接收用户请求，更新 Model，View 监听 Model 变化更新界面（有时 C 直接更新 V）。</li>
+<li>MVP： Presenter 作为中介，不仅处理 UI 事件，还负责从 Model 获取数据并通过接口更新 View。View 是被动接收渲染。</li>
+</ul>
+<h2 id="测试性"><a href="#测试性" class="headerlink" title="测试性"></a>测试性</h2><ul>
+<li>MVC： 较难进行单元测试，因为 UI 逻辑与数据逻辑存在耦合。</li>
+<li>MVP： 极易测试，Presenter 逻辑与具体 UI 实现分离，可通过 Mock 接口进行纯逻辑测试。</li>
+</ul>
+<h1 id="MVVM"><a href="#MVVM" class="headerlink" title="MVVM"></a>MVVM</h1><p>MVVM 是从 WPF 等前端技术引入的，核心在于 数据绑定 (Data Binding)。 </p>
+<ul>
+<li>Model（模型）：纯数据，不包含业务逻辑，不依赖其他层。</li>
+<li>View（视图）：UI 组件，通过数据绑定 (Data Binding)直接映射 ViewModel 的属性。</li>
+<li>ViewModel（视图模型）：它是 View 的抽象。它将 Model 的数据转换为 View 可以直接使用的格式（如将 float 转换为 string），并通过属性变更通知（如 OnPropertyChanged）自动驱动 View 更新。</li>
+</ul>
+<p>特点：双向&#x2F;单向数据绑定，View 不知道 ViewModel 的存在<br>优点：自动化程度最高。Model 改变时，View 会通过绑定自动更新，无需像 MVP 那样手动写代码控制。只需“订阅”数据变化，实现了极高的解耦。</p>
+<h1 id="Unity-中的-UI-Model-设计架构"><a href="#Unity-中的-UI-Model-设计架构" class="headerlink" title="Unity 中的 UI-Model 设计架构"></a>Unity 中的 UI-Model 设计架构</h1><h2 id="UGUI：以-MVP-为核心的实现"><a href="#UGUI：以-MVP-为核心的实现" class="headerlink" title="UGUI：以 MVP 为核心的实现"></a>UGUI：以 MVP 为核心的实现</h2><p>UGUI 本身不提供自动化的数据绑定，因此最契合的模式是 MVP (Model-View-Presenter)。通过 Presenter 手动协调数据与界面的同步。</p>
+<ul>
+<li>Model: 纯 C# 类或 ScriptableObject。定义 Action 或 UnityEvent，在数据变化时发出通知。</li>
+<li>View: 继承 MonoBehaviour 的 UI 脚本。包含对 Text、Slider 等组件的引用，并提供简单的公共方法（如 UpdateHealthBar(int value)）供外部调用。</li>
+<li>Presenter: 用于连接&#x2F;同步 Model 和 View 的中间层。<ul>
+<li>监听 Model: 订阅 Model 的事件，当数据改变时，调用 View 的更新方法。</li>
+<li>监听 UI: 接收来自 View 的 UI 事件（如 Button.onClick），处理逻辑后修改 Model。</li>
+</ul>
+</li>
+</ul>
+<h2 id="UI-Toolkit：以-MVVM-为核心的实现"><a href="#UI-Toolkit：以-MVVM-为核心的实现" class="headerlink" title="UI Toolkit：以 MVVM 为核心的实现"></a>UI Toolkit：以 MVVM 为核心的实现</h2><p>UI Toolkit（尤其是 Unity 6 以后）原生支持 数据绑定 (Data Binding)，这使得实现 MVVM 变得非常自然且高效。</p>
+<ul>
+<li>Model: 基础数据结构，C#原生类型变量。</li>
+<li>View: 使用 UXML（结构）和 USS（样式）文件定义。在 UI Builder 中，你可以直接通过 Attributes 检查器 将 UI 元素的属性（如 Label 的 Text）绑定到数据源路径。</li>
+<li>ViewModel: 负责“翻译”数据。<ul>
+<li>实现通知: 属性通常需要实现 INotifyPropertyChanged 接口或使用特定属性标签（如 [ObservableProperty]），以便在值变化时自动触发 UI 更新。</li>
+<li>命令绑定: 使用 ICommand 或 RelayCommand 绑定按钮点击等行为，无需在脚本中手动查找 VisualElement。</li>
+</ul>
+</li>
+<li>代码解耦: View 和 ViewModel 之间不需要显式的引用关系，完全通过绑定路径 (Binding Path) 链接。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/03/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -190,10 +316,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-03-03 13:48:16 / Modified: 13:54:38" itemprop="dateCreated datePublished" datetime="2026-03-03T13:48:16+08:00">2026-03-03</time>
+              <time title="Created: 2026-03-03 13:48:16" itemprop="dateCreated datePublished" datetime="2026-03-03T13:48:16+08:00">2026-03-03</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-03-04 17:46:09" itemprop="dateModified" datetime="2026-03-04T17:46:09+08:00">2026-03-04</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -233,6 +365,17 @@
 <li>从根节点到叶子节点的所有路径上不能有 2 个连续的红色节点</li>
 <li>从任一节点到叶子节点的所有路径都包含相同数目的黑色节点</li>
 </ol>
+<hr>
+<h1 id="并查集"><a href="#并查集" class="headerlink" title="并查集"></a>并查集</h1><p>并查集是一种用于管理元素所属集合的数据结构，实现为一个森林，其中每棵树表示一个集合，树中的节点表示对应集合中的元素</p>
+<p>并查集支持以下两种操作：</p>
+<ul>
+<li>合并（Unite）：合并两个元素所属集合（合并对应的树）。</li>
+<li>查询（Find）：查询某个元素所属集合（查询对应的树的根节点），这可以用于判断两个元素是否属于同一集合。</li>
+</ul>
+<h2 id="路经压缩"><a href="#路经压缩" class="headerlink" title="路经压缩"></a>路经压缩</h2><p>如果查询过程中经过的每个元素都属于该集合，我们可以将其直接连到根节点以加快后续查询。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// assignment expression </span></span><br><span class="line"><span class="comment">// size_t a; size_t b = (a = 10);</span></span><br><span class="line"><span class="function"><span class="type">size_t</span> <span class="title">dsu::find</span><span class="params">(<span class="type">size_t</span> x)</span> </span>&#123; <span class="keyword">return</span> pa[x] == x ? x : pa[x] = <span class="built_in">find</span>(pa[x]); &#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
 
       
     </div>
@@ -380,7 +523,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-02-12 14:39:40" itemprop="dateModified" datetime="2026-02-12T14:39:40+08:00">2026-02-12</time>
+                <time title="Modified: 2026-03-04 17:48:33" itemprop="dateModified" datetime="2026-03-04T17:48:33+08:00">2026-03-04</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1064,108 +1207,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/28/C-%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/08/28/C-%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5/" class="post-title-link" itemprop="url">C# 依赖注入</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2025-08-28 16:30:54 / Modified: 17:33:12" itemprop="dateCreated datePublished" datetime="2025-08-28T16:30:54+08:00">2025-08-28</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="No-Dependency-Injection"><a href="#No-Dependency-Injection" class="headerlink" title="No Dependency Injection"></a>No Dependency Injection</h1><p>不使用依赖注入，必须在依赖方(Dependent Class)中主动创建或者获取被依赖方(Denpendency Class)</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ClassA</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> ClassB _classB;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ClassA</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _classB = <span class="keyword">new</span> ClassB(); <span class="comment">//主动创建对象B</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Process</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;Class A start process&quot;</span>);</span><br><span class="line">        _classB.DoSomething();</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;Class A finish process&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ClassB</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">DoSomething</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// ClassB performs some logic</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="Denpendency-Injection-and-IoC"><a href="#Denpendency-Injection-and-IoC" class="headerlink" title="Denpendency Injection and IoC"></a>Denpendency Injection and IoC</h1><p>使用依赖注入，不需要在依赖方的代码里主动创建或者获取被依赖方，反而，只需要在构造器参数里声明需要对象B的引用。</p>
-<figure class="highlight cs"><figcaption><span>ClassA.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ClassA</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> IInterfaceB _b;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ClassA</span>(<span class="params">IInterfaceB b</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _b = b;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Process</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;Class A start process&quot;</span>);</span><br><span class="line">        _b.DoSomething();</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;Class A finish process&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在使用依赖注入时，更多时候，对于依赖更提倡使用接口，这样解耦了接口和实现：ClassA不需要知道ClassB的内部，只需要知道IClassB有个叫DoSomething的方法可以调用<br>并且，业务代码中不需要主动实例化对象，即无需这样主动调用构造函数 new ClassA(new ClassB())</p>
-<figure class="highlight cs"><figcaption><span>ClassB.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ClassB</span> : <span class="title">IClassB</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">DoSomething</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;class B is doing something ...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cs"><figcaption><span>IClassB.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IClassB</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">DoSomething</span>()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cs"><figcaption><span>Program.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">internal</span> <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] <span class="keyword">args</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        IHost host = Host.CreateDefaultBuilder(<span class="keyword">args</span>)</span><br><span class="line">                        .ConfigureServices((context, services) =&gt;</span><br><span class="line">                        &#123;</span><br><span class="line">                            services.AddSingleton&lt;ClassA&gt;();</span><br><span class="line">                            services.AddSingleton&lt;IInterfaceB, ClassB&gt;();</span><br><span class="line">                        &#125;).Build();</span><br><span class="line"></span><br><span class="line">        ClassA a = host.Services.GetRequiredService&lt;ClassA&gt;();</span><br><span class="line">        a.Process();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>原本是在ClassA内部决定使用怎样的ClassB实例，使用了依赖注入设计后，这种控制关系（决定关系）变为由外部控制了，这就是所谓的“控制反转”(Inversion of Control)</p>
-<ul>
-<li>Host 以及它内部的 Services可以理解为 C# 提供的依赖注入系统</li>
-<li>通过 GetRequiredService 可以获得对应的实例并执行业务逻辑（此处为ClassA实例）</li>
-</ul>
-<h1 id="使用依赖注入系统实例化对象"><a href="#使用依赖注入系统实例化对象" class="headerlink" title="使用依赖注入系统实例化对象"></a>使用依赖注入系统实例化对象</h1><p>如果我们想要达到不需要手动实例化ClassA的效果，可以新建一个类并实现IHostedService接口</p>
-<figure class="highlight cs"><figcaption><span>DoSomethingHostedService.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">DoSomethingHostedService</span> : <span class="title">IHostedService</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> ClassA _a;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DoSomethingHostedService</span>(<span class="params">ClassA a</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _a = a;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Task <span class="title">StartAsync</span>(<span class="params">CancellationToken cancellationToken</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _a.Process();</span><br><span class="line">        <span class="keyword">return</span> Task.CompletedTask;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Task <span class="title">StopAsync</span>(<span class="params">CancellationToken cancellationToken</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> Task.CompletedTask;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cs"><figcaption><span>修改 Program.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">internal</span> <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">async</span> Task <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] <span class="keyword">args</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        IHost host = Host.CreateDefaultBuilder(<span class="keyword">args</span>)</span><br><span class="line">                        .ConfigureServices((context, services) =&gt;</span><br><span class="line">                        &#123;</span><br><span class="line">                            services.AddSingleton&lt;ClassA&gt;();</span><br><span class="line">                            services.AddSingleton&lt;IInterfaceB, ClassB&gt;();</span><br><span class="line"></span><br><span class="line">                            services.AddHostedService&lt;DoSomethingHostedService&gt;();</span><br><span class="line">                        &#125;).Build();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">await</span> host.RunAsync();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>IHostedService 是一个特殊的接口，实现这个接口的类通过在Host中的services里注册后，可以在Host运行时自动实例化并执行</li>
-<li>services.AddHostedService&lt;&gt;() 用于注册要自动执行的类</li>
-<li>await host.RunAsync() 运行Host实例</li>
-</ul>
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits:"></a>Credits:</h1><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/592698341">https://zhuanlan.zhihu.com/p/592698341</a></p>
-<hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1243,7 +1284,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-count">27</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1256,7 +1297,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

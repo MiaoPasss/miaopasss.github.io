@@ -161,6 +161,113 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/13/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97-Socket/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/13/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97-Socket/" class="post-title-link" itemprop="url">网络编程与套接字(Socket)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-13 09:35:34" itemprop="dateCreated datePublished" datetime="2025-02-13T09:35:34+08:00">2025-02-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-03-07 16:14:19" itemprop="dateModified" datetime="2025-03-07T16:14:19+08:00">2025-03-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Networks/" itemprop="url" rel="index"><span itemprop="name">Networks</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Socket-vs-Port"><a href="#Socket-vs-Port" class="headerlink" title="Socket vs Port"></a>Socket vs Port</h1><ul>
+<li>A TCP socket is an endpoint instance defined by an IP address and a port in the context of either a particular TCP connection or the listening state.</li>
+<li>A port is a virtualisation identifier defining a service endpoint (as distinct from a service instance endpoint aka session identifier).</li>
+<li>A TCP socket is not a connection, it is the endpoint of a specific connection.</li>
+<li>There can be concurrent connections to a service endpoint, because a connection is identified by both its local and remote endpoints, allowing traffic to be routed to a specific service instance.</li>
+<li>There can only be one listener socket for a given address&#x2F;port combination.</li>
+</ul>
+<p>Specifically, a TCP socket consists of five things:</p>
+<ol>
+<li>transport layer protocol,</li>
+<li>local address,</li>
+<li>local port, </li>
+<li>remote address, </li>
+<li>remote port</li>
+</ol>
+<p>A port is a number between 1 and 65535 inclusive that signifies a logical gate in a device. Every connection between a client and server requires a unique socket.</p>
+<p>For example:</p>
+<ul>
+<li><em>33123</em> is a port.</li>
+<li><em>(localhost, 33123, 69.59.196.211, 80, TCP)</em> is a socket.</li>
+</ul>
+<blockquote>
+<p>Firefox (localhost:33123) &lt;———–&gt; stackoverflow.com (69.59.196.211:80)<br>Chrome  (localhost:33124) &lt;———–&gt; stackoverflow.com (69.59.196.211:80)</p>
+</blockquote>
+<p>When a client device accesses a website (such as Chrome sending HTTP requests), it automatically connects to port 80 on the web server to retrieve the requested content. When the web server receives the answer, it sends a response that has 80 as source port and 33123 as destination port.</p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>网络编程与套接字：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/Sunbreaker/p/11318288.html">https://www.cnblogs.com/Sunbreaker/p/11318288.html</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/12/%E6%95%B0%E6%8D%AE%E7%9A%84%E5%B0%81%E8%A3%85%E4%B8%8E%E5%8F%91%E9%80%81/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -901,7 +1008,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-count">27</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -914,7 +1021,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

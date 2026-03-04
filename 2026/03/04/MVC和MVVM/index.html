@@ -20,20 +20,20 @@
     var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="一、单一职责原则（Single Responsibility Principle，SRP）定义：一个类应该只有一个引起变化的原因，或者说一个类应该只有一个责任。 关键思想：  一个类应该专注于一种类型的任务，只有一个责任； 一个类应该只有一个原因引起它变化。    二、里氏替换原则（Liskov Substitution Principle，LSP）定义：任何基类可以出现的地方，其子类一定可以出现">
+  <meta name="description" content="MVC Model：纯数据容器（如：PlayerState），不包含 UI 或游戏逻辑。 View：负责渲染数据（如：UI 文本、生命值条），通常直接监听（观察） Model 的变化。 Controller：处理用户输入（如：点击按钮）并修改 Model。  特点：View 和 Model 之间仍有直接关联（View 需要知道 Model 的存在以进行监听），这使得 View 难以独立测试。 MV">
 <meta property="og:type" content="article">
-<meta property="og:title" content="设计模式六大原则">
-<meta property="og:url" content="https://miaopasss.github.io/2025/02/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/index.html">
+<meta property="og:title" content="MVC和MVVM">
+<meta property="og:url" content="https://miaopasss.github.io/2026/03/04/MVC%E5%92%8CMVVM/index.html">
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:description" content="一、单一职责原则（Single Responsibility Principle，SRP）定义：一个类应该只有一个引起变化的原因，或者说一个类应该只有一个责任。 关键思想：  一个类应该专注于一种类型的任务，只有一个责任； 一个类应该只有一个原因引起它变化。    二、里氏替换原则（Liskov Substitution Principle，LSP）定义：任何基类可以出现的地方，其子类一定可以出现">
+<meta property="og:description" content="MVC Model：纯数据容器（如：PlayerState），不包含 UI 或游戏逻辑。 View：负责渲染数据（如：UI 文本、生命值条），通常直接监听（观察） Model 的变化。 Controller：处理用户输入（如：点击按钮）并修改 Model。  特点：View 和 Model 之间仍有直接关联（View 需要知道 Model 的存在以进行监听），这使得 View 难以独立测试。 MV">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2025-02-10T05:34:28.000Z">
-<meta property="article:modified_time" content="2026-03-03T03:44:52.491Z">
+<meta property="article:published_time" content="2026-03-04T09:46:46.000Z">
+<meta property="article:modified_time" content="2026-03-04T10:04:32.512Z">
 <meta property="article:author" content="Haotian Luo">
-<meta property="article:tag" content="OOP">
+<meta property="article:tag" content="Observer Pattern">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://miaopasss.github.io/2025/02/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/">
+<link rel="canonical" href="https://miaopasss.github.io/2026/03/04/MVC%E5%92%8CMVVM/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>设计模式六大原则 | 乌啦呀哈呀哈乌啦！</title>
+  <title>MVC和MVVM | 乌啦呀哈呀哈乌啦！</title>
   
 
 
@@ -165,7 +165,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/04/MVC%E5%92%8CMVVM/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/exciting-usagi.gif">
@@ -184,7 +184,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          设计模式六大原则
+          MVC和MVVM
         </h1>
 
         <div class="post-meta">
@@ -193,16 +193,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2025-02-10 13:34:28" itemprop="dateCreated datePublished" datetime="2025-02-10T13:34:28+08:00">2025-02-10</time>
+              <time title="Created: 2026-03-04 17:46:46 / Modified: 18:04:32" itemprop="dateCreated datePublished" datetime="2026-03-04T17:46:46+08:00">2026-03-04</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-03-03 11:44:52" itemprop="dateModified" datetime="2026-03-03T11:44:52+08:00">2026-03-03</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -231,62 +225,59 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="一、单一职责原则（Single-Responsibility-Principle，SRP）"><a href="#一、单一职责原则（Single-Responsibility-Principle，SRP）" class="headerlink" title="一、单一职责原则（Single Responsibility Principle，SRP）"></a>一、单一职责原则（Single Responsibility Principle，SRP）</h1><p>定义：<br>一个类应该只有一个引起变化的原因，或者说一个类应该只有一个责任。</p>
-<p>关键思想：</p>
-<ol>
-<li>一个类应该专注于一种类型的任务，只有一个责任；</li>
-<li>一个类应该只有一个原因引起它变化。</li>
-</ol>
-<br>
-
-<h1 id="二、里氏替换原则（Liskov-Substitution-Principle，LSP）"><a href="#二、里氏替换原则（Liskov-Substitution-Principle，LSP）" class="headerlink" title="二、里氏替换原则（Liskov Substitution Principle，LSP）"></a>二、里氏替换原则（Liskov Substitution Principle，LSP）</h1><p>定义：<br>任何基类可以出现的地方，其子类一定可以出现，而程序仍然能够保持正确性。换句话说，子类应该能够替代其基类而不引起程序错误。</p>
-<p>关键思想：</p>
-<ol>
-<li>子类型必须能够替代基类型，而程序的行为不会发生变化。</li>
-<li>子类型应该继承基类型的行为，并且能够按照期望使用。</li>
-</ol>
-<br>
-
-<h1 id="三、迪米特原则（Law-of-Demeter，LoD）"><a href="#三、迪米特原则（Law-of-Demeter，LoD）" class="headerlink" title="三、迪米特原则（Law of Demeter，LoD）"></a>三、迪米特原则（Law of Demeter，LoD）</h1><p>迪米特原则也被称为最少知识原则（Principle of Least Knowledge，PLK）或者直接调用原则（Least Knowledge for Law of Demeter，LKP），是面向对象设计中的一个原则，其核心思想是降低类之间的耦合度，减少对象之间的相互依赖。</p>
-<p>定义：<br>一个对象应该对其他对象保持最少的了解。具体来说，一个类不应该直接调用其他类的内部方法，而是通过它自己的方法或者通过传递给它的对象来完成某项操作</p>
-<p>关键点：</p>
-<ol>
-<li>一个对象应该对其他对象有最少的了解。</li>
-<li>类与类之间应该尽量减少耦合。</li>
-<li>不要直接访问其他对象的内部成员，而应该通过该对象提供的公共方法来进行间接访问。</li>
-</ol>
-<br>
-
-<h1 id="四、依赖倒置原则（Dependency-Inversion-Principle，DIP）"><a href="#四、依赖倒置原则（Dependency-Inversion-Principle，DIP）" class="headerlink" title="四、依赖倒置原则（Dependency Inversion Principle，DIP）"></a>四、依赖倒置原则（Dependency Inversion Principle，DIP）</h1><p>定义：<br>高层模块不应该依赖于低层模块，两者都应该依赖于抽象。</p>
-<p>抽象不应该依赖于细节，细节应该依赖于抽象。</p>
-<p>这意味着在设计系统时，应该避免高层次模块（比如模块的业务逻辑）依赖于低层次模块（比如数据库操作或具体实现类），而应该依赖于抽象，即接口或抽象类。这样可以使系统更加灵活，易于扩展和维护。</p>
-<p>关键点：</p>
-<ol>
-<li>高层次的模块（例如业务逻辑）不应该依赖于低层次的模块（例如具体实现），两者都应该依赖于抽象（接口或抽象类）。</li>
-<li>抽象不应该依赖于具体的实现，具体的实现应该依赖于抽象。</li>
-</ol>
-<br>
-
-<h1 id="五、接口隔离原则（Interface-Segregation-Principle，ISP）"><a href="#五、接口隔离原则（Interface-Segregation-Principle，ISP）" class="headerlink" title="五、接口隔离原则（Interface Segregation Principle，ISP）"></a>五、接口隔离原则（Interface Segregation Principle，ISP）</h1><p>定义：<br>接口隔离原则是面向对象设计中的一条原则，它强调一个类不应该强制依赖它不使用的接口。具体来说，一个类对其他类的依赖关系应该建立在最小的接口集上。</p>
-<p>关键点：</p>
-<ol>
-<li>一个类不应该被迫依赖它不使用的接口。</li>
-<li>客户端不应该被迫依赖它不使用的方法。</li>
-</ol>
-<p>这两点意味着接口设计应该精简，只包含客户端需要的方法，避免将不相关的方法强行放在同一个接口中。</p>
-<br>
-
-<h1 id="六、开闭原则（Open-Closed-Principle，OCP）"><a href="#六、开闭原则（Open-Closed-Principle，OCP）" class="headerlink" title="六、开闭原则（Open&#x2F;Closed Principle，OCP）"></a>六、开闭原则（Open&#x2F;Closed Principle，OCP）</h1><p>定义：<br>开闭原则是面向对象设计中的一个基本原则，它由勃兰特·梅耶（Bertrand Meyer）提出，并由罗伯特·C·马丁（Robert C. Martin）进一步发扬光大。该原则的定义是：</p>
-<p>软件实体（类、模块、函数等）应该对扩展开放，对修改关闭。</p>
-<p>这意味着一个软件实体可以通过扩展来应对新的行为需求，而不需要修改已有的代码。这可以通过抽象和接口实现，以确保对于新增功能的引入，不需要修改现有的代码，而是通过扩展来实现。</p>
-<p>关键点：</p>
-<ol>
-<li>对扩展开放： 新的功能应该通过新增代码而不是修改已有代码的方式引入。</li>
-<li>对修改关闭： 已有的代码在引入新的功能时不应该被修改，以确保稳定性。</li>
-</ol>
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>六大设计原则举例说明：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45165610/article/details/136027921">https://blog.csdn.net/qq_45165610/article/details/136027921</a></p>
-<hr>
+        <h1 id="MVC"><a href="#MVC" class="headerlink" title="MVC"></a>MVC</h1><ul>
+<li>Model：纯数据容器（如：PlayerState），不包含 UI 或游戏逻辑。</li>
+<li>View：负责渲染数据（如：UI 文本、生命值条），通常直接监听（观察） Model 的变化。</li>
+<li>Controller：处理用户输入（如：点击按钮）并修改 Model。</li>
+</ul>
+<p>特点：View 和 Model 之间仍有直接关联（View 需要知道 Model 的存在以进行监听），这使得 View 难以独立测试。</p>
+<h1 id="MVP"><a href="#MVP" class="headerlink" title="MVP"></a>MVP</h1><ul>
+<li>Model：纯数据，不包含业务逻辑，不依赖其他层。</li>
+<li>View：被动视图，不直接访问 Model。它只负责将用户操作传给 Presenter，并提供更新 UI 的公共接口。</li>
+<li>Presenter：核心中间层。它监听 Model 的变化，格式化数据后手动调用 View 的接口更新 UI；同时监听 View 的事件来修改 Model。</li>
+</ul>
+<p>特点：View 和 Model 完全解耦。由于 View 非常“薄”，你可以轻松编写 Presenter 的单元测试。</p>
+<h1 id="MVC-和-MVP-的区别"><a href="#MVC-和-MVP-的区别" class="headerlink" title="MVC 和 MVP 的区别"></a>MVC 和 MVP 的区别</h1><p>MVC（模型-视图-控制器）和MVP（模型-视图-表示器）的核心区别在于View与Model的解耦程度和通信方式。<br>MVC中View可直接访问Model，耦合度较高；而MVP通过接口将View与Model完全隔绝，所有交互由Presenter中转，使代码更易于测试和维护。</p>
+<h2 id="View-与-Model-的关系"><a href="#View-与-Model-的关系" class="headerlink" title="View 与 Model 的关系"></a>View 与 Model 的关系</h2><ul>
+<li>MVC： View 可以直接读取 Model 数据（View 依赖 Model），View 中可能包含部分业务逻辑。</li>
+<li>MVP： View 与 Model 彻底解耦。View 只能通过接口与 Presenter 通信，无法感知 Model。</li>
+</ul>
+<h2 id="交互逻辑"><a href="#交互逻辑" class="headerlink" title="交互逻辑"></a>交互逻辑</h2><ul>
+<li>MVC： Controller 接收用户请求，更新 Model，View 监听 Model 变化更新界面（有时 C 直接更新 V）。</li>
+<li>MVP： Presenter 作为中介，不仅处理 UI 事件，还负责从 Model 获取数据并通过接口更新 View。View 是被动接收渲染。</li>
+</ul>
+<h2 id="测试性"><a href="#测试性" class="headerlink" title="测试性"></a>测试性</h2><ul>
+<li>MVC： 较难进行单元测试，因为 UI 逻辑与数据逻辑存在耦合。</li>
+<li>MVP： 极易测试，Presenter 逻辑与具体 UI 实现分离，可通过 Mock 接口进行纯逻辑测试。</li>
+</ul>
+<h1 id="MVVM"><a href="#MVVM" class="headerlink" title="MVVM"></a>MVVM</h1><p>MVVM 是从 WPF 等前端技术引入的，核心在于 数据绑定 (Data Binding)。 </p>
+<ul>
+<li>Model（模型）：纯数据，不包含业务逻辑，不依赖其他层。</li>
+<li>View（视图）：UI 组件，通过数据绑定 (Data Binding)直接映射 ViewModel 的属性。</li>
+<li>ViewModel（视图模型）：它是 View 的抽象。它将 Model 的数据转换为 View 可以直接使用的格式（如将 float 转换为 string），并通过属性变更通知（如 OnPropertyChanged）自动驱动 View 更新。</li>
+</ul>
+<p>特点：双向&#x2F;单向数据绑定，View 不知道 ViewModel 的存在<br>优点：自动化程度最高。Model 改变时，View 会通过绑定自动更新，无需像 MVP 那样手动写代码控制。只需“订阅”数据变化，实现了极高的解耦。</p>
+<h1 id="Unity-中的-UI-Model-设计架构"><a href="#Unity-中的-UI-Model-设计架构" class="headerlink" title="Unity 中的 UI-Model 设计架构"></a>Unity 中的 UI-Model 设计架构</h1><h2 id="UGUI：以-MVP-为核心的实现"><a href="#UGUI：以-MVP-为核心的实现" class="headerlink" title="UGUI：以 MVP 为核心的实现"></a>UGUI：以 MVP 为核心的实现</h2><p>UGUI 本身不提供自动化的数据绑定，因此最契合的模式是 MVP (Model-View-Presenter)。通过 Presenter 手动协调数据与界面的同步。</p>
+<ul>
+<li>Model: 纯 C# 类或 ScriptableObject。定义 Action 或 UnityEvent，在数据变化时发出通知。</li>
+<li>View: 继承 MonoBehaviour 的 UI 脚本。包含对 Text、Slider 等组件的引用，并提供简单的公共方法（如 UpdateHealthBar(int value)）供外部调用。</li>
+<li>Presenter: 用于连接&#x2F;同步 Model 和 View 的中间层。<ul>
+<li>监听 Model: 订阅 Model 的事件，当数据改变时，调用 View 的更新方法。</li>
+<li>监听 UI: 接收来自 View 的 UI 事件（如 Button.onClick），处理逻辑后修改 Model。</li>
+</ul>
+</li>
+</ul>
+<h2 id="UI-Toolkit：以-MVVM-为核心的实现"><a href="#UI-Toolkit：以-MVVM-为核心的实现" class="headerlink" title="UI Toolkit：以 MVVM 为核心的实现"></a>UI Toolkit：以 MVVM 为核心的实现</h2><p>UI Toolkit（尤其是 Unity 6 以后）原生支持 数据绑定 (Data Binding)，这使得实现 MVVM 变得非常自然且高效。</p>
+<ul>
+<li>Model: 基础数据结构，C#原生类型变量。</li>
+<li>View: 使用 UXML（结构）和 USS（样式）文件定义。在 UI Builder 中，你可以直接通过 Attributes 检查器 将 UI 元素的属性（如 Label 的 Text）绑定到数据源路径。</li>
+<li>ViewModel: 负责“翻译”数据。<ul>
+<li>实现通知: 属性通常需要实现 INotifyPropertyChanged 接口或使用特定属性标签（如 [ObservableProperty]），以便在值变化时自动触发 UI 更新。</li>
+<li>命令绑定: 使用 ICommand 或 RelayCommand 绑定按钮点击等行为，无需在脚本中手动查找 VisualElement。</li>
+</ul>
+</li>
+<li>代码解耦: View 和 ViewModel 之间不需要显式的引用关系，完全通过绑定路径 (Binding Path) 链接。</li>
+</ul>
 
     </div>
 
@@ -296,7 +287,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/OOP/" rel="tag"># OOP</a>
+              <a href="/tags/Observer-Pattern/" rel="tag"># Observer Pattern</a>
           </div>
 
         
@@ -304,11 +295,11 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2025/02/10/%E5%85%B6%E6%AC%A1%E5%9D%90%E6%A0%87/" rel="next" title="其次坐标">
-      其次坐标 <i class="fa fa-chevron-right"></i>
+    <a href="/2026/03/03/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="prev" title="数据结构">
+      <i class="fa fa-chevron-left"></i> 数据结构
     </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -367,7 +358,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%8D%95%E4%B8%80%E8%81%8C%E8%B4%A3%E5%8E%9F%E5%88%99%EF%BC%88Single-Responsibility-Principle%EF%BC%8CSRP%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">一、单一职责原则（Single Responsibility Principle，SRP）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%87%8C%E6%B0%8F%E6%9B%BF%E6%8D%A2%E5%8E%9F%E5%88%99%EF%BC%88Liskov-Substitution-Principle%EF%BC%8CLSP%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">二、里氏替换原则（Liskov Substitution Principle，LSP）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E8%BF%AA%E7%B1%B3%E7%89%B9%E5%8E%9F%E5%88%99%EF%BC%88Law-of-Demeter%EF%BC%8CLoD%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">三、迪米特原则（Law of Demeter，LoD）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E4%BE%9D%E8%B5%96%E5%80%92%E7%BD%AE%E5%8E%9F%E5%88%99%EF%BC%88Dependency-Inversion-Principle%EF%BC%8CDIP%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">四、依赖倒置原则（Dependency Inversion Principle，DIP）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%8E%A5%E5%8F%A3%E9%9A%94%E7%A6%BB%E5%8E%9F%E5%88%99%EF%BC%88Interface-Segregation-Principle%EF%BC%8CISP%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">五、接口隔离原则（Interface Segregation Principle，ISP）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E5%BC%80%E9%97%AD%E5%8E%9F%E5%88%99%EF%BC%88Open-Closed-Principle%EF%BC%8COCP%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">六、开闭原则（Open&#x2F;Closed Principle，OCP）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number">7.</span> <span class="nav-text">Credits</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MVC"><span class="nav-number">1.</span> <span class="nav-text">MVC</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MVP"><span class="nav-number">2.</span> <span class="nav-text">MVP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MVC-%E5%92%8C-MVP-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">3.</span> <span class="nav-text">MVC 和 MVP 的区别</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#View-%E4%B8%8E-Model-%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">3.1.</span> <span class="nav-text">View 与 Model 的关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%A4%E4%BA%92%E9%80%BB%E8%BE%91"><span class="nav-number">3.2.</span> <span class="nav-text">交互逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E6%80%A7"><span class="nav-number">3.3.</span> <span class="nav-text">测试性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MVVM"><span class="nav-number">4.</span> <span class="nav-text">MVVM</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Unity-%E4%B8%AD%E7%9A%84-UI-Model-%E8%AE%BE%E8%AE%A1%E6%9E%B6%E6%9E%84"><span class="nav-number">5.</span> <span class="nav-text">Unity 中的 UI-Model 设计架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#UGUI%EF%BC%9A%E4%BB%A5-MVP-%E4%B8%BA%E6%A0%B8%E5%BF%83%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">5.1.</span> <span class="nav-text">UGUI：以 MVP 为核心的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UI-Toolkit%EF%BC%9A%E4%BB%A5-MVVM-%E4%B8%BA%E6%A0%B8%E5%BF%83%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">5.2.</span> <span class="nav-text">UI Toolkit：以 MVVM 为核心的实现</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -522,7 +513,7 @@
       quicklink({
         timeout : 3000,
         priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2025/02/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99/',]
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2026/03/04/MVC%E5%92%8CMVVM/',]
       });
       });
   </script>
