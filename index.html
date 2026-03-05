@@ -161,6 +161,165 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/05/%E8%BF%9B%E7%A8%8B%E3%80%81%E7%BA%BF%E7%A8%8B%E5%92%8C%E5%8D%8F%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/03/05/%E8%BF%9B%E7%A8%8B%E3%80%81%E7%BA%BF%E7%A8%8B%E5%92%8C%E5%8D%8F%E7%A8%8B/" class="post-title-link" itemprop="url">进程、线程和协程</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-03-05 17:03:25 / Modified: 17:24:31" itemprop="dateCreated datePublished" datetime="2026-03-05T17:03:25+08:00">2026-03-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>进程：一个程序一个进程。<br>进程是计算机中正在运行的程序实例的抽象，它是资源分配的基本单位。每个进程都有自己独立的地址空间，包括代码段、数据段、堆栈段等，这意味着不同进程之间的内存资源是相互隔离的，不会相互干扰。例如，当你同时打开一个文本编辑器和一个浏览器，它们就分别是两个独立的进程，文本编辑器进程无法直接访问浏览器进程所占用的内存区域。</p>
+<p>线程：共享堆资源，利用多核处理器可以实现并行处理。<br>线程是进程内部的一条执行路径，是 CPU 调度和执行的基本单位。一个进程可以包含多个线程，这些线程共享进程的地址空间（包括代码段、数据段、堆等）以及系统资源（如打开的文件、网络连接等），但每个线程都有自己独立的栈空间用于保存局部变量、函数调用的上下文等信息。比如在一个文字处理软件进程中，可能有一个线程负责接收用户的键盘输入，另一个线程负责实时进行拼写检查，它们都在同一个进程的环境下协同工作。</p>
+<p>协程：用户态，单线程中实现并发，程序控制执行时机，I&#x2F;O操作不用CPU。<br>协程是一种比线程更加轻量级的存在，它可以看作是用户态的轻量级线程，是在单线程内实现的并发机制。协程不像线程那样由操作系统内核进行调度，而是由程序员自行控制或者由编程语言提供的特定库来进行调度切换。例如在 Python 语言中，通过 asyncio 库就能方便地定义和调度协程。协程在执行过程中可以主动暂停（yield），将执行权交给其他协程，之后又可以在合适的时候恢复执行。</p>
+<hr>
+<h1 id="调度方式"><a href="#调度方式" class="headerlink" title="调度方式"></a>调度方式</h1><ul>
+<li>进程：由操作系统内核进行调度，切换时需要保存和恢复所有的CPU状态和内存空间。</li>
+<li>线程：同样由操作系统进行调度，但由于线程共享进程的内存空间，切换时只需保存和恢复CPU寄存器和栈指针。</li>
+<li>协程：由程序员在用户态显式调度，无需操作系统参与，切换时只需保存和恢复少量上下文信息。</li>
+</ul>
+<h1 id="资源消耗"><a href="#资源消耗" class="headerlink" title="资源消耗"></a>资源消耗</h1><ul>
+<li>进程：创建和销毁进程需要较多的资源，尤其是内存和CPU时间。</li>
+<li>线程：创建和销毁线程比进程轻量，但仍然需要一定的资源。</li>
+<li>协程：由于在用户态执行，创建和销毁协程非常轻量，对系统资源的消耗最小。</li>
+</ul>
+<h1 id="隔离性"><a href="#隔离性" class="headerlink" title="隔离性"></a>隔离性</h1><ul>
+<li>进程：完全隔离，进程之间的内存空间独立，安全性高。</li>
+<li>线程：共享进程的内存空间，不同线程可以直接访问共享数据，隔离性差。</li>
+<li>协程：在同一线程内执行，协程之间共享内存空间。</li>
+</ul>
+<h1 id="通信方式"><a href="#通信方式" class="headerlink" title="通信方式"></a>通信方式</h1><p>进程间通信（IPC）是指不同进程之间交换数据或信号的机制，常见的 IPC 方法包括：</p>
+<ul>
+<li>管道（Pipe）：用于单向或双向数据流，常用于父子进程之间的通信。</li>
+<li>消息队列（Message Queue）：允许进程通过消息传递进行通信，消息按照一定的顺序排队。</li>
+<li>共享内存（Shared Memory）：多个进程共享同一段内存，速度快，但需要同步机制来避免竞争条件。</li>
+<li>信号量（Semaphore）：用于进程间的同步，控制多个进程对共享资源的访问。</li>
+<li>信号（Signal）：用于异步通知进程某个事件的发生。</li>
+<li>套接字（Socket）：通常用于网络通信，也可以用于同一主机上进程之间的通信。</li>
+</ul>
+<p>线程间通信由于共享同一进程的内存空间（堆资源），主要依赖同步机制来管理共享数据的访问：</p>
+<ul>
+<li>共享变量：线程可以直接通过共享变量进行通信，但需要同步机制来避免竞争条件。</li>
+<li>互斥锁（Mutex）：用于保护共享资源，确保同一时刻只有一个线程可以访问。</li>
+<li>条件变量（Condition Variable）：用于线程之间的等待和通知机制，线程可以等待某个条件的变化。</li>
+<li>信号量（Semaphore）：用于控制线程对共享资源的访问，特别适用于限制资源数量的场景。</li>
+<li>事件（Event）：用于线程间的信号传递，线程可以等待事件的发生。</li>
+</ul>
+<p>协程之间的通信通常是通过共享数据结构或消息传递机制来实现的，具体方法包括：</p>
+<ul>
+<li>共享变量：协程在同一线程内，可以直接访问共享变量，但仍需小心数据一致性问题。</li>
+<li>消息传递：许多编程语言提供了内置的消息传递机制，如通道（Channel）或队列（Queue），用于协程之间的通信。</li>
+<li>异步回调：协程常用于异步编程，回调机制可以用于协程之间的通信。</li>
+<li>未来（Future）和承诺（Promise）：用于在协程之间传递异步计算的结果。</li>
+</ul>
+<h1 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h1><ul>
+<li>进程：适用于需要高隔离性和安全性、任务相对独立的场景，如多用户系统、独立的服务模块。进程间通信通常较复杂，需要权衡性能和隔离性。</li>
+<li>线程：适用于需要高并发和共享资源的场景，如Web服务器、数据库系统。需要关注线程安全和同步问题，以避免死锁和竞争条件。</li>
+<li>协程：适用于大规模并发、IO密集型操作，尤其是在异步编程中，如异步网络请求、实时数据处理。协程的轻量级特性使其在处理大量并发操作时非常高效，但协程的调度和错误处理需要仔细设计。</li>
+</ul>
+<h1 id="优缺点对比"><a href="#优缺点对比" class="headerlink" title="优缺点对比"></a>优缺点对比</h1><p>进程是资源分配最小单位，独立稳定但开销大；线程是系统调度最小单位（操作系统分割成的时间片），共享资源但安全复杂；协程是用户级的轻量并发编程，切换效率极高，适合高并发I&#x2F;O，但统一线程下的多个协程不能利用多核并行处理。</p>
+<h2 id="进程的优点"><a href="#进程的优点" class="headerlink" title="进程的优点"></a>进程的优点</h2><ul>
+<li>隔离性和稳定性：每个进程拥有独立的地址空间，这意味着它们之间的内存是隔离的。这种隔离性提高了系统的稳定性，因为一个进程的崩溃不会直接影响其他进程。</li>
+<li>安全性：由于进程之间的资源是隔离的，这为应用程序提供了更高的安全性，防止一个进程无意中修改另一个进程的数据。</li>
+<li>容错性：如果某个进程失败，不会影响其他进程的运行。操作系统可以通过重启进程来恢复服务。</li>
+</ul>
+<h2 id="进程的缺点"><a href="#进程的缺点" class="headerlink" title="进程的缺点"></a>进程的缺点</h2><ul>
+<li>资源消耗大：进程的创建和销毁需要分配和回收大量的资源，包括内存和文件句柄。进程的上下文切换也比线程开销更大，因为需要切换独立的地址空间。</li>
+<li>通信复杂：由于进程之间的内存是隔离的，进程间通信（IPC）需要使用复杂的机制，如管道、消息队列、共享内存等，这增加了编程的复杂性。</li>
+<li>启动速度慢：启动一个新进程比启动一个新线程需要更多的时间，因为需要为进程分配独立的资源。</li>
+</ul>
+<h2 id="线程的优点"><a href="#线程的优点" class="headerlink" title="线程的优点"></a>线程的优点</h2><ul>
+<li>轻量级：线程是比进程更轻量级的执行单位，创建和销毁线程的开销相对较小。线程的上下文切换比进程更快，因为线程共享进程的内存空间。</li>
+<li>共享资源：线程可以共享进程的内存和资源，这使得线程之间的数据交换更加直接和高效。</li>
+<li>并发性：线程可以在多核处理器上实现真正的并行执行（多对多模型），充分利用多核系统的优势，提高程序的执行效率。</li>
+</ul>
+<h2 id="线程的缺点"><a href="#线程的缺点" class="headerlink" title="线程的缺点"></a>线程的缺点</h2><ul>
+<li>安全性和稳定性：由于线程共享进程的地址空间，一个线程的错误（如非法内存访问）可能会影响整个进程的稳定性。</li>
+<li>同步复杂性：线程之间共享数据，需要使用同步机制（如互斥锁、条件变量）来避免竞争条件和死锁，这增加了编程的复杂性。</li>
+<li>调试困难：多线程程序的调试比单线程程序复杂得多，因为线程的调度和切换往往是不确定的，可能导致难以重现的错误。</li>
+</ul>
+<h2 id="协程的优点"><a href="#协程的优点" class="headerlink" title="协程的优点"></a>协程的优点</h2><ul>
+<li>极低的切换开销：协程在用户态执行，切换时只需保存和恢复少量上下文信息，比线程和进程切换都要快得多。</li>
+<li>简单的并发模型：协程通过显式调用进行调度，程序员可以精确控制协程的执行顺序，避免了线程调度带来的不确定性。</li>
+<li>适合IO密集型任务：协程非常适合用于处理大量IO操作，因为它们可以在等待IO操作时主动让出控制权，从而提高系统的整体吞吐量。</li>
+<li>资源消耗小：协程是非常轻量级的，创建和销毁协程的开销极低。</li>
+</ul>
+<h2 id="协程的缺点"><a href="#协程的缺点" class="headerlink" title="协程的缺点"></a>协程的缺点</h2><ul>
+<li>不支持多核并行：大多数协程实现是在单线程上运行的，因此无法利用多核处理器进行并行计算。</li>
+<li>调度责任在程序员：协程的调度由程序员显式控制，这虽然提供了灵活性，但也意味着程序员需要负责协程的正确调度和资源管理。</li>
+<li>错误传播：在协程中，错误的传播和处理需要仔细设计，否则可能导致系统的不稳定。</li>
+</ul>
+<hr>
+<h1 id="超线程"><a href="#超线程" class="headerlink" title="超线程"></a>超线程</h1><ul>
+<li>超线程技术通过硬件指令将单个物理核心模拟为多个逻辑核心</li>
+<li>硬件层面的功能，需要CPU支持</li>
+<li>操作系统无法直接区分物理核心与逻辑核心的差异，只能通过统计逻辑核心数来管理任务分配</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/04/MVC%E5%92%8CMVVM/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1110,103 +1269,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/" class="post-title-link" itemprop="url">裁剪空间和NDC</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-09-05 11:35:46" itemprop="dateCreated datePublished" datetime="2025-09-05T11:35:46+08:00">2025-09-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-02-04 20:36:17" itemprop="dateModified" datetime="2026-02-04T20:36:17+08:00">2026-02-04</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Vertex Shader的输出在Clip Space，然后GPU自己做透视除法变到了NDC( 取值范围[-1, 1] )。</p>
-<hr>
-<h1 id="裁剪空间"><a href="#裁剪空间" class="headerlink" title="裁剪空间"></a>裁剪空间</h1><p>裁剪空间变换的思路是，对平截头体进行缩放，使近裁剪面和远裁剪面变成正方形，使坐标的w分量表示裁剪范围，此时，只需要简单的比较x,y,z和w分量的大小即可裁剪图元。<br>完全位于这块空间内部的图元将会被保留，完全位于这块空间外部的图元将会被剔除，与这块空间边界相交的图元就会被裁剪。而这块空间就是由视椎体来决定的。</p>
-<p>In clip space, clipping is not done against a unit cube. It is done against a cube with side-length w. Points are inside the visible area if each of their x,y,z coordinate is smaller than their w coordinate.</p>
-<p>In the example you have, the point [6, 0, 6.29, 7] is visible because all three coordinates (x,y,z) are smaller than 7.</p>
-<h2 id="透视投影矩阵"><a href="#透视投影矩阵" class="headerlink" title="透视投影矩阵"></a>透视投影矩阵</h2><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p1.jpg" title="Perspective Projection Matrix"> <br></p>
-<p>此时我们就可以按如下不等式来判断一个变换后的顶点是否位于视椎体内<br><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p3.png" title="Clipping"> <br></p>
-<h2 id="正交投影矩阵"><a href="#正交投影矩阵" class="headerlink" title="正交投影矩阵"></a>正交投影矩阵</h2><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p2.jpg" title="Orthogonal Projection Matrix"> <br></p>
-<p>判断一个变换后的顶点是否位于视椎体内使用的不等式和透视投影中的一样，这种通用性也是为什么要使用投影矩阵的原因之一。</p>
-<hr>
-<h1 id="NDC"><a href="#NDC" class="headerlink" title="NDC"></a>NDC</h1><p>齐次除法将Clip Space顶点的4个分量都除以w分量，就从Clip Space转换到了NDC了。<br>而NDC是一个长宽高取值范围为[-1, 1]的立方体，超过这个范围的顶点，会被GPU剪裁。也就是说，每个顶点的x，y，z坐标都应该在-1.0到1.0之间，超出这个坐标范围的顶点都将不可见。</p>
-<h2 id="透视投影除法"><a href="#透视投影除法" class="headerlink" title="透视投影除法"></a>透视投影除法</h2><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p5.png" title="齐次除法"></p>
-<h2 id="正交投影除法"><a href="#正交投影除法" class="headerlink" title="正交投影除法"></a>正交投影除法</h2><p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p6.png" title="齐次除法"> <br></p>
-<p>细心一点会发现，齐次坐标对于透视投影空的裁剪空间变化更大，而对正交投影的裁剪空间没有影响（正交投影的裁剪空间中顶点的w已经是1了）。</p>
-<h2 id="视口变换-Viewport-Transformation"><a href="#视口变换-Viewport-Transformation" class="headerlink" title="视口变换(Viewport Transformation)"></a>视口变换(Viewport Transformation)</h2><p>At this moment, we’re still in 3D space.How do we get to 2D space?</p>
-<p>We need to transform our vertex from 3D NDC to 2D screen coordinates.</p>
-<p>When initializing the Canvas, we are responsible for configuring its size. This size is used to convert our NDC coordinates to screen coordinates.</p>
-<p><img src="/2025/09/05/%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4%E5%92%8CNDC/p4.png" title="viewport transformation"></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1284,7 +1346,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-count">28</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1297,7 +1359,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-count">25</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
