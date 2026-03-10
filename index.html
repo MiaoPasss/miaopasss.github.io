@@ -161,6 +161,169 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/10/synchronized%E5%92%8Clock-CAS-%E7%9A%84%E5%8C%BA%E5%88%AB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/03/10/synchronized%E5%92%8Clock-CAS-%E7%9A%84%E5%8C%BA%E5%88%AB/" class="post-title-link" itemprop="url">synchronized和lock(CAS)的区别</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-03-10 17:28:17 / Modified: 18:20:12" itemprop="dateCreated datePublished" datetime="2026-03-10T17:28:17+08:00">2026-03-10</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>synchronized：在需要同步的对象中加入此控制，synchronized可以加在方法上，也可以加在特定代码块中，括号中表示需要锁的对象。<br>lock：一般使用ReentrantLock类做为锁。在加锁和解锁处需要通过lock()和unlock()显示指出。所以一般会在finally块中写unlock()以防死锁。</p>
+<ul>
+<li>ReentrantLock支持非阻塞的方式获取锁，能够响应中断，而synchronized不行</li>
+<li>ReentrantLock必须手动获取和释放锁，而synchronized不需要</li>
+<li>ReentrantLock可以是公平锁或者非公平锁，而synchronized只能是非公平锁</li>
+<li>ReentrantLock在发生异常时，如果没有通过unlock去释放锁，很有可能造成死锁，因此需要在finally块中释放锁<ul>
+<li>而synchronized在发生异常的时候，会自动释放线程占有的锁</li>
+</ul>
+</li>
+<li>synchronized和ReentrantLock都是可重入锁（某个线程已经获得某个锁，可以再次获取锁而不会出现死锁，即re-entrant）</li>
+</ul>
+<hr>
+<h1 id="Synchronized"><a href="#Synchronized" class="headerlink" title="Synchronized"></a>Synchronized</h1><p>synchronized能够保证多个线程在同时执行被synchronized包裹的同一代码块时，有且仅有一个线程能执行相应的代码操作，而其他的线程会被阻塞等待。</p>
+<figure class="highlight java"><figcaption><span>synchronized 关键字包裹不同的目标</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SyncTest</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">Integer</span> <span class="variable">p</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// synchronized 修饰整个方法</span></span><br><span class="line">    <span class="comment">// 当多个线程同时调用该方法，只有一个能打印出 “准备获得属性p” 并返回p，之后别的线程再去竞争方法的使用权。</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">synchronized</span> <span class="type">int</span> <span class="title function_">getP</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;准备获得属性p&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> p;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// synchronized 包裹属性p</span></span><br><span class="line">    <span class="comment">// 当多个线程同时调用该方法时，会一起显示 ”准备属性p加一“ ，但同一时间段只有一个线程能够执行该操作。</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">pAndOne</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;准备属性p加一&quot;</span>);</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="built_in">this</span>.p)&#123;</span><br><span class="line">            <span class="built_in">this</span>.p +=<span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// synchronized 包裹对象本身</span></span><br><span class="line">    <span class="comment">// 只要有一个线程执行根据对象本身同步的代码块，那么这部分代码块以及pAndOne的同步代码块，别的线程都是不能执行的。</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">reset</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;重置属性p&quot;</span>);</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="built_in">this</span>)&#123;</span><br><span class="line">            <span class="built_in">this</span>.p = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>JAVA 虚拟机类加载机制和字节码执行引擎会在类和方法上添加访问标志这一块内容，用来标记类是否是静态是否是public，方法是否是public等等。</p>
+<p>对于方法的同步，是通过方法的访问标志 <em>ACC_SYNCHRONIZED</em> 来控制的，即执行指定方法前会通过访问标志来判断是否需要和其他线程同步。<br>而对于针对对象的同步，则是通过字节指令来实现的，即先引入对象引用到当前栈，使用 <em>monitorenter</em> 字节指令告诉虚拟机该引用需要同步， <em>monitorexist</em> 字节指令表示退出。</p>
+<h1 id="lock（CAS）"><a href="#lock（CAS）" class="headerlink" title="lock（CAS）"></a>lock（CAS）</h1><p>synchronized会一直获取执行权限直到执行完毕，即每个线程在执行相关代码块时都要与其他线程同步确认是否可以执行代码，容易影响性能。</p>
+<p>lock可以帮我们实现尝试立刻获取锁，在指定时间内尝试获取锁，一直获取锁等操作，而semaphore信号量可以帮我们实现允许最多指定数量的线程获取锁。</p>
+<h2 id="Unsafe"><a href="#Unsafe" class="headerlink" title="Unsafe"></a>Unsafe</h2><p>unsafe中的方法能够帮我们获取到一个对象的属性位于对象开始位置的相对距离，也就是说对象属性所在的地址与对象起始地址的差值。同时，还能获取一个对象指定相对距离后的数据，例如long，int，byte等等。最重要的是可以给一个特定的地址设置上数据。</p>
+<h2 id="Compare-And-Swap"><a href="#Compare-And-Swap" class="headerlink" title="Compare And Swap"></a>Compare And Swap</h2><p>在unsafe类中，支持这样一个方法，compareAndSwapInt。它的含义是给一个对象var1（开始位置+指定长度var2）的地址写入一个int值var4，如果这个地方原来的值是var5。成功返回true，不成功返回false。</p>
+<p>这个操作是本地方法调用，而具体一点，这个方法会直接调用cpu的compare_and_swap指令，这个指令是原子性的，即操作内存中一个地址上的值不会被中断。而且多核cpu间都是可见的。</p>
+<p>借由这样的一个本地方法调用，jdk实现了一系列轻量级的非阻塞锁以及相关应用，例如ReentrantLock，Semaphore，ConcurrentHashMap，AtomicInteger等等。</p>
+<h2 id="性能问题"><a href="#性能问题" class="headerlink" title="性能问题"></a>性能问题</h2><ul>
+<li>在多线程竞争下，加锁、释放锁会导致比较多的上下文切换和调度延时，引起性能问题。</li>
+<li>一个线程持有锁会导致其它所有需要此锁的线程挂起。</li>
+<li>如果一个优先级高的线程等待一个优先级低的线程释放锁会导致优先级倒置，引起性能风险。</li>
+<li>volatile是不错的机制，但是volatile不能保证原子性。因此对于同步最终还是要回到锁机制上来。<ul>
+<li>Java 的 volatile 关键字是轻量级的同步机制，当一个线程修改了 volatile 修饰的变量，新值会立即刷新到主内存，当其他线程读取该变量时，会强制从主内存重新获取，确保读到最新值。</li>
+<li>volatile 无法保证复合操作的原子性。例如 i++ 实际上包含“读取-修改-写入”三个步骤，使用 volatile 仍可能在多线程环境下产生冲突</li>
+</ul>
+</li>
+</ul>
+<h2 id="实现原理-1"><a href="#实现原理-1" class="headerlink" title="实现原理"></a>实现原理</h2><p>CAS是解决多线程并行情况下使用锁造成性能损耗的一种机制。</p>
+<ul>
+<li>CAS操作包含三个操作数——内存位置（V）、预期原值（A）、新值(B)。</li>
+<li>如果内存位置的值与预期原值相匹配，那么处理器会自动将该位置值更新为新值。否则，处理器不做任何操作。</li>
+<li>无论哪种情况，它都会在CAS指令之前返回该位置的值。</li>
+<li>CAS有效地说明了“我认为位置V应该包含值A；如果包含该值，则将B放到这个位置；否则，不要更改该位置，只告诉我这个位置现在的值即可。</li>
+</ul>
+<p>假设内存中的原数据V，旧的预期值A，需要修改的新值B</p>
+<ul>
+<li>比较 A 与 V 是否相等</li>
+<li>如果比较相等，将 B 写入 V</li>
+<li>返回操作是否成功</li>
+</ul>
+<h2 id="具体算法"><a href="#具体算法" class="headerlink" title="具体算法"></a>具体算法</h2><ul>
+<li>在对变量进行计算之前(如 ++ 操作)，首先读取原变量值，称为 旧的预期值 A</li>
+<li>然后在更新之前再获取当前内存中的值，称为 当前内存值 V<ul>
+<li>如果 A&#x3D;&#x3D;V 则说明变量从未被其他线程修改过，此时将会写入新值 B</li>
+<li>如果 A!&#x3D;V 则说明变量已经被其他线程修改过，当前线程应当什么也不做。</li>
+</ul>
+</li>
+</ul>
+<h2 id="Java-CAS使用示例"><a href="#Java-CAS使用示例" class="headerlink" title="Java CAS使用示例"></a>Java CAS使用示例</h2><figure class="highlight java"><figcaption><span>使用 AtomicInteger 实现无锁计数器</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CasExample</span> &#123;</span><br><span class="line">    <span class="comment">// 1. 初始化原子整型变量</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">AtomicInteger</span> <span class="variable">counter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="type">Runnable</span> <span class="variable">task</span> <span class="operator">=</span> () -&gt; &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++) &#123;</span><br><span class="line">                <span class="comment">// 自旋CAS操作，直到更新成功</span></span><br><span class="line">                <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">                    <span class="type">int</span> <span class="variable">oldValue</span> <span class="operator">=</span> counter.get(); <span class="comment">// 预期值E</span></span><br><span class="line">                    <span class="type">int</span> <span class="variable">newValue</span> <span class="operator">=</span> oldValue + <span class="number">1</span>; <span class="comment">// 新值N</span></span><br><span class="line">                    </span><br><span class="line">                    <span class="comment">// 2. 比较并交换：如果当前值等于oldValue，则赋值为newValue</span></span><br><span class="line">                    <span class="keyword">if</span> (counter.compareAndSet(oldValue, newValue)) &#123;</span><br><span class="line">                        <span class="keyword">break</span>; <span class="comment">// 成功则退出循环</span></span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="comment">// 失败说明被其他线程修改，自动下一次循环获取最新值再试</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="type">Thread</span> <span class="variable">t1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(task);</span><br><span class="line">        <span class="type">Thread</span> <span class="variable">t2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(task);</span><br><span class="line">        t1.start();</span><br><span class="line">        t2.start();</span><br><span class="line">        t1.join();</span><br><span class="line">        t2.join();</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;最终计数器结果: &quot;</span> + counter.get()); <span class="comment">// 预期为 2000</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用-CAS-需要注意的问题"><a href="#使用-CAS-需要注意的问题" class="headerlink" title="使用 CAS 需要注意的问题"></a>使用 CAS 需要注意的问题</h2><ul>
+<li><p>ABA问题<br>因为CAS需要在操作值的时候，检查值有没有发生变化，没有发生变化才去更新。<br>但是如果一个值原来是A变成了B，又变成了A，CAS检查会判断该值未发生变化，实际却变化了。<br>解决思路：增加版本号，每次变量更新时把版本号+1，A-B-A就变成了1A-2B-3A。JDK5之后的atomic包提供了AtomicStampedReference来解决ABA问题，它的compareAndSet方法会首先检查当前引用是否等于预期引用，并且当前标志是否等于预期标志。全部相等，才会以原子方式将该引用、该标志的值设置为更新值。</p>
+</li>
+<li><p>时间长、开销大<br>自旋CAS如果长时间不成功，会给CPU带来非常大的执行开销。</p>
+</li>
+<li><p>只能保证一个共享变量的原子操作<br>对一个共享变量执行操作时，可以循环CAS方式确保原子操作。<br>但是对多个共享变量，就不灵了。<br>这里可以使用锁，或把多个共享变量合并为1个共享变量，如i&#x3D;2,j&#x3D;a,合并为ij&#x3D;2a。然后用CAS操作ij。在JDK5后，提供了AtomicReference类来保证对象间的原子性，可以把多个共享变量放在一个对象里进行CAS操作。</p>
+</li>
+</ul>
+<h1 id="synchronized性能优化"><a href="#synchronized性能优化" class="headerlink" title="synchronized性能优化"></a>synchronized性能优化</h1><p>synchronized是托管给 JVM 执行的， 而lock是java写的控制锁的代码。</p>
+<p>在Java1.5中，synchronize是性能低效的。因为这是一个重量级操作，需要调用操作接口，导致有可能加锁消耗的系统时间比加锁以外的操作还多。相比之下使用Java提供的Lock对象，性能更高一些。</p>
+<p>但从Java1.6开始。synchronize在语义上很清晰，可以进行很多优化，有适应自旋，锁消除，锁粗化，轻量级锁，偏向锁等等。导致在Java1.6上synchronize的性能并不比Lock差。官方也表示，他们也更支持synchronize，在未来的版本中还有优化余地。</p>
+<h1 id="机制区别"><a href="#机制区别" class="headerlink" title="机制区别"></a>机制区别</h1><p>synchronized原始采用的是CPU悲观锁机制，即线程获得的是独占锁。独占锁意味着其他线程只能依靠阻塞来等待线程释放锁。而在CPU转换线程阻塞时会引起线程上下文切换，当有很多线程竞争锁的时候，会引起CPU频繁的上下文切换导致效率很低。</p>
+<p>而Lock用的是乐观锁方式。所谓乐观锁就是，每次不加锁而是假设没有冲突而去完成某项操作，如果因为冲突失败就重试，直到成功为止。乐观锁实现的机制就是CAS操作（Compare and Swap ）。我们可以进一步研究ReentrantLock的源代码，会发现其中比较重要的获得锁的一个方法是compareAndSetState。这里其实就是调用的CPU提供的特殊指令。</p>
+<p>现代的CPU提供了指令，可以自动更新共享数据，而且能够检测到其他线程的干扰，而 compareAndSet() 就用这些代替了锁定。这个算法称作非阻塞算法，意思是一个线程的失败或者挂起不应该影响其他线程的失败或挂起的算法。</p>
+<h2 id="悲观锁-synchronized"><a href="#悲观锁-synchronized" class="headerlink" title="悲观锁 synchronized"></a>悲观锁 synchronized</h2><ul>
+<li>假定会发生并发冲突，屏蔽一切可能违反数据完整性的操作。</li>
+<li>悲观锁的实现，往往依靠底层提供的锁机制。</li>
+<li>悲观锁会导致其它所有需要锁的线程挂起，等待持有锁的线程释放锁。</li>
+</ul>
+<h2 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h2><ul>
+<li>假设不会发生并发冲突，每次不加锁而是假设没有冲突而去完成某项操作，只在提交操作时检查是否违反数据完整性。</li>
+<li>如果因为冲突失败就重试，直到成功为止。</li>
+<li>乐观锁大多是基于数据版本记录机制实现。</li>
+<li>为数据增加一个版本标识，比如在基于数据库表的版本解决方案中，一般是通过为数据库表增加一个 “version” 字段来实现。读取出数据时，将此版本号一同读出，之后更新时，对此版本号加一。</li>
+<li>此时，将提交数据的版本数据与数据库表对应记录的当前版本信息进行比对，如果提交的数据版本号大于数据库表当前版本号，则予以更新，否则认为是过期数据。</li>
+<li>乐观锁的缺点是不能解决脏读的问题。</li>
+<li>在实际生产环境里边,如果并发量不大且不允许脏读，可以使用悲观锁解决并发问题。</li>
+<li>如果系统的并发非常大的话,悲观锁定会带来非常大的性能问题,所以我们就要选择乐观锁定的方法。</li>
+</ul>
+<h1 id="用途区别"><a href="#用途区别" class="headerlink" title="用途区别"></a>用途区别</h1><p>在非常复杂的同步应用中，请考虑使用ReentrantLock，特别是遇到下面几种种需求的时候。</p>
+<p>1.某个线程在等待一个锁的控制权的这段时间需要中断<br>2.需要分开处理一些wait-notify，ReentrantLock里面的Condition应用，能够控制notify哪个线程<br>3.具有公平锁功能，每个到来的线程都将排队等候</p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1622173">https://cloud.tencent.com/developer/article/1622173</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_27828675/article/details/115372519">https://blog.csdn.net/qq_27828675/article/details/115372519</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/05/%E8%BF%9B%E7%A8%8B%E3%80%81%E7%BA%BF%E7%A8%8B%E5%92%8C%E5%8D%8F%E7%A8%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -190,10 +353,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-03-05 17:03:25 / Modified: 17:24:31" itemprop="dateCreated datePublished" datetime="2026-03-05T17:03:25+08:00">2026-03-05</time>
+              <time title="Created: 2026-03-05 17:03:25" itemprop="dateCreated datePublished" datetime="2026-03-05T17:03:25+08:00">2026-03-05</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-03-10 17:27:02" itemprop="dateModified" datetime="2026-03-10T17:27:02+08:00">2026-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -1172,103 +1341,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/09/18/%E7%9D%80%E8%89%B2%E5%99%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/09/18/%E7%9D%80%E8%89%B2%E5%99%A8/" class="post-title-link" itemprop="url">着色器</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-09-18 16:43:49" itemprop="dateCreated datePublished" datetime="2025-09-18T16:43:49+08:00">2025-09-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-09-29 10:10:03" itemprop="dateModified" datetime="2025-09-29T10:10:03+08:00">2025-09-29</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="顶点着色器-vs-片元着色器"><a href="#顶点着色器-vs-片元着色器" class="headerlink" title="顶点着色器 vs 片元着色器"></a>顶点着色器 vs 片元着色器</h1><p>One main difference is that a vertex shader can manipulate the attributes of vertices. which are the corner points of your polygons.<br>The fragment shader on the other hand takes care of how the pixels between the vertices look. They are interpolated between the defined vertices following specific rules.</p>
-<p>白话：顶点着色器负责定位三角形位置！片段着色器负责修改像素颜色！！</p>
-<h1 id="顶点着色器-Vertex-Shader"><a href="#顶点着色器-Vertex-Shader" class="headerlink" title="顶点着色器(Vertex Shader)"></a>顶点着色器(Vertex Shader)</h1><p>顶点着色器是图形渲染管线中的第一个可编程阶段。它的主要任务是处理从CPU发送到GPU的顶点数据。每个顶点都会通过顶点着色器进行一次，通常用于执行以下操作：</p>
-<ul>
-<li>变换：将顶点从模型空间转换到世界空间，然后进一步转换到视图空间和投影空间。这通常涉及到矩阵乘法运算，用于实现平移、旋转和缩放等变换。</li>
-<li>光照计算（可选）：在某些情况下，顶点着色器也用于执行初步的光照计算，但这通常是在更简单的渲染场景中，或者作为更复杂的片元级光照计算的一个初步步骤。</li>
-<li>传递数据：顶点着色器可以计算并传递额外的数据到后续的渲染阶段，如片元着色器。这些数据可以是颜色、纹理坐标或其他自定义属性。</li>
-</ul>
-<h1 id="片元着色器"><a href="#片元着色器" class="headerlink" title="片元着色器"></a>片元着色器</h1><p>片元着色器是图形渲染管线中处理像素级渲染的阶段。它接收由顶点着色器插值得到的片元（即屏幕上的像素或像素的候选者），并生成最终的颜色和其他与像素相关的数据。以下是片元着色器的一些主要用途：</p>
-<ul>
-<li>纹理映射：从纹理中读取颜色信息，并应用到相应的像素上。这可以用于实现贴图、细节增强等效果。</li>
-<li>光照计算：执行更详细的光照计算，如计算每个像素上的光照强度和颜色。这可以包括漫反射、镜面反射、环境光等多种光照模型。</li>
-<li>颜色混合和特殊效果：实现各种颜色混合模式，以及应用如模糊、发光、深度测试等后处理效果。</li>
-<li>输出最终颜色：基于上述计算，确定每个像素的最终颜色，并将其发送到渲染管线的下一个阶段（通常是帧缓冲区）。</li>
-</ul>
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits:"></a>Credits:</h1><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/718015588">https://zhuanlan.zhihu.com/p/718015588</a></p>
-<hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1346,7 +1418,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-count">29</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
