@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="HTTPThe undelying network protocol for communication on the web. It defines methods like GET, POST, PUT, and DELETE.When you visit a website, your browser sends HTTP requests and the server sends back">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTP and ASP.NET">
+<meta property="og:url" content="https://miaopasss.github.io/2026/03/16/HTTP-and-ASP-NET/index.html">
+<meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
+<meta property="og:description" content="HTTPThe undelying network protocol for communication on the web. It defines methods like GET, POST, PUT, and DELETE.When you visit a website, your browser sends HTTP requests and the server sends back">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://miaopasss.github.io/2026/03/16/HTTP-and-ASP-NET/p1.png">
+<meta property="og:image" content="https://miaopasss.github.io/2026/03/16/HTTP-and-ASP-NET/p2.jpg">
+<meta property="article:published_time" content="2026-03-16T08:50:44.000Z">
+<meta property="article:modified_time" content="2026-03-16T09:36:13.005Z">
+<meta property="article:author" content="Haotian Luo">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://miaopasss.github.io/2026/03/16/HTTP-and-ASP-NET/p1.png">
+
+<link rel="canonical" href="https://miaopasss.github.io/2026/03/16/HTTP-and-ASP-NET/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>HTTP and ASP.NET | 乌啦呀哈呀哈乌啦！</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">乌啦呀哈呀哈乌啦！</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">欢迎光临，这里是喵pass的个人博客，希望有能帮到你的地方
+</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页 | Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类 | Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签 | Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档 | Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/miaopasss" class="github-corner" title="Check out my GitHub" aria-label="Check out my GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/16/HTTP-and-ASP-NET/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          HTTP and ASP.NET
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-03-16 16:50:44 / Modified: 17:36:13" itemprop="dateCreated datePublished" datetime="2026-03-16T16:50:44+08:00">2026-03-16</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h1><p>The undelying network protocol for communication on the web. It defines methods like GET, POST, PUT, and DELETE.<br>When you visit a website, your browser sends HTTP requests and the server sends back HTTP responses.</p>
+<p>HTTP 消息是客户端和服务器之间通信的基础，它们由一系列的文本行组成，遵循特定的格式和结构。<br>HTTP消息分为两种类型：请求消息和响应消息。<br>一个 HTTP 客户端是一个应用程序（Web 浏览器或其他任何客户端），通过连接到服务器达到向服务器发送一个或多个 HTTP 的请求的目的。<br>一个 HTTP 服务器 同样也是一个应用程序（通常是一个 Web 服务，如 Nginx、Apache 服务器或 IIS 服务器等），通过接收客户端的请求并向客户端发送 HTTP 响应数据。</p>
+<h2 id="Client-Side-Request"><a href="#Client-Side-Request" class="headerlink" title="Client Side Request"></a>Client Side Request</h2><p><img src="/2026/03/16/HTTP-and-ASP-NET/p1.png" title="HTTP Request Packet"></p>
+<h3 id="请求行（Request-Line）："><a href="#请求行（Request-Line）：" class="headerlink" title="请求行（Request Line）："></a>请求行（Request Line）：</h3><ul>
+<li>方法：如 GET、POST、PUT、DELETE等，指定要执行的操作。</li>
+<li>请求 URI（统一资源标识符）：请求的资源路径，通常包括主机名、端口号（如果非默认）、路径和查询字符串。</li>
+<li>HTTP 版本：如 HTTP&#x2F;1.1 或 HTTP&#x2F;2。<br>请求行的格式示例：GET &#x2F;index.html HTTP&#x2F;1.1</li>
+</ul>
+<h3 id="请求头（Request-Headers）："><a href="#请求头（Request-Headers）：" class="headerlink" title="请求头（Request Headers）："></a>请求头（Request Headers）：</h3><ul>
+<li>包含了客户端环境信息、请求体的大小（如果有）、客户端支持的压缩类型等。</li>
+<li>常见的请求头包括Host、User-Agent、Accept、Accept-Encoding、Content-Length等。</li>
+</ul>
+<h3 id="空行："><a href="#空行：" class="headerlink" title="空行："></a>空行：</h3><p>请求头和请求体之间的分隔符，表示请求头的结束。</p>
+<h3 id="请求体（可选）："><a href="#请求体（可选）：" class="headerlink" title="请求体（可选）："></a>请求体（可选）：</h3><p>在某些类型的HTTP请求（如 POST 和 PUT）中，请求体包含要发送给服务器的数据。</p>
+<h2 id="Server-Side-Response"><a href="#Server-Side-Response" class="headerlink" title="Server Side Response"></a>Server Side Response</h2><p><img src="/2026/03/16/HTTP-and-ASP-NET/p2.jpg" title="HTTP Response Packet"></p>
+<h3 id="状态行（Status-Line）："><a href="#状态行（Status-Line）：" class="headerlink" title="状态行（Status Line）："></a>状态行（Status Line）：</h3><ul>
+<li>HTTP 版本：与请求消息中的版本相匹配。</li>
+<li>状态码：三位数，表示请求的处理结果，如 200 表示成功，404 表示未找到资源。</li>
+<li>状态信息：状态码的简短描述。<br>状态行的格式示例：HTTP&#x2F;1.1 200 OK</li>
+</ul>
+<h3 id="响应头（Response-Headers）："><a href="#响应头（Response-Headers）：" class="headerlink" title="响应头（Response Headers）："></a>响应头（Response Headers）：</h3><ul>
+<li>包含了服务器环境信息、响应体的大小、服务器支持的压缩类型等。</li>
+<li>常见的响应头包括Content-Type、Content-Length、Server、Set-Cookie等。</li>
+</ul>
+<h3 id="空行：-1"><a href="#空行：-1" class="headerlink" title="空行："></a>空行：</h3><p>响应头和响应体之间的分隔符，表示响应头的结束。</p>
+<h3 id="响应体（可选）："><a href="#响应体（可选）：" class="headerlink" title="响应体（可选）："></a>响应体（可选）：</h3><p>包含服务器返回的数据，如请求的网页内容、图片、JSON数据等。</p>
+<h2 id="FormData"><a href="#FormData" class="headerlink" title="FormData"></a>FormData</h2><ul>
+<li>multipart&#x2F;form-data is an encoding type (media or content type) used in HTTP requests to send data to a server, primarily for forms that include file uploads.</li>
+<li>In HTML, you specify this encoding by setting the enctype attribute of the &lt;form&gt; tag to multipart&#x2F;form-data when the method is POST. This is mandatory if your form includes an &lt;input type&#x3D;”file”&gt; element.</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&quot;/upload&quot;</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span> <span class="attr">enctype</span>=<span class="string">&quot;multipart/form-data&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;file&quot;</span> <span class="attr">name</span>=<span class="string">&quot;profile_picture&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span>&gt;</span>Upload<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>When using modern web APIs like the Fetch API or XMLHttpRequest in JavaScript, the browser’s FormData object automatically handles the complex process of structuring the request in the multipart&#x2F;form-data format.</li>
+<li>WWWForm is a Unity class used to create a standard web form. It structures data into the multipart&#x2F;form-data or x-www-form-urlencoded format, which is a standard format for submitting form data, including file uploads, to web servers.</li>
+</ul>
+<h2 id="REST-API"><a href="#REST-API" class="headerlink" title="REST API"></a>REST API</h2><ul>
+<li>A set of architectural constraints (like statelessness and uniform interface) that define how to build scalable and standardized web services, primarily using HTTP.</li>
+<li>Guidelines for designing a server’s endpoints in a logical, resource-oriented way, specifically origanize resources in URIs like <a target="_blank" rel="noopener" href="https://exmaple.com/api/v3/users">https://exmaple.com/api/v3/users</a></li>
+<li>For example, a REST API would use GET &#x2F;users to retrieve users, POST &#x2F;users to create a new user, and leverage standard HTTP status codes.</li>
+</ul>
+<hr>
+<h1 id="Fetch-API"><a href="#Fetch-API" class="headerlink" title="Fetch API"></a>Fetch API</h1><ul>
+<li>A modern, promise-based JavaScript interface built into web browsers that allows developers to make HTTP requests programmatically.</li>
+<li>Client-side tool used to consume a service that might be RESTful (or any other kind of HTTP API).</li>
+<li>You use the Fetch API in JavaScript in your web browser or a server environment like Node.js to send the HTTP requests defined by the API’s design.</li>
+</ul>
+<p>In summary, you use the Fetch API to send HTTP requests to a server that is structured as a REST API.</p>
+<h2 id="XHR"><a href="#XHR" class="headerlink" title="XHR"></a>XHR</h2><p>XML Http Request (XHR) is a JavaScript API to create HTTP requests. Its methods provide the ability to send network requests between the browser and a server. The Fetch API is the modern replacement for XMLHttpRequest</p>
+<hr>
+<h1 id="ASP-NET"><a href="#ASP-NET" class="headerlink" title="ASP.NET"></a>ASP.NET</h1><p>Microsoft’s open-source framework for building web applications and and services using .NET and C#; it is fundamentally built on top of the HTTP protocol.</p>
+<ul>
+<li>HTTP&#x2F;2 &amp; HTTP&#x2F;3: Modern versions of ASP.NET Core support HTTP&#x2F;2 and HTTP&#x2F;3 for improved performance.</li>
+<li>Status Codes: The framework provides built-in methods to return standard HTTP status codes, such as Ok() (200), CreatedAtAction() (201), or NotFound() (404).</li>
+</ul>
+<h2 id="Handling-Incoming-HTTP-Requests-Server-Side"><a href="#Handling-Incoming-HTTP-Requests-Server-Side" class="headerlink" title="Handling Incoming HTTP Requests (Server-Side)"></a>Handling Incoming HTTP Requests (Server-Side)</h2><ul>
+<li>HTTP Servers: ASP.NET Core uses Kestrel, a cross-platform HTTP server, as the default to listen for requests.</li>
+<li>HttpContext: Every request is encapsulated in an HttpContext object, which provides access to the Request (headers, body, query strings) and the Response.</li>
+<li>Routing and HTTP Methods: Controllers use attributes like [HttpGet], [HttpPost], and [HttpPut] to map specific HTTP verbs to C# methods.</li>
+</ul>
+<figure class="highlight cs"><figcaption><span>Creating an HTTP Endpoint</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> builder = WebApplication.CreateBuilder(<span class="keyword">args</span>);</span><br><span class="line"><span class="keyword">var</span> app = builder.Build();</span><br><span class="line"></span><br><span class="line"><span class="comment">// Simple GET endpoint returning a string</span></span><br><span class="line">app.MapGet(<span class="string">&quot;/&quot;</span>, () =&gt; <span class="string">&quot;Hello World!&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// GET endpoint with a route parameter</span></span><br><span class="line">app.MapGet(<span class="string">&quot;/products/&#123;id&#125;&quot;</span>, (<span class="built_in">int</span> id) =&gt; <span class="string">$&quot;Returning product <span class="subst">&#123;id&#125;</span>&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// POST endpoint that accepts a JSON object (Todo item)</span></span><br><span class="line">app.MapPost(<span class="string">&quot;/todoitems&quot;</span>, (Todo todo) =&gt; </span><br><span class="line">    Results.Created(<span class="string">$&quot;/todoitems/<span class="subst">&#123;todo.Id&#125;</span>&quot;</span>, todo));</span><br><span class="line"></span><br><span class="line">app.Run();</span><br><span class="line"></span><br><span class="line"><span class="comment">// Data model for the POST example</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">record</span> <span class="title">Todo</span>(<span class="params"><span class="built_in">int</span> Id, <span class="built_in">string</span> Name, <span class="built_in">bool</span> IsComplete</span>)</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Making-Outgoing-Requests-Client-Side"><a href="#Making-Outgoing-Requests-Client-Side" class="headerlink" title="Making Outgoing Requests (Client-Side)"></a>Making Outgoing Requests (Client-Side)</h2><p>To consume other web services or APIs from within your ASP.NET application, you use the HttpClient class.</p>
+<figure class="highlight cs"><figcaption><span>Controller or Page Model</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MyService</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> IHttpClientFactory _httpClientFactory;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyService</span>(<span class="params">IHttpClientFactory httpClientFactory</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _httpClientFactory = httpClientFactory;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task&lt;<span class="built_in">string</span>&gt; <span class="title">GetExternalDataAsync</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 1. Create the client</span></span><br><span class="line">        <span class="keyword">var</span> client = _httpClientFactory.CreateClient();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. Make the GET request</span></span><br><span class="line">        <span class="keyword">var</span> response = <span class="keyword">await</span> client.GetAsync(<span class="string">&quot;https://api.example.com&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. Ensure success and read content</span></span><br><span class="line">        <span class="keyword">if</span> (response.IsSuccessStatusCode)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">await</span> response.Content.ReadAsStringAsync();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Error fetching data&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://www.runoob.com/http/http-messages.html">https://www.runoob.com/http/http-messages.html</a></p>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/03/10/synchronized%E5%92%8Clock-CAS-%E7%9A%84%E5%8C%BA%E5%88%AB/" rel="prev" title="synchronized和lock(CAS)的区别">
+      <i class="fa fa-chevron-left"></i> synchronized和lock(CAS)的区别
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#HTTP"><span class="nav-number">1.</span> <span class="nav-text">HTTP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Client-Side-Request"><span class="nav-number">1.1.</span> <span class="nav-text">Client Side Request</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E8%A1%8C%EF%BC%88Request-Line%EF%BC%89%EF%BC%9A"><span class="nav-number">1.1.1.</span> <span class="nav-text">请求行（Request Line）：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E5%A4%B4%EF%BC%88Request-Headers%EF%BC%89%EF%BC%9A"><span class="nav-number">1.1.2.</span> <span class="nav-text">请求头（Request Headers）：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A9%BA%E8%A1%8C%EF%BC%9A"><span class="nav-number">1.1.3.</span> <span class="nav-text">空行：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E4%BD%93%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89%EF%BC%9A"><span class="nav-number">1.1.4.</span> <span class="nav-text">请求体（可选）：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Server-Side-Response"><span class="nav-number">1.2.</span> <span class="nav-text">Server Side Response</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E8%A1%8C%EF%BC%88Status-Line%EF%BC%89%EF%BC%9A"><span class="nav-number">1.2.1.</span> <span class="nav-text">状态行（Status Line）：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%8D%E5%BA%94%E5%A4%B4%EF%BC%88Response-Headers%EF%BC%89%EF%BC%9A"><span class="nav-number">1.2.2.</span> <span class="nav-text">响应头（Response Headers）：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A9%BA%E8%A1%8C%EF%BC%9A-1"><span class="nav-number">1.2.3.</span> <span class="nav-text">空行：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%8D%E5%BA%94%E4%BD%93%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89%EF%BC%9A"><span class="nav-number">1.2.4.</span> <span class="nav-text">响应体（可选）：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FormData"><span class="nav-number">1.3.</span> <span class="nav-text">FormData</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#REST-API"><span class="nav-number">1.4.</span> <span class="nav-text">REST API</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Fetch-API"><span class="nav-number">2.</span> <span class="nav-text">Fetch API</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#XHR"><span class="nav-number">2.1.</span> <span class="nav-text">XHR</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ASP-NET"><span class="nav-number">3.</span> <span class="nav-text">ASP.NET</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Handling-Incoming-HTTP-Requests-Server-Side"><span class="nav-number">3.1.</span> <span class="nav-text">Handling Incoming HTTP Requests (Server-Side)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Making-Outgoing-Requests-Client-Side"><span class="nav-number">3.2.</span> <span class="nav-text">Making Outgoing Requests (Client-Side)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number">4.</span> <span class="nav-text">Credits</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Haotian Luo"
+      src="/images/exciting-usagi.gif">
+  <p class="site-author-name" itemprop="name">Haotian Luo</p>
+  <div class="site-description" itemprop="description"><font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/miaopasss" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;miaopasss" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hubery.luo@icloud.com" title="E-Mail → mailto:hubery.luo@icloud.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Haotian Luo</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2026/03/16/HTTP-and-ASP-NET/',]
+      });
+      });
+  </script>
+
+</body>
+</html>
