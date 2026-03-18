@@ -28,7 +28,7 @@
 <meta property="og:description" content="synchronized：在需要同步的对象中加入此控制，synchronized可以加在方法上，也可以加在特定代码块中，括号中表示需要锁的对象。lock：一般使用ReentrantLock类做为锁。在加锁和解锁处需要通过lock()和unlock()显示指出。所以一般会在finally块中写unlock()以防死锁。  ReentrantLock支持非阻塞的方式获取锁，能够响应中断，而synchr">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-03-10T09:28:17.000Z">
-<meta property="article:modified_time" content="2026-03-10T10:20:12.566Z">
+<meta property="article:modified_time" content="2026-03-16T09:47:28.447Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Operating System">
 <meta name="twitter:card" content="summary">
@@ -193,10 +193,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-03-10 17:28:17 / Modified: 18:20:12" itemprop="dateCreated datePublished" datetime="2026-03-10T17:28:17+08:00">2026-03-10</time>
+              <time title="Created: 2026-03-10 17:28:17" itemprop="dateCreated datePublished" datetime="2026-03-10T17:28:17+08:00">2026-03-10</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-03-16 17:47:28" itemprop="dateModified" datetime="2026-03-16T17:47:28+08:00">2026-03-16</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -226,15 +232,30 @@
 
       
         <p>synchronized：在需要同步的对象中加入此控制，synchronized可以加在方法上，也可以加在特定代码块中，括号中表示需要锁的对象。<br>lock：一般使用ReentrantLock类做为锁。在加锁和解锁处需要通过lock()和unlock()显示指出。所以一般会在finally块中写unlock()以防死锁。</p>
-<ul>
+<ol>
 <li>ReentrantLock支持非阻塞的方式获取锁，能够响应中断，而synchronized不行</li>
 <li>ReentrantLock必须手动获取和释放锁，而synchronized不需要</li>
-<li>ReentrantLock可以是公平锁或者非公平锁，而synchronized只能是非公平锁</li>
+<li>ReentrantLock可以是公平锁或者非公平锁，而synchronized只能是非公平锁<ul>
+<li>公平锁 (Fair Lock)：线程申请锁的顺序与获取锁的顺序完全一致，FIFO (First Input First Output)。先排队的线程先获得锁。new ReentrantLock(true)。其内部不仅看锁状态，还会判断 hasQueuedPredecessors()，即等待队列中是否有前驱线程，有则不抢。</li>
+<li>非公平锁 (Non-Fair Lock)：不保证顺序。多个线程尝试获取锁时，可能新到的线程直接加塞抢到锁，而不按排队顺序。new ReentrantLock(false)（默认）。调用 lock() 时直接通过 CAS 尝试获取锁，抢不到再进入队列。</li>
+</ul>
+</li>
 <li>ReentrantLock在发生异常时，如果没有通过unlock去释放锁，很有可能造成死锁，因此需要在finally块中释放锁<ul>
 <li>而synchronized在发生异常的时候，会自动释放线程占有的锁</li>
 </ul>
 </li>
 <li>synchronized和ReentrantLock都是可重入锁（某个线程已经获得某个锁，可以再次获取锁而不会出现死锁，即re-entrant）</li>
+</ol>
+<p>为什么要使用非公平锁？</p>
+<ul>
+<li>公平锁维护等待队列增加上下文切换，性能较慢；非公平锁利用 CAS 抢锁，在高并发场景下提升性能效率高。<ul>
+<li>当获取公平锁时，先将线程自己添加到等待队列的队尾并休眠，当某线程用完锁之后，会去唤醒等待队列中队首的线程尝试去获取锁，锁的使用顺序也就是队列中的先后顺序，在整个过程中，线程会从运行状态切换到休眠状态，再从休眠状态恢复成运行状态，但线程每次休眠和恢复都需要从用户态转换成内核态，而这个状态的转换是比较慢的，所以公平锁的执行速度会比较慢。</li>
+<li>当获取非公平锁时，会先通过 CAS 尝试获取锁，如果获取成功就直接拥有锁，如果获取锁失败才会进入等待队列，等待下次尝试获取锁。这样做的好处是，获取锁不用遵循先到先得的规则，从而避免了线程休眠和恢复的操作</li>
+</ul>
+</li>
+<li>减少线程切换：被唤醒的线程还需要排队等待，不如让当前运行的线程（持有 CPU）直接抢，能更快完成任务。</li>
+<li>提高吞吐量：即使有先来后到，非公平锁利用空闲时间直接抢锁，能让整体效率更高。</li>
+<li>公平锁适用于需要精确控制执行顺序的业务，如金融转账、需要严格时间戳的日志记录。</li>
 </ul>
 <hr>
 <h1 id="Synchronized"><a href="#Synchronized" class="headerlink" title="Synchronized"></a>Synchronized</h1><p>synchronized能够保证多个线程在同时执行被synchronized包裹的同一代码块时，有且仅有一个线程能执行相应的代码操作，而其他的线程会被阻塞等待。</p>
@@ -313,7 +334,7 @@
 <h1 id="用途区别"><a href="#用途区别" class="headerlink" title="用途区别"></a>用途区别</h1><p>在非常复杂的同步应用中，请考虑使用ReentrantLock，特别是遇到下面几种种需求的时候。</p>
 <p>1.某个线程在等待一个锁的控制权的这段时间需要中断<br>2.需要分开处理一些wait-notify，ReentrantLock里面的Condition应用，能够控制notify哪个线程<br>3.具有公平锁功能，每个到来的线程都将排队等候</p>
 <hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1622173">https://cloud.tencent.com/developer/article/1622173</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_27828675/article/details/115372519">https://blog.csdn.net/qq_27828675/article/details/115372519</a></p>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1622173">https://cloud.tencent.com/developer/article/1622173</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_27828675/article/details/115372519">https://blog.csdn.net/qq_27828675/article/details/115372519</a><br><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1997322">https://cloud.tencent.com/developer/article/1997322</a></p>
 <hr>
 
     </div>
@@ -420,7 +441,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-count">31</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -433,7 +454,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">23</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
