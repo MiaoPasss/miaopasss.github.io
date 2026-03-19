@@ -161,6 +161,149 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/19/%E5%8E%8B%E7%BC%A9%E6%A0%BC%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/03/19/%E5%8E%8B%E7%BC%A9%E6%A0%BC%E5%BC%8F/" class="post-title-link" itemprop="url">压缩格式</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-03-19 16:19:01 / Modified: 17:52:58" itemprop="dateCreated datePublished" datetime="2026-03-19T16:19:01+08:00">2026-03-19</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="LZ-系列（通用数据压缩）"><a href="#LZ-系列（通用数据压缩）" class="headerlink" title="LZ 系列（通用数据压缩）"></a>LZ 系列（通用数据压缩）</h1><p>LZ 系列都基于同一个核心思想：找重复的字节序列，用引用替代。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">原始数据：</span><br><span class="line">&quot;abcdefabcdef&quot;</span><br><span class="line"></span><br><span class="line">压缩后：</span><br><span class="line">&quot;abcdef&quot; + (往前6个字节，复制6个字节)</span><br><span class="line">            ↑ 这就是一个&quot;引用&quot;，比重复存储省空间</span><br><span class="line"></span><br><span class="line">压缩结果：</span><br><span class="line">[literal: abcdef] [match: offset=6, len=6]</span><br></pre></td></tr></table></figure>
+
+<h2 id="LZMA-Lempel-Ziv-Markov-chain-Algorithm"><a href="#LZMA-Lempel-Ziv-Markov-chain-Algorithm" class="headerlink" title="LZMA (Lempel-Ziv-Markov chain Algorithm)"></a>LZMA (Lempel-Ziv-Markov chain Algorithm)</h2><p>7-Zip 使用的算法，压缩率极高但速度慢。</p>
+<ul>
+<li>在 LZ 基础上加了马尔可夫链概率模型</li>
+<li>用范围编码（Range Encoding）替代哈夫曼编码</li>
+<li>搜索窗口极大（最大 4GB），能找到更远的重复</li>
+</ul>
+<p>普通LZ: 只看前面 32KB 找重复<br>LZMA: 看前面最多 4GB 找重复 → 压缩率更高，但更慢更耗内存</p>
+<ul>
+<li>压缩率：极高（最好）</li>
+<li>压缩速度：很慢</li>
+<li>解压速度：中等</li>
+<li>适合：安装包、资源包（压缩一次，解压多次）</li>
+</ul>
+<h2 id="LZ4"><a href="#LZ4" class="headerlink" title="LZ4"></a>LZ4</h2><p>专为速度设计，压缩率换速度。</p>
+<ul>
+<li>搜索窗口只有 64KB，不追求最优匹配</li>
+<li>输出格式极简，解压只需简单的内存拷贝操作</li>
+<li>几乎不做概率统计，纯粹的字节匹配</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">LZ4 数据块格式：</span><br><span class="line">[token 1字节] [extra literal长度?] [literal数据] [match偏移 2字节] [extra match长度?]</span><br><span class="line"></span><br><span class="line">数据: &quot;abcdeabcde&quot;</span><br><span class="line"></span><br><span class="line">序列1: literal=&quot;abcde&quot;(5字节) + match(偏移5, 长度4) → 复制&quot;abcd&quot;</span><br><span class="line">序列2: literal=&quot;e&quot;(1字节，收尾无match)</span><br><span class="line"></span><br><span class="line">但 LZ4 规范明确规定：最后一个序列必须以至少5字节的 literal 结尾，且没有 match 部分。</span><br><span class="line">所以实际上 LZ4 编码器会放弃这个 match，直接把整个 &quot;abcdeabcde&quot; 当 literal 输出：</span><br><span class="line"></span><br><span class="line">token = 0xA0  → 高4位=10(literal长度10), 低4位=0</span><br><span class="line">literal = &quot;abcdeabcde&quot;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>压缩率：一般</li>
+<li>压缩速度：极快</li>
+<li>解压速度：极快（接近内存带宽上限）</li>
+<li>适合：运行时实时解压、游戏资源热加载</li>
+</ul>
+<h2 id="LZ4HC-LZ4-High-Compression"><a href="#LZ4HC-LZ4-High-Compression" class="headerlink" title="LZ4HC (LZ4 High Compression)"></a>LZ4HC (LZ4 High Compression)</h2><p>LZ4 的高压缩变体，压缩慢但解压和 LZ4 一样快。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LZ4   → 快速找&quot;够用&quot;的匹配就行</span><br><span class="line">LZ4HC → 穷举搜索&quot;最优&quot;匹配，压缩慢3-10倍</span><br><span class="line">         但输出格式完全兼容LZ4，解压速度相同</span><br></pre></td></tr></table></figure>
+
+<p>适合：离线打包资源（压缩慢没关系），运行时快速解压。</p>
+<hr>
+<h1 id="DXT-Texture（GPU-纹理压缩）"><a href="#DXT-Texture（GPU-纹理压缩）" class="headerlink" title="DXT Texture（GPU 纹理压缩）"></a>DXT Texture（GPU 纹理压缩）</h1><p>和上面完全不同，DXT 是专门为 GPU 设计的，解压在 GPU 硬件上完成，不占 CPU。</p>
+<h2 id="块压缩（Block-Compression）"><a href="#块压缩（Block-Compression）" class="headerlink" title="块压缩（Block Compression）"></a>块压缩（Block Compression）</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">把纹理分成 4×4 像素的小块：</span><br><span class="line">┌──┬──┬──┬──┐</span><br><span class="line">│  │  │  │  │</span><br><span class="line">├──┼──┼──┼──┤  </span><br><span class="line">│  │  │  │  │  每个 4×4 块 = 16个像素</span><br><span class="line">├──┼──┼──┼──┤</span><br><span class="line">│  │  │  │  │  原始大小 = 16 × 4字节(RGBA) = 64字节</span><br><span class="line">├──┼──┼──┼──┤</span><br><span class="line">│  │  │  │  │  </span><br><span class="line">└──┴──┴──┴──┘</span><br></pre></td></tr></table></figure>
+
+<h2 id="DXT1-BC1"><a href="#DXT1-BC1" class="headerlink" title="DXT1 (BC1)"></a>DXT1 (BC1)</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">每个 4×4 块只存：</span><br><span class="line">- 2个&quot;端点颜色&quot; color0, color1（各16位）</span><br><span class="line">- 16个像素各2位的索引（选0%/33%/66%/100%插值）</span><br><span class="line"></span><br><span class="line">存储大小 = 8字节（原来64字节）→ 压缩比 8:1</span><br><span class="line"></span><br><span class="line">color0 ──────────────────── color1</span><br><span class="line">  |        |         |        |</span><br><span class="line"> 100%     66%       33%       0%</span><br><span class="line">  ↑ 每个像素用2bit选择落在哪个位置</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="Unity-中的压缩格式"><a href="#Unity-中的压缩格式" class="headerlink" title="Unity 中的压缩格式"></a>Unity 中的压缩格式</h1><p>AssetBundle有三种压缩模式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">AssetBundle 文件：</span><br><span class="line">┌─────────────────────────────┐</span><br><span class="line">│         Header              │  版本、压缩类型、文件信息</span><br><span class="line">├─────────────────────────────┤</span><br><span class="line">│      Catalog/Manifest       │  资源索引表（资源名→文件偏移）</span><br><span class="line">├─────────────────────────────┤</span><br><span class="line">│       Asset Data            │  实际资源数据（压缩块）</span><br><span class="line">│  [block0][block1][block2]   │</span><br><span class="line">└─────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cs"><figcaption><span>打包时指定压缩方式</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">BuildAssetBundles(<span class="string">&quot;Assets/AB&quot;</span>, BuildAssetBundleOptions.None);              <span class="comment">// LZMA</span></span><br><span class="line">BuildAssetBundles(<span class="string">&quot;Assets/AB&quot;</span>, BuildAssetBundleOptions.ChunkBasedCompression); <span class="comment">// LZ4</span></span><br><span class="line">BuildAssetBundles(<span class="string">&quot;Assets/AB&quot;</span>, BuildAssetBundleOptions.UncompressedAssetBundle); <span class="comment">// 不压缩</span></span><br></pre></td></tr></table></figure>
+
+<p>LZMA（整体压缩）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">整个 AB 文件作为一个流压缩：</span><br><span class="line">┌────────────────────────────────────┐</span><br><span class="line">│  LZMA压缩流（Header+Catalog+Data） │</span><br><span class="line">└────────────────────────────────────┘</span><br><span class="line"></span><br><span class="line">加载时必须解压整个文件才能读取任何一个资源</span><br><span class="line">→ 体积最小，但加载慢，内存峰值高</span><br></pre></td></tr></table></figure>
+
+<p>LZ4（块压缩）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">每个数据块独立压缩：</span><br><span class="line">┌────────┬────────┬────────┬────────┐</span><br><span class="line">│ block0 │ block1 │ block2 │ block3 │  每块独立LZ4压缩</span><br><span class="line">└────────┴────────┴────────┴────────┘</span><br><span class="line"></span><br><span class="line">加载某个资源时只解压它所在的块</span><br><span class="line">→ 体积稍大，但可以随机访问，加载快</span><br></pre></td></tr></table></figure>
+
+<h2 id="下载包-vs-运行时加载"><a href="#下载包-vs-运行时加载" class="headerlink" title="下载包 vs 运行时加载"></a>下载包 vs 运行时加载</h2><p>这是两个不同阶段，关注点完全不同：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">下载阶段：</span><br><span class="line">用户等待下载 → 关注流量和时间</span><br><span class="line">→ 用 LZMA，体积最小，节省流量和下载时间</span><br><span class="line">→ 下载完存到本地磁盘</span><br><span class="line"></span><br><span class="line">运行时加载阶段：</span><br><span class="line">游戏运行中加载资源 → 关注速度和流畅度</span><br><span class="line">→ 用 LZ4，随机访问，解压快，不卡帧</span><br><span class="line">→ 从本地磁盘读取并解压到内存</span><br></pre></td></tr></table></figure>
+
+<p>实际工作流：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">服务器存 LZMA 包</span><br><span class="line">    ↓ 用户下载</span><br><span class="line">本地磁盘存 LZMA 包</span><br><span class="line">    ↓ 首次加载时 Unity 转换（RecompressAssetBundleAsync）</span><br><span class="line">本地缓存存 LZ4 包</span><br><span class="line">    ↓ 之后每次启动</span><br><span class="line">直接加载 LZ4 包，速度快</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Unity 不会自动将LZMA转换成LZ4（除非用 UnityWebRequest + 缓存版本号）</li>
+<li>转换 &#x3D; 解压 LZMA + 重压缩 LZ4，是两步操作</li>
+<li>推荐在下载完成后立即转换，游戏运行时直接读 LZ4</li>
+</ul>
+<figure class="highlight cs"><figcaption><span>Unity 提供的重压缩 API</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">IEnumerator <span class="title">DownloadAndRecompress</span>(<span class="params"><span class="built_in">string</span> url, <span class="built_in">string</span> savePath, <span class="built_in">string</span> cachePath</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 下载 LZMA 包</span></span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">var</span> req = UnityWebRequestAssetBundle.GetAssetBundle(url);</span><br><span class="line">    <span class="keyword">yield</span> <span class="keyword">return</span> req.SendWebRequest();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 存到磁盘</span></span><br><span class="line">    File.WriteAllBytes(savePath, req.downloadHandler.data);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 立即转换成 LZ4 存到缓存目录</span></span><br><span class="line">    <span class="keyword">var</span> op = AssetBundle.RecompressAssetBundleAsync(</span><br><span class="line">        savePath, cachePath,</span><br><span class="line">        BuildCompression.LZ4,</span><br><span class="line">        <span class="number">0</span>, ThreadPriority.Low</span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">yield</span> <span class="keyword">return</span> op;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 删掉原始 LZMA 包（可选）</span></span><br><span class="line">    File.Delete(savePath);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 之后加载用 cachePath</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="哈夫曼编码"><a href="#哈夫曼编码" class="headerlink" title="哈夫曼编码"></a>哈夫曼编码</h1><p>思路：高频字符用短编码，低频字符用长编码，减少总位数。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">原始数据：&quot;AAAAABBBCD&quot;</span><br><span class="line">统计频率：A=5, B=3, C=1, D=1</span><br><span class="line"></span><br><span class="line">建哈夫曼树：</span><br><span class="line">        10</span><br><span class="line">       /  \</span><br><span class="line">      A    5</span><br><span class="line">     (5)  / \</span><br><span class="line">         B   2</span><br><span class="line">        (3) / \</span><br><span class="line">           C   D</span><br><span class="line">          (1) (1)</span><br><span class="line"></span><br><span class="line">编码结果：</span><br><span class="line">A → 0      (1位)</span><br><span class="line">B → 10     (2位)</span><br><span class="line">C → 110    (3位)</span><br><span class="line">D → 111    (3位)</span><br><span class="line"></span><br><span class="line">原始：10字符 × 8位 = 80位</span><br><span class="line">压缩：5×1 + 3×2 + 1×3 + 1×3 = 17位  → 压缩率 79%</span><br></pre></td></tr></table></figure>
+
+<h2 id="DEFLATE-LZ77-哈夫曼（zip-gzip-PNG-都用这个）"><a href="#DEFLATE-LZ77-哈夫曼（zip-gzip-PNG-都用这个）" class="headerlink" title="DEFLATE &#x3D; LZ77 + 哈夫曼（zip&#x2F;gzip&#x2F;PNG 都用这个）"></a>DEFLATE &#x3D; LZ77 + 哈夫曼（zip&#x2F;gzip&#x2F;PNG 都用这个）</h2><p>先用 LZ 消除重复，再用哈夫曼压缩剩余符号：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">第一步 LZ77：</span><br><span class="line">原始: &quot;abcdeabcde&quot;</span><br><span class="line">输出: [literal:abcde] [match:5,5]</span><br><span class="line">      ↓ 转成符号流</span><br><span class="line">      a b c d e &lt;match:5,5&gt;</span><br><span class="line"></span><br><span class="line">第二步 哈夫曼：</span><br><span class="line">对符号流统计频率，高频符号用短编码</span><br><span class="line">      a,b,c,d,e 各出现1次</span><br><span class="line">      &lt;match&gt; 出现1次</span><br><span class="line">      → 再压缩一遍</span><br><span class="line"></span><br><span class="line">两步叠加，压缩率比单独用任何一种都高</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/17/%E5%B8%A7%E5%90%8C%E6%AD%A5%E5%92%8C%E7%8A%B6%E6%80%81%E5%90%8C%E6%AD%A5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1374,91 +1517,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/02/11/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E4%B8%8E%E8%99%9A%E5%87%BD%E6%95%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/02/11/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E4%B8%8E%E8%99%9A%E5%87%BD%E6%95%B0/" class="post-title-link" itemprop="url">面向对象与虚函数</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2026-02-11 15:17:32 / Modified: 16:38:08" itemprop="dateCreated datePublished" datetime="2026-02-11T15:17:32+08:00">2026-02-11</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="面向对象三大特性"><a href="#面向对象三大特性" class="headerlink" title="面向对象三大特性"></a>面向对象三大特性</h1><ul>
-<li><p>封装 Encapsulation<br>将客观事物抽象为类，隐藏对象的内部属性和实现细节，只通过对外提供的公开接口（如 getter&#x2F;setter）进行访问。</p>
-</li>
-<li><p>继承 Inheritance<br>一个类（子类&#x2F;派生类）从另一个类（父类&#x2F;基类）中继承属性和方法，同时可以扩展新的功能，实现代码复用减少冗余。</p>
-</li>
-<li><p>多态 Polymorphism<br>同一接口在不同情形下有不同的表现形式。简单来说，即父类指针或引用指向子类对象，并调用子类重写后的方法。<br>如果多个派生类同时实现了一个接口，通过实例化此接口也可以展现出多态的特性。</p>
-</li>
-</ul>
-<h1 id="虚函数"><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h1><p>当继承链中虚函数 &gt;&#x3D; 1，则在compile time编译时生成虚函数表vtable映射到虚函数<br>继承链中的每个包含虚函数的类都有一个属于自己的 vtable (虚函数表)<br>在runtime运行时，子类的构造函数中为vptr赋值指向vtable</p>
-<p>父类指针调用虚函数时，子类复写的虚函数被调用<br>查询vtable找到虚函数的入口地址并执行<br>父类指针指向子类对象，或父类引用绑定子类对象，父类对象vptr变成子类对象vptr，查询子类vtable</p>
-<h2 id="virtual-vs-new"><a href="#virtual-vs-new" class="headerlink" title="virtual vs. new"></a>virtual vs. new</h2><p><img src="/2026/02/11/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E4%B8%8E%E8%99%9A%E5%87%BD%E6%95%B0/p1.png" title="不同情况下的同名函数"> <br></p>
-<p><u><strong>Note:</strong></u> <em>virtual</em> + <em>override</em> are resolved at runtime (so <em>override</em> really overrides <em>virtual</em> methods), while <em>new</em> just create new method with the same name, and hides the old, it is resolved at compile time -&gt; your compiler will call the method it ‘sees’.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1536,7 +1594,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-count">32</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
