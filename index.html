@@ -161,6 +161,171 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/20/Unity%E8%B5%84%E6%BA%90%E5%8A%A0%E8%BD%BD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/03/20/Unity%E8%B5%84%E6%BA%90%E5%8A%A0%E8%BD%BD/" class="post-title-link" itemprop="url">Unity资源加载</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-03-20 16:49:19 / Modified: 17:54:42" itemprop="dateCreated datePublished" datetime="2026-03-20T16:49:19+08:00">2026-03-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Resources"><a href="#Resources" class="headerlink" title="Resources"></a>Resources</h1><p>Resources文件夹是一个只读的文件夹，通过Resources.Load()来读取对象。<br>因为这个文件夹下的所有资源都可以运行时来加载，所以Resources文件夹下的所有东西都会被无条件的打到发布包中。<br>建议这个文件夹下只放Prefab文件，因为Prefab会自动过滤掉对象上不需要的资源。</p>
+<ul>
+<li>举个例子我把模型文件还有贴图文件都放在了Resources文件夹下，但是我有两张贴图是没有在模型上用的，那么此时这两张没用的贴图也会被打包到发布包中。</li>
+<li>假如这里我用Prefab，那么Prefab会自动过滤到这两张不被用的贴图，这样发布包就会小一些了。</li>
+<li>此时，若prefab引用的贴图在resources文件夹下，则贴图仍然会被打进包中，因为resources文件夹对资源无条件打包。</li>
+<li>若prefab引用的贴图在AB包中，则实例化prefab之前，必须手动去把AB加载出来。</li>
+<li>就算prefab不是在resources文件来而是在不同于它引用的贴图的AB包中，也一样要在实例化前把贴图所在的AB加载出来；但不用把贴图加载出来，prefab会自动去加载它。</li>
+</ul>
+<h2 id="Resources-Load"><a href="#Resources-Load" class="headerlink" title="Resources.Load"></a>Resources.Load</h2><p>Unity 打包时为每个资源分配 UID，同时建立一张”路径→UID”映射表存在配置文件里。<br>加载时先查表把路径转成 UID，再用 UID 找到实际数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Assets/Resources/ui/icon.png</span><br><span class="line">         ↓ 打包</span><br><span class="line">resources.assets（包含所有未被场景引用的Resources资源）</span><br><span class="line">         ↓ 运行时</span><br><span class="line">Resources.Load(&quot;ui/icon&quot;, typeof(Sprite))</span><br></pre></td></tr></table></figure>
+<p>特殊情况：如果 Resources 下的资源被场景直接引用，会打进 sharedassets[level].assets 而不是 resources.assets，不同目录下的 Resources 文件夹资源路径最好不重名。</p>
+<p>卸载资源时用UnloadUnusedAssets（注意：UnloadAsset 对 Resources 无效）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// 加载</span><br><span class="line">Texture2D tex = Resources.Load(&quot;ui/icon&quot;, typeof(Texture2D)) as Texture2D;</span><br><span class="line"></span><br><span class="line">// 卸载</span><br><span class="line">Resources.UnloadUnusedAssets(); // 正确方式</span><br><span class="line">// Resources.UnloadAsset(tex); 只对 AB 包加载的资源有效</span><br><span class="line"></span><br><span class="line">// 查找场景中所有同类型对象（包括未激活的）</span><br><span class="line">Resources.FindObjectsOfTypeAll&lt;GameObject&gt;();</span><br></pre></td></tr></table></figure>
+
+<p>优点：</p>
+<ul>
+<li>使用极简，一行代码加载</li>
+<li>不需要管理 AB 包依赖</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>所有 Resources 资源无论用没用都打进安装包，包体膨胀</li>
+<li>无法热更，改资源必须重新发版</li>
+<li>大量资源时启动慢（Unity 启动时要建立完整索引表）</li>
+</ul>
+<h1 id="StreamingAssets"><a href="#StreamingAssets" class="headerlink" title="StreamingAssets"></a>StreamingAssets</h1><p>StreamingAssets文件夹也是一个只读的文件夹，其目录下的文件在打包时完全不处理，原样复制到目标平台，保留原始文件格式和路径结构。</p>
+<ul>
+<li>Resources文件夹下的资源会进行一次压缩，而且也会加密，不使用点特殊办法是拿不到原始资源的</li>
+<li>StreamingAssets文件夹下面的所有资源不会被加密，然后是原封不动的打包到发布包中，这样很容易就拿到里面的文件。所以StreamingAssets适合放一些二进制文件，而Resources更适合放一些GameObject和Object文件。<ul>
+<li>比如 icon.png 是源文件，放进 Resources 后打包时变成 Texture2D Object，使用Resources.Load&lt;Texture2D&gt;(“icon”)可直接返回 Texture2D 对象</li>
+<li>放进 StreamingAssets 它还是原始 .png，Unity 不处理它。</li>
+</ul>
+</li>
+</ul>
+<h2 id="各平台存储位置"><a href="#各平台存储位置" class="headerlink" title="各平台存储位置"></a>各平台存储位置</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Windows/Editor  → [项目]/Assets/StreamingAssets/</span><br><span class="line">iOS             → [.ipa包]/Data/Raw/</span><br><span class="line">Android         → [.apk包]/assets/  （压缩存储在zip内）</span><br><span class="line">WebGL           → 无法直接访问</span><br></pre></td></tr></table></figure>
+
+<p>Android 特殊处理（存在 APK 压缩包内，不能直接用文件路径）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// Android 必须用 UnityWebRequest</span><br><span class="line">IEnumerator LoadVideoAndroid(string fileName)</span><br><span class="line">&#123;</span><br><span class="line">    string path = Path.Combine(Application.streamingAssetsPath, fileName);</span><br><span class="line">    using var req = UnityWebRequest.Get(path);</span><br><span class="line">    yield return req.SendWebRequest();</span><br><span class="line">    byte[] data = req.downloadHandler.data;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 其他平台可以直接用文件路径</span><br><span class="line">string videoPath = Path.Combine(Application.streamingAssetsPath, &quot;intro.mp4&quot;);</span><br><span class="line">videoPlayer.url = videoPath;</span><br></pre></td></tr></table></figure>
+
+<p>优点：</p>
+<ul>
+<li>保留原始文件格式，适合需要文件路径的第三方库</li>
+<li>视频播放器、SQLite 数据库等可以直接访问</li>
+<li>不经过 Unity 资源管道，格式不受限</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>Android 上访问慢且必须用 UnityWebRequest</li>
+<li>无法热更</li>
+<li>不适合大量小文件（没有打包优化）</li>
+</ul>
+<p>实际用例：</p>
+<ul>
+<li>视频文件（需要 VideoPlayer 直接访问路径）</li>
+<li>SQLite 数据库初始文件（首次运行复制到 PersistentDataPath 再读写）</li>
+<li>第三方 SDK 需要的配置文件</li>
+<li>AB 包的初始版本（首次运行写入缓存）</li>
+</ul>
+<h2 id="PersistentDataPath"><a href="#PersistentDataPath" class="headerlink" title="PersistentDataPath"></a>PersistentDataPath</h2><p>由于StreamingAssets文件夹里的内容只能读不能写，所以在需要进行写入操作的时候可以使用PersistentDataPath文件夹，此目录下的文件可读可写，但和StreamingAssets的不同点是：在Editor阶段没有，等到手机安装App后在目标设备上自动生成</p>
+<ul>
+<li>可以将一些需要读写的文件先放在Streaming Assets，在App安装后通过代码Copy到PersistentDataPath文件夹，比如上面提到的数据库初始文件</li>
+</ul>
+<h1 id="AssetBundle"><a href="#AssetBundle" class="headerlink" title="AssetBundle"></a>AssetBundle</h1><p>资源在 Inspector 面板右下角设置包名和变体名，相同包名打进同一个 .ab 文件。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">包名: characters/hero    变体名: hd</span><br><span class="line">包名: characters/hero    变体名: sd</span><br><span class="line">→ 生成 characters/hero.hd 和 characters/hero.sd 两个变体包</span><br></pre></td></tr></table></figure>
+
+<p>变体包（Variant）是同一资源的不同版本，用于针对不同设备&#x2F;平台加载不同质量的内容，但代码层面引用名称保持一致。</p>
+<figure class="highlight cs"><figcaption><span>根据设备性能决定加载哪个变体</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> variant = SystemInfo.systemMemorySize &gt; <span class="number">4096</span> ? <span class="string">&quot;hd&quot;</span> : <span class="string">&quot;sd&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 加载对应变体的 AB 包</span></span><br><span class="line"><span class="built_in">string</span> bundlePath = <span class="string">$&quot;characters/hero.<span class="subst">&#123;variant&#125;</span>&quot;</span>;</span><br><span class="line">AssetBundle ab = AssetBundle.LoadFromFile(bundlePath);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 资源名称不变，Unity 自动从当前加载的变体中取</span></span><br><span class="line">GameObject hero = ab.LoadAsset&lt;GameObject&gt;(<span class="string">&quot;Hero&quot;</span>);</span><br><span class="line">Instantiate(hero);</span><br></pre></td></tr></table></figure>
+
+<p>运行游戏时加载方式：</p>
+<figure class="highlight cs"><figcaption><span>本地加载和从服务器下载</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 本地加载</span></span><br><span class="line">AssetBundle ab = AssetBundle.LoadFromFile(path);</span><br><span class="line">GameObject prefab = ab.LoadAsset&lt;GameObject&gt;(<span class="string">&quot;Hero&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 网络下载（带缓存）</span></span><br><span class="line"><span class="function">IEnumerator <span class="title">LoadFromCDN</span>(<span class="params"><span class="built_in">string</span> url, <span class="built_in">uint</span> version</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">var</span> req = UnityWebRequestAssetBundle.GetAssetBundle(url, version, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">yield</span> <span class="keyword">return</span> req.SendWebRequest();</span><br><span class="line">    AssetBundle ab = DownloadHandlerAssetBundle.GetContent(req);</span><br><span class="line">    <span class="keyword">var</span> prefab = ab.LoadAsset&lt;GameObject&gt;(<span class="string">&quot;Hero&quot;</span>);</span><br><span class="line">    Instantiate(prefab);</span><br><span class="line">    ab.Unload(<span class="literal">false</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>优点：</p>
+<ul>
+<li>支持热更新，资源可以独立于安装包更新</li>
+<li>按需加载，减少内存占用</li>
+<li>支持变体，同一资源针对不同平台&#x2F;设备加载不同版本</li>
+<li>可以精细控制加载和卸载时机</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>需要管理依赖关系，漏加载依赖包会导致资源丢失，或者依赖未正确处理会产生资源冗余（同一资源打进多个包）</li>
+<li>开发流程复杂，需要额外的打包和版本管理系统</li>
+<li>Unload 使用不当会导致内存泄漏或纹理变洋红</li>
+</ul>
+<p>实际用例：</p>
+<ul>
+<li>手游热更新（关卡、角色、皮肤）</li>
+<li>DLC 内容下载</li>
+<li>大型游戏按需加载地图&#x2F;场景</li>
+<li>多语言资源包（不同语言加载不同 AB）</li>
+</ul>
+<p>现代 Unity 项目的推荐方案是用 Addressables，它是对 AssetBundle 的封装，自动处理依赖、缓存和版本管理，大幅降低 AB 包的使用复杂度。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/19/%E5%8E%8B%E7%BC%A9%E6%A0%BC%E5%BC%8F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1433,90 +1598,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/02/11/%E7%BA%BF%E6%80%A7%E4%B8%8E%E9%9D%9E%E7%BA%BF%E6%80%A7%E8%A1%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/02/11/%E7%BA%BF%E6%80%A7%E4%B8%8E%E9%9D%9E%E7%BA%BF%E6%80%A7%E8%A1%A8/" class="post-title-link" itemprop="url">线性与非线性表</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2026-02-11 16:42:00" itemprop="dateCreated datePublished" datetime="2026-02-11T16:42:00+08:00">2026-02-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-03-03 13:43:32" itemprop="dateModified" datetime="2026-03-03T13:43:32+08:00">2026-03-03</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>线性：一头一尾，每个元素只有一个前驱和一个后驱，比如栈&#x2F;队列<br>非线性：分支、分层关系，比如树&#x2F;图</p>
-<hr>
-<h1 id="物理结构和逻辑结构"><a href="#物理结构和逻辑结构" class="headerlink" title="物理结构和逻辑结构"></a>物理结构和逻辑结构</h1><p><strong>数组和链表可以看做物理存储的概念。</strong><br>数组是用一段连续的内存存储，可以随机访问，支持随机访问（ O(1) ），但增删需移动元素（ O(n) ）。<br>链表不要求连续的内存，元素分散存储，通过指针连接，增删无需移动元素（ O(1) ），但不支持随机访问（ O(n) ）。</p>
-<p><strong>而数据结构都是逻辑层的概念，线性表，非线性表，栈，队列，树，图等等。</strong><br>线性表这些逻辑层的概念，底层既可以用数组实现，也可以用链表实现。线性表用数组实现就叫做顺序表。</p>
-<p>“顺序表是在计算机内存中以数组的形式保存的线中以数组的形式保存的线性表。” 简而言之，是线性表的一种实现方式。显然，这里的“数组”指物理结构，“线性表”指逻辑结构。这个解释应该还是合理的。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1594,7 +1675,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-count">33</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1607,7 +1688,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
