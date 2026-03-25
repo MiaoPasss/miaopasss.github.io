@@ -161,6 +161,200 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/" class="post-title-link" itemprop="url">渲染管线概览</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-08-14 17:45:38" itemprop="dateCreated datePublished" datetime="2025-08-14T17:45:38+08:00">2025-08-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-08-15 17:58:21" itemprop="dateModified" datetime="2025-08-15T17:58:21+08:00">2025-08-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p2.png" title="渲染图元"> <br></p>
+<h1 id="CPU-GPU工作流程"><a href="#CPU-GPU工作流程" class="headerlink" title="CPU + GPU工作流程"></a>CPU + GPU工作流程</h1><ol>
+<li>剔除，把一些不想看到的，或者看不到的东西排除掉</li>
+<li>确定物体的先后渲染顺序</li>
+<li>将对应的模型数据、材质等打包发送给GPU</li>
+<li>发送SetPassCall和Drawcall告诉GPU渲染管线渲染模型数据所需的shader</li>
+<li>数据在GPU渲染管线中绘制，将3D物体渲染为2D图像</li>
+<li>将渲染图像存放在帧缓冲区（FrameBuffer）中。可以理解为一个和屏幕大小等大的临时画布</li>
+<li>后处理操作。通过CPU拿到帧缓冲区的图像，调用shader再进入GPU渲染管线，对帧缓冲区的图像进行二次的修改，比如调色、bloom等操作</li>
+<li>显示在屏幕上</li>
+</ol>
+<p>CPU应用程序端逻辑：经过剔除、排序等等，将模型数据打包发给GPU渲染管线<br>GPU渲染管线：拿到模型数据后，讲图像画出来，存放在对应的帧缓冲区中</p>
+<p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p3.png" title="CPU打包数据"> <br></p>
+<h1 id="GPU渲染管线"><a href="#GPU渲染管线" class="headerlink" title="GPU渲染管线"></a>GPU渲染管线</h1><ol start="0">
+<li>CPU打包数据：vertex buffer&#x2F;index buffer&#x2F;frustum视锥&#x2F;directional light平行光&#x2F;texture+shader<br> • SetPass Call：设定好渲染设置后，告诉GPU使用哪个shader，使用哪种混合模式、设置背面剔除等等，当使用不同的材质或者相同的材质下不同的Pass时需要设置切换多个渲染状态，就会增加SetPassCall，所以SetPassCall的次数也能反映性能<br> • Draw Call（绘制调用）：CPU打包数据发送给GPU，告诉GPU使用哪些模型数据进行渲染</li>
+<li>Vertex Shader: 使用顶点&#x2F;视锥信息将模型空间变换到屏幕空间</li>
+<li>Triangle Processing 图元装配：把顶点信息按照缓存连接成三角形图元</li>
+<li>Rasterization：插值计算出三角形每个像素的深度&#x2F;颜色</li>
+<li>Pixel Shader (i.e. Fragment Shader)：根据灯光&#x2F;纹理贴图采样</li>
+<li>Frame Buffer：post processing 抗锯齿 校色 景深（DOF） 动态模糊</li>
+</ol>
+<p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p1.jpg" title="全览图"> <br></p>
+<h1 id="图元-vs-片元"><a href="#图元-vs-片元" class="headerlink" title="图元 vs 片元"></a>图元 vs 片元</h1><ul>
+<li>图元</li>
+</ul>
+<p>渲染图元（rendering primitives）为图形渲染开发接口中用来描述各种图形元素的图形数据，所对应的就是绘图界面上看得见的实体，它包括了渲染所需的几何信息，可以是顶点数据、线段、多边形等。</p>
+<p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p4.png" title="图元的数据类型"> <br></p>
+<p>图元至少要包含一个顶点（Vertex）；一个顶点定义了2D或3D坐标系中一个点，也同样定义了若干个可以影响如何把顶点渲染到屏幕上的属性，如：</p>
+<p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p5.png" title="图元顶点所包含的信息"> <br></p>
+<ul>
+<li>片元</li>
+</ul>
+<p>在GPU流水线中的三角形遍历阶段，将会检查每个像素是否被一个三角网格所覆盖；如果被覆盖的话，就会生成一个片元（fragment）；需要注意的是，一个片元并不是真正意义上的像素，而是包括了很多状态的集合，这些状态用于计算每个像素的最终颜色；这些状态包括了（但不限于）它的屏幕坐标、深度信息，以及其它从几何阶段输出的顶点信息，例如法线、纹理坐标等。</p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/lel18570471704/article/details/134708949">https://blog.csdn.net/lel18570471704/article/details/134708949</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/667522425">https://zhuanlan.zhihu.com/p/667522425</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/407046161">https://zhuanlan.zhihu.com/p/407046161</a><br>图元vs片元：<a target="_blank" rel="noopener" href="https://blog.csdn.net/DoomGT/article/details/115806364">https://blog.csdn.net/DoomGT/article/details/115806364</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/" class="post-title-link" itemprop="url">变换矩阵</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-08-08 11:42:32 / Modified: 15:25:06" itemprop="dateCreated datePublished" datetime="2025-08-08T11:42:32+08:00">2025-08-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Math/" itemprop="url" rel="index"><span itemprop="name">Math</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>固定坐标系下，一个对象的变换等价于固定对象所处的坐标系变换。</p>
+<p><img src="/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/p1.png" title="标量"> <br></p>
+<p>经过线性变换(直线依旧是直线，保持网格线平等且等距分布，并且原点保持固定)：</p>
+<p><img src="/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/p2.png" title="标量变换"> <br></p>
+<p>如图，新坐标系的基就是那个绿箭头和红箭头，在原来的ij坐标系下的坐标值是[1,-2]和[3,0]。经过如图的计算过程，坐标系的变化，导致原来的V向量变成了[5,2]，实现了移动。</p>
+<h1 id="Transformation-Matrix"><a href="#Transformation-Matrix" class="headerlink" title="Transformation Matrix"></a>Transformation Matrix</h1><p>常见的变换矩阵类型：<br><img src="/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/p3.png" title="变换矩阵举例"> <br></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/06/%E5%9B%9B%E5%85%83%E6%95%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -299,7 +493,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-08-11 14:49:56" itemprop="dateModified" datetime="2025-08-11T14:49:56+08:00">2025-08-11</time>
+                <time title="Modified: 2026-03-24 16:09:23" itemprop="dateModified" datetime="2026-03-24T16:09:23+08:00">2026-03-24</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -308,6 +502,10 @@
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
                 </span>
             </span>
 
@@ -574,7 +772,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-02-09 17:30:33" itemprop="dateModified" datetime="2026-02-09T17:30:33+08:00">2026-02-09</time>
+                <time title="Modified: 2026-03-24 16:10:11" itemprop="dateModified" datetime="2026-03-24T16:10:11+08:00">2026-03-24</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -583,6 +781,10 @@
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
                 </span>
             </span>
 
@@ -836,7 +1038,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-12 17:49:44" itemprop="dateModified" datetime="2025-03-12T17:49:44+08:00">2025-03-12</time>
+                <time title="Modified: 2026-03-24 16:11:14" itemprop="dateModified" datetime="2026-03-24T16:11:14+08:00">2026-03-24</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -845,6 +1047,10 @@
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
                 </span>
             </span>
 
@@ -1149,212 +1355,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/" class="post-title-link" itemprop="url">TCP/IP 五层网络模型</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-12 17:26:08" itemprop="dateCreated datePublished" datetime="2025-02-12T17:26:08+08:00">2025-02-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-03-16 16:51:42" itemprop="dateModified" datetime="2026-03-16T16:51:42+08:00">2026-03-16</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Networks/" itemprop="url" rel="index"><span itemprop="name">Networks</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="TCP-IP网络模型各层协议功能"><a href="#TCP-IP网络模型各层协议功能" class="headerlink" title="TCP&#x2F;IP网络模型各层协议功能"></a>TCP&#x2F;IP网络模型各层协议功能</h1><h2 id="1-应用层"><a href="#1-应用层" class="headerlink" title="1. 应用层"></a>1. 应用层</h2><p>应用层是网络通信的最高层，它定义了应用程序和网络之间的接口。在这一层，用户可以直接与应用程序进行交互。常见的应用层协议有HTTP、FTP、SMTP等。</p>
-<ul>
-<li><p><strong>Proxy</strong><br>A proxy server (forward proxy) takes requests from a client and forwards them to the internet, a reverse proxy takes requests from the internet and forwards them to a server.</p>
-</li>
-<li><p><strong>Transport Layer Security</strong><br>SSL&#x2F;TLS uses asymmetric encryption is used to establish a secure session between a client and a server, and symmetric encryption is used to exchange data within the secured session.<br>密钥：数据的加密是通过密钥进行的，通过密钥，明文被加密成密文。密钥分为对称加密密钥和非对称加密密钥。密钥为一段随机生成的数，通常以 .pem或者 .key文件保存，可以使用Openssl生成。<br>对称加密：加密解密都是使用同一个密钥。服务器使用该密钥进行加密，经过传输后客户端使用该密钥解密。该方式效率高，但存在安全隐患。<br>非对称加密：非对称加密具有一个密钥对，公钥和私钥，理论上来说公钥和私钥并不区分，便于区分将保存在本地的那个叫做私钥，将需要传输给对方的那个叫做公钥。数据经过私钥加密后，只能由对应的公钥解密，同样数据经过公钥加密后，只能由对应的私钥解密。那么只要客户端拥有服务器的公钥，通过公钥加密报文，服务器用自己的私钥解密就可以实现对传输过程的加密。非对称加密的效率比较低，而且仍有被中间人攻击的风险。<br>证书颁发机构：CA机构是权威的第三方，机构本身具有自己的CA公钥与CA私钥，CA公钥是发给全体互联网成员的，可以将其称为CA证书。服务器需要将自己的 公钥以及认证信息经过HASH加密后发改CA机构，CA机构使用CA私钥对提交的信息进行加密，这就得到了带有数字签名的数据。在使用时使用CA公钥对带有数字签名的数据解密，得到经HASH后的数据，同时将公钥以及认证信息 经过HASH加密后与CA解密后的数据比对，验证电子签名的安全性。</p>
-</li>
-</ul>
-<h2 id="2-传输层"><a href="#2-传输层" class="headerlink" title="2. 传输层"></a>2. 传输层</h2><p>传输层负责在源主机和目标主机（端到端）之间建立数据传输通道，主要协议有TCP和UDP。</p>
-<h2 id="3-网络层"><a href="#3-网络层" class="headerlink" title="3. 网络层"></a>3. 网络层</h2><p>网络层负责在网络上寻址和路由数据包。它定义了数据在网络中的传输路径，使得数据可以从源主机传输到目标主机。常见的网络层协议有IP协议。</p>
-<ul>
-<li><strong>地址解析协议</strong><br>ARP（Address Resolution Protocol，地址解析协议）是用来将IP地址解析为MAC地址的协议。主机或三层网络设备上会维护一张ARP表，用于存储IP地址和MAC地址的映射关系</li>
-</ul>
-<h2 id="4-数据链路层"><a href="#4-数据链路层" class="headerlink" title="4. 数据链路层"></a>4. 数据链路层</h2><p>数据链路层协议负责将网络层传输的数据分组封装成帧，传输到物理层，并通过物理介质进行传输。常见的数据链路层协议有以太网和Wi-Fi等。</p>
-<h2 id="5-物理层"><a href="#5-物理层" class="headerlink" title="5. 物理层"></a>5. 物理层</h2><p>物理层是网络通信的最底层，它负责在物理介质上传输比特流。它定义了物理连接的特性，如电压、频率等。常见的物理层介质有光纤、双绞线等。</p>
-<hr>
-<h1 id="二层设备和三层设备"><a href="#二层设备和三层设备" class="headerlink" title="二层设备和三层设备"></a>二层设备和三层设备</h1><p>二层设备是工作数据链路层的设备。二层交换机可以识别数据包中的MAC地址信息，根据MAC地址进行转发，并将这些MAC地址与对应的端口记录在自己内部的一个地址表中。具体的工作流程如下：<br>（1） 当交换机从某个端口收到一个数据包，它先读取包头中的源MAC地址，这样它就知道源MAC地址的机器是连在哪个端口上的；<br>（2） 再去读取包头中的目的MAC地址，并在地址表中查找相应的端口；<br>（3） 如表中有与这目的MAC地址对应的端口，把数据包直接复制到这端口上；<br>（4） 如表中找不到相应的端口则把数据包广播到所有端口上，当目的机器对源机器回应时，交换机又可以学习一目的MAC地址与哪个端口对应，在下次传送数据时就不再需要对所有端口进行广播了。<br>不断的循环这个过程，对于全网的MAC地址信息都可以学习到，二层交换机就是这样建立和维护它自己的地址表。</p>
-<p>三层设备是工作在网络层的设备。路由器是最常用的三层设备，利用不同网络的ID号（即IP地址）来确定数据转发的地址。IP地址是在软件中实现的，描述的是设备所在的网络，有时这些第三层的地址也称为协议地址或者网络地址。</p>
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>详解TCP&#x2F;IP五层网络模型：<a target="_blank" rel="noopener" href="https://blog.csdn.net/2201_75437633/article/details/137373813">https://blog.csdn.net/2201_75437633/article/details/137373813</a><br>TLS&#x2F;SSL：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44640149/article/details/134667685">https://blog.csdn.net/weixin_44640149/article/details/134667685</a></p>
-<hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/11/C-%E4%B8%AD%E7%9A%84unsafe%E3%80%81fixed%E5%92%8Cchecked%E5%85%B3%E9%94%AE%E5%AD%97/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/11/C-%E4%B8%AD%E7%9A%84unsafe%E3%80%81fixed%E5%92%8Cchecked%E5%85%B3%E9%94%AE%E5%AD%97/" class="post-title-link" itemprop="url">C#中的unsafe、fixed和checked关键字</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-11 15:19:51" itemprop="dateCreated datePublished" datetime="2025-02-11T15:19:51+08:00">2025-02-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-07 11:44:24" itemprop="dateModified" datetime="2025-03-07T11:44:24+08:00">2025-03-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Stack-vs-Heap"><a href="#Stack-vs-Heap" class="headerlink" title="Stack vs. Heap"></a>Stack vs. Heap</h1><p>In C#, primitive types such as int, double, and bool are all structs. Arrays of int are allocated on heap as int structs, only pointer to them will be allocated on stack.<br>To make a fixed size array be stored on stack, you need to use the <em>stackalloc</em> keyword, either with <em>unsafe</em> block or <em>Span</em> type.</p>
-<figure class="highlight cs"><figcaption><span>unsafe关键词示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="keyword">unsafe</span> <span class="title">foo</span>(<span class="params"><span class="built_in">int</span> length</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">int</span>* bar = <span class="keyword">stackalloc</span> <span class="built_in">int</span> [length];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cs"><figcaption><span>type Span示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">foo</span>(<span class="params"><span class="built_in">int</span> length</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    Span&lt;<span class="built_in">int</span>&gt; bar = <span class="keyword">stackalloc</span> <span class="built_in">int</span> [length];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="unsafe"><a href="#unsafe" class="headerlink" title="unsafe"></a>unsafe</h1><p>unsafe关键字用于声明不安全的代码块。在C#中，默认情况下，代码是安全的，这意味着它遵循.NET的安全规则，包括对内存的访问控制。使用unsafe关键字可以告诉编译器，你了解并信任这段代码，即使它可能违反安全规则。</p>
-<p>使用unsafe关键字需要满足一些条件：</p>
-<ol>
-<li>你的项目必须被标记为允许不安全代码（通过在项目的属性中设置Allow Unsafe Code）。</li>
-<li>你的代码必须在unsafe代码块中。</li>
-<li>你必须使用fixed关键字来固定内存块。</li>
-</ol>
-<h1 id="fixed"><a href="#fixed" class="headerlink" title="fixed"></a>fixed</h1><p>fixed 关键字在 C# 中主要用于固定内存地址，通常与不安全代码（unsafe）一起使用。当你在不安全的代码中直接访问内存时，使用 fixed 关键字可以确保内存地址在程序运行期间保持不变。</p>
-<p>使用 fixed 关键字的主要原因是：在垃圾回收过程中，垃圾回收器可能会移动内存中的对象。如果一个指针指向一个对象，而该对象在垃圾回收过程中被移动，那么该指针就会变得无效。通过使用 fixed 关键字，你可以告诉垃圾回收器不要移动这个对象，从而确保指针始终指向有效的内存地址。</p>
-<figure class="highlight cs"><figcaption><span>fixed关键字示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsafe</span> <span class="keyword">class</span> <span class="title">Example</span>  </span><br><span class="line">&#123;  </span><br><span class="line">    <span class="built_in">int</span>[] array = <span class="keyword">new</span> <span class="built_in">int</span>[<span class="number">10</span>];  </span><br><span class="line">    <span class="keyword">fixed</span> <span class="built_in">int</span>* ptr = <span class="keyword">stackalloc</span> <span class="built_in">int</span>[] &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> &#125;;  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Method</span>()</span>  </span><br><span class="line">    &#123;  </span><br><span class="line">        <span class="built_in">int</span>* p = ptr; <span class="comment">// 这里的p指向一个固定的内存地址  </span></span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; array.Length; i++)  </span><br><span class="line">        &#123;  </span><br><span class="line">            *(p + i) = array[i]; <span class="comment">// 将数组的值赋给固定的内存地址  </span></span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在这个例子中，我们创建了一个固定大小的数组 ptr，并在方法 Method 中使用它来修改另一个数组 array 的值。因为 ptr 是用 fixed 关键字声明的，所以它指向的内存地址在 Method 执行期间是固定的，不会发生位移</p>
-<h1 id="checked"><a href="#checked" class="headerlink" title="checked"></a>checked</h1><p>checked关键字用于在算术运算中控制溢出检查。默认情况下，当一个整数运算结果超出了该类型的表示范围时，会抛出System.OverflowException异常。使用checked关键字可以强制执行溢出检查，并在发生溢出时抛出异常。</p>
-<figure class="highlight cs"><figcaption><span>checked关键字示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title">Program</span>  </span><br><span class="line">&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">unsafe</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] <span class="keyword">args</span></span>)</span>  </span><br><span class="line">    &#123;  </span><br><span class="line">        <span class="built_in">int</span> maxValue = <span class="built_in">int</span>.MaxValue;  </span><br><span class="line">        <span class="built_in">int</span>* ptr = <span class="keyword">stackalloc</span> <span class="built_in">int</span>[] &#123; maxValue &#125;; <span class="comment">// 创建一个固定大小的数组  </span></span><br><span class="line">        <span class="keyword">fixed</span> (<span class="built_in">int</span>* p = ptr) <span class="comment">// 使用fixed关键字固定内存地址  </span></span><br><span class="line">        &#123;  </span><br><span class="line">            *(p + <span class="number">1</span>) = <span class="number">0</span>; <span class="comment">// 尝试访问超出数组范围的内存，这会导致未定义的行为（除非使用unsafe代码）  </span></span><br><span class="line">        &#125;  </span><br><span class="line">        Console.WriteLine(ptr[<span class="number">1</span>]); <span class="comment">// 这将输出0，因为我们在不安全的代码中修改了内存  </span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">uint</span> a = <span class="built_in">uint</span>.MaxValue;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">unchecked</span></span><br><span class="line">&#123;</span><br><span class="line">    Console.WriteLine(a + <span class="number">3</span>);  <span class="comment">// output: 2</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">try</span></span><br><span class="line">&#123;</span><br><span class="line">    checked</span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(a + <span class="number">3</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span> (OverflowException e)</span><br><span class="line">&#123;</span><br><span class="line">    Console.WriteLine(e.Message);  <span class="comment">// output: Arithmetic operation resulted in an overflow.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>输出:<br>2<br>Arithmetic operation resulted in an overflow.</p>
-</blockquote>
-<p>如果没有checked，那么输出的就是2，不会抛出异常也不会提示结果实际上已经超出范围了。导致程序发生一些不可预估的问题；</p>
-<p>在这个例子中，我们创建了一个固定大小的数组，并在一个fixed代码块中修改了数组外的内存。因为我们使用了unsafe和fixed关键字，所以这是合法的。但请注意，试图访问数组外的内存是一种未定义的行为，可能会导致程序崩溃或其他不可预测的结果。</p>
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_31418645/article/details/135245645">https://blog.csdn.net/qq_31418645/article/details/135245645</a></p>
-<hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1432,20 +1432,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-count">35</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

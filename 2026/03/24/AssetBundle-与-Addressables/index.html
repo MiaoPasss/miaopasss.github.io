@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="AssetBundleAssetBundle 本质是一个压缩的二进制文件，内部结构如下： 1234AssetBundle 文件├── Header（包头：版本、压缩类型、元数据）├── Manifest（资源清单：资源名、依赖关系、GUID）└── Data Segment（序列化的资源数据） 支持两种压缩格式：  LZMA：压缩率高，但加载时需整包解压，内存占用大 LZ4：块压缩，按需解压，加载">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AssetBundle 与 Addressables">
+<meta property="og:url" content="https://miaopasss.github.io/2026/03/24/AssetBundle-%E4%B8%8E-Addressables/index.html">
+<meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
+<meta property="og:description" content="AssetBundleAssetBundle 本质是一个压缩的二进制文件，内部结构如下： 1234AssetBundle 文件├── Header（包头：版本、压缩类型、元数据）├── Manifest（资源清单：资源名、依赖关系、GUID）└── Data Segment（序列化的资源数据） 支持两种压缩格式：  LZMA：压缩率高，但加载时需整包解压，内存占用大 LZ4：块压缩，按需解压，加载">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-03-24T08:58:01.000Z">
+<meta property="article:modified_time" content="2026-03-24T09:09:33.257Z">
+<meta property="article:author" content="Haotian Luo">
+<meta property="article:tag" content="Resource Management">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://miaopasss.github.io/2026/03/24/AssetBundle-%E4%B8%8E-Addressables/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>AssetBundle 与 Addressables | 乌啦呀哈呀哈乌啦！</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">乌啦呀哈呀哈乌啦！</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">欢迎光临，这里是喵pass的个人博客，希望有能帮到你的地方
+</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页 | Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类 | Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签 | Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档 | Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/miaopasss" class="github-corner" title="Check out my GitHub" aria-label="Check out my GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/24/AssetBundle-%E4%B8%8E-Addressables/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AssetBundle 与 Addressables
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-03-24 16:58:01 / Modified: 17:09:33" itemprop="dateCreated datePublished" datetime="2026-03-24T16:58:01+08:00">2026-03-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="AssetBundle"><a href="#AssetBundle" class="headerlink" title="AssetBundle"></a>AssetBundle</h1><p>AssetBundle 本质是一个压缩的二进制文件，内部结构如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">AssetBundle 文件</span><br><span class="line">├── Header（包头：版本、压缩类型、元数据）</span><br><span class="line">├── Manifest（资源清单：资源名、依赖关系、GUID）</span><br><span class="line">└── Data Segment（序列化的资源数据）</span><br></pre></td></tr></table></figure>
+<p>支持两种压缩格式：</p>
+<ul>
+<li>LZMA：压缩率高，但加载时需整包解压，内存占用大</li>
+<li>LZ4：块压缩，按需解压，加载更快，推荐使用</li>
+</ul>
+<h2 id="依赖关系"><a href="#依赖关系" class="headerlink" title="依赖关系"></a>依赖关系</h2><p>AB 包之间存在依赖链，必须按顺序加载：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bundle_character.ab</span><br><span class="line">    └── 依赖 bundle_texture.ab</span><br><span class="line">            └── 依赖 bundle_shader.ab</span><br></pre></td></tr></table></figure>
+<p>如果 bundle_texture.ab 未加载，bundle_character.ab 中的资源会出现材质丢失（粉红色）。</p>
+<h2 id="打包脚本（Editor）"><a href="#打包脚本（Editor）" class="headerlink" title="打包脚本（Editor）"></a>打包脚本（Editor）</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Editor/AssetBundleBuilder.cs</span></span><br><span class="line"><span class="keyword">using</span> UnityEditor;</span><br><span class="line"><span class="keyword">using</span> System.IO;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AssetBundleBuilder</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">MenuItem(<span class="string">&quot;Tools/Build AssetBundles&quot;</span>)</span>]</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">BuildAllAB</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">string</span> outputPath = <span class="string">&quot;Assets/StreamingAssets/AssetBundles&quot;</span>;</span><br><span class="line">        <span class="keyword">if</span> (!Directory.Exists(outputPath))</span><br><span class="line">            Directory.CreateDirectory(outputPath);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// BuildAssetBundleOptions.ChunkBasedCompression 使用 LZ4 压缩</span></span><br><span class="line">        BuildPipeline.BuildAssetBundles(</span><br><span class="line">            outputPath,</span><br><span class="line">            BuildAssetBundleOptions.ChunkBasedCompression,</span><br><span class="line">            BuildTarget.StandaloneWindows64</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        AssetDatabase.Refresh();</span><br><span class="line">        UnityEngine.Debug.Log(<span class="string">&quot;AssetBundle 构建完成&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="运行时加载管理器"><a href="#运行时加载管理器" class="headerlink" title="运行时加载管理器"></a>运行时加载管理器</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Runtime/AssetBundleManager.cs</span></span><br><span class="line"><span class="keyword">using</span> System.Collections;</span><br><span class="line"><span class="keyword">using</span> System.Collections.Generic;</span><br><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AssetBundleManager</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 缓存已加载的 AB 包，避免重复加载</span></span><br><span class="line">    <span class="keyword">private</span> Dictionary&lt;<span class="built_in">string</span>, AssetBundle&gt; _loadedBundles = <span class="keyword">new</span>();</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">string</span> _basePath;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Awake</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _basePath = Application.streamingAssetsPath + <span class="string">&quot;/AssetBundles/&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 同步加载 AB 包（会阻塞主线程，小包可用）</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AssetBundle <span class="title">LoadBundle</span>(<span class="params"><span class="built_in">string</span> bundleName</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (_loadedBundles.TryGetValue(bundleName, <span class="keyword">out</span> <span class="keyword">var</span> cached))</span><br><span class="line">            <span class="keyword">return</span> cached;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 先加载依赖</span></span><br><span class="line">        LoadDependencies(bundleName);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> bundle = AssetBundle.LoadFromFile(_basePath + bundleName);</span><br><span class="line">        <span class="keyword">if</span> (bundle == <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(<span class="string">$&quot;加载 AB 包失败: <span class="subst">&#123;bundleName&#125;</span>&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        _loadedBundles[bundleName] = bundle;</span><br><span class="line">        <span class="keyword">return</span> bundle;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 加载依赖包（通过 Manifest 自动解析）</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">LoadDependencies</span>(<span class="params"><span class="built_in">string</span> bundleName</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// Manifest 包名与输出目录同名</span></span><br><span class="line">        <span class="keyword">var</span> manifestBundle = AssetBundle.LoadFromFile(_basePath + <span class="string">&quot;AssetBundles&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (manifestBundle == <span class="literal">null</span>) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> manifest = manifestBundle.LoadAsset&lt;AssetBundleManifest&gt;(<span class="string">&quot;AssetBundleManifest&quot;</span>);</span><br><span class="line">        <span class="built_in">string</span>[] deps = manifest.GetAllDependencies(bundleName);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> dep <span class="keyword">in</span> deps)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (!_loadedBundles.ContainsKey(dep))</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">var</span> depBundle = AssetBundle.LoadFromFile(_basePath + dep);</span><br><span class="line">                <span class="keyword">if</span> (depBundle != <span class="literal">null</span>)</span><br><span class="line">                    _loadedBundles[dep] = depBundle;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        manifestBundle.Unload(<span class="literal">false</span>); <span class="comment">// 卸载 Manifest 包，保留已加载资源</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 异步加载 AB 包（推荐，不阻塞主线程）</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IEnumerator <span class="title">LoadBundleAsync</span>(<span class="params"><span class="built_in">string</span> bundleName, System.Action&lt;AssetBundle&gt; onComplete</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (_loadedBundles.TryGetValue(bundleName, <span class="keyword">out</span> <span class="keyword">var</span> cached))</span><br><span class="line">        &#123;</span><br><span class="line">            onComplete?.Invoke(cached);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> request = AssetBundle.LoadFromFileAsync(_basePath + bundleName);</span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">return</span> request;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (request.assetBundle == <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(<span class="string">$&quot;异步加载 AB 包失败: <span class="subst">&#123;bundleName&#125;</span>&quot;</span>);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        _loadedBundles[bundleName] = request.assetBundle;</span><br><span class="line">        onComplete?.Invoke(request.assetBundle);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 从已加载的包中加载具体资源</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">LoadAsset</span>&lt;<span class="title">T</span>&gt;(<span class="params"><span class="built_in">string</span> bundleName, <span class="built_in">string</span> assetName</span>) <span class="keyword">where</span> T : Object</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> bundle = LoadBundle(bundleName);</span><br><span class="line">        <span class="keyword">return</span> bundle?.LoadAsset&lt;T&gt;(assetName);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 卸载 AB 包</span></span><br><span class="line">    <span class="comment">// unloadAllObjects=true：同时卸载从该包加载的所有资源实例（防内存泄漏）</span></span><br><span class="line">    <span class="comment">// unloadAllObjects=false：只卸载包本身，已加载的资源继续存在</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">UnloadBundle</span>(<span class="params"><span class="built_in">string</span> bundleName, <span class="built_in">bool</span> unloadAllObjects = <span class="literal">false</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (_loadedBundles.TryGetValue(bundleName, <span class="keyword">out</span> <span class="keyword">var</span> bundle))</span><br><span class="line">        &#123;</span><br><span class="line">            bundle.Unload(unloadAllObjects);</span><br><span class="line">            _loadedBundles.Remove(bundleName);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 卸载所有包</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">UnloadAll</span>(<span class="params"><span class="built_in">bool</span> unloadAllObjects = <span class="literal">false</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> bundle <span class="keyword">in</span> _loadedBundles.Values)</span><br><span class="line">            bundle.Unload(unloadAllObjects);</span><br><span class="line">        _loadedBundles.Clear();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用示例"><a href="#使用示例" class="headerlink" title="使用示例"></a>使用示例</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用 AssetBundleManager 加载预制体并实例化</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">GameLoader</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> AssetBundleManager _abManager;</span><br><span class="line"></span><br><span class="line">    <span class="function">IEnumerator <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 异步加载包</span></span><br><span class="line">        AssetBundle bundle = <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">return</span> _abManager.LoadBundleAsync(<span class="string">&quot;characters&quot;</span>, b =&gt; bundle = b);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (bundle != <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 从包中加载预制体</span></span><br><span class="line">            <span class="keyword">var</span> prefab = bundle.LoadAsset&lt;GameObject&gt;(<span class="string">&quot;Hero&quot;</span>);</span><br><span class="line">            Instantiate(prefab, Vector3.zero, Quaternion.identity);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 资源实例化后可以卸载包（unloadAllObjects=false 保留实例）</span></span><br><span class="line">            _abManager.UnloadBundle(<span class="string">&quot;characters&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Addressables"><a href="#Addressables" class="headerlink" title="Addressables"></a>Addressables</h1><p>Addressables 是对 AssetBundle 的高层封装，核心组件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Addressables 系统</span><br><span class="line">├── Catalog（资源目录）</span><br><span class="line">│     └── 地址(string) → 资源位置(本地/远程) 的映射表</span><br><span class="line">├── ResourceLocator（资源定位器）</span><br><span class="line">│     └── 根据 Catalog 找到资源的实际路径</span><br><span class="line">├── ResourceProvider（资源提供者）</span><br><span class="line">│     └── 负责实际的加载逻辑（本地文件/网络下载）</span><br><span class="line">├── AsyncOperationHandle（异步操作句柄）</span><br><span class="line">│     └── 管理加载状态、进度、回调</span><br><span class="line">└── ResourceManager（资源管理器）</span><br><span class="line">      └── 引用计数、内存管理</span><br></pre></td></tr></table></figure>
+
+<h2 id="加载流程"><a href="#加载流程" class="headerlink" title="加载流程"></a>加载流程</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Addressables.LoadAssetAsync(&quot;Hero&quot;)</span><br><span class="line">    ↓</span><br><span class="line">ResourceLocator 查询 Catalog</span><br><span class="line">    ↓</span><br><span class="line">找到资源位置（本地 StreamingAssets 或远程 CDN URL）</span><br><span class="line">    ↓</span><br><span class="line">ResourceProvider 加载对应的 AssetBundle</span><br><span class="line">    ↓</span><br><span class="line">自动加载所有依赖 Bundle</span><br><span class="line">    ↓</span><br><span class="line">从 Bundle 中提取目标资源</span><br><span class="line">    ↓</span><br><span class="line">引用计数 +1，返回 AsyncOperationHandle</span><br></pre></td></tr></table></figure>
+
+<h2 id="引用计数机制"><a href="#引用计数机制" class="headerlink" title="引用计数机制"></a>引用计数机制</h2><p>Addressables 内部维护引用计数，每次 LoadAssetAsync 计数 +1，每次 Release 计数 -1，归零时自动卸载 Bundle，这是它比原生 AB 包更安全的核心原因。</p>
+<h2 id="基础加载与释放"><a href="#基础加载与释放" class="headerlink" title="基础加载与释放"></a>基础加载与释放</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Runtime/AddressablesLoader.cs</span></span><br><span class="line"><span class="keyword">using</span> System.Collections;</span><br><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.AddressableAssets;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.ResourceManagement.AsyncOperations;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AddressablesLoader</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 在 Inspector 中直接引用 Addressable 资源（推荐，类型安全）</span></span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> AssetReferenceGameObject _heroPrefabRef;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> AsyncOperationHandle&lt;GameObject&gt; _loadHandle;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 方式一：通过 AssetReference（Inspector 拖拽绑定）</span></span><br><span class="line">        LoadViaAssetReference();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 方式二：通过地址字符串</span></span><br><span class="line">        <span class="comment">// LoadViaAddress(&quot;Hero&quot;);</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过 AssetReference 加载（推荐）</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">LoadViaAssetReference</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _loadHandle = _heroPrefabRef.LoadAssetAsync&lt;GameObject&gt;();</span><br><span class="line">        _loadHandle.Completed += OnLoadComplete;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过地址字符串加载</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">LoadViaAddress</span>(<span class="params"><span class="built_in">string</span> address</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _loadHandle = Addressables.LoadAssetAsync&lt;GameObject&gt;(address);</span><br><span class="line">        _loadHandle.Completed += OnLoadComplete;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnLoadComplete</span>(<span class="params">AsyncOperationHandle&lt;GameObject&gt; handle</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (handle.Status == AsyncOperationStatus.Succeeded)</span><br><span class="line">        &#123;</span><br><span class="line">            Instantiate(handle.Result, Vector3.zero, Quaternion.identity);</span><br><span class="line">            Debug.Log(<span class="string">&quot;资源加载成功&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(<span class="string">$&quot;资源加载失败: <span class="subst">&#123;handle.OperationException&#125;</span>&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnDestroy</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 必须释放句柄，否则引用计数不归零，内存泄漏</span></span><br><span class="line">        <span class="keyword">if</span> (_loadHandle.IsValid())</span><br><span class="line">            Addressables.Release(_loadHandle);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="异步实例化（更高效，跳过-LoadAsset-步骤）"><a href="#异步实例化（更高效，跳过-LoadAsset-步骤）" class="headerlink" title="异步实例化（更高效，跳过 LoadAsset 步骤）"></a>异步实例化（更高效，跳过 LoadAsset 步骤）</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AddressablesInstantiator</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> <span class="built_in">string</span> _address;</span><br><span class="line">    <span class="keyword">private</span> AsyncOperationHandle&lt;GameObject&gt; _instantiateHandle;</span><br><span class="line"></span><br><span class="line">    <span class="function">IEnumerator <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// InstantiateAsync 直接加载并实例化，一步到位</span></span><br><span class="line">        _instantiateHandle = Addressables.InstantiateAsync(</span><br><span class="line">            _address,</span><br><span class="line">            Vector3.zero,</span><br><span class="line">            Quaternion.identity</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 等待完成并显示进度</span></span><br><span class="line">        <span class="keyword">while</span> (!_instantiateHandle.IsDone)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.Log(<span class="string">$&quot;加载进度: <span class="subst">&#123;_instantiateHandle.PercentComplete:P0&#125;</span>&quot;</span>);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (_instantiateHandle.Status == AsyncOperationStatus.Succeeded)</span><br><span class="line">            Debug.Log(<span class="string">$&quot;实例化成功: <span class="subst">&#123;_instantiateHandle.Result.name&#125;</span>&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnDestroy</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// InstantiateAsync 创建的对象用 ReleaseInstance 释放</span></span><br><span class="line">        <span class="keyword">if</span> (_instantiateHandle.IsValid())</span><br><span class="line">            Addressables.ReleaseInstance(_instantiateHandle);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="批量加载（LoadAssetsAsync）"><a href="#批量加载（LoadAssetsAsync）" class="headerlink" title="批量加载（LoadAssetsAsync）"></a>批量加载（LoadAssetsAsync）</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AddressablesBatchLoader</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 通过 Label 批量加载同类资源</span></span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> <span class="built_in">string</span> _label = <span class="string">&quot;Enemies&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> AsyncOperationHandle&lt;IList&lt;GameObject&gt;&gt; _batchHandle;</span><br><span class="line"></span><br><span class="line">    <span class="function">IEnumerator <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _batchHandle = Addressables.LoadAssetsAsync&lt;GameObject&gt;(</span><br><span class="line">            _label,</span><br><span class="line">            obj =&gt; Debug.Log(<span class="string">$&quot;单个资源加载完成: <span class="subst">&#123;obj.name&#125;</span>&quot;</span>) <span class="comment">// 每个资源加载完的回调</span></span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">return</span> _batchHandle;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (_batchHandle.Status == AsyncOperationStatus.Succeeded)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">foreach</span> (<span class="keyword">var</span> prefab <span class="keyword">in</span> _batchHandle.Result)</span><br><span class="line">                Instantiate(prefab);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnDestroy</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (_batchHandle.IsValid())</span><br><span class="line">            Addressables.Release(_batchHandle);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="场景加载"><a href="#场景加载" class="headerlink" title="场景加载"></a>场景加载</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine.ResourceManagement.ResourceProviders;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.SceneManagement;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AddressablesSceneLoader</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> <span class="built_in">string</span> _sceneAddress = <span class="string">&quot;Level_01&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> AsyncOperationHandle&lt;SceneInstance&gt; _sceneHandle;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IEnumerator <span class="title">LoadScene</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _sceneHandle = Addressables.LoadSceneAsync(</span><br><span class="line">            _sceneAddress,</span><br><span class="line">            LoadSceneMode.Additive, <span class="comment">// 叠加模式，不卸载当前场景</span></span><br><span class="line">            activateOnLoad: <span class="literal">true</span></span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (!_sceneHandle.IsDone)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.Log(<span class="string">$&quot;场景加载进度: <span class="subst">&#123;_sceneHandle.PercentComplete:P0&#125;</span>&quot;</span>);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Debug.Log(<span class="string">&quot;场景加载完成&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IEnumerator <span class="title">UnloadScene</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (_sceneHandle.IsValid())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> unloadHandle = Addressables.UnloadSceneAsync(_sceneHandle);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">return</span> unloadHandle;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="热更新检查（远程内容更新）"><a href="#热更新检查（远程内容更新）" class="headerlink" title="热更新检查（远程内容更新）"></a>热更新检查（远程内容更新）</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System.Collections.Generic;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.AddressableAssets.ResourceLocators;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AddressablesUpdater</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function">IEnumerator <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// Step 1：检查 Catalog 是否有更新</span></span><br><span class="line">        <span class="keyword">var</span> checkHandle = Addressables.CheckForCatalogUpdates(autoReleaseHandle: <span class="literal">false</span>);</span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">return</span> checkHandle;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (checkHandle.Status != AsyncOperationStatus.Succeeded)</span><br><span class="line">        &#123;</span><br><span class="line">            Addressables.Release(checkHandle);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        List&lt;<span class="built_in">string</span>&gt; catalogsToUpdate = checkHandle.Result;</span><br><span class="line">        Addressables.Release(checkHandle);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (catalogsToUpdate.Count == <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.Log(<span class="string">&quot;无需更新&quot;</span>);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Step 2：更新 Catalog</span></span><br><span class="line">        <span class="keyword">var</span> updateHandle = Addressables.UpdateCatalogs(catalogsToUpdate, autoReleaseHandle: <span class="literal">false</span>);</span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">return</span> updateHandle;</span><br><span class="line"></span><br><span class="line">        List&lt;IResourceLocator&gt; updatedLocators = updateHandle.Result;</span><br><span class="line">        Addressables.Release(updateHandle);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Step 3：下载更新的内容</span></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> locator <span class="keyword">in</span> updatedLocators)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> sizeHandle = Addressables.GetDownloadSizeAsync(locator.Keys);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">return</span> sizeHandle;</span><br><span class="line"></span><br><span class="line">            <span class="built_in">long</span> downloadSize = sizeHandle.Result;</span><br><span class="line">            Addressables.Release(sizeHandle);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (downloadSize &gt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                Debug.Log(<span class="string">$&quot;需要下载: <span class="subst">&#123;downloadSize / <span class="number">1024f</span> / <span class="number">1024f</span>:F2&#125;</span> MB&quot;</span>);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">var</span> downloadHandle = Addressables.DownloadDependenciesAsync(locator.Keys);</span><br><span class="line">                <span class="keyword">yield</span> <span class="keyword">return</span> downloadHandle;</span><br><span class="line">                Addressables.Release(downloadHandle);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Debug.Log(<span class="string">&quot;更新完成&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Resource-Management/" rel="tag"># Resource Management</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/03/24/Unity%20Instance%20ID%20Cache/" rel="prev" title="Unity Instance ID Cache">
+      <i class="fa fa-chevron-left"></i> Unity Instance ID Cache
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AssetBundle"><span class="nav-number">1.</span> <span class="nav-text">AssetBundle</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E5%85%B3%E7%B3%BB"><span class="nav-number">1.1.</span> <span class="nav-text">依赖关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%93%E5%8C%85%E8%84%9A%E6%9C%AC%EF%BC%88Editor%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">打包脚本（Editor）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E5%8A%A0%E8%BD%BD%E7%AE%A1%E7%90%86%E5%99%A8"><span class="nav-number">1.3.</span> <span class="nav-text">运行时加载管理器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.4.</span> <span class="nav-text">使用示例</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Addressables"><span class="nav-number">2.</span> <span class="nav-text">Addressables</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B"><span class="nav-number">2.1.</span> <span class="nav-text">加载流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E7%94%A8%E8%AE%A1%E6%95%B0%E6%9C%BA%E5%88%B6"><span class="nav-number">2.2.</span> <span class="nav-text">引用计数机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E5%8A%A0%E8%BD%BD%E4%B8%8E%E9%87%8A%E6%94%BE"><span class="nav-number">2.3.</span> <span class="nav-text">基础加载与释放</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5%E5%AE%9E%E4%BE%8B%E5%8C%96%EF%BC%88%E6%9B%B4%E9%AB%98%E6%95%88%EF%BC%8C%E8%B7%B3%E8%BF%87-LoadAsset-%E6%AD%A5%E9%AA%A4%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">异步实例化（更高效，跳过 LoadAsset 步骤）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%B9%E9%87%8F%E5%8A%A0%E8%BD%BD%EF%BC%88LoadAssetsAsync%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">批量加载（LoadAssetsAsync）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E5%8A%A0%E8%BD%BD"><span class="nav-number">2.6.</span> <span class="nav-text">场景加载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%83%AD%E6%9B%B4%E6%96%B0%E6%A3%80%E6%9F%A5%EF%BC%88%E8%BF%9C%E7%A8%8B%E5%86%85%E5%AE%B9%E6%9B%B4%E6%96%B0%EF%BC%89"><span class="nav-number">2.7.</span> <span class="nav-text">热更新检查（远程内容更新）</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Haotian Luo"
+      src="/images/exciting-usagi.gif">
+  <p class="site-author-name" itemprop="name">Haotian Luo</p>
+  <div class="site-description" itemprop="description"><font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/miaopasss" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;miaopasss" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hubery.luo@icloud.com" title="E-Mail → mailto:hubery.luo@icloud.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Haotian Luo</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2026/03/24/AssetBundle-%E4%B8%8E-Addressables/',]
+      });
+      });
+  </script>
+
+</body>
+</html>

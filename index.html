@@ -161,6 +161,213 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/24/AssetBundle-%E4%B8%8E-Addressables/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/03/24/AssetBundle-%E4%B8%8E-Addressables/" class="post-title-link" itemprop="url">AssetBundle 与 Addressables</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-03-24 16:58:01 / Modified: 17:09:33" itemprop="dateCreated datePublished" datetime="2026-03-24T16:58:01+08:00">2026-03-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="AssetBundle"><a href="#AssetBundle" class="headerlink" title="AssetBundle"></a>AssetBundle</h1><p>AssetBundle 本质是一个压缩的二进制文件，内部结构如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">AssetBundle 文件</span><br><span class="line">├── Header（包头：版本、压缩类型、元数据）</span><br><span class="line">├── Manifest（资源清单：资源名、依赖关系、GUID）</span><br><span class="line">└── Data Segment（序列化的资源数据）</span><br></pre></td></tr></table></figure>
+<p>支持两种压缩格式：</p>
+<ul>
+<li>LZMA：压缩率高，但加载时需整包解压，内存占用大</li>
+<li>LZ4：块压缩，按需解压，加载更快，推荐使用</li>
+</ul>
+<h2 id="依赖关系"><a href="#依赖关系" class="headerlink" title="依赖关系"></a>依赖关系</h2><p>AB 包之间存在依赖链，必须按顺序加载：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bundle_character.ab</span><br><span class="line">    └── 依赖 bundle_texture.ab</span><br><span class="line">            └── 依赖 bundle_shader.ab</span><br></pre></td></tr></table></figure>
+<p>如果 bundle_texture.ab 未加载，bundle_character.ab 中的资源会出现材质丢失（粉红色）。</p>
+<h2 id="打包脚本（Editor）"><a href="#打包脚本（Editor）" class="headerlink" title="打包脚本（Editor）"></a>打包脚本（Editor）</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Editor/AssetBundleBuilder.cs</span></span><br><span class="line"><span class="keyword">using</span> UnityEditor;</span><br><span class="line"><span class="keyword">using</span> System.IO;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AssetBundleBuilder</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">MenuItem(<span class="string">&quot;Tools/Build AssetBundles&quot;</span>)</span>]</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">BuildAllAB</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">string</span> outputPath = <span class="string">&quot;Assets/StreamingAssets/AssetBundles&quot;</span>;</span><br><span class="line">        <span class="keyword">if</span> (!Directory.Exists(outputPath))</span><br><span class="line">            Directory.CreateDirectory(outputPath);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// BuildAssetBundleOptions.ChunkBasedCompression 使用 LZ4 压缩</span></span><br><span class="line">        BuildPipeline.BuildAssetBundles(</span><br><span class="line">            outputPath,</span><br><span class="line">            BuildAssetBundleOptions.ChunkBasedCompression,</span><br><span class="line">            BuildTarget.StandaloneWindows64</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        AssetDatabase.Refresh();</span><br><span class="line">        UnityEngine.Debug.Log(<span class="string">&quot;AssetBundle 构建完成&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="运行时加载管理器"><a href="#运行时加载管理器" class="headerlink" title="运行时加载管理器"></a>运行时加载管理器</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Runtime/AssetBundleManager.cs</span></span><br><span class="line"><span class="keyword">using</span> System.Collections;</span><br><span class="line"><span class="keyword">using</span> System.Collections.Generic;</span><br><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AssetBundleManager</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 缓存已加载的 AB 包，避免重复加载</span></span><br><span class="line">    <span class="keyword">private</span> Dictionary&lt;<span class="built_in">string</span>, AssetBundle&gt; _loadedBundles = <span class="keyword">new</span>();</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">string</span> _basePath;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Awake</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _basePath = Application.streamingAssetsPath + <span class="string">&quot;/AssetBundles/&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 同步加载 AB 包（会阻塞主线程，小包可用）</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AssetBundle <span class="title">LoadBundle</span>(<span class="params"><span class="built_in">string</span> bundleName</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (_loadedBundles.TryGetValue(bundleName, <span class="keyword">out</span> <span class="keyword">var</span> cached))</span><br><span class="line">            <span class="keyword">return</span> cached;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 先加载依赖</span></span><br><span class="line">        LoadDependencies(bundleName);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> bundle = AssetBundle.LoadFromFile(_basePath + bundleName);</span><br><span class="line">        <span class="keyword">if</span> (bundle == <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(<span class="string">$&quot;加载 AB 包失败: <span class="subst">&#123;bundleName&#125;</span>&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        _loadedBundles[bundleName] = bundle;</span><br><span class="line">        <span class="keyword">return</span> bundle;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 加载依赖包（通过 Manifest 自动解析）</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">LoadDependencies</span>(<span class="params"><span class="built_in">string</span> bundleName</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// Manifest 包名与输出目录同名</span></span><br><span class="line">        <span class="keyword">var</span> manifestBundle = AssetBundle.LoadFromFile(_basePath + <span class="string">&quot;AssetBundles&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (manifestBundle == <span class="literal">null</span>) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> manifest = manifestBundle.LoadAsset&lt;AssetBundleManifest&gt;(<span class="string">&quot;AssetBundleManifest&quot;</span>);</span><br><span class="line">        <span class="built_in">string</span>[] deps = manifest.GetAllDependencies(bundleName);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> dep <span class="keyword">in</span> deps)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (!_loadedBundles.ContainsKey(dep))</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">var</span> depBundle = AssetBundle.LoadFromFile(_basePath + dep);</span><br><span class="line">                <span class="keyword">if</span> (depBundle != <span class="literal">null</span>)</span><br><span class="line">                    _loadedBundles[dep] = depBundle;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        manifestBundle.Unload(<span class="literal">false</span>); <span class="comment">// 卸载 Manifest 包，保留已加载资源</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 异步加载 AB 包（推荐，不阻塞主线程）</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IEnumerator <span class="title">LoadBundleAsync</span>(<span class="params"><span class="built_in">string</span> bundleName, System.Action&lt;AssetBundle&gt; onComplete</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (_loadedBundles.TryGetValue(bundleName, <span class="keyword">out</span> <span class="keyword">var</span> cached))</span><br><span class="line">        &#123;</span><br><span class="line">            onComplete?.Invoke(cached);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> request = AssetBundle.LoadFromFileAsync(_basePath + bundleName);</span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">return</span> request;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (request.assetBundle == <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(<span class="string">$&quot;异步加载 AB 包失败: <span class="subst">&#123;bundleName&#125;</span>&quot;</span>);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        _loadedBundles[bundleName] = request.assetBundle;</span><br><span class="line">        onComplete?.Invoke(request.assetBundle);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 从已加载的包中加载具体资源</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">LoadAsset</span>&lt;<span class="title">T</span>&gt;(<span class="params"><span class="built_in">string</span> bundleName, <span class="built_in">string</span> assetName</span>) <span class="keyword">where</span> T : Object</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> bundle = LoadBundle(bundleName);</span><br><span class="line">        <span class="keyword">return</span> bundle?.LoadAsset&lt;T&gt;(assetName);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 卸载 AB 包</span></span><br><span class="line">    <span class="comment">// unloadAllObjects=true：同时卸载从该包加载的所有资源实例（防内存泄漏）</span></span><br><span class="line">    <span class="comment">// unloadAllObjects=false：只卸载包本身，已加载的资源继续存在</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">UnloadBundle</span>(<span class="params"><span class="built_in">string</span> bundleName, <span class="built_in">bool</span> unloadAllObjects = <span class="literal">false</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (_loadedBundles.TryGetValue(bundleName, <span class="keyword">out</span> <span class="keyword">var</span> bundle))</span><br><span class="line">        &#123;</span><br><span class="line">            bundle.Unload(unloadAllObjects);</span><br><span class="line">            _loadedBundles.Remove(bundleName);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 卸载所有包</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">UnloadAll</span>(<span class="params"><span class="built_in">bool</span> unloadAllObjects = <span class="literal">false</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> bundle <span class="keyword">in</span> _loadedBundles.Values)</span><br><span class="line">            bundle.Unload(unloadAllObjects);</span><br><span class="line">        _loadedBundles.Clear();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用示例"><a href="#使用示例" class="headerlink" title="使用示例"></a>使用示例</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用 AssetBundleManager 加载预制体并实例化</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">GameLoader</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> AssetBundleManager _abManager;</span><br><span class="line"></span><br><span class="line">    <span class="function">IEnumerator <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 异步加载包</span></span><br><span class="line">        AssetBundle bundle = <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">return</span> _abManager.LoadBundleAsync(<span class="string">&quot;characters&quot;</span>, b =&gt; bundle = b);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (bundle != <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 从包中加载预制体</span></span><br><span class="line">            <span class="keyword">var</span> prefab = bundle.LoadAsset&lt;GameObject&gt;(<span class="string">&quot;Hero&quot;</span>);</span><br><span class="line">            Instantiate(prefab, Vector3.zero, Quaternion.identity);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 资源实例化后可以卸载包（unloadAllObjects=false 保留实例）</span></span><br><span class="line">            _abManager.UnloadBundle(<span class="string">&quot;characters&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Addressables"><a href="#Addressables" class="headerlink" title="Addressables"></a>Addressables</h1><p>Addressables 是对 AssetBundle 的高层封装，核心组件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Addressables 系统</span><br><span class="line">├── Catalog（资源目录）</span><br><span class="line">│     └── 地址(string) → 资源位置(本地/远程) 的映射表</span><br><span class="line">├── ResourceLocator（资源定位器）</span><br><span class="line">│     └── 根据 Catalog 找到资源的实际路径</span><br><span class="line">├── ResourceProvider（资源提供者）</span><br><span class="line">│     └── 负责实际的加载逻辑（本地文件/网络下载）</span><br><span class="line">├── AsyncOperationHandle（异步操作句柄）</span><br><span class="line">│     └── 管理加载状态、进度、回调</span><br><span class="line">└── ResourceManager（资源管理器）</span><br><span class="line">      └── 引用计数、内存管理</span><br></pre></td></tr></table></figure>
+
+<h2 id="加载流程"><a href="#加载流程" class="headerlink" title="加载流程"></a>加载流程</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Addressables.LoadAssetAsync(&quot;Hero&quot;)</span><br><span class="line">    ↓</span><br><span class="line">ResourceLocator 查询 Catalog</span><br><span class="line">    ↓</span><br><span class="line">找到资源位置（本地 StreamingAssets 或远程 CDN URL）</span><br><span class="line">    ↓</span><br><span class="line">ResourceProvider 加载对应的 AssetBundle</span><br><span class="line">    ↓</span><br><span class="line">自动加载所有依赖 Bundle</span><br><span class="line">    ↓</span><br><span class="line">从 Bundle 中提取目标资源</span><br><span class="line">    ↓</span><br><span class="line">引用计数 +1，返回 AsyncOperationHandle</span><br></pre></td></tr></table></figure>
+
+<h2 id="引用计数机制"><a href="#引用计数机制" class="headerlink" title="引用计数机制"></a>引用计数机制</h2><p>Addressables 内部维护引用计数，每次 LoadAssetAsync 计数 +1，每次 Release 计数 -1，归零时自动卸载 Bundle，这是它比原生 AB 包更安全的核心原因。</p>
+<h2 id="基础加载与释放"><a href="#基础加载与释放" class="headerlink" title="基础加载与释放"></a>基础加载与释放</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Runtime/AddressablesLoader.cs</span></span><br><span class="line"><span class="keyword">using</span> System.Collections;</span><br><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.AddressableAssets;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.ResourceManagement.AsyncOperations;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AddressablesLoader</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 在 Inspector 中直接引用 Addressable 资源（推荐，类型安全）</span></span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> AssetReferenceGameObject _heroPrefabRef;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> AsyncOperationHandle&lt;GameObject&gt; _loadHandle;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 方式一：通过 AssetReference（Inspector 拖拽绑定）</span></span><br><span class="line">        LoadViaAssetReference();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 方式二：通过地址字符串</span></span><br><span class="line">        <span class="comment">// LoadViaAddress(&quot;Hero&quot;);</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过 AssetReference 加载（推荐）</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">LoadViaAssetReference</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _loadHandle = _heroPrefabRef.LoadAssetAsync&lt;GameObject&gt;();</span><br><span class="line">        _loadHandle.Completed += OnLoadComplete;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过地址字符串加载</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">LoadViaAddress</span>(<span class="params"><span class="built_in">string</span> address</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _loadHandle = Addressables.LoadAssetAsync&lt;GameObject&gt;(address);</span><br><span class="line">        _loadHandle.Completed += OnLoadComplete;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnLoadComplete</span>(<span class="params">AsyncOperationHandle&lt;GameObject&gt; handle</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (handle.Status == AsyncOperationStatus.Succeeded)</span><br><span class="line">        &#123;</span><br><span class="line">            Instantiate(handle.Result, Vector3.zero, Quaternion.identity);</span><br><span class="line">            Debug.Log(<span class="string">&quot;资源加载成功&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(<span class="string">$&quot;资源加载失败: <span class="subst">&#123;handle.OperationException&#125;</span>&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnDestroy</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 必须释放句柄，否则引用计数不归零，内存泄漏</span></span><br><span class="line">        <span class="keyword">if</span> (_loadHandle.IsValid())</span><br><span class="line">            Addressables.Release(_loadHandle);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="异步实例化（更高效，跳过-LoadAsset-步骤）"><a href="#异步实例化（更高效，跳过-LoadAsset-步骤）" class="headerlink" title="异步实例化（更高效，跳过 LoadAsset 步骤）"></a>异步实例化（更高效，跳过 LoadAsset 步骤）</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AddressablesInstantiator</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> <span class="built_in">string</span> _address;</span><br><span class="line">    <span class="keyword">private</span> AsyncOperationHandle&lt;GameObject&gt; _instantiateHandle;</span><br><span class="line"></span><br><span class="line">    <span class="function">IEnumerator <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// InstantiateAsync 直接加载并实例化，一步到位</span></span><br><span class="line">        _instantiateHandle = Addressables.InstantiateAsync(</span><br><span class="line">            _address,</span><br><span class="line">            Vector3.zero,</span><br><span class="line">            Quaternion.identity</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 等待完成并显示进度</span></span><br><span class="line">        <span class="keyword">while</span> (!_instantiateHandle.IsDone)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.Log(<span class="string">$&quot;加载进度: <span class="subst">&#123;_instantiateHandle.PercentComplete:P0&#125;</span>&quot;</span>);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (_instantiateHandle.Status == AsyncOperationStatus.Succeeded)</span><br><span class="line">            Debug.Log(<span class="string">$&quot;实例化成功: <span class="subst">&#123;_instantiateHandle.Result.name&#125;</span>&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnDestroy</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// InstantiateAsync 创建的对象用 ReleaseInstance 释放</span></span><br><span class="line">        <span class="keyword">if</span> (_instantiateHandle.IsValid())</span><br><span class="line">            Addressables.ReleaseInstance(_instantiateHandle);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="批量加载（LoadAssetsAsync）"><a href="#批量加载（LoadAssetsAsync）" class="headerlink" title="批量加载（LoadAssetsAsync）"></a>批量加载（LoadAssetsAsync）</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AddressablesBatchLoader</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 通过 Label 批量加载同类资源</span></span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> <span class="built_in">string</span> _label = <span class="string">&quot;Enemies&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> AsyncOperationHandle&lt;IList&lt;GameObject&gt;&gt; _batchHandle;</span><br><span class="line"></span><br><span class="line">    <span class="function">IEnumerator <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _batchHandle = Addressables.LoadAssetsAsync&lt;GameObject&gt;(</span><br><span class="line">            _label,</span><br><span class="line">            obj =&gt; Debug.Log(<span class="string">$&quot;单个资源加载完成: <span class="subst">&#123;obj.name&#125;</span>&quot;</span>) <span class="comment">// 每个资源加载完的回调</span></span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">return</span> _batchHandle;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (_batchHandle.Status == AsyncOperationStatus.Succeeded)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">foreach</span> (<span class="keyword">var</span> prefab <span class="keyword">in</span> _batchHandle.Result)</span><br><span class="line">                Instantiate(prefab);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnDestroy</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (_batchHandle.IsValid())</span><br><span class="line">            Addressables.Release(_batchHandle);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="场景加载"><a href="#场景加载" class="headerlink" title="场景加载"></a>场景加载</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine.ResourceManagement.ResourceProviders;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.SceneManagement;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AddressablesSceneLoader</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> <span class="built_in">string</span> _sceneAddress = <span class="string">&quot;Level_01&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> AsyncOperationHandle&lt;SceneInstance&gt; _sceneHandle;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IEnumerator <span class="title">LoadScene</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _sceneHandle = Addressables.LoadSceneAsync(</span><br><span class="line">            _sceneAddress,</span><br><span class="line">            LoadSceneMode.Additive, <span class="comment">// 叠加模式，不卸载当前场景</span></span><br><span class="line">            activateOnLoad: <span class="literal">true</span></span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (!_sceneHandle.IsDone)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.Log(<span class="string">$&quot;场景加载进度: <span class="subst">&#123;_sceneHandle.PercentComplete:P0&#125;</span>&quot;</span>);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Debug.Log(<span class="string">&quot;场景加载完成&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IEnumerator <span class="title">UnloadScene</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (_sceneHandle.IsValid())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> unloadHandle = Addressables.UnloadSceneAsync(_sceneHandle);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">return</span> unloadHandle;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="热更新检查（远程内容更新）"><a href="#热更新检查（远程内容更新）" class="headerlink" title="热更新检查（远程内容更新）"></a>热更新检查（远程内容更新）</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System.Collections.Generic;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.AddressableAssets.ResourceLocators;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AddressablesUpdater</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function">IEnumerator <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// Step 1：检查 Catalog 是否有更新</span></span><br><span class="line">        <span class="keyword">var</span> checkHandle = Addressables.CheckForCatalogUpdates(autoReleaseHandle: <span class="literal">false</span>);</span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">return</span> checkHandle;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (checkHandle.Status != AsyncOperationStatus.Succeeded)</span><br><span class="line">        &#123;</span><br><span class="line">            Addressables.Release(checkHandle);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        List&lt;<span class="built_in">string</span>&gt; catalogsToUpdate = checkHandle.Result;</span><br><span class="line">        Addressables.Release(checkHandle);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (catalogsToUpdate.Count == <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.Log(<span class="string">&quot;无需更新&quot;</span>);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Step 2：更新 Catalog</span></span><br><span class="line">        <span class="keyword">var</span> updateHandle = Addressables.UpdateCatalogs(catalogsToUpdate, autoReleaseHandle: <span class="literal">false</span>);</span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">return</span> updateHandle;</span><br><span class="line"></span><br><span class="line">        List&lt;IResourceLocator&gt; updatedLocators = updateHandle.Result;</span><br><span class="line">        Addressables.Release(updateHandle);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Step 3：下载更新的内容</span></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> locator <span class="keyword">in</span> updatedLocators)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> sizeHandle = Addressables.GetDownloadSizeAsync(locator.Keys);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">return</span> sizeHandle;</span><br><span class="line"></span><br><span class="line">            <span class="built_in">long</span> downloadSize = sizeHandle.Result;</span><br><span class="line">            Addressables.Release(sizeHandle);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (downloadSize &gt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                Debug.Log(<span class="string">$&quot;需要下载: <span class="subst">&#123;downloadSize / <span class="number">1024f</span> / <span class="number">1024f</span>:F2&#125;</span> MB&quot;</span>);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">var</span> downloadHandle = Addressables.DownloadDependenciesAsync(locator.Keys);</span><br><span class="line">                <span class="keyword">yield</span> <span class="keyword">return</span> downloadHandle;</span><br><span class="line">                Addressables.Release(downloadHandle);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Debug.Log(<span class="string">&quot;更新完成&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/24/Unity%20Instance%20ID%20Cache/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/03/24/Unity%20Instance%20ID%20Cache/" class="post-title-link" itemprop="url">Unity Instance ID Cache</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-03-24 11:49:36 / Modified: 16:13:04" itemprop="dateCreated datePublished" datetime="2026-03-24T11:49:36+08:00">2026-03-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>At startup, the Instance ID cache is initialized with data for all Objects immediately required by the project (i.e., referenced in built Scenes), as well as all Objects contained in the Resources folder. Additional entries are added to the cache when new assets are imported at runtime or when Objects are loaded from AssetBundles. ( Note: An example of an Asset created at runtime would be a Texture2D Object created in script, like so: <em>var myTexture &#x3D; new Texture2D(1024, 768);</em> )</p>
+<ul>
+<li><p>File GUID（资源UID）<br>编辑器层面，存在 .meta 文件里，唯一标识磁盘上的一个资源文件，打包后不直接使用</p>
+</li>
+<li><p>Local ID<br>一个资源文件内部，每个 Object 的编号<br>比如一个 FBX 里有 Mesh、Material、动画，各有自己的 Local ID</p>
+</li>
+<li><p>Instance ID（实例ID）<br>运行时层面，Unity 内存中每个 Object 的唯一标识，本质是一个整数，运行时动态分配<br>是 File GUID + Local ID 的运行时映射</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">磁盘：  File GUID + Local ID  →  唯一定位一个资源</span><br><span class="line">运行时：Instance ID           →  指向内存中的 Object</span><br><span class="line"></span><br><span class="line">Instance ID Cache = 这个映射表</span><br><span class="line">&#123; Instance ID → (File GUID, Local ID, 内存地址或null) &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Instance ID Cache 的作用</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">启动时预填充：</span><br><span class="line">- 所有场景直接引用的资源</span><br><span class="line">- Resources 文件夹下的所有资源</span><br><span class="line">→ 这些 Object 的 Instance ID 提前注册，但不一定加载进内存</span><br><span class="line"></span><br><span class="line">运行时追加：</span><br><span class="line">- 从 AB 包加载新资源时</span><br><span class="line">- 代码里 new Texture2D() 创建时</span><br><span class="line">→ 新 Instance ID 动态加入缓存</span><br></pre></td></tr></table></figure>
+
+<p>当你持有一个对象引用，Unity 内部就是拿着 Instance ID 去缓存里查：</p>
+<ol>
+<li>查到且有内存地址 → 直接返回</li>
+<li>查到但没加载 → 触发加载</li>
+<li>查不到 → null（Missing）</li>
+</ol>
+<p>总结：Instance ID Cache 是运行时的”对象注册表”，把内存中每个 Object 的整数 ID 映射到它的资源来源（GUID+LocalID）和内存位置。<br>资源 UID（File GUID）是编辑器&#x2F;磁盘层面的概念，Instance ID 是运行时层面的概念，两者通过这个缓存关联起来。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/20/Unity%E8%B5%84%E6%BA%90%E5%8A%A0%E8%BD%BD/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -190,10 +397,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-03-20 16:49:19 / Modified: 17:54:42" itemprop="dateCreated datePublished" datetime="2026-03-20T16:49:19+08:00">2026-03-20</time>
+              <time title="Created: 2026-03-20 16:49:19" itemprop="dateCreated datePublished" datetime="2026-03-20T16:49:19+08:00">2026-03-20</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-03-24 16:12:07" itemprop="dateModified" datetime="2026-03-24T16:12:07+08:00">2026-03-24</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -201,6 +414,10 @@
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
                 </span>
             </span>
 
@@ -355,10 +572,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-03-19 16:19:01 / Modified: 17:52:58" itemprop="dateCreated datePublished" datetime="2026-03-19T16:19:01+08:00">2026-03-19</time>
+              <time title="Created: 2026-03-19 16:19:01" itemprop="dateCreated datePublished" datetime="2026-03-19T16:19:01+08:00">2026-03-19</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-03-24 16:12:39" itemprop="dateModified" datetime="2026-03-24T16:12:39+08:00">2026-03-24</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -506,7 +729,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-03-18 16:47:09" itemprop="dateModified" datetime="2026-03-18T16:47:09+08:00">2026-03-18</time>
+                <time title="Modified: 2026-03-24 16:11:26" itemprop="dateModified" datetime="2026-03-24T16:11:26+08:00">2026-03-24</time>
               </span>
 
           
@@ -702,9 +925,24 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-03-16 16:50:44 / Modified: 17:36:13" itemprop="dateCreated datePublished" datetime="2026-03-16T16:50:44+08:00">2026-03-16</time>
+              <time title="Created: 2026-03-16 16:50:44" itemprop="dateCreated datePublished" datetime="2026-03-16T16:50:44+08:00">2026-03-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-03-24 16:10:46" itemprop="dateModified" datetime="2026-03-24T16:10:46+08:00">2026-03-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Networks/" itemprop="url" rel="index"><span itemprop="name">Networks</span></a>
+                </span>
             </span>
 
           
@@ -1383,221 +1621,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/03/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/03/03/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">单例模式</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2026-03-03 11:47:07 / Modified: 11:55:03" itemprop="dateCreated datePublished" datetime="2026-03-03T11:47:07+08:00">2026-03-03</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Design-Paradigm/" itemprop="url" rel="index"><span itemprop="name">Design Paradigm</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h1><ol>
-<li>全局唯一实例：单例模式确保在整个应用程序中只有一个实例存在，可以提供一个全局的访问点，方便对实例的管理和调用。</li>
-<li>节省资源：由于只有一个实例存在，可以避免重复创建实例，节省了系统资源。</li>
-<li>避免竞态条件：在多线程环境下，使用单例模式可以避免由于竞态条件而导致的问题，如资源争夺、数据不一致等。</li>
-<li>实现了懒加载：某些单例模式的实现方式（如懒汉式）在需要时才创建实例，实现了延迟加载，节省了内存空间。</li>
-<li>继承monobehaviour的单例有unity生命周期函数和也可以调用协程，可以用来控制没有继承monobehaivour的脚本组件</li>
-</ol>
-<h1 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h1><ol>
-<li>可能引入全局状态：由于单例模式提供了全局访问点，可能会导致多个部分之间共享了同一个状态，增加了系统的耦合性。</li>
-<li>可能造成性能瓶颈：在高并发环境下，单例模式的实现需要考虑线程安全性，可能会引入锁机制，导致性能下降。</li>
-<li>隐藏了依赖关系：单例模式的使用会隐藏类的依赖关系，增加了代码的复杂性和理解难度。</li>
-<li>不利于扩展和测试：单例模式一般是通过静态方法获取实例，难以进行扩展和替换，也不利于单元测试。</li>
-<li>可能造成内存泄漏：如果实例被长时间持有而不释放，可能会造成内存泄漏，特别是在移动端或长时间运行的服务中。</li>
-</ol>
-<h1 id="实例化方法"><a href="#实例化方法" class="headerlink" title="实例化方法"></a>实例化方法</h1><p>懒汉式（Lazy Initialization）：在第一次使用时创建实例。</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Singleton</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Singleton instance;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="title">Singleton</span>()</span> &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> synchronized Singleton <span class="title">getInstance</span>()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">            instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>饿汉式（Eager Initialization）：在类加载时就创建实例。</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Singleton</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> final Singleton instance = <span class="keyword">new</span> Singleton();</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="title">Singleton</span>()</span> &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span>()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/02/11/%E4%BA%8B%E4%BB%B6%E5%92%8C%E5%A7%94%E6%89%98/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/02/11/%E4%BA%8B%E4%BB%B6%E5%92%8C%E5%A7%94%E6%89%98/" class="post-title-link" itemprop="url">事件和委托</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2026-02-11 17:12:52" itemprop="dateCreated datePublished" datetime="2026-02-11T17:12:52+08:00">2026-02-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-03-04 17:48:33" itemprop="dateModified" datetime="2026-03-04T17:48:33+08:00">2026-03-04</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="观察者模式"><a href="#观察者模式" class="headerlink" title="观察者模式"></a>观察者模式</h1><figure class="highlight cs"><figcaption><span>通过事件实现的观察者模式</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Publisher</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 声明一个事件</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">event</span> Action OnEventPublished;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Update</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (Input.GetKeyDown(KeyCode.Space))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 发布事件</span></span><br><span class="line">            OnEventPublished?.Invoke();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Subscriber</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnEnable</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 订阅事件</span></span><br><span class="line">        Publisher.OnEventPublished += HandleEvent;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnDisable</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 取消订阅事件</span></span><br><span class="line">        Publisher.OnEventPublished -= HandleEvent;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 事件处理方法</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">HandleEvent</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Event received!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h1 id="委托"><a href="#委托" class="headerlink" title="委托"></a>委托</h1><p>委托是个类，分为Delegate自定义委托类型，Func有返回值的委托类型，Action无返回值的委托类型</p>
-<p>Func和Action的底层原理便是用Delegate声明一个委托类型（有返回值和无返回值），并且通过泛型参数（最多十六个）来实现自定义参数类型和参数<br>其中，Func委托类型的最后一个参数为返回值</p>
-<p>委托需要先定义后使用</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">delegate</span> <span class="keyword">void</span> <span class="title">IntMethodInvoker</span>(<span class="params"><span class="built_in">int</span> x</span>)</span>;</span><br></pre></td></tr></table></figure>
-
-<p>如上定义了一个委托InMethodInvoker，这个委托可以指向一个 <strong>int类型参数，返回值为void</strong> 的方法</p>
-<h2 id="Action委托-和-Func委托"><a href="#Action委托-和-Func委托" class="headerlink" title="Action委托 和 Func委托"></a>Action委托 和 Func委托</h2><p>Action委托引用了一个void返回类型的方法，T表示方法参数</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Action</span><br><span class="line">Action&lt;<span class="keyword">in</span> T&gt;</span><br><span class="line">Action&lt;<span class="keyword">in</span> t1,<span class="keyword">in</span> t2&gt;</span><br><span class="line">Action&lt;<span class="keyword">in</span> t1,<span class="keyword">in</span> t2,···,t16&gt;</span><br></pre></td></tr></table></figure>
-
-<p>Func引用了一个带有一个返回值的方法，它可以传递0或者多到16个参数类型，和一个返回值类型</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Func&lt;<span class="keyword">out</span> TResult&gt;</span><br><span class="line">Func&lt;<span class="keyword">in</span> t,<span class="keyword">out</span> TResult&gt;</span><br><span class="line">Function&lt;<span class="keyword">in</span> t1,<span class="keyword">in</span> t2,···,<span class="keyword">in</span> t16,<span class="keyword">out</span> TResult&gt;</span><br></pre></td></tr></table></figure>
-
-<h2 id="多播委托"><a href="#多播委托" class="headerlink" title="多播委托"></a>多播委托</h2><p>前面是用的委托都只包含一个方法调用，但是委托也可以包含多个方法，这种委托叫做多播委托。使用多播委托可以按照顺序调用多个方法，多播委托只能得到调用的最后一个方法结果，一般我们把多播委托的返回值类型声明为void。<br>多播委托包含一个逐个调用的委托集合，如果通过委托调用的其中一个方法抛出异常，整个迭代就会停止。</p>
-<h2 id="使用匿名方法给委托赋值"><a href="#使用匿名方法给委托赋值" class="headerlink" title="使用匿名方法给委托赋值"></a>使用匿名方法给委托赋值</h2><p>前面使用委托都是先定义一个方法，然后把方法给委托的实例。但还有另外一种使用委托的方式，不用去定义一个方法，直接使用匿名方法（lambda expression）</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Func&lt;<span class="built_in">int</span>,<span class="built_in">int</span>,<span class="built_in">int</span>&gt; plus = <span class="built_in">delegate</span>(<span class="built_in">int</span> a, <span class="built_in">int</span> b)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">int</span> temp = a+b;</span><br><span class="line">  <span class="keyword">return</span> temp;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">int</span> res = plus(<span class="number">34</span>,<span class="number">34</span>)</span><br><span class="line">Console.WriteLine(res);</span><br><span class="line"></span><br><span class="line"><span class="comment">//上述代码可以换成下面一行</span></span><br><span class="line">Func&lt;<span class="built_in">int</span>, <span class="built_in">int</span>, <span class="built_in">int</span>&gt; plus = (a, b) =&gt; &#123; <span class="keyword">return</span> a + b; &#125;;</span><br></pre></td></tr></table></figure>
-
-<h1 id="事件"><a href="#事件" class="headerlink" title="事件"></a>事件</h1><p>用event关键词修饰的字段，由观察者拥有，一种类型成员，有能力使一个类或者对象去通知其他类、对象们</p>
-<p>事件是基于委托的，委托是事件的“底层基础”，事件是委托的“上层建筑”<br>委托类型定义了事件的有无返回值和参数类型，事件处理器必须和事件的有无返回值和参数类型一致，即双方都要遵守同一个约定（有无返回值和参数类型），我们把这叫做事件和事件处理器必须是匹配的</p>
-<h2 id="自定义事件"><a href="#自定义事件" class="headerlink" title="自定义事件"></a>自定义事件</h2><p>先声明该事件的委托类型，再声明事件</p>
-<ul>
-<li>在声明委托类型的时候，如果这个委托，是为了声明某个事件而准备的委托，那么这个委托的名字，就要去使用：事件名+EventHandler的格式，由于委托是一种引用类型，所以事件名首字母要大写</li>
-<li>在定义事件参数的时候，即在定义该事件的委托类型的参数的类型的时候，要遵循：类型名+EventArgs这个格式</li>
-</ul>
-<figure class="highlight cs"><figcaption><span>事件声明示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 声明该事件的委托类型：事件名 + EventHandler</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">delegate</span> <span class="keyword">void</span> <span class="title">OrderEventHandler</span>(<span class="params">Customer customer, OrderEventArgs e</span>)</span>;<span class="comment">//声明一个委托类型</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 声明事件：访问修饰符 + event + 事件处理器（委托类型的实例、字段）+ 事件名称（一定要注意命名规范：On+事件名）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">event</span> OrderEventHandler OnOrder;</span><br></pre></td></tr></table></figure>
-
-<p>微软提供了一个EventHandler委托类型</p>
-<p>其中用来传递事件数据的类EventArgs，凡是用来传递事件数据的类，都是从这个类派生出来的<br>让自定义的传递事件数据的类继承EventArgs，就可以作为参数传入EventHandler委托类型了<br>将Object类型的变量转换为Customer类型的变量，我们可以用as操作符</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">delegate</span> <span class="keyword">void</span> <span class="title">EventHandler</span>(<span class="params"><span class="built_in">object</span>? sender, EventArgs e</span>)</span>;</span><br><span class="line"></span><br><span class="line">Customer customer1 = _sender <span class="keyword">as</span> Customer;</span><br></pre></td></tr></table></figure>
-
-<h2 id="事件和委托的区别"><a href="#事件和委托的区别" class="headerlink" title="事件和委托的区别"></a>事件和委托的区别</h2><ul>
-<li>事件其实是委托类型字段的包装器、限制器，限制外界对委托类型字段的访问。</li>
-<li>外界只能通过“+&#x3D;”和“-&#x3D;”两个操作符对事件进行添加事件处理器和移除事件处理器的操作，并不能去赋值和触发事件。</li>
-<li>事件是用来阻挡非法操作的“蒙版”，它绝对不是委托字段的本身</li>
-<li>类似的情况有字段和属性，属性是字段的包装器。字段能做的，属性都能做；属性能做的，字段不一定都能做</li>
-</ul>
-<p>总结：事件是用来“阉割”委托实例的，事件只能添加、删除事件处理器，不能赋值。外界只能用“+&#x3D;”和“-&#x3D;”去访问它，不能&#x3D;，不能从外部触发事件，也就是说，事件包含了委托类型字段的所有功能，但只是对外部暴露了“+&#x3D;”和“-&#x3D;”操作符。</p>
-<h2 id="事件和委托的关系"><a href="#事件和委托的关系" class="headerlink" title="事件和委托的关系"></a>事件和委托的关系</h2><p>委托类型规定了事件拥有者和事件响应者通知和接收的消息必须是同一类型的消息<br>约束了添加和移除事件时必须要使用与之匹配（同样类型）的事件处理器，即使用与之匹配（同样类型）的方法来处理响应这个事件</p>
-<hr>
-<figure class="highlight cs"><figcaption><span>完整示例（顾客点单）</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Collections.Generic;</span><br><span class="line"><span class="keyword">using</span> System.Linq;</span><br><span class="line"><span class="keyword">using</span> System.Text;</span><br><span class="line"><span class="keyword">using</span> System.Threading.Tasks;</span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 事件的拥有者：顾客</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 事件：点单</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 事件的响应者：服务员</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 事件处理器：计算最后金额</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 事件订阅（+=操作符）</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">EventDemo</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//声明一个委托类型</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">delegate</span> <span class="keyword">void</span> <span class="title">OrderEventHandler</span>(<span class="params">Customer customer, OrderEventArgs e</span>)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title">EventExample</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> Customer customer = <span class="keyword">new</span> Customer();</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> Customer customer2 = <span class="keyword">new</span> Customer();</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> Waiter waiter = <span class="keyword">new</span> Waiter();</span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            customer.OnOrder += waiter.CalculateBill;</span><br><span class="line">            customer2.OnOrder += waiter.CalculateBill;</span><br><span class="line"> </span><br><span class="line">            <span class="comment">//使用事件，事件只能由事件拥有者触发，不能在外部去触发</span></span><br><span class="line">            <span class="comment">//顾客1点了超大杯摩卡15+6 = 21</span></span><br><span class="line">            customer.Order(<span class="string">&quot;摩卡&quot;</span>, <span class="number">15</span>, OrderEventArgs.CoffeeSizeEnum.Venti);</span><br><span class="line">            <span class="comment">//顾客1点了中杯拿铁20</span></span><br><span class="line">            customer.Order(<span class="string">&quot;拿铁&quot;</span>, <span class="number">20</span>, OrderEventArgs.CoffeeSizeEnum.Tall);</span><br><span class="line">            <span class="comment">//顾客2点了中杯卡布奇诺</span></span><br><span class="line">            customer2.Order(<span class="string">&quot;卡布奇诺&quot;</span>, <span class="number">25</span>, OrderEventArgs.CoffeeSizeEnum.Tall);</span><br><span class="line">            customer.PayTheBill();</span><br><span class="line">            customer2.PayTheBill();</span><br><span class="line"> </span><br><span class="line">            <span class="comment">/*//如果使用委托，不使用事件，委托类型的字段可以在外部进行调用，意味着顾客2可以把自己点的东西记在顾客1的账单上</span></span><br><span class="line"><span class="comment">            //顾客1点了超大杯摩卡15+6 = 21</span></span><br><span class="line"><span class="comment">            OrderEventArgs e1 = new OrderEventArgs();</span></span><br><span class="line"><span class="comment">            e1.CoffeeName = &quot;摩卡&quot;;</span></span><br><span class="line"><span class="comment">            e1.CoffeePrice = 15;</span></span><br><span class="line"><span class="comment">            e1.CoffeeSize = OrderEventArgs.CoffeeSizeEnum.Venti;</span></span><br><span class="line"><span class="comment">            customer.OnOrder(customer, e1);</span></span><br><span class="line"><span class="comment">            //顾客1点了超大杯拿铁20+6 = 26，并记在了倒霉蛋顾客1的账单上</span></span><br><span class="line"><span class="comment">            OrderEventArgs e2 = new OrderEventArgs();</span></span><br><span class="line"><span class="comment">            e2.CoffeeName = &quot;拿铁&quot;;</span></span><br><span class="line"><span class="comment">            e2.CoffeePrice = 20;</span></span><br><span class="line"><span class="comment">            e2.CoffeeSize = OrderEventArgs.CoffeeSizeEnum.Venti;</span></span><br><span class="line"><span class="comment">            customer2.OnOrder(customer, e2);</span></span><br><span class="line"><span class="comment">            customer.PayTheBill();</span></span><br><span class="line"><span class="comment">            customer2.PayTheBill();*/</span></span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">            Console.Read();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Customer</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//声明一个点单事件</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">event</span> OrderEventHandler OnOrder;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">float</span> Bill &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">PayTheBill</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            Console.WriteLine(<span class="string">&quot;I have to pay : &quot;</span> + Bill);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">        <span class="comment"><span class="doctag">///</span> 点餐（咖啡名称、价格、大小）</span></span><br><span class="line">        <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">        <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;coffeeName&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line">        <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;coffeePrice&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line">        <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;coffeeSize&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Order</span>(<span class="params"><span class="built_in">string</span> coffeeName,<span class="built_in">float</span> coffeePrice, OrderEventArgs.CoffeeSizeEnum coffeeSize</span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//语法糖：如果事件不为空（因为简略声明事件时委托类型的字段被隐藏了）</span></span><br><span class="line">            <span class="keyword">if</span> (OnOrder != <span class="literal">null</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                OrderEventArgs e = <span class="keyword">new</span> OrderEventArgs();</span><br><span class="line">                e.CoffeeName = coffeeName;</span><br><span class="line">                e.CoffeePrice = coffeePrice;</span><br><span class="line">                e.CoffeeSize = coffeeSize;</span><br><span class="line">                <span class="comment">//事件只能由事件拥有者触发：限制只能自己给自己点单</span></span><br><span class="line">                OnOrder(<span class="keyword">this</span>, e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Waiter</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//计算账单金额</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">CalculateBill</span>(<span class="params">Customer customer, OrderEventArgs e</span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">float</span> finalPrice = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">switch</span> (e.CoffeeSize)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">case</span> OrderEventArgs.CoffeeSizeEnum.Tall:</span><br><span class="line">                    finalPrice = e.CoffeePrice; <span class="comment">//中杯，原价</span></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> OrderEventArgs.CoffeeSizeEnum.Grand:</span><br><span class="line">                    finalPrice = e.CoffeePrice + <span class="number">3</span>; <span class="comment">//大杯：原价+3元</span></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> OrderEventArgs.CoffeeSizeEnum.Venti:</span><br><span class="line">                    finalPrice = e.CoffeePrice + <span class="number">6</span>; <span class="comment">//超大杯：原价+6元</span></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            customer.Bill += finalPrice;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">OrderEventArgs</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 咖啡是大杯、中杯还是小杯</span></span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">enum</span> CoffeeSizeEnum &#123; Tall,Grand,Venti&#125;<span class="comment">//默认为静态</span></span><br><span class="line">        <span class="keyword">public</span> CoffeeSizeEnum CoffeeSize &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">        <span class="comment">// 咖啡价格</span></span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">float</span> CoffeePrice &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">        <span class="comment">// 咖啡名称</span></span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">string</span> CoffeeName &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Hotgun2222/article/details/139901041">https://blog.csdn.net/Hotgun2222/article/details/139901041</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1675,20 +1698,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-count">35</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
