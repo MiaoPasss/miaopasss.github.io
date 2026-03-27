@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Sprite Atlas 图集把多张小纹理合并成一张大纹理，GPU 渲染时所有引用该图集的 Sprite 共享同一张纹理，满足合批条件，从而将多个 DrawCall 合并为一个。 123456789未使用图集：  Sprite A（texture_a.png）→ DrawCall 1  Sprite B（texture_b.png）→ DrawCall 2  Sprite C（texture_c.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sprite Atlas 图集">
+<meta property="og:url" content="https://miaopasss.github.io/2026/03/25/Sprite-Atlas-%E5%9B%BE%E9%9B%86/index.html">
+<meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
+<meta property="og:description" content="Sprite Atlas 图集把多张小纹理合并成一张大纹理，GPU 渲染时所有引用该图集的 Sprite 共享同一张纹理，满足合批条件，从而将多个 DrawCall 合并为一个。 123456789未使用图集：  Sprite A（texture_a.png）→ DrawCall 1  Sprite B（texture_b.png）→ DrawCall 2  Sprite C（texture_c.">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-03-25T09:02:10.000Z">
+<meta property="article:modified_time" content="2026-03-27T10:56:32.641Z">
+<meta property="article:author" content="Haotian Luo">
+<meta property="article:tag" content="Resource management">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://miaopasss.github.io/2026/03/25/Sprite-Atlas-%E5%9B%BE%E9%9B%86/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Sprite Atlas 图集 | 乌啦呀哈呀哈乌啦！</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">乌啦呀哈呀哈乌啦！</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">欢迎光临，这里是喵pass的个人博客，希望有能帮到你的地方
+</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页 | Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类 | Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签 | Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档 | Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/miaopasss" class="github-corner" title="Check out my GitHub" aria-label="Check out my GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/25/Sprite-Atlas-%E5%9B%BE%E9%9B%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Sprite Atlas 图集
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2026-03-25 17:02:10" itemprop="dateCreated datePublished" datetime="2026-03-25T17:02:10+08:00">2026-03-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-03-27 18:56:32" itemprop="dateModified" datetime="2026-03-27T18:56:32+08:00">2026-03-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Sprite-Atlas-图集"><a href="#Sprite-Atlas-图集" class="headerlink" title="Sprite Atlas 图集"></a>Sprite Atlas 图集</h1><p>把多张小纹理合并成一张大纹理，GPU 渲染时所有引用该图集的 Sprite 共享同一张纹理，满足合批条件，从而将多个 DrawCall 合并为一个。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">未使用图集：</span><br><span class="line">  Sprite A（texture_a.png）→ DrawCall 1</span><br><span class="line">  Sprite B（texture_b.png）→ DrawCall 2</span><br><span class="line">  Sprite C（texture_c.png）→ DrawCall 3</span><br><span class="line"></span><br><span class="line">使用图集后：</span><br><span class="line">  Sprite A ─┐</span><br><span class="line">  Sprite B ─┼─ atlas.png → DrawCall 1（合批）</span><br><span class="line">  Sprite C ─┘</span><br></pre></td></tr></table></figure>
+
+<p>除了减少 DrawCall，图集还有两个底层优化：</p>
+<ul>
+<li>GPU 处理 2 的幂次方尺寸的纹理效率更高，图集会自动将小图打包成符合规范的大图</li>
+<li>多张小图的磁盘占用通常大于一张合并后的大图（压缩算法在大块连续数据上效率更高）</li>
+</ul>
+<p>Unity中的图集有2种类型</p>
+<ul>
+<li>Master（主图集）：标准图集，包含实际资源</li>
+<li>Variant（变体图集）：引用主图集内容，通过 Scale 缩放生成不同分辨率版本，适合高清&#x2F;低清资源切换场景</li>
+</ul>
+<h1 id="代码用例"><a href="#代码用例" class="headerlink" title="代码用例"></a>代码用例</h1><h2 id="运行时加载图集（Resources）"><a href="#运行时加载图集（Resources）" class="headerlink" title="运行时加载图集（Resources）"></a>运行时加载图集（Resources）</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.UI;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.U2D;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AtlasLoader</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> Image[] _images;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 从 Resources 文件夹加载图集</span></span><br><span class="line">        SpriteAtlas atlas = Resources.Load&lt;SpriteAtlas&gt;(<span class="string">&quot;UI/MainAtlas&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (atlas == <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(<span class="string">&quot;图集加载失败，检查路径是否正确&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// GetSprite 传入的是打包时的文件名（不含扩展名）</span></span><br><span class="line">        <span class="comment">// Single 模式：直接传文件名，如 &quot;icon_sword&quot;</span></span><br><span class="line">        <span class="comment">// Multiple 模式（Sprite Sheet）：传 &quot;文件名_索引&quot;，如 &quot;icon_sword_0&quot;</span></span><br><span class="line">        _images[<span class="number">0</span>].sprite = atlas.GetSprite(<span class="string">&quot;icon_sword&quot;</span>);</span><br><span class="line">        _images[<span class="number">1</span>].sprite = atlas.GetSprite(<span class="string">&quot;icon_shield&quot;</span>);</span><br><span class="line">        _images[<span class="number">2</span>].sprite = atlas.GetSprite(<span class="string">&quot;icon_potion&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="从-AssetBundle-加载图集"><a href="#从-AssetBundle-加载图集" class="headerlink" title="从 AssetBundle 加载图集"></a>从 AssetBundle 加载图集</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.UI;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.U2D;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AtlasFromAB</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> Image _targetImage;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">string</span> bundlePath = Application.streamingAssetsPath + <span class="string">&quot;/AssetBundles/ui_atlas&quot;</span>;</span><br><span class="line">        AssetBundle bundle = AssetBundle.LoadFromFile(bundlePath);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (bundle == <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(<span class="string">&quot;AB 包加载失败&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        SpriteAtlas atlas = bundle.LoadAsset&lt;SpriteAtlas&gt;(<span class="string">&quot;MainAtlas&quot;</span>);</span><br><span class="line">        _targetImage.sprite = atlas.GetSprite(<span class="string">&quot;icon_sword&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 图集资源已提取，可以卸载包体（false = 保留已加载资源）</span></span><br><span class="line">        bundle.Unload(<span class="literal">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="后期绑定（Late-Binding）"><a href="#后期绑定（Late-Binding）" class="headerlink" title="后期绑定（Late Binding）"></a>后期绑定（Late Binding）</h2><p>当图集未勾选 Include in Build 时，必须手动监听 atlasRequested 事件，否则引用该图集的 Sprite 会显示为空白。</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.U2D;</span><br><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 挂载到场景中持久存在的对象上（如 GameManager）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AtlasLateBinding</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnEnable</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 注册图集请求事件</span></span><br><span class="line">        SpriteAtlasManager.atlasRequested += OnAtlasRequested;</span><br><span class="line">        <span class="comment">// 可选：图集注册完成后的回调</span></span><br><span class="line">        SpriteAtlasManager.atlasRegistered += OnAtlasRegistered;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnDisable</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        SpriteAtlasManager.atlasRequested -= OnAtlasRequested;</span><br><span class="line">        SpriteAtlasManager.atlasRegistered -= OnAtlasRegistered;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Unity 找不到图集时触发，atlasName 是图集名称</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnAtlasRequested</span>(<span class="params"><span class="built_in">string</span> atlasName, Action&lt;SpriteAtlas&gt; callback</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">$&quot;请求图集: <span class="subst">&#123;atlasName&#125;</span>&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 从 Resources 加载（也可以换成 AB 包加载）</span></span><br><span class="line">        SpriteAtlas atlas = Resources.Load&lt;SpriteAtlas&gt;(atlasName);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (atlas != <span class="literal">null</span>)</span><br><span class="line">            callback(atlas); <span class="comment">// 把图集交还给 Unity</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            Debug.LogError(<span class="string">$&quot;找不到图集: <span class="subst">&#123;atlasName&#125;</span>&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnAtlasRegistered</span>(<span class="params">SpriteAtlas atlas</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">$&quot;图集已注册: <span class="subst">&#123;atlas.name&#125;</span>&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Editor-工具：自动打包图集"><a href="#Editor-工具：自动打包图集" class="headerlink" title="Editor 工具：自动打包图集"></a>Editor 工具：自动打包图集</h2><p>这个工具会遍历指定目录，按文件夹自动创建并更新图集，适合团队统一管理图集资源。</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 必须放在 Editor 文件夹下</span></span><br><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Collections.Generic;</span><br><span class="line"><span class="keyword">using</span> System.IO;</span><br><span class="line"><span class="keyword">using</span> UnityEditor;</span><br><span class="line"><span class="keyword">using</span> UnityEditor.U2D;</span><br><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.U2D;</span><br><span class="line"><span class="keyword">using</span> Object = UnityEngine.Object;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SpriteAtlasBuilder</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 需要打包的图片根目录（每个子文件夹对应一个图集）</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">readonly</span> <span class="built_in">string</span> SourceRoot = Application.dataPath + <span class="string">&quot;/Art/Sprites/&quot;</span>;</span><br><span class="line">    <span class="comment">// 图集输出目录</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">readonly</span> <span class="built_in">string</span> OutputPath = <span class="string">&quot;Assets/Art/Atlases/&quot;</span>;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">MenuItem(<span class="string">&quot;Tools/Build Sprite Atlases&quot;</span>)</span>]</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">BuildAll</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (!Directory.Exists(SourceRoot))</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(<span class="string">$&quot;源目录不存在: <span class="subst">&#123;SourceRoot&#125;</span>&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Directory.CreateDirectory(OutputPath.Replace(<span class="string">&quot;Assets/&quot;</span>, Application.dataPath + <span class="string">&quot;/&quot;</span>).Replace(<span class="string">&quot;Assets&quot;</span>, <span class="string">&quot;&quot;</span>));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> dirs = <span class="keyword">new</span> DirectoryInfo(SourceRoot).GetDirectories();</span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; dirs.Length; i++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> dir = dirs[i];</span><br><span class="line">            EditorUtility.DisplayProgressBar(<span class="string">&quot;打包图集&quot;</span>, <span class="string">$&quot;处理: <span class="subst">&#123;dir.Name&#125;</span>&quot;</span>, (<span class="built_in">float</span>)i / dirs.Length);</span><br><span class="line"></span><br><span class="line">            <span class="built_in">string</span> atlasPath = OutputPath + dir.Name + <span class="string">&quot;.spriteatlas&quot;</span>;</span><br><span class="line">            SpriteAtlas atlas = AssetDatabase.LoadAssetAtPath&lt;SpriteAtlas&gt;(atlasPath)</span><br><span class="line">                                ?? CreateAtlas(atlasPath);</span><br><span class="line"></span><br><span class="line">            UpdateAtlasContent(atlas, SourceRoot + dir.Name);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        EditorUtility.ClearProgressBar();</span><br><span class="line">        AssetDatabase.SaveAssets();</span><br><span class="line">        AssetDatabase.Refresh();</span><br><span class="line">        Debug.Log(<span class="string">&quot;图集打包完成&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> SpriteAtlas <span class="title">CreateAtlas</span>(<span class="params"><span class="built_in">string</span> savePath</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> atlas = <span class="keyword">new</span> SpriteAtlas();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 基础打包设置</span></span><br><span class="line">        atlas.SetPackingSettings(<span class="keyword">new</span> SpriteAtlasPackingSettings</span><br><span class="line">        &#123;</span><br><span class="line">            blockOffset = <span class="number">1</span>,</span><br><span class="line">            enableRotation = <span class="literal">false</span>,    <span class="comment">// 禁止旋转，避免 UI 显示异常</span></span><br><span class="line">            enableTightPacking = <span class="literal">false</span>, <span class="comment">// 禁止紧密排列，避免图片边缘互相干扰</span></span><br><span class="line">            padding = <span class="number">4</span>,</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 纹理设置</span></span><br><span class="line">        atlas.SetTextureSettings(<span class="keyword">new</span> SpriteAtlasTextureSettings</span><br><span class="line">        &#123;</span><br><span class="line">            readable = <span class="literal">false</span>,</span><br><span class="line">            generateMipMaps = <span class="literal">false</span>,</span><br><span class="line">            sRGB = <span class="literal">true</span>,</span><br><span class="line">            filterMode = FilterMode.Bilinear,</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Android 平台压缩格式</span></span><br><span class="line">        <span class="keyword">var</span> androidSettings = atlas.GetPlatformSettings(<span class="string">&quot;Android&quot;</span>);</span><br><span class="line">        androidSettings.overridden = <span class="literal">true</span>;</span><br><span class="line">        androidSettings.maxTextureSize = <span class="number">2048</span>;</span><br><span class="line">        androidSettings.format = TextureImporterFormat.ASTC_6x6;</span><br><span class="line">        atlas.SetPlatformSettings(androidSettings);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// iOS 平台压缩格式</span></span><br><span class="line">        <span class="keyword">var</span> iosSettings = atlas.GetPlatformSettings(<span class="string">&quot;iPhone&quot;</span>);</span><br><span class="line">        iosSettings.overridden = <span class="literal">true</span>;</span><br><span class="line">        iosSettings.maxTextureSize = <span class="number">2048</span>;</span><br><span class="line">        iosSettings.format = TextureImporterFormat.PVRTC_RGB4;</span><br><span class="line">        atlas.SetPlatformSettings(iosSettings);</span><br><span class="line"></span><br><span class="line">        AssetDatabase.CreateAsset(atlas, savePath);</span><br><span class="line">        <span class="keyword">return</span> atlas;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">UpdateAtlasContent</span>(<span class="params">SpriteAtlas atlas, <span class="built_in">string</span> folderPath</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> existing = <span class="keyword">new</span> HashSet&lt;Object&gt;(atlas.GetPackables());</span><br><span class="line">        <span class="keyword">var</span> toAdd = <span class="keyword">new</span> List&lt;Object&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> <span class="keyword">file</span> <span class="keyword">in</span> Directory.GetFiles(folderPath, <span class="string">&quot;*&quot;</span>, SearchOption.AllDirectories))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (!<span class="keyword">file</span>.EndsWith(<span class="string">&quot;.png&quot;</span>) &amp;&amp; !<span class="keyword">file</span>.EndsWith(<span class="string">&quot;.jpg&quot;</span>)) <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 转换为相对于 Assets 的路径</span></span><br><span class="line">            <span class="built_in">string</span> relativePath = <span class="string">&quot;Assets&quot;</span> + <span class="keyword">file</span>.Replace(Application.dataPath, <span class="string">&quot;&quot;</span>).Replace(<span class="string">&quot;\\&quot;</span>, <span class="string">&quot;/&quot;</span>);</span><br><span class="line">            <span class="keyword">var</span> obj = AssetDatabase.LoadAssetAtPath&lt;Object&gt;(relativePath);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (obj != <span class="literal">null</span> &amp;&amp; !existing.Contains(obj))</span><br><span class="line">                toAdd.Add(obj);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (toAdd.Count &gt; <span class="number">0</span>)</span><br><span class="line">            atlas.Add(toAdd.ToArray());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="运行时动态检查-DrawCall（调试用）"><a href="#运行时动态检查-DrawCall（调试用）" class="headerlink" title="运行时动态检查 DrawCall（调试用）"></a>运行时动态检查 DrawCall（调试用）</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">if</span> UNITY_EDITOR</span></span><br><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.Profiling;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 挂到场景中，运行时在 Console 输出当前帧的渲染统计</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">DrawCallMonitor</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Update</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 需要在 Editor 的 Stats 面板查看，或通过 Profiler API</span></span><br><span class="line">        <span class="comment">// UnityStats 仅在编辑器下可用</span></span><br><span class="line">        <span class="keyword">if</span> (Time.frameCount % <span class="number">60</span> == <span class="number">0</span>) <span class="comment">// 每 60 帧输出一次</span></span><br><span class="line">        &#123;</span><br><span class="line">            Debug.Log(<span class="string">$&quot;[渲染统计] 帧: <span class="subst">&#123;Time.frameCount&#125;</span> | &quot;</span> +</span><br><span class="line">                      <span class="string">$&quot;已分配内存: <span class="subst">&#123;Profiler.GetTotalAllocatedMemoryLong() / <span class="number">1024</span> / <span class="number">1024</span>&#125;</span> MB&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<h1 id="注意事项与最佳实践"><a href="#注意事项与最佳实践" class="headerlink" title="注意事项与最佳实践"></a>注意事项与最佳实践</h1><h2 id="内存陷阱"><a href="#内存陷阱" class="headerlink" title="内存陷阱"></a>内存陷阱</h2><p>图集中只要有一个 Sprite 被引用，整张图集纹理都会加载进内存。所以图集的划分策略很关键：</p>
+<ul>
+<li>按功能模块划分（登录界面、大厅界面、战斗界面各一个图集）</li>
+<li>避免把低频资源和高频资源放在同一图集</li>
+<li>单个图集不要超过 2048×2048，超出部分 Unity 会自动忽略 MaxTextureSize 设置</li>
+</ul>
+<h2 id="合批失效的常见原因："><a href="#合批失效的常见原因：" class="headerlink" title="合批失效的常见原因："></a>合批失效的常见原因：</h2><ul>
+<li>两个 Sprite 来自不同图集</li>
+<li>中间插入了使用不同材质的对象（打断批次）</li>
+<li>开启了 Tight Packing 导致 UV 计算异常</li>
+</ul>
+<h1 id="Sprite-Atlas-和-Drawcall"><a href="#Sprite-Atlas-和-Drawcall" class="headerlink" title="Sprite Atlas 和 Drawcall"></a>Sprite Atlas 和 Drawcall</h1><h2 id="Sprite-Atlas"><a href="#Sprite-Atlas" class="headerlink" title="Sprite Atlas"></a>Sprite Atlas</h2><p>图集解决的是纹理问题，把多张小图合并成一张大图。<br>原来每个 sprite 用不同纹理 → 不同材质 → 每次渲染都要 SetPass Call 切换。合并后所有 sprite 共享同一张纹理 → 同一个材质 → 为后续 batching 创造条件。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">没有图集：</span><br><span class="line">  图标A (tex_a) → SetPass → Draw</span><br><span class="line">  图标B (tex_b) → SetPass → Draw   ← 纹理不同，必须切换</span><br><span class="line">  图标C (tex_c) → SetPass → Draw</span><br><span class="line"></span><br><span class="line">有图集：</span><br><span class="line">  图标A (atlas) → SetPass → Draw</span><br><span class="line">  图标B (atlas) →           Draw   ← 同一纹理，可以 batch</span><br><span class="line">  图标C (atlas) →           Draw</span><br></pre></td></tr></table></figure>
+<p>Atlas 本身不减少 Draw Call，它是让 batching 成为可能的前提条件。</p>
+<h2 id="Static-Batching"><a href="#Static-Batching" class="headerlink" title="Static Batching"></a>Static Batching</h2><p>针对静态物体（勾选 Static）。在构建时，Unity 把所有使用相同材质的静态 mesh 合并成一个大 mesh，存到内存里。运行时一次 Draw Call 画完。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">场景里100棵树（同材质，Static）：</span><br><span class="line">  构建时合并 → 1个大mesh</span><br><span class="line">  运行时：SetPass × 1，Draw Call × 1</span><br></pre></td></tr></table></figure>
+<p>代价是内存，合并后的大 mesh 常驻内存，物体也不能移动。</p>
+<h2 id="Dynamic-Batching"><a href="#Dynamic-Batching" class="headerlink" title="Dynamic Batching"></a>Dynamic Batching</h2><p>针对动态小物体。每帧 CPU 实时把符合条件的 mesh 合并，然后一次提交。<br>条件很苛刻：顶点数 &lt; 900，不能有 tangent，缩放不能是负数等。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">每帧：</span><br><span class="line">  CPU 检查哪些动态物体同材质 → 临时合并 mesh → 一次 Draw Call</span><br></pre></td></tr></table></figure>
+<p>代价是 CPU 每帧都要做合并，物体多了反而更慢，现在基本被 GPU Instancing 取代。</p>
+<h2 id="GPU-Instancing"><a href="#GPU-Instancing" class="headerlink" title="GPU Instancing"></a>GPU Instancing</h2><p>针对大量相同 mesh + 相同材质的物体（但允许不同的属性，比如颜色、位置）。CPU 只提交一次 mesh 数据，附带一个”实例属性数组”，GPU 自己循环绘制 N 次。<br>在 Unity 中，需要在材质属性中勾选 “Enable GPU Instancing”。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// shader 里声明每个实例可以有不同颜色</span><br><span class="line">UNITY_INSTANCING_BUFFER_START(Props)</span><br><span class="line">    UNITY_DEFINE_INSTANCED_PROP(float4, _Color)</span><br><span class="line">UNITY_INSTANCING_BUFFER_END(Props)</span><br></pre></td></tr></table></figure>
+<p>此时的CPU依然只提交1次Drawcall</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">100棵树（同mesh，同材质，不同位置/颜色）：</span><br><span class="line">  CPU：提交1次mesh + 100个transform数组</span><br><span class="line">  GPU：自己 instance 100次</span><br><span class="line">  结果：SetPass × 1，Draw Call × 1</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Resource-management/" rel="tag"># Resource management</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/03/24/AssetBundle-%E4%B8%8E-Addressables/" rel="prev" title="AssetBundle 与 Addressables">
+      <i class="fa fa-chevron-left"></i> AssetBundle 与 Addressables
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2026/03/27/Drawcall%E5%92%8CSetPassCall%E5%92%8CBatching/" rel="next" title="Drawcall和SetPassCall和Batching">
+      Drawcall和SetPassCall和Batching <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Sprite-Atlas-%E5%9B%BE%E9%9B%86"><span class="nav-number">1.</span> <span class="nav-text">Sprite Atlas 图集</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E7%94%A8%E4%BE%8B"><span class="nav-number">2.</span> <span class="nav-text">代码用例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E5%8A%A0%E8%BD%BD%E5%9B%BE%E9%9B%86%EF%BC%88Resources%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">运行时加载图集（Resources）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8E-AssetBundle-%E5%8A%A0%E8%BD%BD%E5%9B%BE%E9%9B%86"><span class="nav-number">2.2.</span> <span class="nav-text">从 AssetBundle 加载图集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8E%E6%9C%9F%E7%BB%91%E5%AE%9A%EF%BC%88Late-Binding%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">后期绑定（Late Binding）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Editor-%E5%B7%A5%E5%85%B7%EF%BC%9A%E8%87%AA%E5%8A%A8%E6%89%93%E5%8C%85%E5%9B%BE%E9%9B%86"><span class="nav-number">2.4.</span> <span class="nav-text">Editor 工具：自动打包图集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E5%8A%A8%E6%80%81%E6%A3%80%E6%9F%A5-DrawCall%EF%BC%88%E8%B0%83%E8%AF%95%E7%94%A8%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">运行时动态检查 DrawCall（调试用）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">3.</span> <span class="nav-text">注意事项与最佳实践</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E9%99%B7%E9%98%B1"><span class="nav-number">3.1.</span> <span class="nav-text">内存陷阱</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%88%E6%89%B9%E5%A4%B1%E6%95%88%E7%9A%84%E5%B8%B8%E8%A7%81%E5%8E%9F%E5%9B%A0%EF%BC%9A"><span class="nav-number">3.2.</span> <span class="nav-text">合批失效的常见原因：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Sprite-Atlas-%E5%92%8C-Drawcall"><span class="nav-number">4.</span> <span class="nav-text">Sprite Atlas 和 Drawcall</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Sprite-Atlas"><span class="nav-number">4.1.</span> <span class="nav-text">Sprite Atlas</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Static-Batching"><span class="nav-number">4.2.</span> <span class="nav-text">Static Batching</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dynamic-Batching"><span class="nav-number">4.3.</span> <span class="nav-text">Dynamic Batching</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GPU-Instancing"><span class="nav-number">4.4.</span> <span class="nav-text">GPU Instancing</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Haotian Luo"
+      src="/images/exciting-usagi.gif">
+  <p class="site-author-name" itemprop="name">Haotian Luo</p>
+  <div class="site-description" itemprop="description"><font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/miaopasss" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;miaopasss" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hubery.luo@icloud.com" title="E-Mail → mailto:hubery.luo@icloud.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Haotian Luo</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2026/03/25/Sprite-Atlas-%E5%9B%BE%E9%9B%86/',]
+      });
+      });
+  </script>
+
+</body>
+</html>
