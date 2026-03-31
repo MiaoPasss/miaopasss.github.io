@@ -161,6 +161,125 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/31/Unity-Trail-Renderer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/03/31/Unity-Trail-Renderer/" class="post-title-link" itemprop="url">Unity Trail Renderer</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-03-31 17:10:13 / Modified: 17:30:02" itemprop="dateCreated datePublished" datetime="2026-03-31T17:10:13+08:00">2026-03-31</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Trail Renderer 是 Unity 中的一个组件，用于在移动对象后面创建拖尾效果，常用于粒子轨迹、运动模糊、武器轨迹等视觉效果。</p>
+<h1 id="主要功能"><a href="#主要功能" class="headerlink" title="主要功能"></a>主要功能</h1><ul>
+<li>轨迹生成: 基于对象位置历史记录创建连续的轨迹线条</li>
+<li>材质支持: 支持自定义纹理、颜色渐变和透明度</li>
+<li>宽度控制: 可设置轨迹的起始和结束宽度，支持曲线调整</li>
+<li>生命周期: 可控制轨迹的生存时间和淡出效果</li>
+<li>性能优化: 自动批处理，适合移动平台</li>
+</ul>
+<h2 id="自动批处理"><a href="#自动批处理" class="headerlink" title="自动批处理"></a>自动批处理</h2><p>Unity 的渲染系统会自动检测并合并使用相同材质的 Trail Renderer 组件，将多个轨迹渲染合并为单个 Draw Call。</p>
+<p>批处理条件：</p>
+<ul>
+<li>相同的 Material（材质）</li>
+<li>相同的 Shader 变体</li>
+<li>相似的渲染状态（深度测试、混合模式等）</li>
+<li>轨迹顶点总数不超过批处理限制</li>
+</ul>
+<figure class="highlight cs"><figcaption><span>触发Trail Renderer 自动批处理</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TrailBatchOptimizer</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 为相似轨迹使用同一个 Material 实例</span></span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> Material sharedTrailMaterial;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> TrailRenderer[] trailRenderers;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 确保所有轨迹使用相同材质以启用批处理</span></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> trail <span class="keyword">in</span> trailRenderers)</span><br><span class="line">        &#123;</span><br><span class="line">            trail.material = sharedTrailMaterial;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 优化设置</span></span><br><span class="line">            trail.minVertexDistance = <span class="number">0.1f</span>;  <span class="comment">// 减少顶点数量避免过度细分</span></span><br><span class="line">            trail.time = <span class="number">1.0f</span>;               <span class="comment">// 控制轨迹长度防止轨迹过长</span></span><br><span class="line">            trail.widthMultiplier = <span class="number">1.0f</span>;    <span class="comment">// 统一宽度比例</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h1><p>GameObject → Add Component → Effects → Trail Renderer</p>
+<ul>
+<li>Material: 设置轨迹材质</li>
+<li>Width: 轨迹宽度曲线</li>
+<li>Color: 颜色渐变</li>
+<li>Lifetime: 轨迹持续时间</li>
+<li>Min Vertex Distance: 最小顶点距离（影响轨迹平滑度）</li>
+</ul>
+<h1 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h1><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TrailController</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> TrailRenderer trailRenderer;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        trailRenderer = GetComponent&lt;TrailRenderer&gt;();</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 设置轨迹材质</span></span><br><span class="line">        trailRenderer.material = Resources.Load&lt;Material&gt;(<span class="string">&quot;TrailMaterial&quot;</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 设置宽度（起始0.1，结束0.5）</span></span><br><span class="line">        trailRenderer.startWidth = <span class="number">0.1f</span>;</span><br><span class="line">        trailRenderer.endWidth = <span class="number">0.5f</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 设置生命周期</span></span><br><span class="line">        trailRenderer.time = <span class="number">2.0f</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 设置颜色渐变</span></span><br><span class="line">        Gradient gradient = <span class="keyword">new</span> Gradient();</span><br><span class="line">        gradient.SetKeys(</span><br><span class="line">            <span class="keyword">new</span> GradientColorKey[] &#123; </span><br><span class="line">                <span class="keyword">new</span> GradientColorKey(Color.red, <span class="number">0.0f</span>), </span><br><span class="line">                <span class="keyword">new</span> GradientColorKey(Color.yellow, <span class="number">0.5f</span>), </span><br><span class="line">                <span class="keyword">new</span> GradientColorKey(Color.blue, <span class="number">1.0f</span>) </span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="keyword">new</span> GradientAlphaKey[] &#123; </span><br><span class="line">                <span class="keyword">new</span> GradientAlphaKey(<span class="number">1.0f</span>, <span class="number">0.0f</span>), </span><br><span class="line">                <span class="keyword">new</span> GradientAlphaKey(<span class="number">1.0f</span>, <span class="number">0.8f</span>), </span><br><span class="line">                <span class="keyword">new</span> GradientAlphaKey(<span class="number">0.0f</span>, <span class="number">1.0f</span>) </span><br><span class="line">            &#125;</span><br><span class="line">        );</span><br><span class="line">        trailRenderer.colorGradient = gradient;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Update</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 移动对象以生成轨迹</span></span><br><span class="line">        transform.Translate(Vector3.forward * Time.deltaTime);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意事项：</p>
+<ul>
+<li>Trail Renderer 需要对象持续移动才会产生轨迹</li>
+<li>对于高速移动对象，可调整 Min Vertex Distance 避免轨迹断裂</li>
+<li>轨迹顶点数量会影响性能，建议合理设置 Lifetime</li>
+<li>支持 Texture Mode 用于更复杂的纹理映射效果</li>
+</ul>
+<h1 id="Trail-Renderer-和粒子系统"><a href="#Trail-Renderer-和粒子系统" class="headerlink" title="Trail Renderer 和粒子系统"></a>Trail Renderer 和粒子系统</h1><p>Trail Renderer专门用于创建移动对象的连续拖尾轨迹，基于对象位置历史记录生成线条。<br>而粒子系统由发射参数控制，用于发射和管理大量离散粒子（如烟雾、火花、雨滴），每个粒子独立运动。</p>
+<h2 id="常见结合"><a href="#常见结合" class="headerlink" title="常见结合"></a>常见结合</h2><ul>
+<li>粒子轨迹: 为粒子系统中的粒子添加 Trail Renderer，创建带拖尾的粒子效果（如流星、魔法弹道）。</li>
+<li>增强效果: Trail Renderer 提供连续轨迹，粒子系统提供散射效果。</li>
+</ul>
+<figure class="highlight cs"><figcaption><span>为游戏对象同时适配ParticleSystem 和 TrailRenderer</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ParticleTrailExample</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> ParticleSystem particleSystem;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> TrailRenderer trailRenderer;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 为粒子系统的主发射器添加轨迹</span></span><br><span class="line">        <span class="keyword">var</span> main = particleSystem.main;</span><br><span class="line">        main.startLifetime = <span class="number">2.0f</span>;  <span class="comment">// 粒子生命周期</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 配置轨迹</span></span><br><span class="line">        trailRenderer.time = <span class="number">1.0f</span>;</span><br><span class="line">        trailRenderer.startWidth = <span class="number">0.1f</span>;</span><br><span class="line">        trailRenderer.endWidth = <span class="number">0.0f</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 轨迹跟随粒子发射器移动</span></span><br><span class="line">        trailRenderer.transform.SetParent(particleSystem.transform);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/27/Drawcall%E5%92%8CSetPassCall%E5%92%8CBatching/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -198,7 +317,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-03-30 14:06:42" itemprop="dateModified" datetime="2026-03-30T14:06:42+08:00">2026-03-30</time>
+                <time title="Modified: 2026-03-31 17:24:10" itemprop="dateModified" datetime="2026-03-31T17:24:10+08:00">2026-03-31</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,7 +362,7 @@
 <ul>
 <li>具体例子：描边效果<br>描边通常需要两个 Pass：第一个 Pass 画描边（把模型沿法线方向放大，只渲染背面），第二个 Pass 画正常颜色。</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line">Shader &quot;Custom/Outline&quot;</span><br><span class="line">&#123;</span><br><span class="line">    Properties</span><br><span class="line">    &#123;</span><br><span class="line">        _Color (&quot;Color&quot;, Color) = (1,1,1,1)</span><br><span class="line">        _OutlineColor (&quot;Outline Color&quot;, Color) = (0,0,0,1)</span><br><span class="line">        _OutlineWidth (&quot;Outline Width&quot;, Float) = 0.02</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    SubShader</span><br><span class="line">    &#123;</span><br><span class="line">        // ---- Pass 0：描边 ----</span><br><span class="line">        Pass</span><br><span class="line">        &#123;</span><br><span class="line">            Name &quot;OUTLINE&quot;</span><br><span class="line">            Cull Front  // 只渲染背面，正面被裁掉</span><br><span class="line"></span><br><span class="line">            CGPROGRAM</span><br><span class="line">            #pragma vertex vert</span><br><span class="line">            #pragma fragment frag</span><br><span class="line"></span><br><span class="line">            float _OutlineWidth;</span><br><span class="line">            float4 _OutlineColor;</span><br><span class="line"></span><br><span class="line">            struct appdata &#123; float4 vertex : POSITION; float3 normal : NORMAL; &#125;;</span><br><span class="line">            struct v2f    &#123; float4 pos : SV_POSITION; &#125;;</span><br><span class="line"></span><br><span class="line">            v2f vert(appdata v)</span><br><span class="line">            &#123;</span><br><span class="line">                v2f o;</span><br><span class="line">                // 沿法线方向把顶点往外推</span><br><span class="line">                float3 expanded = v.vertex.xyz + v.normal * _OutlineWidth;</span><br><span class="line">                o.pos = UnityObjectToClipPos(float4(expanded, 1));</span><br><span class="line">                return o;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            fixed4 frag(v2f i) : SV_Target</span><br><span class="line">            &#123;</span><br><span class="line">                return _OutlineColor;  // 纯色描边</span><br><span class="line">            &#125;</span><br><span class="line">            ENDCG</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // ---- Pass 1：正常渲染 ----</span><br><span class="line">        Pass</span><br><span class="line">        &#123;</span><br><span class="line">            Name &quot;BASE&quot;</span><br><span class="line">            Cull Back   // 只渲染正面</span><br><span class="line"></span><br><span class="line">            CGPROGRAM</span><br><span class="line">            #pragma vertex vert</span><br><span class="line">            #pragma fragment frag</span><br><span class="line"></span><br><span class="line">            float4 _Color;</span><br><span class="line"></span><br><span class="line">            struct appdata &#123; float4 vertex : POSITION; &#125;;</span><br><span class="line">            struct v2f    &#123; float4 pos : SV_POSITION; &#125;;</span><br><span class="line"></span><br><span class="line">            v2f vert(appdata v)</span><br><span class="line">            &#123;</span><br><span class="line">                v2f o;</span><br><span class="line">                o.pos = UnityObjectToClipPos(v.vertex);</span><br><span class="line">                return o;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            fixed4 frag(v2f i) : SV_Target</span><br><span class="line">            &#123;</span><br><span class="line">                return _Color;</span><br><span class="line">            &#125;</span><br><span class="line">            ENDCG</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line">Shader <span class="string">&quot;Custom/Outline&quot;</span></span><br><span class="line">&#123;</span><br><span class="line">    Properties</span><br><span class="line">    &#123;</span><br><span class="line">        _Color (<span class="string">&quot;Color&quot;</span>, Color) = (<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>)</span><br><span class="line">        _OutlineColor (<span class="string">&quot;Outline Color&quot;</span>, Color) = (<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>)</span><br><span class="line">        _OutlineWidth (<span class="string">&quot;Outline Width&quot;</span>, Float) = <span class="number">0.02</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    SubShader</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// ---- Pass 0：描边 ----</span></span><br><span class="line">        Pass</span><br><span class="line">        &#123;</span><br><span class="line">            Name <span class="string">&quot;OUTLINE&quot;</span></span><br><span class="line">            Cull Front  <span class="comment">// 只渲染背面，正面被裁掉</span></span><br><span class="line"></span><br><span class="line">            CGPROGRAM</span><br><span class="line">            <span class="meta">#<span class="keyword">pragma</span> vertex vert</span></span><br><span class="line">            <span class="meta">#<span class="keyword">pragma</span> fragment frag</span></span><br><span class="line"></span><br><span class="line">            <span class="type">float</span> _OutlineWidth;</span><br><span class="line">            float4 _OutlineColor;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">struct</span> <span class="title class_">appdata</span> &#123; float4 vertex : POSITION; float3 normal : NORMAL; &#125;;</span><br><span class="line">            <span class="keyword">struct</span> <span class="title class_">v2f</span>    &#123; float4 pos : SV_POSITION; &#125;;</span><br><span class="line"></span><br><span class="line">            <span class="function">v2f <span class="title">vert</span><span class="params">(appdata v)</span></span></span><br><span class="line"><span class="function">            </span>&#123;</span><br><span class="line">                v2f o;</span><br><span class="line">                <span class="comment">// 沿法线方向把顶点往外推</span></span><br><span class="line">                float3 expanded = v.vertex.xyz + v.normal * _OutlineWidth;</span><br><span class="line">                o.pos = <span class="built_in">UnityObjectToClipPos</span>(<span class="built_in">float4</span>(expanded, <span class="number">1</span>));</span><br><span class="line">                <span class="keyword">return</span> o;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="function">fixed4 <span class="title">frag</span><span class="params">(v2f i)</span> : SV_Target</span></span><br><span class="line"><span class="function">            &#123;</span></span><br><span class="line">                <span class="keyword">return</span> _OutlineColor;  <span class="comment">// 纯色描边</span></span><br><span class="line">            &#125;</span><br><span class="line">            ENDCG</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ---- Pass 1：正常渲染 ----</span></span><br><span class="line">        Pass</span><br><span class="line">        &#123;</span><br><span class="line">            Name <span class="string">&quot;BASE&quot;</span></span><br><span class="line">            Cull Back   <span class="comment">// 只渲染正面</span></span><br><span class="line"></span><br><span class="line">            CGPROGRAM</span><br><span class="line">            <span class="meta">#<span class="keyword">pragma</span> vertex vert</span></span><br><span class="line">            <span class="meta">#<span class="keyword">pragma</span> fragment frag</span></span><br><span class="line"></span><br><span class="line">            float4 _Color;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">struct</span> <span class="title class_">appdata</span> &#123; float4 vertex : POSITION; &#125;;</span><br><span class="line">            <span class="keyword">struct</span> <span class="title class_">v2f</span>    &#123; float4 pos : SV_POSITION; &#125;;</span><br><span class="line"></span><br><span class="line">            <span class="function">v2f <span class="title">vert</span><span class="params">(appdata v)</span></span></span><br><span class="line"><span class="function">            </span>&#123;</span><br><span class="line">                v2f o;</span><br><span class="line">                o.pos = <span class="built_in">UnityObjectToClipPos</span>(v.vertex);</span><br><span class="line">                <span class="keyword">return</span> o;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="function">fixed4 <span class="title">frag</span><span class="params">(v2f i)</span> : SV_Target</span></span><br><span class="line"><span class="function">            &#123;</span></span><br><span class="line">                <span class="keyword">return</span> _Color;</span><br><span class="line">            &#125;</span><br><span class="line">            ENDCG</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>渲染这一个物体时，GPU 会走两遍：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SetPass Call → 激活 Pass 0 (OUTLINE)，设置 Cull Front 状态</span><br><span class="line">  Draw Call  → 用 Pass 0 的 shader 绘制物体（画出描边）</span><br><span class="line"></span><br><span class="line">SetPass Call → 激活 Pass 1 (BASE)，设置 Cull Back 状态</span><br><span class="line">  Draw Call  → 用 Pass 1 的 shader 绘制物体（画出本体）</span><br></pre></td></tr></table></figure>
@@ -270,7 +389,7 @@
 <li>SRP batcher automatically batches during render loop when objects use compatible shader variants enabled in the render pipeline settings (Window → Rendering → Render Pipeline → Universal Render Pipeline → General → SRP Batcher)</li>
 </ul>
 <h2 id="GPU-Instancing"><a href="#GPU-Instancing" class="headerlink" title="GPU Instancing"></a>GPU Instancing</h2><p>针对大量相同 mesh + 相同材质的物体（但允许不同的属性，比如颜色、位置）。CPU 只提交一次 mesh 数据，附带一个”实例属性数组”，GPU 自己循环绘制 N 次。<br>在 Unity 中，需要在材质属性中勾选 “Enable GPU Instancing”。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// shader 里声明每个实例可以有不同颜色</span><br><span class="line">UNITY_INSTANCING_BUFFER_START(Props)</span><br><span class="line">    UNITY_DEFINE_INSTANCED_PROP(float4, _Color)</span><br><span class="line">UNITY_INSTANCING_BUFFER_END(Props)</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// shader 里声明每个实例可以有不同颜色</span></span><br><span class="line"><span class="built_in">UNITY_INSTANCING_BUFFER_START</span>(Props)</span><br><span class="line">    <span class="built_in">UNITY_DEFINE_INSTANCED_PROP</span>(float4, _Color)</span><br><span class="line"><span class="built_in">UNITY_INSTANCING_BUFFER_END</span>(Props)</span><br></pre></td></tr></table></figure>
 
 <p>使用条件：</p>
 <ul>
@@ -1510,171 +1629,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/05/%E8%BF%9B%E7%A8%8B%E3%80%81%E7%BA%BF%E7%A8%8B%E5%92%8C%E5%8D%8F%E7%A8%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/03/05/%E8%BF%9B%E7%A8%8B%E3%80%81%E7%BA%BF%E7%A8%8B%E5%92%8C%E5%8D%8F%E7%A8%8B/" class="post-title-link" itemprop="url">进程、线程和协程</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2026-03-05 17:03:25" itemprop="dateCreated datePublished" datetime="2026-03-05T17:03:25+08:00">2026-03-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-03-10 17:27:02" itemprop="dateModified" datetime="2026-03-10T17:27:02+08:00">2026-03-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>进程：一个程序一个进程。<br>进程是计算机中正在运行的程序实例的抽象，它是资源分配的基本单位。每个进程都有自己独立的地址空间，包括代码段、数据段、堆栈段等，这意味着不同进程之间的内存资源是相互隔离的，不会相互干扰。例如，当你同时打开一个文本编辑器和一个浏览器，它们就分别是两个独立的进程，文本编辑器进程无法直接访问浏览器进程所占用的内存区域。</p>
-<p>线程：共享堆资源，利用多核处理器可以实现并行处理。<br>线程是进程内部的一条执行路径，是 CPU 调度和执行的基本单位。一个进程可以包含多个线程，这些线程共享进程的地址空间（包括代码段、数据段、堆等）以及系统资源（如打开的文件、网络连接等），但每个线程都有自己独立的栈空间用于保存局部变量、函数调用的上下文等信息。比如在一个文字处理软件进程中，可能有一个线程负责接收用户的键盘输入，另一个线程负责实时进行拼写检查，它们都在同一个进程的环境下协同工作。</p>
-<p>协程：用户态，单线程中实现并发，程序控制执行时机，I&#x2F;O操作不用CPU。<br>协程是一种比线程更加轻量级的存在，它可以看作是用户态的轻量级线程，是在单线程内实现的并发机制。协程不像线程那样由操作系统内核进行调度，而是由程序员自行控制或者由编程语言提供的特定库来进行调度切换。例如在 Python 语言中，通过 asyncio 库就能方便地定义和调度协程。协程在执行过程中可以主动暂停（yield），将执行权交给其他协程，之后又可以在合适的时候恢复执行。</p>
-<hr>
-<h1 id="调度方式"><a href="#调度方式" class="headerlink" title="调度方式"></a>调度方式</h1><ul>
-<li>进程：由操作系统内核进行调度，切换时需要保存和恢复所有的CPU状态和内存空间。</li>
-<li>线程：同样由操作系统进行调度，但由于线程共享进程的内存空间，切换时只需保存和恢复CPU寄存器和栈指针。</li>
-<li>协程：由程序员在用户态显式调度，无需操作系统参与，切换时只需保存和恢复少量上下文信息。</li>
-</ul>
-<h1 id="资源消耗"><a href="#资源消耗" class="headerlink" title="资源消耗"></a>资源消耗</h1><ul>
-<li>进程：创建和销毁进程需要较多的资源，尤其是内存和CPU时间。</li>
-<li>线程：创建和销毁线程比进程轻量，但仍然需要一定的资源。</li>
-<li>协程：由于在用户态执行，创建和销毁协程非常轻量，对系统资源的消耗最小。</li>
-</ul>
-<h1 id="隔离性"><a href="#隔离性" class="headerlink" title="隔离性"></a>隔离性</h1><ul>
-<li>进程：完全隔离，进程之间的内存空间独立，安全性高。</li>
-<li>线程：共享进程的内存空间，不同线程可以直接访问共享数据，隔离性差。</li>
-<li>协程：在同一线程内执行，协程之间共享内存空间。</li>
-</ul>
-<h1 id="通信方式"><a href="#通信方式" class="headerlink" title="通信方式"></a>通信方式</h1><p>进程间通信（IPC）是指不同进程之间交换数据或信号的机制，常见的 IPC 方法包括：</p>
-<ul>
-<li>管道（Pipe）：用于单向或双向数据流，常用于父子进程之间的通信。</li>
-<li>消息队列（Message Queue）：允许进程通过消息传递进行通信，消息按照一定的顺序排队。</li>
-<li>共享内存（Shared Memory）：多个进程共享同一段内存，速度快，但需要同步机制来避免竞争条件。</li>
-<li>信号量（Semaphore）：用于进程间的同步，控制多个进程对共享资源的访问。</li>
-<li>信号（Signal）：用于异步通知进程某个事件的发生。</li>
-<li>套接字（Socket）：通常用于网络通信，也可以用于同一主机上进程之间的通信。</li>
-</ul>
-<p>线程间通信由于共享同一进程的内存空间（堆资源），主要依赖同步机制来管理共享数据的访问：</p>
-<ul>
-<li>共享变量：线程可以直接通过共享变量进行通信，但需要同步机制来避免竞争条件。</li>
-<li>互斥锁（Mutex）：用于保护共享资源，确保同一时刻只有一个线程可以访问。</li>
-<li>条件变量（Condition Variable）：用于线程之间的等待和通知机制，线程可以等待某个条件的变化。</li>
-<li>信号量（Semaphore）：用于控制线程对共享资源的访问，特别适用于限制资源数量的场景。</li>
-<li>事件（Event）：用于线程间的信号传递，线程可以等待事件的发生。</li>
-</ul>
-<p>协程之间的通信通常是通过共享数据结构或消息传递机制来实现的，具体方法包括：</p>
-<ul>
-<li>共享变量：协程在同一线程内，可以直接访问共享变量，但仍需小心数据一致性问题。</li>
-<li>消息传递：许多编程语言提供了内置的消息传递机制，如通道（Channel）或队列（Queue），用于协程之间的通信。</li>
-<li>异步回调：协程常用于异步编程，回调机制可以用于协程之间的通信。</li>
-<li>未来（Future）和承诺（Promise）：用于在协程之间传递异步计算的结果。</li>
-</ul>
-<h1 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h1><ul>
-<li>进程：适用于需要高隔离性和安全性、任务相对独立的场景，如多用户系统、独立的服务模块。进程间通信通常较复杂，需要权衡性能和隔离性。</li>
-<li>线程：适用于需要高并发和共享资源的场景，如Web服务器、数据库系统。需要关注线程安全和同步问题，以避免死锁和竞争条件。</li>
-<li>协程：适用于大规模并发、IO密集型操作，尤其是在异步编程中，如异步网络请求、实时数据处理。协程的轻量级特性使其在处理大量并发操作时非常高效，但协程的调度和错误处理需要仔细设计。</li>
-</ul>
-<h1 id="优缺点对比"><a href="#优缺点对比" class="headerlink" title="优缺点对比"></a>优缺点对比</h1><p>进程是资源分配最小单位，独立稳定但开销大；线程是系统调度最小单位（操作系统分割成的时间片），共享资源但安全复杂；协程是用户级的轻量并发编程，切换效率极高，适合高并发I&#x2F;O，但统一线程下的多个协程不能利用多核并行处理。</p>
-<h2 id="进程的优点"><a href="#进程的优点" class="headerlink" title="进程的优点"></a>进程的优点</h2><ul>
-<li>隔离性和稳定性：每个进程拥有独立的地址空间，这意味着它们之间的内存是隔离的。这种隔离性提高了系统的稳定性，因为一个进程的崩溃不会直接影响其他进程。</li>
-<li>安全性：由于进程之间的资源是隔离的，这为应用程序提供了更高的安全性，防止一个进程无意中修改另一个进程的数据。</li>
-<li>容错性：如果某个进程失败，不会影响其他进程的运行。操作系统可以通过重启进程来恢复服务。</li>
-</ul>
-<h2 id="进程的缺点"><a href="#进程的缺点" class="headerlink" title="进程的缺点"></a>进程的缺点</h2><ul>
-<li>资源消耗大：进程的创建和销毁需要分配和回收大量的资源，包括内存和文件句柄。进程的上下文切换也比线程开销更大，因为需要切换独立的地址空间。</li>
-<li>通信复杂：由于进程之间的内存是隔离的，进程间通信（IPC）需要使用复杂的机制，如管道、消息队列、共享内存等，这增加了编程的复杂性。</li>
-<li>启动速度慢：启动一个新进程比启动一个新线程需要更多的时间，因为需要为进程分配独立的资源。</li>
-</ul>
-<h2 id="线程的优点"><a href="#线程的优点" class="headerlink" title="线程的优点"></a>线程的优点</h2><ul>
-<li>轻量级：线程是比进程更轻量级的执行单位，创建和销毁线程的开销相对较小。线程的上下文切换比进程更快，因为线程共享进程的内存空间。</li>
-<li>共享资源：线程可以共享进程的内存和资源，这使得线程之间的数据交换更加直接和高效。</li>
-<li>并发性：线程可以在多核处理器上实现真正的并行执行（多对多模型），充分利用多核系统的优势，提高程序的执行效率。</li>
-</ul>
-<h2 id="线程的缺点"><a href="#线程的缺点" class="headerlink" title="线程的缺点"></a>线程的缺点</h2><ul>
-<li>安全性和稳定性：由于线程共享进程的地址空间，一个线程的错误（如非法内存访问）可能会影响整个进程的稳定性。</li>
-<li>同步复杂性：线程之间共享数据，需要使用同步机制（如互斥锁、条件变量）来避免竞争条件和死锁，这增加了编程的复杂性。</li>
-<li>调试困难：多线程程序的调试比单线程程序复杂得多，因为线程的调度和切换往往是不确定的，可能导致难以重现的错误。</li>
-</ul>
-<h2 id="协程的优点"><a href="#协程的优点" class="headerlink" title="协程的优点"></a>协程的优点</h2><ul>
-<li>极低的切换开销：协程在用户态执行，切换时只需保存和恢复少量上下文信息，比线程和进程切换都要快得多。</li>
-<li>简单的并发模型：协程通过显式调用进行调度，程序员可以精确控制协程的执行顺序，避免了线程调度带来的不确定性。</li>
-<li>适合IO密集型任务：协程非常适合用于处理大量IO操作，因为它们可以在等待IO操作时主动让出控制权，从而提高系统的整体吞吐量。</li>
-<li>资源消耗小：协程是非常轻量级的，创建和销毁协程的开销极低。</li>
-</ul>
-<h2 id="协程的缺点"><a href="#协程的缺点" class="headerlink" title="协程的缺点"></a>协程的缺点</h2><ul>
-<li>不支持多核并行：大多数协程实现是在单线程上运行的，因此无法利用多核处理器进行并行计算。</li>
-<li>调度责任在程序员：协程的调度由程序员显式控制，这虽然提供了灵活性，但也意味着程序员需要负责协程的正确调度和资源管理。</li>
-<li>错误传播：在协程中，错误的传播和处理需要仔细设计，否则可能导致系统的不稳定。</li>
-</ul>
-<hr>
-<h1 id="超线程"><a href="#超线程" class="headerlink" title="超线程"></a>超线程</h1><ul>
-<li>超线程技术通过硬件指令将单个物理核心模拟为多个逻辑核心</li>
-<li>硬件层面的功能，需要CPU支持</li>
-<li>操作系统无法直接区分物理核心与逻辑核心的差异，只能通过统计逻辑核心数来管理任务分配</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1752,7 +1706,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-count">38</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
