@@ -161,6 +161,116 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/04/01/Bleeding-%E5%83%8F%E7%B4%A0%E6%B8%97%E6%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/04/01/Bleeding-%E5%83%8F%E7%B4%A0%E6%B8%97%E6%BC%8F/" class="post-title-link" itemprop="url">Bleeding 渗色</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-04-01 16:59:48 / Modified: 17:28:42" itemprop="dateCreated datePublished" datetime="2026-04-01T16:59:48+08:00">2026-04-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Bleeding"><a href="#Bleeding" class="headerlink" title="Bleeding"></a>Bleeding</h1><p>纹理渗色&#x2F;纹理出血，这是一种图像处理或显示技术问题，指一种颜色“溢出”到相邻像素的现象，导致颜色边界不清晰、产生伪影或颜色混杂。</p>
+<p><img src="/2026/04/01/Bleeding-%E5%83%8F%E7%B4%A0%E6%B8%97%E6%BC%8F/p1.png" title="2D Sprite Renderer Bleeding"></p>
+<p>Texture bleeding is when pixels from outside a sprite’s intended boundary leak into the visible edge of the sprite.</p>
+<p>Here’s why it happens. When the GPU samples a texture, it rarely samples at an exact pixel center.<br>Bilinear filtering works by taking the 4 nearest pixels and blending them together based on how close the sample point is to each one.<br>At the very edge of a sprite, one of those 4 neighbors is outside the sprite — it could be a transparent black pixel, a pixel from another sprite in an atlas, or garbage data. That outside color gets mixed into your edge pixel, producing a fringe（边缘）.</p>
+<p>For example:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[ edge pixel: orange ][ outside: transparent black (0,0,0,0) ]</span><br><span class="line">                      ^</span><br><span class="line">              bilinear samples here → blends orange + black = dark muddy fringe</span><br></pre></td></tr></table></figure>
+
+<p>This is exactly what you saw — the logo’s colored edge pixels were bleeding into the transparent area around it, and because the shader was Opaque, those blended semi-transparent edge pixels were written as solid color instead of being discarded.</p>
+<p>There are three common sources of bleeding:</p>
+<ul>
+<li>Wrap Mode: Repeat — the GPU wraps around and samples the opposite edge of the texture</li>
+<li>Atlas packing with no padding — neighboring sprites bleed into each other</li>
+<li>Opaque surface type with a transparent sprite — alpha is ignored so blended edge pixels render solid</li>
+</ul>
+<h1 id="Opaque-vs-Transparent"><a href="#Opaque-vs-Transparent" class="headerlink" title="Opaque vs Transparent"></a>Opaque vs Transparent</h1><p>The GPU renders geometry in two stages: rasterization and blending.<br>When Surface Type is Opaque, the blending stage is skipped entirely — the GPU writes every pixel the fragment shader touches directly to the framebuffer, alpha value be damned.<br>Your shader was correctly computing alpha from the texture, but the pipeline threw it away before it ever reached the screen.</p>
+<p>The “noise” you saw was bilinear filtering. At the sprite’s edges, the sampler blends the last row&#x2F;column of real pixels with whatever is just outside the sprite boundary (either transparent black rgba(0,0,0,0) or neighboring texture data).<br>With opaque mode, those semi-transparent edge pixels get written as fully solid, so you see that fringe of mixed color.</p>
+<p>Use <code>Opaque</code> when:<br>The object has no see-through areas at all (terrain, walls, characters without cutouts)<br>Performance matters — opaque objects are rendered in a single front-to-back pass and benefit from early-z culling, which skips fragment shading on occluded pixels entirely</p>
+<p>Use <code>Transparent</code> when:<br>The object has partial or full transparency (UI sprites, glass, particles, logos with alpha)<br>You need the blending stage to mix the fragment color with what’s already in the framebuffer<br>The cost of transparent is real — transparent objects can’t use early-z, must be sorted back-to-front, and can cause overdraw issues. So don’t default everything to transparent.</p>
+<h2 id="Blend-Mode-within-Transparent"><a href="#Blend-Mode-within-Transparent" class="headerlink" title="Blend Mode (within Transparent)"></a>Blend Mode (within Transparent)</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">| Mode | Formula | Use case |</span><br><span class="line">| --- | --- | --- |</span><br><span class="line">| Alpha     |   src.rgb * src.a + dst.rgb * (1 - src.a) | Standard transparency, sprites, UI</span><br><span class="line">| Additive  |   src.rgb * src.a + dst.rgb   |   Glows, fire, particles that should brighten</span><br><span class="line">| Multiply  |	src.rgb * dst.rgb   |   Darkening effects, shadows, tinted overlays</span><br><span class="line">| Premultiply |	src.rgb + dst.rgb * (1 - src.a) |   Textures with premultiplied alpha baked in</span><br></pre></td></tr></table></figure>
+
+<h1 id="The-Z-Buffer"><a href="#The-Z-Buffer" class="headerlink" title="The Z-Buffer"></a>The Z-Buffer</h1><p>The GPU maintains a depth buffer (z-buffer) alongside the color buffer. Every pixel stores the depth of the closest thing rendered to it so far.<br>When a new fragment arrives, the GPU compares its depth against what’s already in the buffer — if it’s further away, it gets discarded.</p>
+<h2 id="Front-to-Back-Pass"><a href="#Front-to-Back-Pass" class="headerlink" title="Front-to-Back Pass"></a>Front-to-Back Pass</h2><p>For opaque objects, Unity sorts them front-to-back before drawing. So the closest objects get drawn first.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Camera → [Chair] → [Table] → [Wall behind]</span><br><span class="line">           drawn     drawn      drawn</span><br><span class="line">           first     second     third</span><br></pre></td></tr></table></figure>
+<p>This matters because of early-z.</p>
+<h2 id="Early-Z-Culling"><a href="#Early-Z-Culling" class="headerlink" title="Early-Z Culling"></a>Early-Z Culling</h2><p>Once the chair is drawn and its depth is written to the z-buffer, when the wall fragment arrives at the same pixel, the GPU checks:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wall depth (5.0) &gt; z-buffer value (1.2) → discard, skip fragment shader</span><br></pre></td></tr></table></figure>
+<p>It never runs the fragment shader for the wall pixel at all. This is early-z culling — rejecting fragments before the expensive shading work happens.<br>The savings are significant. Fragment shaders do lighting, texture sampling, math — all skipped for occluded pixels.</p>
+<h2 id="Why-transparent-objects-break-this"><a href="#Why-transparent-objects-break-this" class="headerlink" title="Why transparent objects break this"></a>Why transparent objects break this</h2><p>Transparent objects need to blend with what’s behind them, so they must be drawn last, back-to-front:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Camera → [Wall] → [Table] → [Glass in front]</span><br></pre></td></tr></table></figure>
+
+<p>The glass needs the wall already in the framebuffer to blend against it. This means:</p>
+<ul>
+<li>You can’t sort front-to-back</li>
+<li>Early-z culling doesn’t apply</li>
+<li>Every transparent fragment runs the full fragment shader regardless of what’s in front of it</li>
+</ul>
+<p>That’s the real performance cost of transparency — not the blending itself, but losing early-z and the overdraw that comes with back-to-front rendering.</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/31/Unity-Trail-Renderer/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -457,7 +567,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-03-27 19:03:03" itemprop="dateModified" datetime="2026-03-27T19:03:03+08:00">2026-03-27</time>
+                <time title="Modified: 2026-03-30 10:05:05" itemprop="dateModified" datetime="2026-03-30T10:05:05+08:00">2026-03-30</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -987,7 +1097,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-03-24 16:12:39" itemprop="dateModified" datetime="2026-03-24T16:12:39+08:00">2026-03-24</time>
+                <time title="Modified: 2026-04-01 17:14:39" itemprop="dateModified" datetime="2026-04-01T17:14:39+08:00">2026-04-01</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1057,7 +1167,7 @@
 <figure class="highlight cs"><figcaption><span>打包时指定压缩方式</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">BuildAssetBundles(<span class="string">&quot;Assets/AB&quot;</span>, BuildAssetBundleOptions.None);              <span class="comment">// LZMA</span></span><br><span class="line">BuildAssetBundles(<span class="string">&quot;Assets/AB&quot;</span>, BuildAssetBundleOptions.ChunkBasedCompression); <span class="comment">// LZ4</span></span><br><span class="line">BuildAssetBundles(<span class="string">&quot;Assets/AB&quot;</span>, BuildAssetBundleOptions.UncompressedAssetBundle); <span class="comment">// 不压缩</span></span><br></pre></td></tr></table></figure>
 
 <p>LZMA（整体压缩）</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">整个 AB 文件作为一个流压缩：</span><br><span class="line">┌────────────────────────────────────┐</span><br><span class="line">│  LZMA压缩流（Header+Catalog+Data） │</span><br><span class="line">└────────────────────────────────────┘</span><br><span class="line"></span><br><span class="line">加载时必须解压整个文件才能读取任何一个资源</span><br><span class="line">→ 体积最小，但加载慢，内存峰值高</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">整个 AB 文件作为一个流压缩：</span><br><span class="line">┌────────────────────────────────────┐</span><br><span class="line">│  LZMA压缩流（Header+Catalog+Data）   │</span><br><span class="line">└────────────────────────────────────┘</span><br><span class="line"></span><br><span class="line">加载时必须解压整个文件才能读取任何一个资源</span><br><span class="line">→ 体积最小，但加载慢，内存峰值高</span><br></pre></td></tr></table></figure>
 
 <p>LZ4（块压缩）</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">每个数据块独立压缩：</span><br><span class="line">┌────────┬────────┬────────┬────────┐</span><br><span class="line">│ block0 │ block1 │ block2 │ block3 │  每块独立LZ4压缩</span><br><span class="line">└────────┴────────┴────────┴────────┘</span><br><span class="line"></span><br><span class="line">加载某个资源时只解压它所在的块</span><br><span class="line">→ 体积稍大，但可以随机访问，加载快</span><br></pre></td></tr></table></figure>
@@ -1445,190 +1555,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/10/synchronized%E5%92%8Clock-CAS-%E7%9A%84%E5%8C%BA%E5%88%AB/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/03/10/synchronized%E5%92%8Clock-CAS-%E7%9A%84%E5%8C%BA%E5%88%AB/" class="post-title-link" itemprop="url">synchronized和lock(CAS)的区别</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2026-03-10 17:28:17" itemprop="dateCreated datePublished" datetime="2026-03-10T17:28:17+08:00">2026-03-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-03-16 17:47:28" itemprop="dateModified" datetime="2026-03-16T17:47:28+08:00">2026-03-16</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>synchronized：在需要同步的对象中加入此控制，synchronized可以加在方法上，也可以加在特定代码块中，括号中表示需要锁的对象。<br>lock：一般使用ReentrantLock类做为锁。在加锁和解锁处需要通过lock()和unlock()显示指出。所以一般会在finally块中写unlock()以防死锁。</p>
-<ol>
-<li>ReentrantLock支持非阻塞的方式获取锁，能够响应中断，而synchronized不行</li>
-<li>ReentrantLock必须手动获取和释放锁，而synchronized不需要</li>
-<li>ReentrantLock可以是公平锁或者非公平锁，而synchronized只能是非公平锁<ul>
-<li>公平锁 (Fair Lock)：线程申请锁的顺序与获取锁的顺序完全一致，FIFO (First Input First Output)。先排队的线程先获得锁。new ReentrantLock(true)。其内部不仅看锁状态，还会判断 hasQueuedPredecessors()，即等待队列中是否有前驱线程，有则不抢。</li>
-<li>非公平锁 (Non-Fair Lock)：不保证顺序。多个线程尝试获取锁时，可能新到的线程直接加塞抢到锁，而不按排队顺序。new ReentrantLock(false)（默认）。调用 lock() 时直接通过 CAS 尝试获取锁，抢不到再进入队列。</li>
-</ul>
-</li>
-<li>ReentrantLock在发生异常时，如果没有通过unlock去释放锁，很有可能造成死锁，因此需要在finally块中释放锁<ul>
-<li>而synchronized在发生异常的时候，会自动释放线程占有的锁</li>
-</ul>
-</li>
-<li>synchronized和ReentrantLock都是可重入锁（某个线程已经获得某个锁，可以再次获取锁而不会出现死锁，即re-entrant）</li>
-</ol>
-<p>为什么要使用非公平锁？</p>
-<ul>
-<li>公平锁维护等待队列增加上下文切换，性能较慢；非公平锁利用 CAS 抢锁，在高并发场景下提升性能效率高。<ul>
-<li>当获取公平锁时，先将线程自己添加到等待队列的队尾并休眠，当某线程用完锁之后，会去唤醒等待队列中队首的线程尝试去获取锁，锁的使用顺序也就是队列中的先后顺序，在整个过程中，线程会从运行状态切换到休眠状态，再从休眠状态恢复成运行状态，但线程每次休眠和恢复都需要从用户态转换成内核态，而这个状态的转换是比较慢的，所以公平锁的执行速度会比较慢。</li>
-<li>当获取非公平锁时，会先通过 CAS 尝试获取锁，如果获取成功就直接拥有锁，如果获取锁失败才会进入等待队列，等待下次尝试获取锁。这样做的好处是，获取锁不用遵循先到先得的规则，从而避免了线程休眠和恢复的操作</li>
-</ul>
-</li>
-<li>减少线程切换：被唤醒的线程还需要排队等待，不如让当前运行的线程（持有 CPU）直接抢，能更快完成任务。</li>
-<li>提高吞吐量：即使有先来后到，非公平锁利用空闲时间直接抢锁，能让整体效率更高。</li>
-<li>公平锁适用于需要精确控制执行顺序的业务，如金融转账、需要严格时间戳的日志记录。</li>
-</ul>
-<hr>
-<h1 id="Synchronized"><a href="#Synchronized" class="headerlink" title="Synchronized"></a>Synchronized</h1><p>synchronized能够保证多个线程在同时执行被synchronized包裹的同一代码块时，有且仅有一个线程能执行相应的代码操作，而其他的线程会被阻塞等待。</p>
-<figure class="highlight java"><figcaption><span>synchronized 关键字包裹不同的目标</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SyncTest</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">Integer</span> <span class="variable">p</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// synchronized 修饰整个方法</span></span><br><span class="line">    <span class="comment">// 当多个线程同时调用该方法，只有一个能打印出 “准备获得属性p” 并返回p，之后别的线程再去竞争方法的使用权。</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">synchronized</span> <span class="type">int</span> <span class="title function_">getP</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;准备获得属性p&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> p;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// synchronized 包裹属性p</span></span><br><span class="line">    <span class="comment">// 当多个线程同时调用该方法时，会一起显示 ”准备属性p加一“ ，但同一时间段只有一个线程能够执行该操作。</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">pAndOne</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;准备属性p加一&quot;</span>);</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="built_in">this</span>.p)&#123;</span><br><span class="line">            <span class="built_in">this</span>.p +=<span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// synchronized 包裹对象本身</span></span><br><span class="line">    <span class="comment">// 只要有一个线程执行根据对象本身同步的代码块，那么这部分代码块以及pAndOne的同步代码块，别的线程都是不能执行的。</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">reset</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;重置属性p&quot;</span>);</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="built_in">this</span>)&#123;</span><br><span class="line">            <span class="built_in">this</span>.p = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>JAVA 虚拟机类加载机制和字节码执行引擎会在类和方法上添加访问标志这一块内容，用来标记类是否是静态是否是public，方法是否是public等等。</p>
-<p>对于方法的同步，是通过方法的访问标志 <em>ACC_SYNCHRONIZED</em> 来控制的，即执行指定方法前会通过访问标志来判断是否需要和其他线程同步。<br>而对于针对对象的同步，则是通过字节指令来实现的，即先引入对象引用到当前栈，使用 <em>monitorenter</em> 字节指令告诉虚拟机该引用需要同步， <em>monitorexist</em> 字节指令表示退出。</p>
-<h1 id="lock（CAS）"><a href="#lock（CAS）" class="headerlink" title="lock（CAS）"></a>lock（CAS）</h1><p>synchronized会一直获取执行权限直到执行完毕，即每个线程在执行相关代码块时都要与其他线程同步确认是否可以执行代码，容易影响性能。</p>
-<p>lock可以帮我们实现尝试立刻获取锁，在指定时间内尝试获取锁，一直获取锁等操作，而semaphore信号量可以帮我们实现允许最多指定数量的线程获取锁。</p>
-<h2 id="Unsafe"><a href="#Unsafe" class="headerlink" title="Unsafe"></a>Unsafe</h2><p>unsafe中的方法能够帮我们获取到一个对象的属性位于对象开始位置的相对距离，也就是说对象属性所在的地址与对象起始地址的差值。同时，还能获取一个对象指定相对距离后的数据，例如long，int，byte等等。最重要的是可以给一个特定的地址设置上数据。</p>
-<h2 id="Compare-And-Swap"><a href="#Compare-And-Swap" class="headerlink" title="Compare And Swap"></a>Compare And Swap</h2><p>在unsafe类中，支持这样一个方法，compareAndSwapInt。它的含义是给一个对象var1（开始位置+指定长度var2）的地址写入一个int值var4，如果这个地方原来的值是var5。成功返回true，不成功返回false。</p>
-<p>这个操作是本地方法调用，而具体一点，这个方法会直接调用cpu的compare_and_swap指令，这个指令是原子性的，即操作内存中一个地址上的值不会被中断。而且多核cpu间都是可见的。</p>
-<p>借由这样的一个本地方法调用，jdk实现了一系列轻量级的非阻塞锁以及相关应用，例如ReentrantLock，Semaphore，ConcurrentHashMap，AtomicInteger等等。</p>
-<h2 id="性能问题"><a href="#性能问题" class="headerlink" title="性能问题"></a>性能问题</h2><ul>
-<li>在多线程竞争下，加锁、释放锁会导致比较多的上下文切换和调度延时，引起性能问题。</li>
-<li>一个线程持有锁会导致其它所有需要此锁的线程挂起。</li>
-<li>如果一个优先级高的线程等待一个优先级低的线程释放锁会导致优先级倒置，引起性能风险。</li>
-<li>volatile是不错的机制，但是volatile不能保证原子性。因此对于同步最终还是要回到锁机制上来。<ul>
-<li>Java 的 volatile 关键字是轻量级的同步机制，当一个线程修改了 volatile 修饰的变量，新值会立即刷新到主内存，当其他线程读取该变量时，会强制从主内存重新获取，确保读到最新值。</li>
-<li>volatile 无法保证复合操作的原子性。例如 i++ 实际上包含“读取-修改-写入”三个步骤，使用 volatile 仍可能在多线程环境下产生冲突</li>
-</ul>
-</li>
-</ul>
-<h2 id="实现原理-1"><a href="#实现原理-1" class="headerlink" title="实现原理"></a>实现原理</h2><p>CAS是解决多线程并行情况下使用锁造成性能损耗的一种机制。</p>
-<ul>
-<li>CAS操作包含三个操作数——内存位置（V）、预期原值（A）、新值(B)。</li>
-<li>如果内存位置的值与预期原值相匹配，那么处理器会自动将该位置值更新为新值。否则，处理器不做任何操作。</li>
-<li>无论哪种情况，它都会在CAS指令之前返回该位置的值。</li>
-<li>CAS有效地说明了“我认为位置V应该包含值A；如果包含该值，则将B放到这个位置；否则，不要更改该位置，只告诉我这个位置现在的值即可。</li>
-</ul>
-<p>假设内存中的原数据V，旧的预期值A，需要修改的新值B</p>
-<ul>
-<li>比较 A 与 V 是否相等</li>
-<li>如果比较相等，将 B 写入 V</li>
-<li>返回操作是否成功</li>
-</ul>
-<h2 id="具体算法"><a href="#具体算法" class="headerlink" title="具体算法"></a>具体算法</h2><ul>
-<li>在对变量进行计算之前(如 ++ 操作)，首先读取原变量值，称为 旧的预期值 A</li>
-<li>然后在更新之前再获取当前内存中的值，称为 当前内存值 V<ul>
-<li>如果 A&#x3D;&#x3D;V 则说明变量从未被其他线程修改过，此时将会写入新值 B</li>
-<li>如果 A!&#x3D;V 则说明变量已经被其他线程修改过，当前线程应当什么也不做。</li>
-</ul>
-</li>
-</ul>
-<h2 id="Java-CAS使用示例"><a href="#Java-CAS使用示例" class="headerlink" title="Java CAS使用示例"></a>Java CAS使用示例</h2><figure class="highlight java"><figcaption><span>使用 AtomicInteger 实现无锁计数器</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CasExample</span> &#123;</span><br><span class="line">    <span class="comment">// 1. 初始化原子整型变量</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">AtomicInteger</span> <span class="variable">counter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="type">Runnable</span> <span class="variable">task</span> <span class="operator">=</span> () -&gt; &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++) &#123;</span><br><span class="line">                <span class="comment">// 自旋CAS操作，直到更新成功</span></span><br><span class="line">                <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">                    <span class="type">int</span> <span class="variable">oldValue</span> <span class="operator">=</span> counter.get(); <span class="comment">// 预期值E</span></span><br><span class="line">                    <span class="type">int</span> <span class="variable">newValue</span> <span class="operator">=</span> oldValue + <span class="number">1</span>; <span class="comment">// 新值N</span></span><br><span class="line">                    </span><br><span class="line">                    <span class="comment">// 2. 比较并交换：如果当前值等于oldValue，则赋值为newValue</span></span><br><span class="line">                    <span class="keyword">if</span> (counter.compareAndSet(oldValue, newValue)) &#123;</span><br><span class="line">                        <span class="keyword">break</span>; <span class="comment">// 成功则退出循环</span></span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="comment">// 失败说明被其他线程修改，自动下一次循环获取最新值再试</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="type">Thread</span> <span class="variable">t1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(task);</span><br><span class="line">        <span class="type">Thread</span> <span class="variable">t2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(task);</span><br><span class="line">        t1.start();</span><br><span class="line">        t2.start();</span><br><span class="line">        t1.join();</span><br><span class="line">        t2.join();</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;最终计数器结果: &quot;</span> + counter.get()); <span class="comment">// 预期为 2000</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用-CAS-需要注意的问题"><a href="#使用-CAS-需要注意的问题" class="headerlink" title="使用 CAS 需要注意的问题"></a>使用 CAS 需要注意的问题</h2><ul>
-<li><p>ABA问题<br>因为CAS需要在操作值的时候，检查值有没有发生变化，没有发生变化才去更新。<br>但是如果一个值原来是A变成了B，又变成了A，CAS检查会判断该值未发生变化，实际却变化了。<br>解决思路：增加版本号，每次变量更新时把版本号+1，A-B-A就变成了1A-2B-3A。JDK5之后的atomic包提供了AtomicStampedReference来解决ABA问题，它的compareAndSet方法会首先检查当前引用是否等于预期引用，并且当前标志是否等于预期标志。全部相等，才会以原子方式将该引用、该标志的值设置为更新值。</p>
-</li>
-<li><p>时间长、开销大<br>自旋CAS如果长时间不成功，会给CPU带来非常大的执行开销。</p>
-</li>
-<li><p>只能保证一个共享变量的原子操作<br>对一个共享变量执行操作时，可以循环CAS方式确保原子操作。<br>但是对多个共享变量，就不灵了。<br>这里可以使用锁，或把多个共享变量合并为1个共享变量，如i&#x3D;2,j&#x3D;a,合并为ij&#x3D;2a。然后用CAS操作ij。在JDK5后，提供了AtomicReference类来保证对象间的原子性，可以把多个共享变量放在一个对象里进行CAS操作。</p>
-</li>
-</ul>
-<h1 id="synchronized性能优化"><a href="#synchronized性能优化" class="headerlink" title="synchronized性能优化"></a>synchronized性能优化</h1><p>synchronized是托管给 JVM 执行的， 而lock是java写的控制锁的代码。</p>
-<p>在Java1.5中，synchronize是性能低效的。因为这是一个重量级操作，需要调用操作接口，导致有可能加锁消耗的系统时间比加锁以外的操作还多。相比之下使用Java提供的Lock对象，性能更高一些。</p>
-<p>但从Java1.6开始。synchronize在语义上很清晰，可以进行很多优化，有适应自旋，锁消除，锁粗化，轻量级锁，偏向锁等等。导致在Java1.6上synchronize的性能并不比Lock差。官方也表示，他们也更支持synchronize，在未来的版本中还有优化余地。</p>
-<h1 id="机制区别"><a href="#机制区别" class="headerlink" title="机制区别"></a>机制区别</h1><p>synchronized原始采用的是CPU悲观锁机制，即线程获得的是独占锁。独占锁意味着其他线程只能依靠阻塞来等待线程释放锁。而在CPU转换线程阻塞时会引起线程上下文切换，当有很多线程竞争锁的时候，会引起CPU频繁的上下文切换导致效率很低。</p>
-<p>而Lock用的是乐观锁方式。所谓乐观锁就是，每次不加锁而是假设没有冲突而去完成某项操作，如果因为冲突失败就重试，直到成功为止。乐观锁实现的机制就是CAS操作（Compare and Swap ）。我们可以进一步研究ReentrantLock的源代码，会发现其中比较重要的获得锁的一个方法是compareAndSetState。这里其实就是调用的CPU提供的特殊指令。</p>
-<p>现代的CPU提供了指令，可以自动更新共享数据，而且能够检测到其他线程的干扰，而 compareAndSet() 就用这些代替了锁定。这个算法称作非阻塞算法，意思是一个线程的失败或者挂起不应该影响其他线程的失败或挂起的算法。</p>
-<h2 id="悲观锁-synchronized"><a href="#悲观锁-synchronized" class="headerlink" title="悲观锁 synchronized"></a>悲观锁 synchronized</h2><ul>
-<li>假定会发生并发冲突，屏蔽一切可能违反数据完整性的操作。</li>
-<li>悲观锁的实现，往往依靠底层提供的锁机制。</li>
-<li>悲观锁会导致其它所有需要锁的线程挂起，等待持有锁的线程释放锁。</li>
-</ul>
-<h2 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h2><ul>
-<li>假设不会发生并发冲突，每次不加锁而是假设没有冲突而去完成某项操作，只在提交操作时检查是否违反数据完整性。</li>
-<li>如果因为冲突失败就重试，直到成功为止。</li>
-<li>乐观锁大多是基于数据版本记录机制实现。</li>
-<li>为数据增加一个版本标识，比如在基于数据库表的版本解决方案中，一般是通过为数据库表增加一个 “version” 字段来实现。读取出数据时，将此版本号一同读出，之后更新时，对此版本号加一。</li>
-<li>此时，将提交数据的版本数据与数据库表对应记录的当前版本信息进行比对，如果提交的数据版本号大于数据库表当前版本号，则予以更新，否则认为是过期数据。</li>
-<li>乐观锁的缺点是不能解决脏读的问题。</li>
-<li>在实际生产环境里边,如果并发量不大且不允许脏读，可以使用悲观锁解决并发问题。</li>
-<li>如果系统的并发非常大的话,悲观锁定会带来非常大的性能问题,所以我们就要选择乐观锁定的方法。</li>
-</ul>
-<h1 id="用途区别"><a href="#用途区别" class="headerlink" title="用途区别"></a>用途区别</h1><p>在非常复杂的同步应用中，请考虑使用ReentrantLock，特别是遇到下面几种种需求的时候。</p>
-<p>1.某个线程在等待一个锁的控制权的这段时间需要中断<br>2.需要分开处理一些wait-notify，ReentrantLock里面的Condition应用，能够控制notify哪个线程<br>3.具有公平锁功能，每个到来的线程都将排队等候</p>
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1622173">https://cloud.tencent.com/developer/article/1622173</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_27828675/article/details/115372519">https://blog.csdn.net/qq_27828675/article/details/115372519</a><br><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1997322">https://cloud.tencent.com/developer/article/1997322</a></p>
-<hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1706,7 +1632,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-count">39</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
