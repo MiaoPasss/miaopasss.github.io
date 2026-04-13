@@ -161,6 +161,140 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/04/13/Unity%E7%B2%92%E5%AD%90%E7%89%B9%E6%95%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/04/13/Unity%E7%B2%92%E5%AD%90%E7%89%B9%E6%95%88/" class="post-title-link" itemprop="url">Unity粒子特效</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-04-13 13:23:57 / Modified: 13:34:15" itemprop="dateCreated datePublished" datetime="2026-04-13T13:23:57+08:00">2026-04-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Unity 的粒子特效主要基于内置的 <code>Particle System</code> 组件。它适合创建火焰、烟雾、爆炸、雪花、魔法光效等视觉效果。<br>粒子系统通过一组不断生成、模拟、渲染的“粒子”来表现复杂的视觉效果，而不需要为每一个物体写单独的网格。</p>
+<h1 id="粒子系统的核心概念"><a href="#粒子系统的核心概念" class="headerlink" title="粒子系统的核心概念"></a>粒子系统的核心概念</h1><ul>
+<li><strong>Emitter（发射器）</strong>：粒子从何处发射，通常由发射形状（Shape）决定。</li>
+<li><strong>Lifetime（寿命）</strong>：每个粒子存在的时间。</li>
+<li><strong>Velocity（速度）</strong>：粒子运动方向与速度。</li>
+<li><strong>Size &#x2F; Color over Lifetime</strong>：粒子在生命周期中大小和颜色的变化。</li>
+<li><strong>Emission Rate（发射率）</strong>：每秒生成粒子数量。</li>
+<li><strong>Renderer</strong>：粒子最终如何绘制，常见为 Billboard、Mesh、Stretch Billboard。</li>
+</ul>
+<h1 id="Unity-粒子系统常用模块"><a href="#Unity-粒子系统常用模块" class="headerlink" title="Unity 粒子系统常用模块"></a>Unity 粒子系统常用模块</h1><ul>
+<li><code>Emission</code>：控制发射速率、爆发次数。</li>
+<li><code>Shape</code>：控制粒子发射区域，如 Sphere、Cone、Box 等。</li>
+<li><code>Velocity over Lifetime</code>：设置粒子在生命周期内的速度变化。</li>
+<li><code>Color over Lifetime</code>：设置颜色渐变。</li>
+<li><code>Size over Lifetime</code>：控制大小随时间变化。</li>
+<li><code>Rotation over Lifetime</code>：控制粒子旋转。</li>
+<li><code>Noise</code>：添加噪声让粒子运动更自然。</li>
+<li><code>Collision</code>：让粒子与世界碰撞。</li>
+</ul>
+<h1 id="混合代码与粒子系统使用方式"><a href="#混合代码与粒子系统使用方式" class="headerlink" title="混合代码与粒子系统使用方式"></a>混合代码与粒子系统使用方式</h1><p>粒子系统通常由编辑器配置，但也可以通过脚本动态控制。下面是一个常见的代码用例：创建、配置并触发粒子效果。</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ParticleEffectSpawner</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// `ParticleSystem` 组件可直接挂在预制体上，脚本通过 `Instantiate` 生成实例。</span></span><br><span class="line">    <span class="keyword">public</span> ParticleSystem particlePrefab;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (particlePrefab == <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogWarning(<span class="string">&quot;请在 Inspector 中指定 particlePrefab&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">SpawnEffect</span>(<span class="params">Vector3 position</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> instance = Instantiate(particlePrefab, position, Quaternion.identity);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// `main`、`emission`、`shape` 等模块都可以在运行时通过脚本访问。</span></span><br><span class="line">        <span class="keyword">var</span> main = instance.main;</span><br><span class="line">        main.startLifetime = <span class="number">1.5f</span>;</span><br><span class="line">        main.startSpeed = <span class="number">4f</span>;</span><br><span class="line">        main.startSize = <span class="number">0.8f</span>;</span><br><span class="line">        main.startColor = Color.cyan;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> emission = instance.emission;</span><br><span class="line">        emission.rateOverTime = <span class="number">100f</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> shape = instance.shape;</span><br><span class="line">        shape.shapeType = ParticleSystemShapeType.Cone;</span><br><span class="line">        shape.angle = <span class="number">20f</span>;</span><br><span class="line">        shape.radius = <span class="number">0.5f</span>;</span><br><span class="line"></span><br><span class="line">        instance.Play();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// `Destroy` 用于清理粒子对象，避免特效结束后残留内存。</span></span><br><span class="line">        Destroy(instance.gameObject, main.startLifetime.constant + <span class="number">0.5f</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="运行时参数控制示例"><a href="#运行时参数控制示例" class="headerlink" title="运行时参数控制示例"></a>运行时参数控制示例</h1><p>通过脚本修改粒子参数，可以实现不同风格的特效，例如爆炸效果：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Explode</span>(<span class="params">Vector3 position</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> instance = Instantiate(particlePrefab, position, Quaternion.identity);</span><br><span class="line">    <span class="keyword">var</span> main = instance.main;</span><br><span class="line">    main.startLifetime = <span class="number">0.8f</span>;</span><br><span class="line">    main.startSpeed = <span class="number">10f</span>;</span><br><span class="line">    main.startSize = <span class="number">1.5f</span>;</span><br><span class="line">    main.startColor = <span class="keyword">new</span> Color(<span class="number">1f</span>, <span class="number">0.5f</span>, <span class="number">0.1f</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> emission = instance.emission;</span><br><span class="line">    emission.rateOverTime = <span class="number">0f</span>;</span><br><span class="line">    emission.SetBurst(<span class="number">0</span>, <span class="keyword">new</span> ParticleSystem.Burst(<span class="number">0f</span>, <span class="number">50</span>, <span class="number">80</span>));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> shape = instance.shape;</span><br><span class="line">    shape.shapeType = ParticleSystemShapeType.Sphere;</span><br><span class="line">    shape.radius = <span class="number">0.3f</span>;</span><br><span class="line"></span><br><span class="line">    instance.Play();</span><br><span class="line">    Destroy(instance.gameObject, main.startLifetime.constant + <span class="number">0.5f</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="与-Shader-的区别"><a href="#与-Shader-的区别" class="headerlink" title="与 Shader 的区别"></a>与 Shader 的区别</h1><p>Unity 粒子特效通常由 <code>Particle System</code> 来驱动整体行为，而 <code>Shader</code> 决定粒子的最终视觉表现。<br>两者搭配使用，既可以快速构建特效逻辑，也能在渲染上实现更加细腻的视觉结果。</p>
+<h2 id="粒子系统和-Shader-的职责不同"><a href="#粒子系统和-Shader-的职责不同" class="headerlink" title="粒子系统和 Shader 的职责不同"></a>粒子系统和 Shader 的职责不同</h2><ul>
+<li><code>Particle System</code>：负责粒子的生成、生命周期、位置、速度、发射、碰撞、颜色和大小变化等整体行为。</li>
+<li><code>Shader</code>：负责单个粒子的最终渲染效果，如纹理、颜色混合、透明度、光照、动画遮罩等。</li>
+</ul>
+<p>粒子系统通常使用内置或自定义材质，材质中可以包含 Shader。也就是说，粒子系统负责“做出粒子”，Shader 负责“怎么画粒子”。</p>
+<h2 id="使用场景差异"><a href="#使用场景差异" class="headerlink" title="使用场景差异"></a>使用场景差异</h2><ul>
+<li>粒子系统适合快速搭建常见特效、控制复杂行为、在编辑器中调整参数。</li>
+<li>Shader 适合实现特效的渲染细节，如渐隐、闪烁、扫描、光晕与特殊混合模式。</li>
+</ul>
+<p>例如：你可以让 <code>Particle System</code> 负责生成烟雾粒子，而使用 <code>Unlit</code> 或 <code>Additive</code> Shader 实现在透明面上绘制柔和、发光的烟雾纹理。</p>
+<h2 id="性能与复杂度"><a href="#性能与复杂度" class="headerlink" title="性能与复杂度"></a>性能与复杂度</h2><ul>
+<li><code>Particle System</code> 自身封装了大量行为，适合面向特效设计师快速迭代。</li>
+<li><code>Shader</code> 则在 GPU 上运行、效率更高，但需要编写渲染代码，对每个像素&#x2F;顶点进行控制。</li>
+</ul>
+<p>如果希望增强粒子表现，可以结合 <code>Shader Graph</code> 或自定义 Shader，使粒子面具备“流动光晕”、“波动边缘”、“复杂透明度曲线”等效果。</p>
+<h2 id="结合-Shader-的粒子效果"><a href="#结合-Shader-的粒子效果" class="headerlink" title="结合 Shader 的粒子效果"></a>结合 Shader 的粒子效果</h2><p>一个常见做法是：</p>
+<ol>
+<li>在 <code>Particle System</code> 中设置材质为 <code>Particle/Additive</code> 或自定义粒子材质。</li>
+<li>使用纹理图集、<code>Color over Lifetime</code>、<code>Size over Lifetime</code> 调整粒子表现。</li>
+<li>在 Shader 中实现附加效果，例如渐隐、扭曲、噪声贴图 UV 变换。</li>
+</ol>
+<h1 id="自定义-Shader-示例"><a href="#自定义-Shader-示例" class="headerlink" title="自定义 Shader 示例"></a>自定义 Shader 示例</h1><p>下面是一个简单的粒子自定义 Shader，它对粒子透明度和 UV 进行了处理：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">Shader &quot;Custom/ParticleSoft&quot;</span><br><span class="line">&#123;</span><br><span class="line">    Properties</span><br><span class="line">    &#123;</span><br><span class="line">        _MainTex (&quot;Texture&quot;, 2D) = &quot;white&quot; &#123;&#125;</span><br><span class="line">        _Color (&quot;Tint&quot;, Color) = (1,1,1,1)</span><br><span class="line">    &#125;</span><br><span class="line">    SubShader</span><br><span class="line">    &#123;</span><br><span class="line">        Tags &#123; &quot;Queue&quot;=&quot;Transparent&quot; &quot;RenderType&quot;=&quot;Transparent&quot; &#125;</span><br><span class="line">        Blend SrcAlpha One</span><br><span class="line">        Cull Off</span><br><span class="line">        Lighting Off</span><br><span class="line">        ZWrite Off</span><br><span class="line"></span><br><span class="line">        Pass</span><br><span class="line">        &#123;</span><br><span class="line">            CGPROGRAM</span><br><span class="line">            #pragma vertex vert</span><br><span class="line">            #pragma fragment frag</span><br><span class="line">            #include &quot;UnityCG.cginc&quot;</span><br><span class="line"></span><br><span class="line">            sampler2D _MainTex;</span><br><span class="line">            float4 _Color;</span><br><span class="line"></span><br><span class="line">            struct appdata</span><br><span class="line">            &#123;</span><br><span class="line">                float4 vertex : POSITION;</span><br><span class="line">                float2 uv : TEXCOORD0;</span><br><span class="line">                float4 color : COLOR;</span><br><span class="line">            &#125;;</span><br><span class="line"></span><br><span class="line">            struct v2f</span><br><span class="line">            &#123;</span><br><span class="line">                float4 pos : SV_POSITION;</span><br><span class="line">                float2 uv : TEXCOORD0;</span><br><span class="line">                float4 color : COLOR;</span><br><span class="line">            &#125;;</span><br><span class="line"></span><br><span class="line">            v2f vert(appdata v)</span><br><span class="line">            &#123;</span><br><span class="line">                v2f o;</span><br><span class="line">                o.pos = UnityObjectToClipPos(v.vertex);</span><br><span class="line">                o.uv = v.uv;</span><br><span class="line">                o.color = v.color * _Color;</span><br><span class="line">                return o;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            fixed4 frag(v2f i) : SV_Target</span><br><span class="line">            &#123;</span><br><span class="line">                fixed4 tex = tex2D(_MainTex, i.uv);</span><br><span class="line">                tex.rgb *= i.color.rgb;</span><br><span class="line">                tex.a *= i.color.a;</span><br><span class="line">                return tex;</span><br><span class="line">            &#125;</span><br><span class="line">            ENDCG</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个 Shader 只负责将粒子贴图按颜色和透明度渲染出来，而粒子系统仍然负责产生位置、速度和生命周期。</p>
+<h2 id="实战建议"><a href="#实战建议" class="headerlink" title="实战建议"></a>实战建议</h2><ul>
+<li>先用编辑器调整粒子系统参数，确认效果后再用脚本控制动画和触发时机。</li>
+<li>将复杂行为拆成多个粒子系统，如火焰、烟雾、火花分别使用不同系统组合。</li>
+<li>如果粒子数量大或效果复杂，可考虑粒子 Shader 优化，例如使用 <code>Soft Particles</code>、<code>GPU Instancing</code> 或 <code>Shader Graph</code>。</li>
+<li>当粒子需要与场景光照、阴影或深度融合时，配合自定义 Shader 和深度测试设置提高表现力。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/04/01/Bleeding-%E5%83%8F%E7%B4%A0%E6%B8%97%E6%BC%8F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1409,152 +1543,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/16/HTTP-and-ASP-NET/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/03/16/HTTP-and-ASP-NET/" class="post-title-link" itemprop="url">HTTP and ASP.NET</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2026-03-16 16:50:44" itemprop="dateCreated datePublished" datetime="2026-03-16T16:50:44+08:00">2026-03-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-03-24 16:10:46" itemprop="dateModified" datetime="2026-03-24T16:10:46+08:00">2026-03-24</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Networks/" itemprop="url" rel="index"><span itemprop="name">Networks</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h1><p>The undelying network protocol for communication on the web. It defines methods like GET, POST, PUT, and DELETE.<br>When you visit a website, your browser sends HTTP requests and the server sends back HTTP responses.</p>
-<p>HTTP 消息是客户端和服务器之间通信的基础，它们由一系列的文本行组成，遵循特定的格式和结构。<br>HTTP消息分为两种类型：请求消息和响应消息。<br>一个 HTTP 客户端是一个应用程序（Web 浏览器或其他任何客户端），通过连接到服务器达到向服务器发送一个或多个 HTTP 的请求的目的。<br>一个 HTTP 服务器 同样也是一个应用程序（通常是一个 Web 服务，如 Nginx、Apache 服务器或 IIS 服务器等），通过接收客户端的请求并向客户端发送 HTTP 响应数据。</p>
-<h2 id="Client-Side-Request"><a href="#Client-Side-Request" class="headerlink" title="Client Side Request"></a>Client Side Request</h2><p><img src="/2026/03/16/HTTP-and-ASP-NET/p1.png" title="HTTP Request Packet"></p>
-<h3 id="请求行（Request-Line）："><a href="#请求行（Request-Line）：" class="headerlink" title="请求行（Request Line）："></a>请求行（Request Line）：</h3><ul>
-<li>方法：如 GET、POST、PUT、DELETE等，指定要执行的操作。</li>
-<li>请求 URI（统一资源标识符）：请求的资源路径，通常包括主机名、端口号（如果非默认）、路径和查询字符串。</li>
-<li>HTTP 版本：如 HTTP&#x2F;1.1 或 HTTP&#x2F;2。<br>请求行的格式示例：GET &#x2F;index.html HTTP&#x2F;1.1</li>
-</ul>
-<h3 id="请求头（Request-Headers）："><a href="#请求头（Request-Headers）：" class="headerlink" title="请求头（Request Headers）："></a>请求头（Request Headers）：</h3><ul>
-<li>包含了客户端环境信息、请求体的大小（如果有）、客户端支持的压缩类型等。</li>
-<li>常见的请求头包括Host、User-Agent、Accept、Accept-Encoding、Content-Length等。</li>
-</ul>
-<h3 id="空行："><a href="#空行：" class="headerlink" title="空行："></a>空行：</h3><p>请求头和请求体之间的分隔符，表示请求头的结束。</p>
-<h3 id="请求体（可选）："><a href="#请求体（可选）：" class="headerlink" title="请求体（可选）："></a>请求体（可选）：</h3><p>在某些类型的HTTP请求（如 POST 和 PUT）中，请求体包含要发送给服务器的数据。</p>
-<h2 id="Server-Side-Response"><a href="#Server-Side-Response" class="headerlink" title="Server Side Response"></a>Server Side Response</h2><p><img src="/2026/03/16/HTTP-and-ASP-NET/p2.jpg" title="HTTP Response Packet"></p>
-<h3 id="状态行（Status-Line）："><a href="#状态行（Status-Line）：" class="headerlink" title="状态行（Status Line）："></a>状态行（Status Line）：</h3><ul>
-<li>HTTP 版本：与请求消息中的版本相匹配。</li>
-<li>状态码：三位数，表示请求的处理结果，如 200 表示成功，404 表示未找到资源。</li>
-<li>状态信息：状态码的简短描述。<br>状态行的格式示例：HTTP&#x2F;1.1 200 OK</li>
-</ul>
-<h3 id="响应头（Response-Headers）："><a href="#响应头（Response-Headers）：" class="headerlink" title="响应头（Response Headers）："></a>响应头（Response Headers）：</h3><ul>
-<li>包含了服务器环境信息、响应体的大小、服务器支持的压缩类型等。</li>
-<li>常见的响应头包括Content-Type、Content-Length、Server、Set-Cookie等。</li>
-</ul>
-<h3 id="空行：-1"><a href="#空行：-1" class="headerlink" title="空行："></a>空行：</h3><p>响应头和响应体之间的分隔符，表示响应头的结束。</p>
-<h3 id="响应体（可选）："><a href="#响应体（可选）：" class="headerlink" title="响应体（可选）："></a>响应体（可选）：</h3><p>包含服务器返回的数据，如请求的网页内容、图片、JSON数据等。</p>
-<h2 id="FormData"><a href="#FormData" class="headerlink" title="FormData"></a>FormData</h2><ul>
-<li>multipart&#x2F;form-data is an encoding type (media or content type) used in HTTP requests to send data to a server, primarily for forms that include file uploads.</li>
-<li>In HTML, you specify this encoding by setting the enctype attribute of the &lt;form&gt; tag to multipart&#x2F;form-data when the method is POST. This is mandatory if your form includes an &lt;input type&#x3D;”file”&gt; element.</li>
-</ul>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&quot;/upload&quot;</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span> <span class="attr">enctype</span>=<span class="string">&quot;multipart/form-data&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;file&quot;</span> <span class="attr">name</span>=<span class="string">&quot;profile_picture&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span>&gt;</span>Upload<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>When using modern web APIs like the Fetch API or XMLHttpRequest in JavaScript, the browser’s FormData object automatically handles the complex process of structuring the request in the multipart&#x2F;form-data format.</li>
-<li>WWWForm is a Unity class used to create a standard web form. It structures data into the multipart&#x2F;form-data or x-www-form-urlencoded format, which is a standard format for submitting form data, including file uploads, to web servers.</li>
-</ul>
-<h2 id="REST-API"><a href="#REST-API" class="headerlink" title="REST API"></a>REST API</h2><ul>
-<li>A set of architectural constraints (like statelessness and uniform interface) that define how to build scalable and standardized web services, primarily using HTTP.</li>
-<li>Guidelines for designing a server’s endpoints in a logical, resource-oriented way, specifically origanize resources in URIs like <a target="_blank" rel="noopener" href="https://exmaple.com/api/v3/users">https://exmaple.com/api/v3/users</a></li>
-<li>For example, a REST API would use GET &#x2F;users to retrieve users, POST &#x2F;users to create a new user, and leverage standard HTTP status codes.</li>
-</ul>
-<hr>
-<h1 id="Fetch-API"><a href="#Fetch-API" class="headerlink" title="Fetch API"></a>Fetch API</h1><ul>
-<li>A modern, promise-based JavaScript interface built into web browsers that allows developers to make HTTP requests programmatically.</li>
-<li>Client-side tool used to consume a service that might be RESTful (or any other kind of HTTP API).</li>
-<li>You use the Fetch API in JavaScript in your web browser or a server environment like Node.js to send the HTTP requests defined by the API’s design.</li>
-</ul>
-<p>In summary, you use the Fetch API to send HTTP requests to a server that is structured as a REST API.</p>
-<h2 id="XHR"><a href="#XHR" class="headerlink" title="XHR"></a>XHR</h2><p>XML Http Request (XHR) is a JavaScript API to create HTTP requests. Its methods provide the ability to send network requests between the browser and a server. The Fetch API is the modern replacement for XMLHttpRequest</p>
-<hr>
-<h1 id="ASP-NET"><a href="#ASP-NET" class="headerlink" title="ASP.NET"></a>ASP.NET</h1><p>Microsoft’s open-source framework for building web applications and and services using .NET and C#; it is fundamentally built on top of the HTTP protocol.</p>
-<ul>
-<li>HTTP&#x2F;2 &amp; HTTP&#x2F;3: Modern versions of ASP.NET Core support HTTP&#x2F;2 and HTTP&#x2F;3 for improved performance.</li>
-<li>Status Codes: The framework provides built-in methods to return standard HTTP status codes, such as Ok() (200), CreatedAtAction() (201), or NotFound() (404).</li>
-</ul>
-<h2 id="Handling-Incoming-HTTP-Requests-Server-Side"><a href="#Handling-Incoming-HTTP-Requests-Server-Side" class="headerlink" title="Handling Incoming HTTP Requests (Server-Side)"></a>Handling Incoming HTTP Requests (Server-Side)</h2><ul>
-<li>HTTP Servers: ASP.NET Core uses Kestrel, a cross-platform HTTP server, as the default to listen for requests.</li>
-<li>HttpContext: Every request is encapsulated in an HttpContext object, which provides access to the Request (headers, body, query strings) and the Response.</li>
-<li>Routing and HTTP Methods: Controllers use attributes like [HttpGet], [HttpPost], and [HttpPut] to map specific HTTP verbs to C# methods.</li>
-</ul>
-<figure class="highlight cs"><figcaption><span>Creating an HTTP Endpoint</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> builder = WebApplication.CreateBuilder(<span class="keyword">args</span>);</span><br><span class="line"><span class="keyword">var</span> app = builder.Build();</span><br><span class="line"></span><br><span class="line"><span class="comment">// Simple GET endpoint returning a string</span></span><br><span class="line">app.MapGet(<span class="string">&quot;/&quot;</span>, () =&gt; <span class="string">&quot;Hello World!&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// GET endpoint with a route parameter</span></span><br><span class="line">app.MapGet(<span class="string">&quot;/products/&#123;id&#125;&quot;</span>, (<span class="built_in">int</span> id) =&gt; <span class="string">$&quot;Returning product <span class="subst">&#123;id&#125;</span>&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// POST endpoint that accepts a JSON object (Todo item)</span></span><br><span class="line">app.MapPost(<span class="string">&quot;/todoitems&quot;</span>, (Todo todo) =&gt; </span><br><span class="line">    Results.Created(<span class="string">$&quot;/todoitems/<span class="subst">&#123;todo.Id&#125;</span>&quot;</span>, todo));</span><br><span class="line"></span><br><span class="line">app.Run();</span><br><span class="line"></span><br><span class="line"><span class="comment">// Data model for the POST example</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">record</span> <span class="title">Todo</span>(<span class="params"><span class="built_in">int</span> Id, <span class="built_in">string</span> Name, <span class="built_in">bool</span> IsComplete</span>)</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Making-Outgoing-Requests-Client-Side"><a href="#Making-Outgoing-Requests-Client-Side" class="headerlink" title="Making Outgoing Requests (Client-Side)"></a>Making Outgoing Requests (Client-Side)</h2><p>To consume other web services or APIs from within your ASP.NET application, you use the HttpClient class.</p>
-<figure class="highlight cs"><figcaption><span>Controller or Page Model</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MyService</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> IHttpClientFactory _httpClientFactory;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyService</span>(<span class="params">IHttpClientFactory httpClientFactory</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _httpClientFactory = httpClientFactory;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task&lt;<span class="built_in">string</span>&gt; <span class="title">GetExternalDataAsync</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 1. Create the client</span></span><br><span class="line">        <span class="keyword">var</span> client = _httpClientFactory.CreateClient();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. Make the GET request</span></span><br><span class="line">        <span class="keyword">var</span> response = <span class="keyword">await</span> client.GetAsync(<span class="string">&quot;https://api.example.com&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. Ensure success and read content</span></span><br><span class="line">        <span class="keyword">if</span> (response.IsSuccessStatusCode)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">await</span> response.Content.ReadAsStringAsync();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Error fetching data&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://www.runoob.com/http/http-messages.html">https://www.runoob.com/http/http-messages.html</a></p>
-<hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1632,7 +1620,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">39</span>
+          <span class="site-state-item-count">40</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
