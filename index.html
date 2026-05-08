@@ -293,10 +293,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-05-07 13:24:44 / Modified: 17:42:17" itemprop="dateCreated datePublished" datetime="2026-05-07T13:24:44+08:00">2026-05-07</time>
+              <time title="Created: 2026-05-07 13:24:44" itemprop="dateCreated datePublished" datetime="2026-05-07T13:24:44+08:00">2026-05-07</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-05-08 12:31:03" itemprop="dateModified" datetime="2026-05-08T12:31:03+08:00">2026-05-08</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -396,7 +402,140 @@
 <li>光照与物体数无关 - 光照计算只针对可见像素</li>
 <li>需要大量显存 - G-Buffer 占用显著</li>
 </ol>
+<h3 id="延迟渲染为什么处理不了半透明物体"><a href="#延迟渲染为什么处理不了半透明物体" class="headerlink" title="延迟渲染为什么处理不了半透明物体"></a>延迟渲染为什么处理不了半透明物体</h3><ol>
+<li><p>G-Buffer 只能存储“最前面”的信息<br>延迟渲染的第一步是把物体的几何信息（颜色、法线、深度等）存入 G-Buffer。<br>硬件限制：对于屏幕上的每一个像素，G-Buffer 通常只能存储一个物体的属性。<br>信息丢失：当你画一个半透明物体（如玻璃）时，G-Buffer 会记录玻璃的信息。但半透明物体的本质是让你看到它后面的东西。延迟渲染无法在一个像素位置同时存下“玻璃”和“玻璃后的墙”这两层信息。</p>
+</li>
+<li><p>混合（Blending）需要“即时颜色”<br>在前向渲染中，当你画半透明物体时，背景已经画好了。你可以直接把玻璃的颜色和背景颜色按比例混合（Alpha Blending）。<br>在延迟渲染中，第一步根本不计算颜色，只存原始数据。到了第二步统一算光照时，由于 G-Buffer 里只有最前面的玻璃数据，后台已经没有“被挡住的物体”的数据了，因此无法进行物理上正确的混合计算。</p>
+</li>
+<li><p>排序难题<br>半透明物体必须遵循从后往前的顺序绘制，才能得到正确的视觉叠加效果。<br>延迟渲染的初衷是“不关心顺序”，它通过深度测试只保留最前面的像素来优化性能。这与半透明物体需要的“多层有序叠加”逻辑完全冲突。</p>
+</li>
+</ol>
+<p><strong>行业通用的解决方案：混合模式 (Hybrid Rendering)</strong><br>为了解决这个问题，现代引擎（如 Unity 和 Unreal）通常采用混合方案：</p>
+<ol>
+<li>先用延迟渲染：画完场景中所有的不透明物体。</li>
+<li>再用前向渲染：在已经算好光照的底图上，再用前向渲染的方式按照从后往前的顺序，把半透明物体“贴”上去。</li>
+</ol>
 <hr>
+<h1 id="帧缓冲内存与瓦片渲染-Tile-Based-Rendering"><a href="#帧缓冲内存与瓦片渲染-Tile-Based-Rendering" class="headerlink" title="帧缓冲内存与瓦片渲染(Tile-Based Rendering)"></a>帧缓冲内存与瓦片渲染(Tile-Based Rendering)</h1><p>TBR 是一种 GPU 渲染架构 &#x2F; 帧缓冲处理方式，通过把屏幕划分为小瓦片来组织光栅化和帧缓冲访问。</p>
+<ul>
+<li>TBR 关注的是：GPU 如何在底层处理像素、深度、缓存和内存带宽。</li>
+<li>Retained mode 关注的是：应用如何描述场景，谁负责保存和管理可渲染对象。</li>
+<li>TBR 可以支持 retained mode 的渲染引擎，也可以支持 immediate mode 的渲染流。</li>
+</ul>
+<h2 id="IMR：Immediate-Mode-Rendering"><a href="#IMR：Immediate-Mode-Rendering" class="headerlink" title="IMR：Immediate Mode Rendering"></a>IMR：Immediate Mode Rendering</h2><ul>
+<li>定义：每次 API 提交一个三角形，就马上开始光栅化并写入颜色&#x2F;深度缓冲。</li>
+<li>特点：渲染顺序与三角形提交顺序一致。</li>
+<li>问题：<ul>
+<li>读写帧缓冲和深度缓冲时，内存访问非常分散、不可预测。</li>
+<li>重叠像素（overdraw）会被重复计算、重复写回。</li>
+<li>即使有缓存，缓存命中率也会因为几何提交顺序和屏幕空间不一致而低。</li>
+</ul>
+</li>
+</ul>
+<h2 id="内存带宽消耗问题"><a href="#内存带宽消耗问题" class="headerlink" title="内存带宽消耗问题"></a>内存带宽消耗问题</h2><ul>
+<li>传统 IMR 中，三角形按提交顺序处理，导致帧缓冲访问顺序混乱。</li>
+<li>如果缓存行是线性排列，渲染过程会频繁加载&#x2F;写回不同位置的数据，导致大量内存带宽浪费。</li>
+<li>帧缓冲是按屏幕坐标组织的二维像素网格。未压缩情况下，内存里通常按行优先存储：<ul>
+<li>一行像素连续</li>
+<li>不同行之间的像素不连续 -&gt; 屏幕上的垂直相邻像素在内存中不连续</li>
+<li>如果缓存行也是“线性排列”，它就只覆盖一段连续内存，而不是一个二维小块。</li>
+</ul>
+</li>
+</ul>
+<h2 id="Tiled-Memory（瓦片化内存）"><a href="#Tiled-Memory（瓦片化内存）" class="headerlink" title="Tiled Memory（瓦片化内存）"></a>Tiled Memory（瓦片化内存）</h2><ul>
+<li>核心思想：把帧缓冲按“瓦片”切成多个小二维区域。</li>
+<li>缓存行不再是线性像素序列，而是覆盖一个小矩形区域。</li>
+<li>好处：<ul>
+<li>空间局部性更好：同一瓦片内的像素更可能连续访问。</li>
+<li>缓存命中率增加。</li>
+<li>可在片上缓存内完成更多渲染操作，减少外部内存访问。</li>
+</ul>
+</li>
+</ul>
+<p>这一步是 TBR 的基础：把大帧缓冲拆成可控的小块，减少外存读写。</p>
+<h2 id="Rasterizing-within-tiles（瓦片内光栅化）"><a href="#Rasterizing-within-tiles（瓦片内光栅化）" class="headerlink" title="Rasterizing within tiles（瓦片内光栅化）"></a>Rasterizing within tiles（瓦片内光栅化）</h2><ul>
+<li>进一步优化：不再按照三角形整体顺序光栅化，而是先完成一个瓦片内三角形所有像素，再处理下一个瓦片。</li>
+<li>一个大三角形跨多个瓦片时，会被分成多段，每段在对应瓦片处理。这样可以避免大三角形跨多瓦片时频繁换入换出缓存。</li>
+<li>同一个三角形的几何信息被重用多次，但每次只处理与当前瓦片相交的部分。<br>这就是“先处理瓦片，再处理三角形”的思路。</li>
+</ul>
+<h2 id="Binning（几何分箱）"><a href="#Binning（几何分箱）" class="headerlink" title="Binning（几何分箱）"></a>Binning（几何分箱）</h2><ul>
+<li>在 TBR 中，提交几何体时并不马上光栅化。</li>
+<li>先进行“分箱”：将三角形归类到它可能覆盖的瓦片中。</li>
+<li>这一过程需要顶点处理来确定三角形屏幕位置，但不涉及片段着色。这样后续光栅化阶段只需按瓦片读取对应几何列表。<br>Binning 是把“几何”和“像素”分离，先用几何决定哪些瓦片受影响，再按瓦片单独渲染。</li>
+</ul>
+<h2 id="Tile-based-rasterization（基于瓦片的光栅化）"><a href="#Tile-based-rasterization（基于瓦片的光栅化）" class="headerlink" title="Tile-based rasterization（基于瓦片的光栅化）"></a>Tile-based rasterization（基于瓦片的光栅化）</h2><ul>
+<li>处理方式：逐瓦片渲染，每个瓦片在片上缓存中独立完成。</li>
+<li>帧缓冲和深度缓冲只在瓦片处理完后写回一次。</li>
+<li>优势：<ul>
+<li>外部内存访问减少到“每个瓦片一次写回”。</li>
+<li>深度缓存可直接在片上使用，甚至不必写回主存。</li>
+<li>清除操作也可在瓦片内完成。<br>这正是移动 GPU 的核心高效方案：把对外内存的数据流降到最低。</li>
+</ul>
+</li>
+</ul>
+<h2 id="深度缓冲（Z-buffer）"><a href="#深度缓冲（Z-buffer）" class="headerlink" title="深度缓冲（Z-buffer）"></a>深度缓冲（Z-buffer）</h2><ul>
+<li>每个像素位置有一个深度值</li>
+<li>这个深度值表示该像素处距相机最近的物体的深度</li>
+<li>光栅化三角形时，逐像素进行深度测试：<ul>
+<li>读取该像素在深度缓冲中的当前深度值</li>
+<li>与新三角形在该像素的深度比较，如果新三角形更近，更新该像素的深度值和颜色</li>
+</ul>
+</li>
+<li>一个像素可能被多个三角形覆盖（overdraw），但深度缓冲只保留最近的那个三角形的深度值。</li>
+</ul>
+<h2 id="MultiSampling-AA（多重采样反锯齿）"><a href="#MultiSampling-AA（多重采样反锯齿）" class="headerlink" title="MultiSampling AA（多重采样反锯齿）"></a>MultiSampling AA（多重采样反锯齿）</h2><ul>
+<li>在瓦片渲染中，多重采样可以在片上缓存里完成采样和 resolve。</li>
+<li>传统 IMR：多采样需要读写高分辨率帧缓冲（每个像素多个样本），带宽消耗巨大</li>
+<li>多采样在瓦片缓存内完成（片上内存），只在最后 resolve（合并样本）时写回外部内存。外部内存只存储最终低分辨率结果，带宽大幅降低。</li>
+<li>瓦片缓存（片上内存）允许在本地处理高频读写操作，只在瓦片完成时与外部内存交互一次，从而把昂贵的带宽开销控制在可控范围内</li>
+</ul>
+<h2 id="Deferred-shading-与-TBR"><a href="#Deferred-shading-与-TBR" class="headerlink" title="Deferred shading 与 TBR"></a>Deferred shading 与 TBR</h2><ul>
+<li>传统延迟渲染需要先写入多个 G-buffer，再重新读取进行光照，带宽消耗大。</li>
+<li>如果在瓦片内完成延迟渲染，则：<ul>
+<li>G-buffer 数据可保留在片上缓存，光照计算直接在瓦片缓存上进行</li>
+<li>最终只写出渲染结果，减少外部内存读写</li>
+<li>带宽成本与普通渲染相当<br>这说明“TBDR”（Tile-Based Deferred Rendering）特别适合移动端延迟渲染场景。</li>
+</ul>
+</li>
+</ul>
+<h2 id="G-buffer-和-瓦片缓存"><a href="#G-buffer-和-瓦片缓存" class="headerlink" title="G-buffer 和 瓦片缓存"></a>G-buffer 和 瓦片缓存</h2><ol>
+<li>光照数据（光源参数，如位置、颜色、强度）是 CPU 在应用阶段通过 uniform 变量或缓冲区传给 GPU 的</li>
+<li>GPU 渲染几何到 G-buffer<ul>
+<li>顶点着色器负责把模型空间变换到屏幕空间（通过 MVP 矩阵）</li>
+<li>片段着色器计算每个像素的几何信息（如位置、法线、颜色），并写入 G-buffer</li>
+</ul>
+</li>
+</ol>
+<p>延迟渲染流程：</p>
+<ul>
+<li>几何阶段：光栅化 + 片段着色 → 写入 G-buffer（存储几何信息，如位置、法线）。</li>
+<li>光照阶段：使用 G-buffer 数据进行光照计算 → 输出最终颜色。</li>
+</ul>
+<p>TBDR：</p>
+<ul>
+<li>第一阶段：几何分箱 → 按瓦片光栅化 → 片段着色 → G-buffer 数据留在瓦片缓存（不写回外部内存）。</li>
+<li>第二阶段：瓦片缓存直接使用这些 G-buffer 数据进行光照计算（无需读取外部 G-buffer）。</li>
+</ul>
+<h2 id="TBR-的优势"><a href="#TBR-的优势" class="headerlink" title="TBR 的优势"></a>TBR 的优势</h2><ul>
+<li>大幅降低帧缓冲带宽。</li>
+<li>降低功耗、提高渲染速度。</li>
+<li>移动端共享内存、带宽贵，TBR 是最优方案。</li>
+<li>对纹理访问也有好处：一次处理一个瓦片，纹理访问局部性增强。</li>
+<li>相比通用帧缓冲缓存，TBR 需要更少片上缓存空间。</li>
+</ul>
+<h2 id="TBR-的限制"><a href="#TBR-的限制" class="headerlink" title="TBR 的限制"></a>TBR 的限制</h2><ul>
+<li>引入渲染延迟：必须先 binning 再 rasterize。</li>
+<li>需要双缓冲以避免流水线停顿。</li>
+<li>对需要全局帧缓冲读取的功能不友好，如屏幕空间光线追踪、某些后处理。</li>
+<li>几何分箱本身也有成本，顶点着色器瓶颈场景可能受限。</li>
+<li>切换渲染目标、频繁读写 framebuffer 会迫使瓦片数据 flush。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>传统 IMR 带宽和功耗太高；瓦片渲染通过“先分箱、后按瓦片渲染”把大帧缓冲操作压缩到片上缓存</li>
+<li>这对移动 GPU 极为关键，且现代 API（如 Vulkan Subpasses、OpenGL ES Pixel Local Storage）都开始支持这种模式</li>
+<li>对于多采样和延迟渲染，瓦片化处理能把原本非常昂贵的带宽开销降到可控范围</li>
+<li>然而瓦片化也有规则和限制，开发者要避免频繁 framebuffer 读写、避免不适合的渲染模式</li>
+</ul>
 <hr>
 <h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_70073176/article/details/141165074">https://blog.csdn.net/weixin_70073176/article/details/141165074</a></p>
 
