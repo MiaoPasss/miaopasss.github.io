@@ -20,21 +20,21 @@
     var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="DrawCall 是 CPU 向 GPU 发送的一次渲染指令，包含了 GPU 绘制所需的全部信息：几何数据、纹理、Shader、Buffer 等。每次调用 DrawMesh、DrawRenderer 等，就是一个 Draw Call。GPU 收到命令后开始渲染对应的几何体。 1234567CPU 准备渲染数据    ↓设置渲染状态（材质、Shader、纹理绑定）← SetPass Call">
+  <meta name="description" content="Draw Call (绘制调用): CPU 告诉 GPU “请按照这些状态，把这个网格画出来” 的一次命令。这个命令本身有开销。Draw Call 太多，CPU 就会因为一直忙于下达指令而成为瓶颈。目标：减少 Draw Call 的总次数。SetPass Call (状态切换调用): 在 Draw Call 之前，CPU 需要告诉 GPU 使用哪个 Shader、材质属性（颜色、贴图等）是什么。切">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Drawcall和SetPassCall和Batching">
-<meta property="og:url" content="https://miaopasss.github.io/2026/03/27/Drawcall%E5%92%8CSetPassCall%E5%92%8CBatching/index.html">
+<meta property="og:title" content="Draw Call和SetPass Call">
+<meta property="og:url" content="https://miaopasss.github.io/2026/03/27/DrawCall%E5%92%8CSetPassCall/index.html">
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:description" content="DrawCall 是 CPU 向 GPU 发送的一次渲染指令，包含了 GPU 绘制所需的全部信息：几何数据、纹理、Shader、Buffer 等。每次调用 DrawMesh、DrawRenderer 等，就是一个 Draw Call。GPU 收到命令后开始渲染对应的几何体。 1234567CPU 准备渲染数据    ↓设置渲染状态（材质、Shader、纹理绑定）← SetPass Call">
+<meta property="og:description" content="Draw Call (绘制调用): CPU 告诉 GPU “请按照这些状态，把这个网格画出来” 的一次命令。这个命令本身有开销。Draw Call 太多，CPU 就会因为一直忙于下达指令而成为瓶颈。目标：减少 Draw Call 的总次数。SetPass Call (状态切换调用): 在 Draw Call 之前，CPU 需要告诉 GPU 使用哪个 Shader、材质属性（颜色、贴图等）是什么。切">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-03-27T10:28:12.000Z">
-<meta property="article:modified_time" content="2026-03-31T09:24:10.815Z">
+<meta property="article:modified_time" content="2026-06-04T05:37:19.761Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Rendering pipeline">
 <meta property="article:tag" content="Shader">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://miaopasss.github.io/2026/03/27/Drawcall%E5%92%8CSetPassCall%E5%92%8CBatching/">
+<link rel="canonical" href="https://miaopasss.github.io/2026/03/27/DrawCall%E5%92%8CSetPassCall/">
 
 
 <script id="page-configurations">
@@ -47,7 +47,7 @@
   };
 </script>
 
-  <title>Drawcall和SetPassCall和Batching | 乌啦呀哈呀哈乌啦！</title>
+  <title>Draw Call和SetPass Call | 乌啦呀哈呀哈乌啦！</title>
   
 
 
@@ -166,7 +166,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/27/Drawcall%E5%92%8CSetPassCall%E5%92%8CBatching/">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/27/DrawCall%E5%92%8CSetPassCall/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/exciting-usagi.gif">
@@ -185,7 +185,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Drawcall和SetPassCall和Batching
+          Draw Call和SetPass Call
         </h1>
 
         <div class="post-meta">
@@ -202,7 +202,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-03-31 17:24:10" itemprop="dateModified" datetime="2026-03-31T17:24:10+08:00">2026-03-31</time>
+                <time title="Modified: 2026-06-04 13:37:19" itemprop="dateModified" datetime="2026-06-04T13:37:19+08:00">2026-06-04</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -236,10 +236,12 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>DrawCall 是 CPU 向 GPU 发送的一次渲染指令，包含了 GPU 绘制所需的全部信息：几何数据、纹理、Shader、Buffer 等。<br>每次调用 DrawMesh、DrawRenderer 等，就是一个 Draw Call。GPU 收到命令后开始渲染对应的几何体。</p>
+        <p>Draw Call (绘制调用): CPU 告诉 GPU “请按照这些状态，把这个网格画出来” 的一次命令。这个命令本身有开销。Draw Call 太多，CPU 就会因为一直忙于下达指令而成为瓶颈。目标：减少 Draw Call 的总次数。<br>SetPass Call (状态切换调用): 在 Draw Call 之前，CPU 需要告诉 GPU 使用哪个 Shader、材质属性（颜色、贴图等）是什么。切换这些状态（特别是材质）是一个非常耗时的操作。目标：减少渲染状态的切换次数。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CPU 准备渲染数据</span><br><span class="line">    ↓</span><br><span class="line">设置渲染状态（材质、Shader、纹理绑定）← SetPass Call</span><br><span class="line">    ↓</span><br><span class="line">提交 DrawCall（告诉 GPU 画什么、怎么画）</span><br><span class="line">    ↓</span><br><span class="line">GPU 执行光栅化、着色、输出像素</span><br></pre></td></tr></table></figure>
 <p>关键点：DrawCall 本身消耗资源，但准备阶段（SetPass Call）通常比 DrawCall 本身更耗性能。<br>开启批处理后，Unity 可以用一次 SetPass Call 复用同一材质状态，然后提交多个 DrawCall。所以降低 SetPass Call 往往比降低 DrawCall 更重要。</p>
-<h1 id="DrawCall（绘制调用）"><a href="#DrawCall（绘制调用）" class="headerlink" title="DrawCall（绘制调用）"></a>DrawCall（绘制调用）</h1><p>CPU准备数据并通过调用图形API接口命令GPU对指定物体进行渲染一次的操作称为一次DrawCall。<br>当收到一个DrawCall时，GPU会按照指令，根据渲染状态和输入的顶点信息，指定一个网格（Mesh）进行渲染，绘制材质。<br>GPU 渲染时，同一批次的对象必须使用相同的材质和纹理。一旦纹理不同，就必须切换渲染状态，触发新的 DrawCall。</p>
+<h1 id="DrawCall（绘制调用）"><a href="#DrawCall（绘制调用）" class="headerlink" title="DrawCall（绘制调用）"></a>DrawCall（绘制调用）</h1><p>DrawCall 是 CPU 向 GPU 发送的一次渲染指令，包含了 GPU 绘制所需的全部信息：几何数据、纹理、Shader、Buffer 等。<br>CPU 先准备好数据，并通过调用图形API接口命令GPU对指定物体进行渲染一次的操作，称为一次DrawCall。</p>
+<p>每次调用 DrawMesh、DrawRenderer 等，就是一个 Draw Call。GPU 收到命令后开始渲染对应的几何体。</p>
+<p>当收到一个DrawCall时，GPU会按照指令，根据渲染状态和输入的顶点信息，指定一个网格（Mesh）进行渲染，绘制材质。<br>GPU 渲染时，同一批次的对象必须使用相同的材质和纹理。一旦纹理不同，就必须切换渲染状态，触发新的 DrawCall。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Image A（纹理1）→ DrawCall 1</span><br><span class="line">Image B（纹理2）→ DrawCall 2（纹理不同，无法合批）</span><br><span class="line">Image C（纹理1）→ 可以与 A 合批，不增加 DrawCall</span><br></pre></td></tr></table></figure>
 
 <p>为了CPU和GPU可以进行并行工作，需要一个命令缓冲区，由CPU向其中添加命令，然后由GPU从中读取命令，这样就实现了通过CPU准备数据，通知GPU进行渲染。</p>
@@ -259,41 +261,7 @@
 <p>渲染这一个物体时，GPU 会走两遍：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SetPass Call → 激活 Pass 0 (OUTLINE)，设置 Cull Front 状态</span><br><span class="line">  Draw Call  → 用 Pass 0 的 shader 绘制物体（画出描边）</span><br><span class="line"></span><br><span class="line">SetPass Call → 激活 Pass 1 (BASE)，设置 Cull Back 状态</span><br><span class="line">  Draw Call  → 用 Pass 1 的 shader 绘制物体（画出本体）</span><br></pre></td></tr></table></figure>
 <p>所以 1 个物体、1 个材质，产生了 2 个 SetPass Call + 2 个 Draw Call。</p>
-<h1 id="Batching"><a href="#Batching" class="headerlink" title="Batching"></a>Batching</h1><p>静态合批: 将相同材质并且始终不动的的Mesh合并成为一个大Mesh，然后由CPU合并为一个批次发送给GPU处理,从而减少DrawCall带来的消耗。<br>动态合批: 相同材质并且会动的物体Mesh合并成为一个大Mesh<br>SRP Batcher: 将多个网格合并成单个批次进行渲染，从而提高性能。与其他合批不同，SRP Batcher将未改变属性的Mesh缓存起来，从而减少消耗<br>GPU Instancing: 使用一个DrawCall渲染多个相同材质的网格对象（如场景中大量重复的物体如树木和草地等），从而减少CPU和GPU的开销</p>
-<h2 id="Static-Batching"><a href="#Static-Batching" class="headerlink" title="Static Batching"></a>Static Batching</h2><p>针对静态物体（勾选 Static）。在构建时，Unity 把所有使用相同材质的静态 mesh 合并成一个大 mesh，存到内存里。运行时一次 Draw Call 画完。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">场景里100棵树（同材质，Static）：</span><br><span class="line">  构建时合并 → 1个大mesh</span><br><span class="line">  运行时：SetPass × 1，Draw Call × 1</span><br></pre></td></tr></table></figure>
-<p>代价是内存，合并后的大 mesh 常驻内存，物体也不能移动。</p>
-<h2 id="Dynamic-Batching"><a href="#Dynamic-Batching" class="headerlink" title="Dynamic Batching"></a>Dynamic Batching</h2><p>与静态合批不同，动态合批是的物体是可以运动的，针对动态小物体。每帧 CPU 实时把符合条件的 mesh 合并，然后一次提交。<br>条件很苛刻：顶点数 &lt; 900，不能使用lightmap，不能使用多通道的shader，不能是缩放比不同的物体。<br>Unity 的 Dynamic Batching（动态批处理）是自动触发的。只要启用了该功能且物体满足特定条件（如使用相同材质、顶点数较少），Unity 引擎就会在运行时自动合并 Draw Call，无需手动干预。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">每帧：</span><br><span class="line">  CPU 检查哪些动态物体同材质 → 临时合并 mesh → 一次 Draw Call</span><br></pre></td></tr></table></figure>
-<p>代价是 CPU 每帧都要做合并，物体多了反而更慢，现在基本被 GPU Instancing 取代。</p>
-<h2 id="SRP-Batcher"><a href="#SRP-Batcher" class="headerlink" title="SRP Batcher"></a>SRP Batcher</h2><p>Batches draw calls by grouping objects that use the same shader variant, reducing SetPass calls<br>Shader properties stored in GPU buffers instead of individual material constants</p>
-<p>使用条件：</p>
-<ul>
-<li>不支持内置渲染管线，支持通用(URP)&#x2F;高清(HDRP)&#x2F;自定义(SRP)渲染管线</li>
-<li>不使用 MaterialPropertyBlocks</li>
-<li>Materials must use SRP-compatible shaders</li>
-</ul>
-<p>在标准的渲染流程下，CPU需要收集所有场景物体的参数，场景中的材质越多CPU提交给GPU的数据就越多。<br>而在SRP中流程下GPU拥有数据管理的 “生命权” ,管理大量不同材质但Shader变动较小的的内容。<br>让数据在GPU中持久存在,从而减少消耗(SetPass Call)。</p>
-<h3 id="SRP-Batcher-vs-Dynamic-Batching"><a href="#SRP-Batcher-vs-Dynamic-Batching" class="headerlink" title="SRP Batcher vs. Dynamic Batching"></a>SRP Batcher vs. Dynamic Batching</h3><p>Both can be used together in SRP, but SRP Batcher takes precedence when enabled. For optimal performance in modern Unity projects, prefer SRP Batcher with proper shader setup.</p>
-<p>Both Dynamic Batching and SRP Batcher are triggered automatically in Unity when their conditions are met:</p>
-<ul>
-<li>Unity automatically detects and performs Dynamic Batching on compatible objects at runtime</li>
-<li>SRP batcher automatically batches during render loop when objects use compatible shader variants enabled in the render pipeline settings (Window → Rendering → Render Pipeline → Universal Render Pipeline → General → SRP Batcher)</li>
-</ul>
-<h2 id="GPU-Instancing"><a href="#GPU-Instancing" class="headerlink" title="GPU Instancing"></a>GPU Instancing</h2><p>针对大量相同 mesh + 相同材质的物体（但允许不同的属性，比如颜色、位置）。CPU 只提交一次 mesh 数据，附带一个”实例属性数组”，GPU 自己循环绘制 N 次。<br>在 Unity 中，需要在材质属性中勾选 “Enable GPU Instancing”。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// shader 里声明每个实例可以有不同颜色</span></span><br><span class="line"><span class="built_in">UNITY_INSTANCING_BUFFER_START</span>(Props)</span><br><span class="line">    <span class="built_in">UNITY_DEFINE_INSTANCED_PROP</span>(float4, _Color)</span><br><span class="line"><span class="built_in">UNITY_INSTANCING_BUFFER_END</span>(Props)</span><br></pre></td></tr></table></figure>
 
-<p>使用条件：</p>
-<ul>
-<li>材质需要支持GPU Instancing,例如默认标准材质就有</li>
-<li>Tranform信息需要有所不同,(完全重合了渲染出来也没有意义)</li>
-<li>未使用SRP Batcher，如有会优先使用SRP Batcher。(在URP渲染管线中是默认开启的)</li>
-<li>粒子对像不能合批</li>
-<li>使用MaterialPropertyBlocks的游戏不能合批</li>
-<li>Shader必须是使用compatible的</li>
-</ul>
-<p>此时的CPU依然只提交1次Drawcall</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">100棵树（同mesh，同材质，不同位置/颜色）：</span><br><span class="line">  CPU：提交1次mesh + 100个transform数组</span><br><span class="line">  GPU：自己 instance 100次</span><br><span class="line">  结果：SetPass × 1，Draw Call × 1</span><br></pre></td></tr></table></figure>
     </div>
 
     
@@ -377,7 +345,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#DrawCall%EF%BC%88%E7%BB%98%E5%88%B6%E8%B0%83%E7%94%A8%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">DrawCall（绘制调用）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SetPass-Call"><span class="nav-number">2.</span> <span class="nav-text">SetPass Call</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Pass-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">2.1.</span> <span class="nav-text">Pass 是什么</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Batching"><span class="nav-number">3.</span> <span class="nav-text">Batching</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Static-Batching"><span class="nav-number">3.1.</span> <span class="nav-text">Static Batching</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dynamic-Batching"><span class="nav-number">3.2.</span> <span class="nav-text">Dynamic Batching</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SRP-Batcher"><span class="nav-number">3.3.</span> <span class="nav-text">SRP Batcher</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SRP-Batcher-vs-Dynamic-Batching"><span class="nav-number">3.3.1.</span> <span class="nav-text">SRP Batcher vs. Dynamic Batching</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GPU-Instancing"><span class="nav-number">3.4.</span> <span class="nav-text">GPU Instancing</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#DrawCall%EF%BC%88%E7%BB%98%E5%88%B6%E8%B0%83%E7%94%A8%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">DrawCall（绘制调用）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SetPass-Call"><span class="nav-number">2.</span> <span class="nav-text">SetPass Call</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Pass-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">2.1.</span> <span class="nav-text">Pass 是什么</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -399,7 +367,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">43</span>
+          <span class="site-state-item-count">45</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -532,7 +500,7 @@
       quicklink({
         timeout : 3000,
         priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2026/03/27/Drawcall%E5%92%8CSetPassCall%E5%92%8CBatching/',]
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2026/03/27/DrawCall%E5%92%8CSetPassCall/',]
       });
       });
   </script>

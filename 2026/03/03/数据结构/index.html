@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="AVL树 空二叉树是一个 AVL 树 如果 T 是一棵 AVL 树，那么其左右子树也是 AVL 树，并且 |ℎ(𝑙𝑠) −ℎ(𝑟𝑠)| ≤1，h 是其左右子树的高度 树高为 𝑂(log ⁡𝑛)  平衡因子：右子树高度 - 左子树高度  红黑树首先，红黑树是一个二叉搜索树，它在每个节点增加了一个存储位记录节点的颜色，可以是RED,也可以是BLACK通过任意一条从根到叶子简单路径上颜色的">
+  <meta name="description" content="AVL树平衡树：一棵包含 N 个节点的平衡树，其树高 h 始终保持在 O(log N) 的量级。AVL是平衡树的一种，平衡条件非常严格。它要求任何节点的左右子树高度差的绝对值不能超过1。  空二叉树是一个 AVL 树 如果 T 是一棵 AVL 树，那么其左右子树也是 AVL 树，并且 |ℎ(𝑙𝑠) −ℎ(𝑟𝑠)| ≤1，h 是其左右子树的高度 树高为 𝑂(log ⁡𝑛)  平衡因子：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="数据结构">
 <meta property="og:url" content="https://miaopasss.github.io/2026/03/03/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/index.html">
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:description" content="AVL树 空二叉树是一个 AVL 树 如果 T 是一棵 AVL 树，那么其左右子树也是 AVL 树，并且 |ℎ(𝑙𝑠) −ℎ(𝑟𝑠)| ≤1，h 是其左右子树的高度 树高为 𝑂(log ⁡𝑛)  平衡因子：右子树高度 - 左子树高度  红黑树首先，红黑树是一个二叉搜索树，它在每个节点增加了一个存储位记录节点的颜色，可以是RED,也可以是BLACK通过任意一条从根到叶子简单路径上颜色的">
+<meta property="og:description" content="AVL树平衡树：一棵包含 N 个节点的平衡树，其树高 h 始终保持在 O(log N) 的量级。AVL是平衡树的一种，平衡条件非常严格。它要求任何节点的左右子树高度差的绝对值不能超过1。  空二叉树是一个 AVL 树 如果 T 是一棵 AVL 树，那么其左右子树也是 AVL 树，并且 |ℎ(𝑙𝑠) −ℎ(𝑟𝑠)| ≤1，h 是其左右子树的高度 树高为 𝑂(log ⁡𝑛)  平衡因子：">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-03-03T05:48:16.000Z">
-<meta property="article:modified_time" content="2026-03-04T09:46:09.431Z">
+<meta property="article:modified_time" content="2026-07-08T09:49:42.131Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Algorithm">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-03-04 17:46:09" itemprop="dateModified" datetime="2026-03-04T17:46:09+08:00">2026-03-04</time>
+                <time title="Modified: 2026-07-08 17:49:42" itemprop="dateModified" datetime="2026-07-08T17:49:42+08:00">2026-07-08</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -232,7 +232,8 @@
 
       
         <hr>
-<h1 id="AVL树"><a href="#AVL树" class="headerlink" title="AVL树"></a>AVL树</h1><ol>
+<h1 id="AVL树"><a href="#AVL树" class="headerlink" title="AVL树"></a>AVL树</h1><p>平衡树：一棵包含 N 个节点的平衡树，其树高 h 始终保持在 O(log N) 的量级。<br>AVL是平衡树的一种，平衡条件非常严格。它要求任何节点的左右子树高度差的绝对值不能超过1。</p>
+<ol>
 <li>空二叉树是一个 AVL 树</li>
 <li>如果 T 是一棵 AVL 树，那么其左右子树也是 AVL 树，并且 |ℎ(𝑙𝑠) −ℎ(𝑟𝑠)| ≤1，h 是其左右子树的高度</li>
 <li>树高为 𝑂(log ⁡𝑛)</li>
@@ -260,6 +261,113 @@
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// assignment expression </span></span><br><span class="line"><span class="comment">// size_t a; size_t b = (a = 10);</span></span><br><span class="line"><span class="function"><span class="type">size_t</span> <span class="title">dsu::find</span><span class="params">(<span class="type">size_t</span> x)</span> </span>&#123; <span class="keyword">return</span> pa[x] == x ? x : pa[x] = <span class="built_in">find</span>(pa[x]); &#125;</span><br></pre></td></tr></table></figure>
 
 <hr>
+<h1 id="kd-树（k-d-tree）"><a href="#kd-树（k-d-tree）" class="headerlink" title="kd 树（k-d tree）"></a>kd 树（k-d tree）</h1><p>数据驱动 (Data-Driven) 的空间划分。k-d树的分割线（或分割面）的位置，是由数据点本身的位置决定的，目标是让分割后的两个子空间包含大致相同数量的点。<br>每个节点按一个维度（2D：x 或 y，3D：x&#x2F;y&#x2F;z）把空间分成两半<br>节点保存一个点&#x2F;对象，左子树保存该维度值更小的点，右子树保存更大的点</p>
+<h2 id="构建方式"><a href="#构建方式" class="headerlink" title="构建方式"></a>构建方式</h2><ol>
+<li>选维度: 从 X 轴开始。</li>
+<li>找到中位数: 在所有数据点中，找到 X 坐标的中位数。</li>
+<li>划分: 以这个中位数点的 X 坐标为界，画一条垂直于 X 轴的分割线（平面）。<ul>
+<li>X 坐标小于该值的点，归入左子树。</li>
+<li>X 坐标大于等于该值的点，归入右子树。</li>
+</ul>
+</li>
+<li>递归与交替维度:（3维的话是 x -&gt; y -&gt; z -&gt; x -&gt; …）<ul>
+<li>对左子树和右子树，重复上述过程，但这次切换到 Y 轴。</li>
+<li>下一层再切换回 X 轴，如此循环，交替使用不同的维度进行划分。</li>
+</ul>
+</li>
+<li>结束: 直到每个子区域只包含一个点，或达到预设的叶子节点容量。</li>
+</ol>
+<p>结果是一个平衡树，构建复杂度 O(N log N)</p>
+<h2 id="最近邻查询"><a href="#最近邻查询" class="headerlink" title="最近邻查询"></a>最近邻查询</h2><p>递归访问树，先搜索查询点所在的那一侧<br>回溯时比较当前最优距离与另一侧超平面距离<br>如果另一侧可能存在更近点，则前往另一侧(进入这个子树，重复上面的递归搜索过程)继续搜索<br>查 top-K 时可维护一个大小为 K 的最大堆，剪枝条件是当前节点距离是否小于堆顶距离</p>
+<h2 id="更新方式"><a href="#更新方式" class="headerlink" title="更新方式"></a>更新方式</h2><p>插入</p>
+<ul>
+<li>直接沿树下降，到叶子插入新点</li>
+<li>不做重平衡，平均 O(log N)，但随着插入会变得不平衡</li>
+</ul>
+<p>删除</p>
+<ul>
+<li>可把节点标记为“已删除”</li>
+<li>或用后继&#x2F;前驱点替换当前节点并递归删除</li>
+</ul>
+<p>动态维护</p>
+<ul>
+<li>简单方案：批量更新后重建整个 kd 树</li>
+<li>常见做法：周期性重建，或者在插入&#x2F;删除累计到一定阈值后重建</li>
+</ul>
+<p>适用场景</p>
+<ul>
+<li>点集较静态或更新较少</li>
+<li>适合近邻搜索、点查询</li>
+</ul>
+<hr>
+<h1 id="四叉树"><a href="#四叉树" class="headerlink" title="四叉树"></a>四叉树</h1><p>空间驱动 (Space-Driven) 的划分。四叉树的分割方式是固定的，它只关心空间本身，而不管空间里有什么数据。<br>每个节点对应一个轴对齐的矩形&#x2F;正方形区域，如果区域内点数超过阈值，则分成 4 个子象限<br>分割线永远是区域的正中线。最终划分出的子空间是大小可能不同、但形状永远是正方形的网格。</p>
+<h2 id="构建方式-1"><a href="#构建方式-1" class="headerlink" title="构建方式"></a>构建方式</h2><ol>
+<li>定义边界: 从一个包含所有数据点的巨大正方形（根节点区域）开始。</li>
+<li>划分: 将这个正方形均匀地分割成四个等大的子正方形（象限）：西北、东北、西南、东南。这四个子正方形成为根节点的四个子节点。</li>
+<li>递归:<ul>
+<li>对于每个子节点，检查其中包含的数据点数量。</li>
+<li>如果数量大于某个阈值（比如1），或者区域的尺寸还很大，就再次将其均分成四个更小的正方形。</li>
+<li>如果数量小于等于阈值，或者区域已经很小，则停止分裂，该节点成为叶子节点。</li>
+</ul>
+</li>
+<li>数据归属: 每个数据点根据其坐标，被存储在完全包含它的、尺寸最小的那个叶子节点中。</li>
+</ol>
+<h2 id="最近邻查询-1"><a href="#最近邻查询-1" class="headerlink" title="最近邻查询"></a>最近邻查询</h2><p>从根开始遍历<br>按与查询点距离排序子节点访问顺序<br>对每个子节点计算该区域到查询点的最小可能距离<br>如果最小距离比当前最远候选距离大，则剪枝<br>对于 top-K，维护候选列表并持续剪枝</p>
+<h2 id="更新方式-1"><a href="#更新方式-1" class="headerlink" title="更新方式"></a>更新方式</h2><p>插入</p>
+<ul>
+<li>找到点所属的叶节点并加入</li>
+<li>若点数超阈值，分裂该叶节点</li>
+</ul>
+<p>删除</p>
+<ul>
+<li>从对应叶节点删除点</li>
+<li>如果节点和兄弟节点合并后点数低于阈值，可回收子节点，合并成父节点</li>
+</ul>
+<p>移动对象</p>
+<ul>
+<li>先从旧格子删除，再重新插入新位置</li>
+<li>若对象移动量不大，可使用“松散四叉树”（loose quadtree）减少频繁重插入</li>
+</ul>
+<p>适用场景</p>
+<ul>
+<li>2D 空间、区域查询、碰撞检测、动态场景</li>
+<li>对于分布不均匀、局部聚集的点特别有效</li>
+</ul>
+<hr>
+<h1 id="BVH-Bounding-Volume-Hierarchy-包围盒层级"><a href="#BVH-Bounding-Volume-Hierarchy-包围盒层级" class="headerlink" title="BVH (Bounding Volume Hierarchy) &#x2F; 包围盒层级"></a>BVH (Bounding Volume Hierarchy) &#x2F; 包围盒层级</h1><p>对单位按区域构建层级包围盒（AABB），按包围盒层级组织，适合先过滤远物体再精细排序<br>适合移动对象少、查询多的场景<br>查询时先过滤掉远离的盒子：如果这个盒子比当前队列（大顶堆）中的最远距离还要远，那么不考虑这个盒子</p>
+<h2 id="构建方式-2"><a href="#构建方式-2" class="headerlink" title="构建方式"></a>构建方式</h2><ol>
+<li>准备叶子对象：每个对象先计算自己的AABB和中心点（centroid）</li>
+<li>建根节点：根节点包围所有对象的总 AABB</li>
+<li>递归分裂：<ul>
+<li>终止条件为对象数 &lt;&#x3D; leaf_size（如 4&#x2F;8）或树深度到上限。</li>
+<li>否则继续分裂：选最长轴 + 中位数切分（快，质量一般），或者 SAH 选轴和切分位置（慢些，但查询更快）。</li>
+</ul>
+</li>
+<li>生成子节点：左右子集分别求 AABB，继续递归</li>
+<li>叶子存索引：叶节点保存对象索引范围（而不是拷贝对象）。<ul>
+<li>“保存索引范围” 通常建立在 “构建时把对象重排成连续段”这个前提上</li>
+<li>如果不重排，那就需要存一个显式索引列表（vector&#x2F;list），代价是内存和访问局部性通常更差。</li>
+</ul>
+</li>
+</ol>
+<h2 id="最近邻查询-2"><a href="#最近邻查询-2" class="headerlink" title="最近邻查询"></a>最近邻查询</h2><ol>
+<li>准备两个堆，lb &#x3D; dist_lower_bound<ul>
+<li>nodePQ：最小堆，键是 dist_lb(query, node.bbox)（点到 AABB 的最小可能距离）。</li>
+<li>ansPQ：最大堆，存当前前 k 个候选点（堆顶是当前最差的那个，距离 dmax）。</li>
+</ul>
+</li>
+<li>初始化<ul>
+<li>把根节点放进 nodePQ</li>
+<li>dmax &#x3D; +inf（当 ansPQ 满 k 后，dmax 变为堆顶距离）。</li>
+</ul>
+</li>
+<li>循环弹出 nodePQ 里下界最小的节点 (lb, node)，若 lb &gt; dmax，可直接停止，因为后面节点下界只会更大，不可能更优<ul>
+<li>若是内部节点：计算左右子节点 lbL&#x2F;lbR，只把 lb &lt;&#x3D; dmax 的子节点入堆</li>
+<li>若是叶节点：逐个计算真实距离 d(query, point)，若 ansPQ 未满就放入；满了且 d &lt; dmax 就替换堆顶</li>
+</ul>
+</li>
+<li>结束，ansPQ里就是KNN</li>
+</ol>
 
     </div>
 
@@ -343,7 +451,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AVL%E6%A0%91"><span class="nav-number">1.</span> <span class="nav-text">AVL树</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%A2%E9%BB%91%E6%A0%91"><span class="nav-number">2.</span> <span class="nav-text">红黑树</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B9%B6%E6%9F%A5%E9%9B%86"><span class="nav-number">3.</span> <span class="nav-text">并查集</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B7%AF%E7%BB%8F%E5%8E%8B%E7%BC%A9"><span class="nav-number">3.1.</span> <span class="nav-text">路经压缩</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AVL%E6%A0%91"><span class="nav-number">1.</span> <span class="nav-text">AVL树</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%A2%E9%BB%91%E6%A0%91"><span class="nav-number">2.</span> <span class="nav-text">红黑树</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B9%B6%E6%9F%A5%E9%9B%86"><span class="nav-number">3.</span> <span class="nav-text">并查集</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B7%AF%E7%BB%8F%E5%8E%8B%E7%BC%A9"><span class="nav-number">3.1.</span> <span class="nav-text">路经压缩</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#kd-%E6%A0%91%EF%BC%88k-d-tree%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">kd 树（k-d tree）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E6%96%B9%E5%BC%8F"><span class="nav-number">4.1.</span> <span class="nav-text">构建方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E8%BF%91%E9%82%BB%E6%9F%A5%E8%AF%A2"><span class="nav-number">4.2.</span> <span class="nav-text">最近邻查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E6%96%B9%E5%BC%8F"><span class="nav-number">4.3.</span> <span class="nav-text">更新方式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E5%8F%89%E6%A0%91"><span class="nav-number">5.</span> <span class="nav-text">四叉树</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E6%96%B9%E5%BC%8F-1"><span class="nav-number">5.1.</span> <span class="nav-text">构建方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E8%BF%91%E9%82%BB%E6%9F%A5%E8%AF%A2-1"><span class="nav-number">5.2.</span> <span class="nav-text">最近邻查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E6%96%B9%E5%BC%8F-1"><span class="nav-number">5.3.</span> <span class="nav-text">更新方式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BVH-Bounding-Volume-Hierarchy-%E5%8C%85%E5%9B%B4%E7%9B%92%E5%B1%82%E7%BA%A7"><span class="nav-number">6.</span> <span class="nav-text">BVH (Bounding Volume Hierarchy) &#x2F; 包围盒层级</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E6%96%B9%E5%BC%8F-2"><span class="nav-number">6.1.</span> <span class="nav-text">构建方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E8%BF%91%E9%82%BB%E6%9F%A5%E8%AF%A2-2"><span class="nav-number">6.2.</span> <span class="nav-text">最近邻查询</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -365,7 +473,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">43</span>
+          <span class="site-state-item-count">45</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

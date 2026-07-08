@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="k-NN（k nearest neighbors）我在一个场景中，有100k个小怪，我需要得到1k个与我最近的单位，如何快速查找？  四叉树四叉树适用于二维场景，将空间递归划分成四个象限，按区域把单位放进去。 树基本结构 根节点：覆盖整个场景范围 每个节点最多存放一定数量的对象（例如 8~16 个） 超过阈值时分裂成 4 个子节点 对象根据坐标放入对应的子节点  查找最近 1k 个单位的步骤 从根">
+<meta property="og:type" content="article">
+<meta property="og:title" content="K近邻搜索问题">
+<meta property="og:url" content="https://miaopasss.github.io/2026/06/04/K%E8%BF%91%E9%82%BB%E6%90%9C%E7%B4%A2%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
+<meta property="og:description" content="k-NN（k nearest neighbors）我在一个场景中，有100k个小怪，我需要得到1k个与我最近的单位，如何快速查找？  四叉树四叉树适用于二维场景，将空间递归划分成四个象限，按区域把单位放进去。 树基本结构 根节点：覆盖整个场景范围 每个节点最多存放一定数量的对象（例如 8~16 个） 超过阈值时分裂成 4 个子节点 对象根据坐标放入对应的子节点  查找最近 1k 个单位的步骤 从根">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-06-04T08:18:19.000Z">
+<meta property="article:modified_time" content="2026-07-08T09:48:57.679Z">
+<meta property="article:author" content="Haotian Luo">
+<meta property="article:tag" content="Algorithm">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://miaopasss.github.io/2026/06/04/K%E8%BF%91%E9%82%BB%E6%90%9C%E7%B4%A2%E9%97%AE%E9%A2%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>K近邻搜索问题 | 乌啦呀哈呀哈乌啦！</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">乌啦呀哈呀哈乌啦！</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">欢迎光临，这里是喵pass的个人博客，希望有能帮到你的地方
+</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页 | Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类 | Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签 | Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档 | Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/miaopasss" class="github-corner" title="Check out my GitHub" aria-label="Check out my GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/06/04/K%E8%BF%91%E9%82%BB%E6%90%9C%E7%B4%A2%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          K近邻搜索问题
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2026-06-04 16:18:19" itemprop="dateCreated datePublished" datetime="2026-06-04T16:18:19+08:00">2026-06-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-07-08 17:48:57" itemprop="dateModified" datetime="2026-07-08T17:48:57+08:00">2026-07-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="k-NN（k-nearest-neighbors）"><a href="#k-NN（k-nearest-neighbors）" class="headerlink" title="k-NN（k nearest neighbors）"></a>k-NN（k nearest neighbors）</h1><p>我在一个场景中，有100k个小怪，我需要得到1k个与我最近的单位，如何快速查找？</p>
+<hr>
+<h2 id="四叉树"><a href="#四叉树" class="headerlink" title="四叉树"></a>四叉树</h2><p>四叉树适用于二维场景，将空间递归划分成四个象限，按区域把单位放进去。</p>
+<h3 id="树基本结构"><a href="#树基本结构" class="headerlink" title="树基本结构"></a>树基本结构</h3><ul>
+<li>根节点：覆盖整个场景范围</li>
+<li>每个节点最多存放一定数量的对象（例如 8~16 个）</li>
+<li>超过阈值时分裂成 4 个子节点</li>
+<li>对象根据坐标放入对应的子节点</li>
+</ul>
+<h3 id="查找最近-1k-个单位的步骤"><a href="#查找最近-1k-个单位的步骤" class="headerlink" title="查找最近 1k 个单位的步骤"></a>查找最近 1k 个单位的步骤</h3><ol>
+<li>从根节点开始，把查询点所在的区域优先搜索</li>
+<li>对当前节点里的对象计算距离，维护一个最大堆或固定大小的候选列表</li>
+<li>对子节点递归搜索，但只进入那些有可能包含更近对象的区域</li>
+<li>对每个子节点，先检查该节点包围盒到查询点的最小距离<ul>
+<li>如果该最小距离已经比当前第 1k 近的距离大，就可以剪枝跳过该子节点</li>
+</ul>
+</li>
+<li>继续搜索直到所有可能更近的区域都处理完</li>
+</ol>
+<hr>
+<h2 id="网格-空间哈希（Spatial-Hash-Grid）"><a href="#网格-空间哈希（Spatial-Hash-Grid）" class="headerlink" title="网格 &#x2F; 空间哈希（Spatial Hash Grid）"></a>网格 &#x2F; 空间哈希（Spatial Hash Grid）</h2><ul>
+<li>把场景分成固定大小的格子，每个格子维护一个对象列表。查询时只检查当前格子和相邻格子，速度快，非常适合均匀分布。</li>
+<li>把格子坐标哈希成桶，适合大范围、动态移动对象。插入、删除、查询都是常数级别，维护简单。也可以看成“网格划分+哈希映射”。</li>
+<li>查询时只访问与自身相邻的若干格子</li>
+<li>适合均匀分布、实时更新频繁的场景</li>
+</ul>
+<hr>
+<h2 id="k-d-树"><a href="#k-d-树" class="headerlink" title="k-d 树"></a>k-d 树</h2><ul>
+<li>构建过程的时间复杂度是 O(N log N)。对于100k个小怪，这是一次性的、完全可以接受的开销。<ul>
+<li>构建完后，这棵树在这一帧内是静态的。</li>
+<li>适合静态点集或少量动态更新</li>
+</ul>
+</li>
+<li>递归按 x&#x2F;y 轴交替划分空间</li>
+</ul>
+<h3 id="查找最近-1k-个单位的步骤-1"><a href="#查找最近-1k-个单位的步骤-1" class="headerlink" title="查找最近 1k 个单位的步骤"></a>查找最近 1k 个单位的步骤</h3><p>最近邻查询类似二叉树剪枝</p>
+<ul>
+<li>从根节点开始，比较你的位置和当前节点在分割轴上的坐标。</li>
+<li>如果你在节点的左边，就优先进入左子树；如果在右边，就优先进入右子树。像普通二叉树查找一样，一路向下，直到到达一个叶子节点。</li>
+<li>当你从递归中返回，开始回溯到父节点时，执行最关键的“剪枝”判断。</li>
+<li>核心问题: “另一半子树所代表的空间区域，有没有可能存在比我当前找到的第1000个邻居更近的点？”</li>
+<li>判断方法: 计算你的位置到当前节点“分割面”的垂直距离 d_plane。<ul>
+<li>如果 d_plane ≥ radius: 这意味着另一半子树的整个空间，都比你当前最远的邻居还要远。因此，你完全不需要进入那个子树进行搜索！ 这就是“剪枝”。</li>
+<li>如果 d_plane &lt; radius: 意味着另一半子树的空间与你的“搜索球”有交集，里面可能存在更近的点。因此，你必须进入这个子树，重复上面的递归搜索过程。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="BVH-Bounding-Volume-Hierarchy-包围盒层级"><a href="#BVH-Bounding-Volume-Hierarchy-包围盒层级" class="headerlink" title="BVH (Bounding Volume Hierarchy) &#x2F; 包围盒层级"></a>BVH (Bounding Volume Hierarchy) &#x2F; 包围盒层级</h2><ul>
+<li>每个节点是一个包围一组物体的盒子（AABB&#x2F;OBB等）</li>
+<li>子节点是把物体集合拆成两组（常见二叉），再分别求包围盒。</li>
+<li>划分不要求等分空间，通常按数据分布和代价（如 SAH）自适应构建。</li>
+</ul>
+<h3 id="查找最近-1k-个单位的步骤-2"><a href="#查找最近-1k-个单位的步骤-2" class="headerlink" title="查找最近 1k 个单位的步骤"></a>查找最近 1k 个单位的步骤</h3><ul>
+<li>初始化: 将所有100k个小怪（或它们的精确位置）看作“物体”，放入一个列表中。</li>
+<li>递归构建:<ul>
+<li>终止条件: 如果当前列表中的物体数量小于等于某个阈值（比如8），则创建一个叶子节点。这个叶子节点的AABB是紧紧包裹这几个物体的包围盒，节点内部存储这些物体的引用。然后返回。</li>
+<li>选择最长的轴: 计算当前列表中所有物体的AABB，找到这个AABB最长的轴（X, Y, 或 Z）。</li>
+<li>排序与划分: 沿着这个最长的轴，根据物体重心的坐标，对列表中的所有物体进行排序。找到中位数，将列表一分为二。</li>
+<li>创建子节点:<ul>
+<li>对第一半的物体，递归调用构建过程，创建一个左子节点。</li>
+<li>对第二半的物体，递归调用构建过程，创建一个右子节点。</li>
+</ul>
+</li>
+<li>创建父节点: 创建一个新的中间节点，它的AABB是其左、右两个子节点AABB的并集（即一个能同时包裹住左右两个子包围盒的新包围盒）。这个中间节点的子节点就是刚刚创建的左右子节点。</li>
+</ul>
+</li>
+</ul>
+<p>这个过程从包含所有物体的根节点开始，一直递归下去，直到所有物体都被分配到叶子节点中。构建完成后，你就有了一个完整的BVH树。</p>
+<ul>
+<li>K-近邻查询 (每帧执行的核心算法)<br>一个容量为 K (这里是1000) 的最大优先队列 (Max-Priority Queue)，我们称之为“结果集 (resultSet)”。</li>
+<li>作用: 用来存储到目前为止找到的 K 个最近邻居。</li>
+<li>特性: 队列的“顶部” i.e. queue.peek() 永远是这 K 个中距离你最远的那个。当你尝试加入一个新邻居时，如果它比最远的那个更近，最远的就会被自动“踢”出去。</li>
+</ul>
+<p>一个最小优先队列 (Min-Priority Queue)，我们称之为“待办列表 (todoList)”。</p>
+<ul>
+<li>作用: 用来存储接下来需要检查的 BVH 节点。</li>
+<li>特性: 队列的“顶部”永远是距离你最近的那个节点&#x2F;AABB盒。这保证了我们总是优先探索最有希望找到近邻的区域。</li>
+</ul>
+<h3 id="具体算法"><a href="#具体算法" class="headerlink" title="具体算法"></a>具体算法</h3><p>假设你的位置是 myPosition，要查找 K&#x3D;1000 个最近邻。</p>
+<ul>
+<li>初始化:<br>创建一个空的、容量为1000的 resultSet (最大优先队列)。<br>创建一个空的 todoList (最小优先队列)。<br>将 BVH 的根节点以及你到根节点AABB的最近距离 d_box (初始时这个距离是0，因为你在场景内)作为一个元组 (rootNode, d_box) 加入 todoList。<br>将“最大搜索半径 radius” 初始化为无穷大。<br>开始循环搜索: 当 todoList 不为空时，持续循环：</li>
+</ul>
+<p>a. 取出最优节点: 从 todoList 中取出距离最近的节点 (currentNode, dist_box)。</p>
+<p>b. 核心剪枝:<br>从 resultSet 中获取当前已找到的最远邻居的距离（如果 resultSet 已满），这个距离就是我们当前的最大搜索半径 radius。<br>如果 dist_box ≥ radius: 这意味着 todoList 中所有剩下的节点（因为它们比 currentNode 更远）以及它们包含的所有物体，都不可能比我们已经找到的第K个邻居更近。搜索可以提前结束！ 跳出循环。</p>
+<p>c. 处理节点:<br>如果 currentNode 是一个叶子节点:<br>遍历该叶子节点包含的所有实际物体。<br>对于每个物体，计算你到它的精确距离 d_obj。<br>尝试更新结果集: 将这个物体和它的距离 d_obj 加入 resultSet。如果 resultSet 已满且 d_obj 更近，优先队列会自动T出最远的那个。<br>重要: 每当 resultSet 被更新后（特别是当它首次满员时），需要更新 radius 为 resultSet 中新的最大距离。这个 radius 会不断缩小，从而让步骤 b 的剪枝变得越来越强大。</p>
+<p>如果 currentNode 是一个中间节点:<br>获取它的左、右两个子节点。<br>对于每一个子节点：<br>计算你到这个子节点AABB的最近距离 d_child_box。<br>如果 d_child_box &lt; radius: 这意味着这个子节点的区域内可能存在更近的邻居，我们必须探索它。将这个子节点和它的距离 (childNode, d_child_box) 加入 todoList。<br>如果 d_child_box ≥ radius，则直接忽略这个子节点及其整个分支（又一次剪枝！）。</p>
+<p>完成: 当循环结束时，resultSet 中存储的就是最终的1000个最近邻居。</p>
+<hr>
+<h2 id="倒排桶-桶排序距离"><a href="#倒排桶-桶排序距离" class="headerlink" title="倒排桶 &#x2F; 桶排序距离"></a>倒排桶 &#x2F; 桶排序距离</h2><ul>
+<li>先用距离近似值分桶，再只对近距离桶内对象精确排序</li>
+<li>适合距离范围已知、精度需求不高的场景</li>
+</ul>
+<hr>
+<h2 id="粗略筛选-精确排序"><a href="#粗略筛选-精确排序" class="headerlink" title="粗略筛选 + 精确排序"></a>粗略筛选 + 精确排序</h2><ul>
+<li>先用简单空间划分得到一小部分候选对象</li>
+<li>然后在候选集中排序取前 1k</li>
+<li>例如：先找 5x5 个邻近网格，再精确计算</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Algorithm/" rel="tag"># Algorithm</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/06/04/Batching-%E5%90%88%E6%89%B9/" rel="prev" title="Batching 合批">
+      <i class="fa fa-chevron-left"></i> Batching 合批
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#k-NN%EF%BC%88k-nearest-neighbors%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">k-NN（k nearest neighbors）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E5%8F%89%E6%A0%91"><span class="nav-number">1.1.</span> <span class="nav-text">四叉树</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%91%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="nav-number">1.1.1.</span> <span class="nav-text">树基本结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE%E6%9C%80%E8%BF%91-1k-%E4%B8%AA%E5%8D%95%E4%BD%8D%E7%9A%84%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.1.2.</span> <span class="nav-text">查找最近 1k 个单位的步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E6%A0%BC-%E7%A9%BA%E9%97%B4%E5%93%88%E5%B8%8C%EF%BC%88Spatial-Hash-Grid%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">网格 &#x2F; 空间哈希（Spatial Hash Grid）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#k-d-%E6%A0%91"><span class="nav-number">1.3.</span> <span class="nav-text">k-d 树</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE%E6%9C%80%E8%BF%91-1k-%E4%B8%AA%E5%8D%95%E4%BD%8D%E7%9A%84%E6%AD%A5%E9%AA%A4-1"><span class="nav-number">1.3.1.</span> <span class="nav-text">查找最近 1k 个单位的步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BVH-Bounding-Volume-Hierarchy-%E5%8C%85%E5%9B%B4%E7%9B%92%E5%B1%82%E7%BA%A7"><span class="nav-number">1.4.</span> <span class="nav-text">BVH (Bounding Volume Hierarchy) &#x2F; 包围盒层级</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE%E6%9C%80%E8%BF%91-1k-%E4%B8%AA%E5%8D%95%E4%BD%8D%E7%9A%84%E6%AD%A5%E9%AA%A4-2"><span class="nav-number">1.4.1.</span> <span class="nav-text">查找最近 1k 个单位的步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E7%AE%97%E6%B3%95"><span class="nav-number">1.4.2.</span> <span class="nav-text">具体算法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%80%92%E6%8E%92%E6%A1%B6-%E6%A1%B6%E6%8E%92%E5%BA%8F%E8%B7%9D%E7%A6%BB"><span class="nav-number">1.5.</span> <span class="nav-text">倒排桶 &#x2F; 桶排序距离</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B2%97%E7%95%A5%E7%AD%9B%E9%80%89-%E7%B2%BE%E7%A1%AE%E6%8E%92%E5%BA%8F"><span class="nav-number">1.6.</span> <span class="nav-text">粗略筛选 + 精确排序</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Haotian Luo"
+      src="/images/exciting-usagi.gif">
+  <p class="site-author-name" itemprop="name">Haotian Luo</p>
+  <div class="site-description" itemprop="description"><font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">45</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/miaopasss" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;miaopasss" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hubery.luo@icloud.com" title="E-Mail → mailto:hubery.luo@icloud.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Haotian Luo</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2026/06/04/K%E8%BF%91%E9%82%BB%E6%90%9C%E7%B4%A2%E9%97%AE%E9%A2%98/',]
+      });
+      });
+  </script>
+
+</body>
+</html>

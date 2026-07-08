@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Batching静态合批: 将相同材质并且始终不动的的Mesh合并成为一个大Mesh，然后由CPU合并为一个批次发送给GPU处理,从而减少DrawCall带来的消耗。动态合批: 相同材质并且会动的物体Mesh合并成为一个大MeshSRP Batcher: 将多个网格合并成单个批次进行渲染，从而提高性能。与其他合批不同，SRP Batcher将未改变属性的Mesh缓存起来，从而减少消耗GPU Ins">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Batching 合批">
+<meta property="og:url" content="https://miaopasss.github.io/2026/06/04/Batching-%E5%90%88%E6%89%B9/index.html">
+<meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
+<meta property="og:description" content="Batching静态合批: 将相同材质并且始终不动的的Mesh合并成为一个大Mesh，然后由CPU合并为一个批次发送给GPU处理,从而减少DrawCall带来的消耗。动态合批: 相同材质并且会动的物体Mesh合并成为一个大MeshSRP Batcher: 将多个网格合并成单个批次进行渲染，从而提高性能。与其他合批不同，SRP Batcher将未改变属性的Mesh缓存起来，从而减少消耗GPU Ins">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-06-04T05:25:14.000Z">
+<meta property="article:modified_time" content="2026-06-04T07:37:45.454Z">
+<meta property="article:author" content="Haotian Luo">
+<meta property="article:tag" content="Rendering pipeline">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://miaopasss.github.io/2026/06/04/Batching-%E5%90%88%E6%89%B9/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Batching 合批 | 乌啦呀哈呀哈乌啦！</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">乌啦呀哈呀哈乌啦！</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">欢迎光临，这里是喵pass的个人博客，希望有能帮到你的地方
+</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页 | Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类 | Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签 | Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档 | Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/miaopasss" class="github-corner" title="Check out my GitHub" aria-label="Check out my GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/06/04/Batching-%E5%90%88%E6%89%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Batching 合批
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-06-04 13:25:14 / Modified: 15:37:45" itemprop="dateCreated datePublished" datetime="2026-06-04T13:25:14+08:00">2026-06-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Batching"><a href="#Batching" class="headerlink" title="Batching"></a>Batching</h1><p>静态合批: 将相同材质并且始终不动的的Mesh合并成为一个大Mesh，然后由CPU合并为一个批次发送给GPU处理,从而减少DrawCall带来的消耗。<br>动态合批: 相同材质并且会动的物体Mesh合并成为一个大Mesh<br>SRP Batcher: 将多个网格合并成单个批次进行渲染，从而提高性能。与其他合批不同，SRP Batcher将未改变属性的Mesh缓存起来，从而减少消耗<br>GPU Instancing: 使用一个DrawCall渲染多个相同材质的网格对象（如场景中大量重复的物体如树木和草地等），从而减少CPU和GPU的开销</p>
+<h2 id="Static-Batching"><a href="#Static-Batching" class="headerlink" title="Static Batching"></a>Static Batching</h2><p>针对静态物体（勾选 Static）。在构建时，Unity 把所有使用相同材质的静态 mesh 合并成一个大 mesh，存到内存里。运行时一次 Draw Call 画完。</p>
+<table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>核心思想</strong></td>
+<td align="left">在<strong>编辑器时</strong>，将标记为 <code>Static</code> 且使用<strong>相同材质</strong>的游戏对象的网格（Mesh）合并成一个或多个巨大的网格。</td>
+</tr>
+<tr>
+<td align="left"><strong>工作原理</strong></td>
+<td align="left">1. 你在编辑器中将多个物体勾选为 <code>Static</code>。<br>2. 在构建或进入播放模式时，Unity 找到使用相同材质的静态物体，将它们的顶点和索引数据合并成一个新的、巨大的网格。<br>3. 运行时，渲染这个大网格只需要<strong>一次 Draw Call</strong>。</td>
+</tr>
+<tr>
+<td align="left"><strong>主要优点</strong></td>
+<td align="left">✅ <strong>大幅减少 Draw Call</strong>，性能提升非常显著。</td>
+</tr>
+<tr>
+<td align="left"><strong>主要缺点</strong></td>
+<td align="left">❌ <strong>内存和显存开销大</strong>：合并后的网格需要额外存储，且无法进行视锥体剔除（Culling）的细粒度操作（整个大网格要么全被剔除，要么全不被剔除）。<br>❌ <strong>不能用于非静态物体</strong>：物体不能移动、旋转、缩放。</td>
+</tr>
+<tr>
+<td align="left"><strong>适用场景</strong></td>
+<td align="left">场景中静止不动的所有物体，如建筑、地面、大块的岩石、静态的装饰物等。</td>
+</tr>
+</tbody></table>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">场景里100棵树（同材质，Static）：</span><br><span class="line">  构建时合并 → 1个大mesh</span><br><span class="line">  运行时：SetPass × 1，Draw Call × 1</span><br></pre></td></tr></table></figure>
+<p>代价是内存，合并后的大 mesh 常驻内存，物体也不能移动。</p>
+<h2 id="Dynamic-Batching"><a href="#Dynamic-Batching" class="headerlink" title="Dynamic Batching"></a>Dynamic Batching</h2><p>与静态合批不同，动态合批是的物体是可以运动的，针对动态小物体。每帧 CPU 实时把符合条件的 mesh 合并，然后一次提交。<br>条件很苛刻：顶点数 &lt; 300，不能使用lightmap，不能使用多通道的shader，不能是缩放比不同的物体。<br>Unity 的 Dynamic Batching（动态批处理）是自动触发的。只要启用了该功能且物体满足特定条件（如使用相同材质、顶点数较少），Unity 引擎就会在运行时自动合并 Draw Call，无需手动干预。</p>
+<table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>核心思想</strong></td>
+<td align="left">在<strong>每一帧运行时</strong>，由 <strong>CPU</strong> 自动寻找符合条件的小网格，并将它们合并成一个临时的网格进行绘制。</td>
+</tr>
+<tr>
+<td align="left"><strong>工作原理</strong></td>
+<td align="left">1. CPU 寻找使用<strong>相同材质</strong>且<strong>顶点数极少</strong>（通常&lt;300）的移动物体。<br>2. CPU 将这些物体的顶点从局部空间变换到世界空间。<br>3. CPU 将变换后的顶点数据拷贝到一个大的临时缓冲区中。<br>4. 用一次 Draw Call 将这个临时缓冲区提交给 GPU。</td>
+</tr>
+<tr>
+<td align="left"><strong>主要优点</strong></td>
+<td align="left">✅ 对移动的小物体能减少一些 Draw Call。</td>
+</tr>
+<tr>
+<td align="left"><strong>主要缺点</strong></td>
+<td align="left">❌ <strong>巨大的 CPU 开销</strong>：每一帧都在CPU上做顶点变换和拷贝，往往得不偿失。<br>❌ <strong>限制非常严格</strong>：对顶点数、顶点属性等有诸多要求。<br>❌ <strong>在 SRP (URP&#x2F;HDRP) 中已废弃&#x2F;不推荐</strong>：因为它与更高效的 SRP Batcher 工作机制冲突。</td>
+</tr>
+<tr>
+<td align="left"><strong>适用场景</strong></td>
+<td align="left">在旧的内置渲染管线（Built-in RP）中，用于处理大量简单粒子、子弹等小物体。<strong>在现代项目中几乎不再使用</strong>。</td>
+</tr>
+</tbody></table>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">每帧：</span><br><span class="line">  CPU 检查哪些动态物体同材质 → 临时合并 mesh → 一次 Draw Call</span><br></pre></td></tr></table></figure>
+<p>代价是 CPU 每帧都要做合并，物体多了反而更慢。</p>
+<h2 id="SRP-Batcher"><a href="#SRP-Batcher" class="headerlink" title="SRP Batcher"></a>SRP Batcher</h2><p>Batches draw calls by grouping objects that use the same shader variant, reducing SetPass calls<br>Shader properties stored in GPU buffers instead of individual material constants</p>
+<p>创建大型 GPU 缓冲区: 在每一帧开始时，SRP Batcher 会在 GPU 上开辟一个巨大的、持久化的缓冲区 (在现代图形API中通常是 Constant Buffer 或 UBO)。<br>打包所有数据: 它会遍历所有使用相同 Shader Variant（着色器变体）的物体，把它们的材质属性（颜色、向量、浮点数等）全部打包塞进这个大缓冲区里。</p>
+<p>现在，当 CPU 指示 GPU 绘制时，CPU 对 GPU 说：“准备画一批物体，它们都用 Shader A。它们的材质数据已经全部放在那个大缓冲区里了。” (这对应一个非常快速的、几乎可以忽略不计的 SetPass 准备工作)<br>然后 CPU 快速地连续下达指令：<br>    “画第一个物体，它的数据在缓冲区偏移量0的位置。” (一个 Draw call)<br>    “画第二个物体，它的数据在缓冲区偏移量64的位置。” (一个 Draw call)<br>    “画第三个物体，它的数据在缓冲区偏移量128的位置。” (一个 Draw call)</p>
+<p>SetPass call: 只有在切换 Shader Variant 时才会发生一次。对于所有使用相同 Shader Variant 的物体，无论它们有多少个，都属于同一个“SRP Batch”，共享一次 SetPass 设置。因此 SetPass call 的数量大幅降低。<br>Draw call: 每个物体最终还是需要 GPU 单独绘制一次。CPU 依然需要为每个物体都发送一个 Draw 指令。因此 Draw call 的数量没有改变。</p>
+<table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>核心思想</strong></td>
+<td align="left">大幅降低因材质不同而产生的 <strong>SetPass Call</strong> 开销，但<strong>不减少 Draw Call</strong>。</td>
+</tr>
+<tr>
+<td align="left"><strong>工作原理</strong></td>
+<td align="left">1. 找到所有使用<strong>相同 Shader Variant</strong>（着色器变体）的物体。<br>2. 将这些物体所有不同的材质属性（颜色、浮点数等）打包到一个巨大的、持久化的 GPU 缓冲区 (Constant Buffer &#x2F; Uniform Buffer Object) 中。<br>3. 每次绘制时，CPU 不再上传完整的材质数据，而是只告诉 GPU 去这个大缓冲区的哪个<strong>偏移量</strong>位置读取数据。<br>4. 这使得切换材质的成本变得极低。</td>
+</tr>
+<tr>
+<td align="left"><strong>主要优点</strong></td>
+<td align="left">✅ <strong>极大提升 CPU 性能</strong>，因为它解决了最耗时的 SetPass 瓶颈。<br>✅ 兼容性好，限制较少，适用于大量不同材质但相同Shader的物体。</td>
+</tr>
+<tr>
+<td align="left"><strong>主要缺点</strong></td>
+<td align="left">❌ <strong>不减少 Draw Call</strong>。<br>❌ 需要 Shader 支持，所有材质属性必须定义在 <code>CBUFFER</code> 块中。URP 和 HDRP 的标准 Shader 已经默认支持。</td>
+</tr>
+<tr>
+<td align="left"><strong>适用场景</strong></td>
+<td align="left">URP&#x2F;HDRP 项目中的<strong>首选批处理方案</strong>。适用于场景中几乎所有使用标准 Shader 的物体，极大地提升了异质化物体的渲染性能。</td>
+</tr>
+</tbody></table>
+<p>使用条件：</p>
+<ul>
+<li>不支持内置渲染管线，支持通用(URP)&#x2F;高清(HDRP)&#x2F;自定义(SRP)渲染管线</li>
+<li>不使用 MaterialPropertyBlocks</li>
+<li>Materials must use SRP-compatible shaders</li>
+</ul>
+<p>在标准的渲染流程下，CPU需要收集所有场景物体的参数，场景中的材质越多CPU提交给GPU的数据就越多。<br>而在SRP中流程下GPU拥有数据管理的 “生命权” ,管理大量不同材质但Shader变动较小的的内容。<br>让数据在GPU中持久存在,从而减少消耗(SetPass Call)。</p>
+<h3 id="SRP-Batcher-vs-Dynamic-Batching"><a href="#SRP-Batcher-vs-Dynamic-Batching" class="headerlink" title="SRP Batcher vs. Dynamic Batching"></a>SRP Batcher vs. Dynamic Batching</h3><p>Both can be used together in SRP, but SRP Batcher takes precedence when enabled. For optimal performance in modern Unity projects, prefer SRP Batcher with proper shader setup.</p>
+<p>Both Dynamic Batching and SRP Batcher are triggered automatically in Unity when their conditions are met:</p>
+<ul>
+<li>Unity automatically detects and performs Dynamic Batching on compatible objects at runtime</li>
+<li>SRP batcher automatically batches during render loop when objects use compatible shader variants enabled in the render pipeline settings (Window → Rendering → Render Pipeline → Universal Render Pipeline → General → SRP Batcher)</li>
+</ul>
+<h2 id="GPU-Instancing"><a href="#GPU-Instancing" class="headerlink" title="GPU Instancing"></a>GPU Instancing</h2><p>针对大量相同 mesh + 相同材质的物体（但允许不同的属性，比如颜色、位置）。CPU 只提交一次 mesh 数据，附带一个”实例属性数组”，GPU 自己循环绘制 N 次。<br>在 Unity 中，需要在材质属性中勾选 “Enable GPU Instancing”。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// shader 里声明每个实例可以有不同颜色</span></span><br><span class="line"><span class="built_in">UNITY_INSTANCING_BUFFER_START</span>(Props)</span><br><span class="line">    <span class="built_in">UNITY_DEFINE_INSTANCED_PROP</span>(float4, _Color)</span><br><span class="line"><span class="built_in">UNITY_INSTANCING_BUFFER_END</span>(Props)</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>核心思想</strong></td>
+<td align="left">让 <strong>GPU</strong> 自己去复制绘制。一次 Draw Call 告诉 GPU 将<strong>完全相同的网格和材质</strong>绘制 N 次。</td>
+</tr>
+<tr>
+<td align="left"><strong>工作原理</strong></td>
+<td align="left">1. CPU 准备一个包含 N 个实例所有不同属性（如位置、旋转、颜色）的额外数据缓冲区。<br>2. CPU 发起<strong>一次 Draw Call</strong>，并把网格、材质和这个属性缓冲区一并交给 GPU。<br>3. GPU 收到指令后，自己循环 N 次，每次绘制时从属性缓冲区中取出一个实例的数据应用，完成绘制。</td>
+</tr>
+<tr>
+<td align="left"><strong>主要优点</strong></td>
+<td align="left">✅ <strong>极大幅度地减少 Draw Call</strong>，能以极高性能绘制成千上万个相同的物体。<br>✅ 每个实例可以有自己独特的位置、旋转、缩放和颜色（通过 <code>MaterialPropertyBlock</code>）。</td>
+</tr>
+<tr>
+<td align="left"><strong>主要缺点</strong></td>
+<td align="left">❌ <strong>要求网格和材质完全相同</strong>。</td>
+</tr>
+<tr>
+<td align="left"><strong>适用场景</strong></td>
+<td align="left">场景中需要大量重复出现的物体，如草、树木、石子、人群、军队、模块化建筑的窗户等。非常适合程序化生成的内容。</td>
+</tr>
+</tbody></table>
+<p>使用条件：</p>
+<ul>
+<li>材质需要支持GPU Instancing，例如默认标准材质就有</li>
+<li>Tranform信息需要有所不同（完全重合了渲染出来也没有意义）</li>
+<li>未使用SRP Batcher，如有会优先使用SRP Batcher。(在URP渲染管线中是默认开启的)</li>
+<li>粒子对像不能合批</li>
+</ul>
+<p>此时的CPU依然只提交1次Drawcall</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">100棵树（同mesh，同材质，不同位置/颜色）：</span><br><span class="line">  CPU：提交1次mesh + 100个transform数组</span><br><span class="line">  GPU：自己 instance 100次</span><br><span class="line">  结果：SetPass × 1，Draw Call × 1</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Rendering-pipeline/" rel="tag"># Rendering pipeline</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/06/02/%E5%AF%B9%E7%A7%B0%E4%B8%8E%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86/" rel="prev" title="对称与非对称加密">
+      <i class="fa fa-chevron-left"></i> 对称与非对称加密
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2026/06/04/K%E8%BF%91%E9%82%BB%E6%90%9C%E7%B4%A2%E9%97%AE%E9%A2%98/" rel="next" title="K近邻搜索问题">
+      K近邻搜索问题 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Batching"><span class="nav-number">1.</span> <span class="nav-text">Batching</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Static-Batching"><span class="nav-number">1.1.</span> <span class="nav-text">Static Batching</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dynamic-Batching"><span class="nav-number">1.2.</span> <span class="nav-text">Dynamic Batching</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SRP-Batcher"><span class="nav-number">1.3.</span> <span class="nav-text">SRP Batcher</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SRP-Batcher-vs-Dynamic-Batching"><span class="nav-number">1.3.1.</span> <span class="nav-text">SRP Batcher vs. Dynamic Batching</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GPU-Instancing"><span class="nav-number">1.4.</span> <span class="nav-text">GPU Instancing</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Haotian Luo"
+      src="/images/exciting-usagi.gif">
+  <p class="site-author-name" itemprop="name">Haotian Luo</p>
+  <div class="site-description" itemprop="description"><font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">45</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/miaopasss" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;miaopasss" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hubery.luo@icloud.com" title="E-Mail → mailto:hubery.luo@icloud.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Haotian Luo</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2026/06/04/Batching-%E5%90%88%E6%89%B9/',]
+      });
+      });
+  </script>
+
+</body>
+</html>
