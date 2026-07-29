@@ -161,6 +161,154 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/25/Sprite-Atlas-%E5%9B%BE%E9%9B%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/03/25/Sprite-Atlas-%E5%9B%BE%E9%9B%86/" class="post-title-link" itemprop="url">Sprite Atlas 图集</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2026-03-25 17:02:10" itemprop="dateCreated datePublished" datetime="2026-03-25T17:02:10+08:00">2026-03-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-03-30 10:05:05" itemprop="dateModified" datetime="2026-03-30T10:05:05+08:00">2026-03-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Sprite-Atlas-图集"><a href="#Sprite-Atlas-图集" class="headerlink" title="Sprite Atlas 图集"></a>Sprite Atlas 图集</h1><p>把多张小纹理合并成一张大纹理，GPU 渲染时所有引用该图集的 Sprite 共享同一张纹理，满足合批条件，从而将多个 DrawCall 合并为一个。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">未使用图集：</span><br><span class="line">  Sprite A（texture_a.png）→ DrawCall 1</span><br><span class="line">  Sprite B（texture_b.png）→ DrawCall 2</span><br><span class="line">  Sprite C（texture_c.png）→ DrawCall 3</span><br><span class="line"></span><br><span class="line">使用图集后：</span><br><span class="line">  Sprite A ─┐</span><br><span class="line">  Sprite B ─┼─ atlas.png → DrawCall 1（合批）</span><br><span class="line">  Sprite C ─┘</span><br></pre></td></tr></table></figure>
+
+<p>除了减少 DrawCall，图集还有两个底层优化：</p>
+<ul>
+<li>GPU 处理 2 的幂次方尺寸的纹理效率更高，图集会自动将小图打包成符合规范的大图</li>
+<li>多张小图的磁盘占用通常大于一张合并后的大图（压缩算法在大块连续数据上效率更高）</li>
+</ul>
+<p>Unity中的图集有2种类型</p>
+<ul>
+<li>Master（主图集）：标准图集，包含实际资源</li>
+<li>Variant（变体图集）：引用主图集内容，通过 Scale 缩放生成不同分辨率版本，适合高清&#x2F;低清资源切换场景</li>
+</ul>
+<h1 id="代码用例"><a href="#代码用例" class="headerlink" title="代码用例"></a>代码用例</h1><h2 id="运行时加载图集（Resources）"><a href="#运行时加载图集（Resources）" class="headerlink" title="运行时加载图集（Resources）"></a>运行时加载图集（Resources）</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.UI;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.U2D;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AtlasLoader</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> Image[] _images;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 从 Resources 文件夹加载图集</span></span><br><span class="line">        SpriteAtlas atlas = Resources.Load&lt;SpriteAtlas&gt;(<span class="string">&quot;UI/MainAtlas&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (atlas == <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(<span class="string">&quot;图集加载失败，检查路径是否正确&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// GetSprite 传入的是打包时的文件名（不含扩展名）</span></span><br><span class="line">        <span class="comment">// Single 模式：直接传文件名，如 &quot;icon_sword&quot;</span></span><br><span class="line">        <span class="comment">// Multiple 模式（Sprite Sheet）：传 &quot;文件名_索引&quot;，如 &quot;icon_sword_0&quot;</span></span><br><span class="line">        _images[<span class="number">0</span>].sprite = atlas.GetSprite(<span class="string">&quot;icon_sword&quot;</span>);</span><br><span class="line">        _images[<span class="number">1</span>].sprite = atlas.GetSprite(<span class="string">&quot;icon_shield&quot;</span>);</span><br><span class="line">        _images[<span class="number">2</span>].sprite = atlas.GetSprite(<span class="string">&quot;icon_potion&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="从-AssetBundle-加载图集"><a href="#从-AssetBundle-加载图集" class="headerlink" title="从 AssetBundle 加载图集"></a>从 AssetBundle 加载图集</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.UI;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.U2D;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AtlasFromAB</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> Image _targetImage;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">string</span> bundlePath = Application.streamingAssetsPath + <span class="string">&quot;/AssetBundles/ui_atlas&quot;</span>;</span><br><span class="line">        AssetBundle bundle = AssetBundle.LoadFromFile(bundlePath);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (bundle == <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(<span class="string">&quot;AB 包加载失败&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        SpriteAtlas atlas = bundle.LoadAsset&lt;SpriteAtlas&gt;(<span class="string">&quot;MainAtlas&quot;</span>);</span><br><span class="line">        _targetImage.sprite = atlas.GetSprite(<span class="string">&quot;icon_sword&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 图集资源已提取，可以卸载包体（false = 保留已加载资源）</span></span><br><span class="line">        bundle.Unload(<span class="literal">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="后期绑定（Late-Binding）"><a href="#后期绑定（Late-Binding）" class="headerlink" title="后期绑定（Late Binding）"></a>后期绑定（Late Binding）</h2><p>当图集未勾选 Include in Build 时，必须手动监听 atlasRequested 事件，否则引用该图集的 Sprite 会显示为空白。</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.U2D;</span><br><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 挂载到场景中持久存在的对象上（如 GameManager）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AtlasLateBinding</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnEnable</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 注册图集请求事件</span></span><br><span class="line">        SpriteAtlasManager.atlasRequested += OnAtlasRequested;</span><br><span class="line">        <span class="comment">// 可选：图集注册完成后的回调</span></span><br><span class="line">        SpriteAtlasManager.atlasRegistered += OnAtlasRegistered;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnDisable</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        SpriteAtlasManager.atlasRequested -= OnAtlasRequested;</span><br><span class="line">        SpriteAtlasManager.atlasRegistered -= OnAtlasRegistered;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Unity 找不到图集时触发，atlasName 是图集名称</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnAtlasRequested</span>(<span class="params"><span class="built_in">string</span> atlasName, Action&lt;SpriteAtlas&gt; callback</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">$&quot;请求图集: <span class="subst">&#123;atlasName&#125;</span>&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 从 Resources 加载（也可以换成 AB 包加载）</span></span><br><span class="line">        SpriteAtlas atlas = Resources.Load&lt;SpriteAtlas&gt;(atlasName);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (atlas != <span class="literal">null</span>)</span><br><span class="line">            callback(atlas); <span class="comment">// 把图集交还给 Unity</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            Debug.LogError(<span class="string">$&quot;找不到图集: <span class="subst">&#123;atlasName&#125;</span>&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnAtlasRegistered</span>(<span class="params">SpriteAtlas atlas</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">$&quot;图集已注册: <span class="subst">&#123;atlas.name&#125;</span>&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Editor-工具：自动打包图集"><a href="#Editor-工具：自动打包图集" class="headerlink" title="Editor 工具：自动打包图集"></a>Editor 工具：自动打包图集</h2><p>这个工具会遍历指定目录，按文件夹自动创建并更新图集，适合团队统一管理图集资源。</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 必须放在 Editor 文件夹下</span></span><br><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Collections.Generic;</span><br><span class="line"><span class="keyword">using</span> System.IO;</span><br><span class="line"><span class="keyword">using</span> UnityEditor;</span><br><span class="line"><span class="keyword">using</span> UnityEditor.U2D;</span><br><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.U2D;</span><br><span class="line"><span class="keyword">using</span> Object = UnityEngine.Object;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SpriteAtlasBuilder</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 需要打包的图片根目录（每个子文件夹对应一个图集）</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">readonly</span> <span class="built_in">string</span> SourceRoot = Application.dataPath + <span class="string">&quot;/Art/Sprites/&quot;</span>;</span><br><span class="line">    <span class="comment">// 图集输出目录</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">readonly</span> <span class="built_in">string</span> OutputPath = <span class="string">&quot;Assets/Art/Atlases/&quot;</span>;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">MenuItem(<span class="string">&quot;Tools/Build Sprite Atlases&quot;</span>)</span>]</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">BuildAll</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (!Directory.Exists(SourceRoot))</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(<span class="string">$&quot;源目录不存在: <span class="subst">&#123;SourceRoot&#125;</span>&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Directory.CreateDirectory(OutputPath.Replace(<span class="string">&quot;Assets/&quot;</span>, Application.dataPath + <span class="string">&quot;/&quot;</span>).Replace(<span class="string">&quot;Assets&quot;</span>, <span class="string">&quot;&quot;</span>));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> dirs = <span class="keyword">new</span> DirectoryInfo(SourceRoot).GetDirectories();</span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; dirs.Length; i++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> dir = dirs[i];</span><br><span class="line">            EditorUtility.DisplayProgressBar(<span class="string">&quot;打包图集&quot;</span>, <span class="string">$&quot;处理: <span class="subst">&#123;dir.Name&#125;</span>&quot;</span>, (<span class="built_in">float</span>)i / dirs.Length);</span><br><span class="line"></span><br><span class="line">            <span class="built_in">string</span> atlasPath = OutputPath + dir.Name + <span class="string">&quot;.spriteatlas&quot;</span>;</span><br><span class="line">            SpriteAtlas atlas = AssetDatabase.LoadAssetAtPath&lt;SpriteAtlas&gt;(atlasPath)</span><br><span class="line">                                ?? CreateAtlas(atlasPath);</span><br><span class="line"></span><br><span class="line">            UpdateAtlasContent(atlas, SourceRoot + dir.Name);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        EditorUtility.ClearProgressBar();</span><br><span class="line">        AssetDatabase.SaveAssets();</span><br><span class="line">        AssetDatabase.Refresh();</span><br><span class="line">        Debug.Log(<span class="string">&quot;图集打包完成&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> SpriteAtlas <span class="title">CreateAtlas</span>(<span class="params"><span class="built_in">string</span> savePath</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> atlas = <span class="keyword">new</span> SpriteAtlas();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 基础打包设置</span></span><br><span class="line">        atlas.SetPackingSettings(<span class="keyword">new</span> SpriteAtlasPackingSettings</span><br><span class="line">        &#123;</span><br><span class="line">            blockOffset = <span class="number">1</span>,</span><br><span class="line">            enableRotation = <span class="literal">false</span>,    <span class="comment">// 禁止旋转，避免 UI 显示异常</span></span><br><span class="line">            enableTightPacking = <span class="literal">false</span>, <span class="comment">// 禁止紧密排列，避免图片边缘互相干扰</span></span><br><span class="line">            padding = <span class="number">4</span>,</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 纹理设置</span></span><br><span class="line">        atlas.SetTextureSettings(<span class="keyword">new</span> SpriteAtlasTextureSettings</span><br><span class="line">        &#123;</span><br><span class="line">            readable = <span class="literal">false</span>,</span><br><span class="line">            generateMipMaps = <span class="literal">false</span>,</span><br><span class="line">            sRGB = <span class="literal">true</span>,</span><br><span class="line">            filterMode = FilterMode.Bilinear,</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Android 平台压缩格式</span></span><br><span class="line">        <span class="keyword">var</span> androidSettings = atlas.GetPlatformSettings(<span class="string">&quot;Android&quot;</span>);</span><br><span class="line">        androidSettings.overridden = <span class="literal">true</span>;</span><br><span class="line">        androidSettings.maxTextureSize = <span class="number">2048</span>;</span><br><span class="line">        androidSettings.format = TextureImporterFormat.ASTC_6x6;</span><br><span class="line">        atlas.SetPlatformSettings(androidSettings);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// iOS 平台压缩格式</span></span><br><span class="line">        <span class="keyword">var</span> iosSettings = atlas.GetPlatformSettings(<span class="string">&quot;iPhone&quot;</span>);</span><br><span class="line">        iosSettings.overridden = <span class="literal">true</span>;</span><br><span class="line">        iosSettings.maxTextureSize = <span class="number">2048</span>;</span><br><span class="line">        iosSettings.format = TextureImporterFormat.PVRTC_RGB4;</span><br><span class="line">        atlas.SetPlatformSettings(iosSettings);</span><br><span class="line"></span><br><span class="line">        AssetDatabase.CreateAsset(atlas, savePath);</span><br><span class="line">        <span class="keyword">return</span> atlas;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">UpdateAtlasContent</span>(<span class="params">SpriteAtlas atlas, <span class="built_in">string</span> folderPath</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> existing = <span class="keyword">new</span> HashSet&lt;Object&gt;(atlas.GetPackables());</span><br><span class="line">        <span class="keyword">var</span> toAdd = <span class="keyword">new</span> List&lt;Object&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> <span class="keyword">file</span> <span class="keyword">in</span> Directory.GetFiles(folderPath, <span class="string">&quot;*&quot;</span>, SearchOption.AllDirectories))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (!<span class="keyword">file</span>.EndsWith(<span class="string">&quot;.png&quot;</span>) &amp;&amp; !<span class="keyword">file</span>.EndsWith(<span class="string">&quot;.jpg&quot;</span>)) <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 转换为相对于 Assets 的路径</span></span><br><span class="line">            <span class="built_in">string</span> relativePath = <span class="string">&quot;Assets&quot;</span> + <span class="keyword">file</span>.Replace(Application.dataPath, <span class="string">&quot;&quot;</span>).Replace(<span class="string">&quot;\\&quot;</span>, <span class="string">&quot;/&quot;</span>);</span><br><span class="line">            <span class="keyword">var</span> obj = AssetDatabase.LoadAssetAtPath&lt;Object&gt;(relativePath);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (obj != <span class="literal">null</span> &amp;&amp; !existing.Contains(obj))</span><br><span class="line">                toAdd.Add(obj);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (toAdd.Count &gt; <span class="number">0</span>)</span><br><span class="line">            atlas.Add(toAdd.ToArray());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="运行时动态检查-DrawCall（调试用）"><a href="#运行时动态检查-DrawCall（调试用）" class="headerlink" title="运行时动态检查 DrawCall（调试用）"></a>运行时动态检查 DrawCall（调试用）</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">if</span> UNITY_EDITOR</span></span><br><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.Profiling;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 挂到场景中，运行时在 Console 输出当前帧的渲染统计</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">DrawCallMonitor</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Update</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 需要在 Editor 的 Stats 面板查看，或通过 Profiler API</span></span><br><span class="line">        <span class="comment">// UnityStats 仅在编辑器下可用</span></span><br><span class="line">        <span class="keyword">if</span> (Time.frameCount % <span class="number">60</span> == <span class="number">0</span>) <span class="comment">// 每 60 帧输出一次</span></span><br><span class="line">        &#123;</span><br><span class="line">            Debug.Log(<span class="string">$&quot;[渲染统计] 帧: <span class="subst">&#123;Time.frameCount&#125;</span> | &quot;</span> +</span><br><span class="line">                      <span class="string">$&quot;已分配内存: <span class="subst">&#123;Profiler.GetTotalAllocatedMemoryLong() / <span class="number">1024</span> / <span class="number">1024</span>&#125;</span> MB&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<h1 id="注意事项与最佳实践"><a href="#注意事项与最佳实践" class="headerlink" title="注意事项与最佳实践"></a>注意事项与最佳实践</h1><h2 id="内存陷阱"><a href="#内存陷阱" class="headerlink" title="内存陷阱"></a>内存陷阱</h2><p>图集中只要有一个 Sprite 被引用，整张图集纹理都会加载进内存。所以图集的划分策略很关键：</p>
+<ul>
+<li>按功能模块划分（登录界面、大厅界面、战斗界面各一个图集）</li>
+<li>避免把低频资源和高频资源放在同一图集</li>
+<li>单个图集不要超过 2048×2048，超出部分 Unity 会自动忽略 MaxTextureSize 设置</li>
+</ul>
+<h2 id="合批失效的常见原因："><a href="#合批失效的常见原因：" class="headerlink" title="合批失效的常见原因："></a>合批失效的常见原因：</h2><ul>
+<li>两个 Sprite 来自不同图集</li>
+<li>中间插入了使用不同材质的对象（打断批次）</li>
+<li>开启了 Tight Packing 导致 UV 计算异常</li>
+</ul>
+<h1 id="Sprite-Atlas-和-Drawcall"><a href="#Sprite-Atlas-和-Drawcall" class="headerlink" title="Sprite Atlas 和 Drawcall"></a>Sprite Atlas 和 Drawcall</h1><p>Atlas 本身不减少 Draw Call，它是让 batching 成为可能的前提条件。</p>
+<h2 id="Sprite-Atlas"><a href="#Sprite-Atlas" class="headerlink" title="Sprite Atlas"></a>Sprite Atlas</h2><p>图集解决的是纹理问题，把多张小图合并成一张大图。<br>原来每个 sprite 用不同纹理 → 不同材质 → 每次渲染都要 SetPass Call 切换。合并后所有 sprite 共享同一张纹理 → 同一个材质 → 为后续 batching 创造条件。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">没有图集：</span><br><span class="line">  图标A (tex_a) → SetPass → Draw</span><br><span class="line">  图标B (tex_b) → SetPass → Draw   ← 纹理不同，必须切换</span><br><span class="line">  图标C (tex_c) → SetPass → Draw</span><br><span class="line"></span><br><span class="line">有图集：</span><br><span class="line">  图标A (atlas) → SetPass → Draw</span><br><span class="line">  图标B (atlas) →           Draw   ← 同一纹理，可以 batch</span><br><span class="line">  图标C (atlas) →           Draw</span><br></pre></td></tr></table></figure>
+
+<h2 id="Batching"><a href="#Batching" class="headerlink" title="Batching"></a>Batching</h2><p>Static Batching &#x2F; GPU Instancing 能合并 Draw Call，但不能合并 SetPass Call 。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// GPU Instancing：同一材质的100个物体(DrawCall x 100)</span><br><span class="line">SetPass Call × 1   ← 只切换一次状态</span><br><span class="line">Draw Call × 1      ← 合并成一次绘制（instanced）</span><br></pre></td></tr></table></figure>
+<p>而 Dynamic Batching 同时减少两者，因为它把多个 mesh 合并成一个，用同一个材质一次画完。</p>
+<ul>
+<li>Draw Call 多 → GPU 压力大</li>
+<li>SetPass Call 多 → CPU 压力大（状态切换开销）</li>
+<li>先降 SetPass Call（合并材质、用图集），再降 Draw Call（Batching、Instancing）</li>
+</ul>
+<p>Unity Stats 窗口里显示的 “SetPass Calls” 和 “Batches” 分别对应这两个指标，看这两个数比只看 Draw Call 更有参考价值。</p>
+<h2 id="Sprite-Atlas-如何减少-Draw-Call"><a href="#Sprite-Atlas-如何减少-Draw-Call" class="headerlink" title="Sprite Atlas 如何减少 Draw Call"></a>Sprite Atlas 如何减少 Draw Call</h2><p>Sprite Atlas 确实减少 Draw Call，但不是靠自己，而是靠触发 Dynamic Batching。</p>
+<p>Draw Call 能被合并的条件是：多个物体使用完全相同的材质（同 shader + 同纹理 + 同参数）。</p>
+<p>没有 Atlas 时：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">图标A → 材质A (tex_a)  ← 不同纹理 = 不同材质</span><br><span class="line">图标B → 材质B (tex_b)  ← 无法 batch</span><br><span class="line">图标C → 材质C (tex_c)  ← 3个 Draw Call</span><br></pre></td></tr></table></figure>
+
+<p>有了 Atlas，所有图标共享同一张纹理，材质变成一样的，Dynamic Batching 才能介入把它们合并：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">图标A → 材质X (atlas)  ← 同一材质</span><br><span class="line">图标B → 材质X (atlas)  ← Dynamic Batching 合并</span><br><span class="line">图标C → 材质X (atlas)  ← 1个 Draw Call</span><br></pre></td></tr></table></figure>
+
+<p>所以准确说法是：Atlas 统一了纹理，使 batching 成为可能，batching 才是真正减少 Draw Call 的那一步。 两者缺一不可。</p>
+<p>即使不考虑 Draw Call，Atlas 本身也有价值：</p>
+<ul>
+<li>减少纹理切换的 SetPass Call，这个开销比 Draw Call 更重</li>
+<li>减少内存碎片，GPU 显存里一张大图比十张小图更高效</li>
+<li>减少文件 IO，加载一张图比加载十张快</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>Atlas 的核心价值是”统一材质”，Draw Call 的减少是这个统一带来的副产品，真正执行合并的是 Dynamic Batching。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/24/AssetBundle-%E4%B8%8E-Addressables/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1513,222 +1661,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/03/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/03/03/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" class="post-title-link" itemprop="url">数据结构</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2026-03-03 13:48:16" itemprop="dateCreated datePublished" datetime="2026-03-03T13:48:16+08:00">2026-03-03</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-07-08 17:49:42" itemprop="dateModified" datetime="2026-07-08T17:49:42+08:00">2026-07-08</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="AVL树"><a href="#AVL树" class="headerlink" title="AVL树"></a>AVL树</h1><p>平衡树：一棵包含 N 个节点的平衡树，其树高 h 始终保持在 O(log N) 的量级。<br>AVL是平衡树的一种，平衡条件非常严格。它要求任何节点的左右子树高度差的绝对值不能超过1。</p>
-<ol>
-<li>空二叉树是一个 AVL 树</li>
-<li>如果 T 是一棵 AVL 树，那么其左右子树也是 AVL 树，并且 |ℎ(𝑙𝑠) −ℎ(𝑟𝑠)| ≤1，h 是其左右子树的高度</li>
-<li>树高为 𝑂(log ⁡𝑛)</li>
-</ol>
-<p>平衡因子：右子树高度 - 左子树高度</p>
-<hr>
-<h1 id="红黑树"><a href="#红黑树" class="headerlink" title="红黑树"></a>红黑树</h1><p>首先，红黑树是一个二叉搜索树，它在每个节点增加了一个存储位记录节点的颜色，可以是RED,也可以是BLACK<br>通过任意一条从根到叶子简单路径上颜色的约束，红黑树保证最长路径不超过最短路径的二倍，因而近似平衡（最短路径就是全黑节点，最长路径就是一个红节点一个黑节点，当从根节点到叶子节点的路径上黑色节点相同时，最长路径刚好是最短路径的两倍）</p>
-<p>红黑树满足以下特性：</p>
-<ol>
-<li>节点是红色或黑色</li>
-<li>根是黑色</li>
-<li>叶子节点（外部节点，空节点）都是黑色，这里的叶子节点指的是最底层的空节点（外部节点），即null节点才是叶子节点，null节点的父节点在红黑树里不将其看作叶子节点</li>
-<li>红色节点的子节点都是黑色，红色节点的父节点都是黑色</li>
-<li>从根节点到叶子节点的所有路径上不能有 2 个连续的红色节点</li>
-<li>从任一节点到叶子节点的所有路径都包含相同数目的黑色节点</li>
-</ol>
-<hr>
-<h1 id="并查集"><a href="#并查集" class="headerlink" title="并查集"></a>并查集</h1><p>并查集是一种用于管理元素所属集合的数据结构，实现为一个森林，其中每棵树表示一个集合，树中的节点表示对应集合中的元素</p>
-<p>并查集支持以下两种操作：</p>
-<ul>
-<li>合并（Unite）：合并两个元素所属集合（合并对应的树）。</li>
-<li>查询（Find）：查询某个元素所属集合（查询对应的树的根节点），这可以用于判断两个元素是否属于同一集合。</li>
-</ul>
-<h2 id="路经压缩"><a href="#路经压缩" class="headerlink" title="路经压缩"></a>路经压缩</h2><p>如果查询过程中经过的每个元素都属于该集合，我们可以将其直接连到根节点以加快后续查询。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// assignment expression </span></span><br><span class="line"><span class="comment">// size_t a; size_t b = (a = 10);</span></span><br><span class="line"><span class="function"><span class="type">size_t</span> <span class="title">dsu::find</span><span class="params">(<span class="type">size_t</span> x)</span> </span>&#123; <span class="keyword">return</span> pa[x] == x ? x : pa[x] = <span class="built_in">find</span>(pa[x]); &#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h1 id="kd-树（k-d-tree）"><a href="#kd-树（k-d-tree）" class="headerlink" title="kd 树（k-d tree）"></a>kd 树（k-d tree）</h1><p>数据驱动 (Data-Driven) 的空间划分。k-d树的分割线（或分割面）的位置，是由数据点本身的位置决定的，目标是让分割后的两个子空间包含大致相同数量的点。<br>每个节点按一个维度（2D：x 或 y，3D：x&#x2F;y&#x2F;z）把空间分成两半<br>节点保存一个点&#x2F;对象，左子树保存该维度值更小的点，右子树保存更大的点</p>
-<h2 id="构建方式"><a href="#构建方式" class="headerlink" title="构建方式"></a>构建方式</h2><ol>
-<li>选维度: 从 X 轴开始。</li>
-<li>找到中位数: 在所有数据点中，找到 X 坐标的中位数。</li>
-<li>划分: 以这个中位数点的 X 坐标为界，画一条垂直于 X 轴的分割线（平面）。<ul>
-<li>X 坐标小于该值的点，归入左子树。</li>
-<li>X 坐标大于等于该值的点，归入右子树。</li>
-</ul>
-</li>
-<li>递归与交替维度:（3维的话是 x -&gt; y -&gt; z -&gt; x -&gt; …）<ul>
-<li>对左子树和右子树，重复上述过程，但这次切换到 Y 轴。</li>
-<li>下一层再切换回 X 轴，如此循环，交替使用不同的维度进行划分。</li>
-</ul>
-</li>
-<li>结束: 直到每个子区域只包含一个点，或达到预设的叶子节点容量。</li>
-</ol>
-<p>结果是一个平衡树，构建复杂度 O(N log N)</p>
-<h2 id="最近邻查询"><a href="#最近邻查询" class="headerlink" title="最近邻查询"></a>最近邻查询</h2><p>递归访问树，先搜索查询点所在的那一侧<br>回溯时比较当前最优距离与另一侧超平面距离<br>如果另一侧可能存在更近点，则前往另一侧(进入这个子树，重复上面的递归搜索过程)继续搜索<br>查 top-K 时可维护一个大小为 K 的最大堆，剪枝条件是当前节点距离是否小于堆顶距离</p>
-<h2 id="更新方式"><a href="#更新方式" class="headerlink" title="更新方式"></a>更新方式</h2><p>插入</p>
-<ul>
-<li>直接沿树下降，到叶子插入新点</li>
-<li>不做重平衡，平均 O(log N)，但随着插入会变得不平衡</li>
-</ul>
-<p>删除</p>
-<ul>
-<li>可把节点标记为“已删除”</li>
-<li>或用后继&#x2F;前驱点替换当前节点并递归删除</li>
-</ul>
-<p>动态维护</p>
-<ul>
-<li>简单方案：批量更新后重建整个 kd 树</li>
-<li>常见做法：周期性重建，或者在插入&#x2F;删除累计到一定阈值后重建</li>
-</ul>
-<p>适用场景</p>
-<ul>
-<li>点集较静态或更新较少</li>
-<li>适合近邻搜索、点查询</li>
-</ul>
-<hr>
-<h1 id="四叉树"><a href="#四叉树" class="headerlink" title="四叉树"></a>四叉树</h1><p>空间驱动 (Space-Driven) 的划分。四叉树的分割方式是固定的，它只关心空间本身，而不管空间里有什么数据。<br>每个节点对应一个轴对齐的矩形&#x2F;正方形区域，如果区域内点数超过阈值，则分成 4 个子象限<br>分割线永远是区域的正中线。最终划分出的子空间是大小可能不同、但形状永远是正方形的网格。</p>
-<h2 id="构建方式-1"><a href="#构建方式-1" class="headerlink" title="构建方式"></a>构建方式</h2><ol>
-<li>定义边界: 从一个包含所有数据点的巨大正方形（根节点区域）开始。</li>
-<li>划分: 将这个正方形均匀地分割成四个等大的子正方形（象限）：西北、东北、西南、东南。这四个子正方形成为根节点的四个子节点。</li>
-<li>递归:<ul>
-<li>对于每个子节点，检查其中包含的数据点数量。</li>
-<li>如果数量大于某个阈值（比如1），或者区域的尺寸还很大，就再次将其均分成四个更小的正方形。</li>
-<li>如果数量小于等于阈值，或者区域已经很小，则停止分裂，该节点成为叶子节点。</li>
-</ul>
-</li>
-<li>数据归属: 每个数据点根据其坐标，被存储在完全包含它的、尺寸最小的那个叶子节点中。</li>
-</ol>
-<h2 id="最近邻查询-1"><a href="#最近邻查询-1" class="headerlink" title="最近邻查询"></a>最近邻查询</h2><p>从根开始遍历<br>按与查询点距离排序子节点访问顺序<br>对每个子节点计算该区域到查询点的最小可能距离<br>如果最小距离比当前最远候选距离大，则剪枝<br>对于 top-K，维护候选列表并持续剪枝</p>
-<h2 id="更新方式-1"><a href="#更新方式-1" class="headerlink" title="更新方式"></a>更新方式</h2><p>插入</p>
-<ul>
-<li>找到点所属的叶节点并加入</li>
-<li>若点数超阈值，分裂该叶节点</li>
-</ul>
-<p>删除</p>
-<ul>
-<li>从对应叶节点删除点</li>
-<li>如果节点和兄弟节点合并后点数低于阈值，可回收子节点，合并成父节点</li>
-</ul>
-<p>移动对象</p>
-<ul>
-<li>先从旧格子删除，再重新插入新位置</li>
-<li>若对象移动量不大，可使用“松散四叉树”（loose quadtree）减少频繁重插入</li>
-</ul>
-<p>适用场景</p>
-<ul>
-<li>2D 空间、区域查询、碰撞检测、动态场景</li>
-<li>对于分布不均匀、局部聚集的点特别有效</li>
-</ul>
-<hr>
-<h1 id="BVH-Bounding-Volume-Hierarchy-包围盒层级"><a href="#BVH-Bounding-Volume-Hierarchy-包围盒层级" class="headerlink" title="BVH (Bounding Volume Hierarchy) &#x2F; 包围盒层级"></a>BVH (Bounding Volume Hierarchy) &#x2F; 包围盒层级</h1><p>对单位按区域构建层级包围盒（AABB），按包围盒层级组织，适合先过滤远物体再精细排序<br>适合移动对象少、查询多的场景<br>查询时先过滤掉远离的盒子：如果这个盒子比当前队列（大顶堆）中的最远距离还要远，那么不考虑这个盒子</p>
-<h2 id="构建方式-2"><a href="#构建方式-2" class="headerlink" title="构建方式"></a>构建方式</h2><ol>
-<li>准备叶子对象：每个对象先计算自己的AABB和中心点（centroid）</li>
-<li>建根节点：根节点包围所有对象的总 AABB</li>
-<li>递归分裂：<ul>
-<li>终止条件为对象数 &lt;&#x3D; leaf_size（如 4&#x2F;8）或树深度到上限。</li>
-<li>否则继续分裂：选最长轴 + 中位数切分（快，质量一般），或者 SAH 选轴和切分位置（慢些，但查询更快）。</li>
-</ul>
-</li>
-<li>生成子节点：左右子集分别求 AABB，继续递归</li>
-<li>叶子存索引：叶节点保存对象索引范围（而不是拷贝对象）。<ul>
-<li>“保存索引范围” 通常建立在 “构建时把对象重排成连续段”这个前提上</li>
-<li>如果不重排，那就需要存一个显式索引列表（vector&#x2F;list），代价是内存和访问局部性通常更差。</li>
-</ul>
-</li>
-</ol>
-<h2 id="最近邻查询-2"><a href="#最近邻查询-2" class="headerlink" title="最近邻查询"></a>最近邻查询</h2><ol>
-<li>准备两个堆，lb &#x3D; dist_lower_bound<ul>
-<li>nodePQ：最小堆，键是 dist_lb(query, node.bbox)（点到 AABB 的最小可能距离）。</li>
-<li>ansPQ：最大堆，存当前前 k 个候选点（堆顶是当前最差的那个，距离 dmax）。</li>
-</ul>
-</li>
-<li>初始化<ul>
-<li>把根节点放进 nodePQ</li>
-<li>dmax &#x3D; +inf（当 ansPQ 满 k 后，dmax 变为堆顶距离）。</li>
-</ul>
-</li>
-<li>循环弹出 nodePQ 里下界最小的节点 (lb, node)，若 lb &gt; dmax，可直接停止，因为后面节点下界只会更大，不可能更优<ul>
-<li>若是内部节点：计算左右子节点 lbL&#x2F;lbR，只把 lb &lt;&#x3D; dmax 的子节点入堆</li>
-<li>若是叶节点：逐个计算真实距离 d(query, point)，若 ansPQ 未满就放入；满了且 d &lt; dmax 就替换堆顶</li>
-</ul>
-</li>
-<li>结束，ansPQ里就是KNN</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1806,7 +1738,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">45</span>
+          <span class="site-state-item-count">46</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

@@ -161,6 +161,171 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/07/24/UGUI%E5%92%8CUI-Toolkit/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/07/24/UGUI%E5%92%8CUI-Toolkit/" class="post-title-link" itemprop="url">UGUI和UI Toolkit</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2026-07-24 17:03:05" itemprop="dateCreated datePublished" datetime="2026-07-24T17:03:05+08:00">2026-07-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-07-29 20:36:48" itemprop="dateModified" datetime="2026-07-29T20:36:48+08:00">2026-07-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="核心架构差异"><a href="#核心架构差异" class="headerlink" title="核心架构差异"></a>核心架构差异</h1><p><strong>UGUI：每个 UI 元素是一个 GameObject</strong></p>
+<ul>
+<li>UI 就是场景里的 GameObject，挂 RectTransform + Canvas Renderer + 各种组件（Image、Text、Button…）。</li>
+<li>一个复杂界面 &#x3D; 成百上千个 GameObject，纳入正常的场景层级、Prefab 系统。</li>
+<li>优点：概念统一，和场景其它对象一致，容易理解、容易挂脚本。</li>
+<li>缺点：GameObject&#x2F;Component 开销大，元素多了内存和遍历成本高。</li>
+</ul>
+<p><strong>UI Toolkit：一棵轻量的 VisualElement 树</strong></p>
+<ul>
+<li>UI 是一棵 VisualElement 树，不是 GameObject，是纯 C# 轻量对象。</li>
+<li>结构（UXML）、样式（USS）、逻辑（C#）三者分离，像 Web 的 HTML&#x2F;CSS&#x2F;JS。</li>
+<li>优点：元素轻量，海量元素也省内存；结构&#x2F;样式&#x2F;逻辑解耦。</li>
+<li>缺点：不在场景层级里，不能直接给单个元素挂 MonoBehaviour，思路要转变。</li>
+</ul>
+<h1 id="渲染机制"><a href="#渲染机制" class="headerlink" title="渲染机制"></a>渲染机制</h1><p>UGUI的渲染单元是Canvas，按 Canvas 合批</p>
+<ul>
+<li>合批：依赖 Canvas 内元素的层级&#x2F;材质，容易被打断，需手动优化（拆 Canvas、图集）</li>
+<li>重建：一个元素变化可能触发整个 Canvas rebuild（著名的性能坑）</li>
+</ul>
+<p>UI Toolkit的渲染单元是统一的 UIR（UI Renderer）网格系统</p>
+<ul>
+<li>合批：通过引擎自动生成网格并合批，通常 drawcall 更少</li>
+<li>重建：局部脏标记，只重建变化部分</li>
+</ul>
+<h1 id="更新UI样式"><a href="#更新UI样式" class="headerlink" title="更新UI样式"></a>更新UI样式</h1><p>UGUI的样式序列化在每个GameObject&#x2F;组件字段上</p>
+<ul>
+<li>复用：改一处只影响一个游戏对象，批量改要靠 Prefab 或脚本</li>
+<li>热重载：组件字段改了即时可见（Inspector）</li>
+<li>逻辑分离：样式和结构混在场景&#x2F;预制体里</li>
+</ul>
+<p>UI Toolkit的样式存保存于独立的 USS 文本文件中</p>
+<ul>
+<li>复用：一个选择器（class）改一处，所有匹配元素全局生效</li>
+<li>热重载：存盘热重载，且可运行时动态换 USS</li>
+<li>逻辑分离：样式（USS）&#x2F;结构（UXML）&#x2F;逻辑（C#）三文件分离</li>
+</ul>
+<p>UI Toolkit 让”改样式”变成改一个集中的、可选择器批量作用、可热重载、可运行时切换的文本文件，且和 C# 逻辑彻底分离</p>
+<p>样式和结构可以脱离 C# 迭代，但数据源和逻辑仍在 C# 里:</p>
+<ul>
+<li>纯视觉（颜色、间距、字体、布局、:hover 效果）→ 改 USS 即可，不碰 C#。</li>
+<li>改结构（增删元素、换控件）→ 改 UXML，通常也不用重编译 C#（如果不新增需要 C# 引用的元素）。</li>
+<li>改数据绑定关系：如果绑定写在 UXML 里，改绑定路径也不用重编译；但如果绑定写在 C# 里（SetBinding(…)），那就要重编译。</li>
+<li>改 ViewModel &#x2F; [CreateProperty] 属性 &#x2F; 业务逻辑 → 必须重编译 C#。</li>
+</ul>
+<hr>
+<h1 id="数据绑定"><a href="#数据绑定" class="headerlink" title="数据绑定"></a>数据绑定</h1><p>UGUI 根本没有内置数据绑定系统。你在 UGUI 里做的所有”数据显示到 UI”都是手写命令式代码。<br>UI Toolkit（Unity 6 起）则提供了声明式的数据绑定。所以优势不是”绑定做得更好”，而是”从无到有”。</p>
+<h2 id="UGUI-的写法（命令式，手动同步）"><a href="#UGUI-的写法（命令式，手动同步）" class="headerlink" title="UGUI 的写法（命令式，手动同步）"></a>UGUI 的写法（命令式，手动同步）</h2><figure class="highlight cs"><figcaption><span>在Player类中手动引用healthSlider和实现更新</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Player</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> health = <span class="number">100</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> maxHealth = <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Slider healthSlider;   <span class="comment">// 拖引用</span></span><br><span class="line">    <span class="keyword">public</span> Text healthLabel;      <span class="comment">// 拖引用</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">TakeDamage</span>(<span class="params"><span class="built_in">int</span> dmg</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        health -= dmg;</span><br><span class="line">        RefreshUI();   <span class="comment">// 每次改数据都得记得手动刷新</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">RefreshUI</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        healthSlider.<span class="keyword">value</span> = (<span class="built_in">float</span>)health / maxHealth;</span><br><span class="line">        healthLabel.text  = <span class="string">$&quot;<span class="subst">&#123;health&#125;</span>/<span class="subst">&#123;maxHealth&#125;</span>&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>数据和 UI 强耦合：Player 逻辑类里塞了 Slider&#x2F;Text 引用。</li>
+<li>容易漏刷新：任何地方改了 health 都得记得调 RefreshUI()，漏一处就显示错。</li>
+<li>UI 引用靠拖拽：换了 UI 结构容易丢引用、报 NullReference。</li>
+</ul>
+<h2 id="UI-Toolkit-的写法（声明式，自动同步）"><a href="#UI-Toolkit-的写法（声明式，自动同步）" class="headerlink" title="UI Toolkit 的写法（声明式，自动同步）"></a>UI Toolkit 的写法（声明式，自动同步）</h2><figure class="highlight cs"><figcaption><span>数据源（纯数据，不知道 UI 的存在）</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">PlayerViewModel</span> : <span class="title">INotifyBindablePropertyChanged</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">int</span> _health = <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">CreateProperty</span>]</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> Health</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; _health;</span><br><span class="line">        <span class="keyword">set</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (_health == <span class="keyword">value</span>) <span class="keyword">return</span>;</span><br><span class="line">            _health = <span class="keyword">value</span>;</span><br><span class="line">            Notify(); <span class="comment">// 只管喊一声&quot;我变了&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">CreateProperty</span>]</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">float</span> HealthRatio =&gt; _health / <span class="number">100f</span>; <span class="comment">// 派生属性也能绑</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">event</span> EventHandler&lt;BindablePropertyChangedEventArgs&gt; propertyChanged;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">Notify</span>(<span class="params">[CallerMemberName] <span class="built_in">string</span> name = <span class="string">&quot;&quot;</span></span>)</span> &#123;</span><br><span class="line">        propertyChanged?.Invoke(<span class="keyword">this</span>, <span class="keyword">new</span> BindablePropertyChangedEventArgs(name));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cs"><figcaption><span>绑定（一次性建立，之后自动同步）</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> vm = <span class="keyword">new</span> PlayerViewModel();</span><br><span class="line">root.dataSource = vm;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> bar = root.Q&lt;ProgressBar&gt;(<span class="string">&quot;healthBar&quot;</span>);</span><br><span class="line">bar.SetBinding(<span class="string">&quot;value&quot;</span>, <span class="keyword">new</span> DataBinding</span><br><span class="line">&#123;</span><br><span class="line">    dataSourcePath = <span class="keyword">new</span> PropertyPath(<span class="keyword">nameof</span>(PlayerViewModel.HealthRatio)),</span><br><span class="line">    bindingMode = BindingMode.ToTarget</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> label = root.Q&lt;Label&gt;(<span class="string">&quot;healthLabel&quot;</span>);</span><br><span class="line">label.SetBinding(<span class="string">&quot;text&quot;</span>, <span class="keyword">new</span> DataBinding</span><br><span class="line">&#123;</span><br><span class="line">    dataSourcePath = <span class="keyword">new</span> PropertyPath(<span class="keyword">nameof</span>(PlayerViewModel.Health)),</span><br><span class="line">    bindingMode = BindingMode.ToTarget</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>之后业务代码只写 vm.Health -&#x3D; 10;，血条和文字自动更新。逻辑层再也不碰任何 UI 引用。<br>这些绑定也可以直接写在 UXML 里，做到 UI 结构和绑定关系纯声明式、和 C# 逻辑完全分离。</p>
+<h2 id="UI-Toolkit的数据绑定优势"><a href="#UI-Toolkit的数据绑定优势" class="headerlink" title="UI Toolkit的数据绑定优势"></a>UI Toolkit的数据绑定优势</h2><ol>
+<li>解耦：数据源（ViewModel）完全不知道 UI 存在，可单独测试、复用。</li>
+<li>声明式 + 少样板：绑定关系集中声明（甚至写在 UXML），不用到处写刷新代码，也不会漏刷新。</li>
+<li>双向绑定：BindingMode.TwoWay，输入框改了值自动回写数据源，UGUI InputField得手动写 onValueChanged 回调。</li>
+<li>无反射、低 GC：底层用 Unity.Properties（[CreateProperty]），不走反射，运行时开销小。</li>
+<li>派生属性&#x2F;转换器：可以绑派生属性或加 converter 做格式转换（如 100 → “100&#x2F;100”），不用在数据里存冗余字段。</li>
+</ol>
+<p>UI Toolkit 真正的工作流优势在于三层各自独立迭代：</p>
+<ul>
+<li>USS (Styles) → 美术&#x2F;UI 改，热重载，不碰 C#</li>
+<li>UXML (Structure) → 布局&#x2F;绑定调整，多数不碰 C#</li>
+<li>C# (ViewModel) → 程序改数据源，需重编译</li>
+</ul>
+<p>而 UGUI 里，样式（组件字段）、结构（Prefab 层级）、刷新逻辑（C# 里的 RefreshUI）纠缠在一起，想修改外观往往还是要回到 C# 手动加刷新代码。</p>
+<h2 id="UGUI-用-INotifyPropertyChanged数据绑定"><a href="#UGUI-用-INotifyPropertyChanged数据绑定" class="headerlink" title="UGUI 用 INotifyPropertyChanged数据绑定"></a>UGUI 用 INotifyPropertyChanged数据绑定</h2><p>INotifyPropertyChanged 本身只是一个”我变了”的通知接口，它不会自动更新任何 UI。<br>要在 UGUI 上复现 UI Toolkit 的体验，你需要自己写一个绑定层：</p>
+<figure class="highlight cs"><figcaption><span>手动写这样的桥接组件，每个属性一个</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TextBinder</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> Text target;</span><br><span class="line">    INotifyPropertyChanged _source;</span><br><span class="line">    <span class="built_in">string</span> _propName;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Bind</span>(<span class="params">INotifyPropertyChanged src, <span class="built_in">string</span> propName</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _source = src;</span><br><span class="line">        _propName = propName;</span><br><span class="line">        src.PropertyChanged += OnChanged;</span><br><span class="line">        UpdateNow();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnChanged</span>(<span class="params"><span class="built_in">object</span> s, PropertyChangedEventArgs e</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (e.PropertyName == _propName) UpdateNow();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">UpdateNow</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 还得用反射或委托去取值</span></span><br><span class="line">        <span class="keyword">var</span> val = _source.GetType().GetProperty(_propName).GetValue(_source);</span><br><span class="line">        target.text = val.ToString();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnDestroy</span>()</span> &#123; <span class="keyword">if</span> (_source != <span class="literal">null</span>) _source.PropertyChanged -= OnChanged; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，用 INotifyPropertyChanged 你需要自己解决：</p>
+<ul>
+<li>取值&#x2F;赋值：要么反射（有 GC 和性能开销），要么每个属性写委托；UI Toolkit 用 Unity.Properties 免了这层。</li>
+<li>绑定注册&#x2F;注销：手动管理事件订阅，注意 OnDestroy 里退订，否则内存泄漏。</li>
+<li>双向绑定：还得反向监听 UI 的 onValueChanged 再写回，自己防循环更新。</li>
+<li>每种控件&#x2F;属性都要写对应 binder。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/06/04/K%E8%BF%91%E9%82%BB%E6%90%9C%E7%B4%A2%E9%97%AE%E9%A2%98/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1230,10 +1395,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-04-13 13:23:57 / Modified: 13:34:15" itemprop="dateCreated datePublished" datetime="2026-04-13T13:23:57+08:00">2026-04-13</time>
+              <time title="Created: 2026-04-13 13:23:57" itemprop="dateCreated datePublished" datetime="2026-04-13T13:23:57+08:00">2026-04-13</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-07-24 17:04:31" itemprop="dateModified" datetime="2026-07-24T17:04:31+08:00">2026-07-24</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -1668,154 +1839,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/25/Sprite-Atlas-%E5%9B%BE%E9%9B%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/03/25/Sprite-Atlas-%E5%9B%BE%E9%9B%86/" class="post-title-link" itemprop="url">Sprite Atlas 图集</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2026-03-25 17:02:10" itemprop="dateCreated datePublished" datetime="2026-03-25T17:02:10+08:00">2026-03-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-03-30 10:05:05" itemprop="dateModified" datetime="2026-03-30T10:05:05+08:00">2026-03-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Sprite-Atlas-图集"><a href="#Sprite-Atlas-图集" class="headerlink" title="Sprite Atlas 图集"></a>Sprite Atlas 图集</h1><p>把多张小纹理合并成一张大纹理，GPU 渲染时所有引用该图集的 Sprite 共享同一张纹理，满足合批条件，从而将多个 DrawCall 合并为一个。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">未使用图集：</span><br><span class="line">  Sprite A（texture_a.png）→ DrawCall 1</span><br><span class="line">  Sprite B（texture_b.png）→ DrawCall 2</span><br><span class="line">  Sprite C（texture_c.png）→ DrawCall 3</span><br><span class="line"></span><br><span class="line">使用图集后：</span><br><span class="line">  Sprite A ─┐</span><br><span class="line">  Sprite B ─┼─ atlas.png → DrawCall 1（合批）</span><br><span class="line">  Sprite C ─┘</span><br></pre></td></tr></table></figure>
-
-<p>除了减少 DrawCall，图集还有两个底层优化：</p>
-<ul>
-<li>GPU 处理 2 的幂次方尺寸的纹理效率更高，图集会自动将小图打包成符合规范的大图</li>
-<li>多张小图的磁盘占用通常大于一张合并后的大图（压缩算法在大块连续数据上效率更高）</li>
-</ul>
-<p>Unity中的图集有2种类型</p>
-<ul>
-<li>Master（主图集）：标准图集，包含实际资源</li>
-<li>Variant（变体图集）：引用主图集内容，通过 Scale 缩放生成不同分辨率版本，适合高清&#x2F;低清资源切换场景</li>
-</ul>
-<h1 id="代码用例"><a href="#代码用例" class="headerlink" title="代码用例"></a>代码用例</h1><h2 id="运行时加载图集（Resources）"><a href="#运行时加载图集（Resources）" class="headerlink" title="运行时加载图集（Resources）"></a>运行时加载图集（Resources）</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.UI;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.U2D;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AtlasLoader</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> Image[] _images;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 从 Resources 文件夹加载图集</span></span><br><span class="line">        SpriteAtlas atlas = Resources.Load&lt;SpriteAtlas&gt;(<span class="string">&quot;UI/MainAtlas&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (atlas == <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(<span class="string">&quot;图集加载失败，检查路径是否正确&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// GetSprite 传入的是打包时的文件名（不含扩展名）</span></span><br><span class="line">        <span class="comment">// Single 模式：直接传文件名，如 &quot;icon_sword&quot;</span></span><br><span class="line">        <span class="comment">// Multiple 模式（Sprite Sheet）：传 &quot;文件名_索引&quot;，如 &quot;icon_sword_0&quot;</span></span><br><span class="line">        _images[<span class="number">0</span>].sprite = atlas.GetSprite(<span class="string">&quot;icon_sword&quot;</span>);</span><br><span class="line">        _images[<span class="number">1</span>].sprite = atlas.GetSprite(<span class="string">&quot;icon_shield&quot;</span>);</span><br><span class="line">        _images[<span class="number">2</span>].sprite = atlas.GetSprite(<span class="string">&quot;icon_potion&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="从-AssetBundle-加载图集"><a href="#从-AssetBundle-加载图集" class="headerlink" title="从 AssetBundle 加载图集"></a>从 AssetBundle 加载图集</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.UI;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.U2D;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AtlasFromAB</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> Image _targetImage;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">string</span> bundlePath = Application.streamingAssetsPath + <span class="string">&quot;/AssetBundles/ui_atlas&quot;</span>;</span><br><span class="line">        AssetBundle bundle = AssetBundle.LoadFromFile(bundlePath);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (bundle == <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(<span class="string">&quot;AB 包加载失败&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        SpriteAtlas atlas = bundle.LoadAsset&lt;SpriteAtlas&gt;(<span class="string">&quot;MainAtlas&quot;</span>);</span><br><span class="line">        _targetImage.sprite = atlas.GetSprite(<span class="string">&quot;icon_sword&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 图集资源已提取，可以卸载包体（false = 保留已加载资源）</span></span><br><span class="line">        bundle.Unload(<span class="literal">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="后期绑定（Late-Binding）"><a href="#后期绑定（Late-Binding）" class="headerlink" title="后期绑定（Late Binding）"></a>后期绑定（Late Binding）</h2><p>当图集未勾选 Include in Build 时，必须手动监听 atlasRequested 事件，否则引用该图集的 Sprite 会显示为空白。</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.U2D;</span><br><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 挂载到场景中持久存在的对象上（如 GameManager）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AtlasLateBinding</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnEnable</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 注册图集请求事件</span></span><br><span class="line">        SpriteAtlasManager.atlasRequested += OnAtlasRequested;</span><br><span class="line">        <span class="comment">// 可选：图集注册完成后的回调</span></span><br><span class="line">        SpriteAtlasManager.atlasRegistered += OnAtlasRegistered;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnDisable</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        SpriteAtlasManager.atlasRequested -= OnAtlasRequested;</span><br><span class="line">        SpriteAtlasManager.atlasRegistered -= OnAtlasRegistered;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Unity 找不到图集时触发，atlasName 是图集名称</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnAtlasRequested</span>(<span class="params"><span class="built_in">string</span> atlasName, Action&lt;SpriteAtlas&gt; callback</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">$&quot;请求图集: <span class="subst">&#123;atlasName&#125;</span>&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 从 Resources 加载（也可以换成 AB 包加载）</span></span><br><span class="line">        SpriteAtlas atlas = Resources.Load&lt;SpriteAtlas&gt;(atlasName);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (atlas != <span class="literal">null</span>)</span><br><span class="line">            callback(atlas); <span class="comment">// 把图集交还给 Unity</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            Debug.LogError(<span class="string">$&quot;找不到图集: <span class="subst">&#123;atlasName&#125;</span>&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnAtlasRegistered</span>(<span class="params">SpriteAtlas atlas</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">$&quot;图集已注册: <span class="subst">&#123;atlas.name&#125;</span>&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Editor-工具：自动打包图集"><a href="#Editor-工具：自动打包图集" class="headerlink" title="Editor 工具：自动打包图集"></a>Editor 工具：自动打包图集</h2><p>这个工具会遍历指定目录，按文件夹自动创建并更新图集，适合团队统一管理图集资源。</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 必须放在 Editor 文件夹下</span></span><br><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Collections.Generic;</span><br><span class="line"><span class="keyword">using</span> System.IO;</span><br><span class="line"><span class="keyword">using</span> UnityEditor;</span><br><span class="line"><span class="keyword">using</span> UnityEditor.U2D;</span><br><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.U2D;</span><br><span class="line"><span class="keyword">using</span> Object = UnityEngine.Object;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SpriteAtlasBuilder</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 需要打包的图片根目录（每个子文件夹对应一个图集）</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">readonly</span> <span class="built_in">string</span> SourceRoot = Application.dataPath + <span class="string">&quot;/Art/Sprites/&quot;</span>;</span><br><span class="line">    <span class="comment">// 图集输出目录</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">readonly</span> <span class="built_in">string</span> OutputPath = <span class="string">&quot;Assets/Art/Atlases/&quot;</span>;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">MenuItem(<span class="string">&quot;Tools/Build Sprite Atlases&quot;</span>)</span>]</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">BuildAll</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (!Directory.Exists(SourceRoot))</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(<span class="string">$&quot;源目录不存在: <span class="subst">&#123;SourceRoot&#125;</span>&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Directory.CreateDirectory(OutputPath.Replace(<span class="string">&quot;Assets/&quot;</span>, Application.dataPath + <span class="string">&quot;/&quot;</span>).Replace(<span class="string">&quot;Assets&quot;</span>, <span class="string">&quot;&quot;</span>));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> dirs = <span class="keyword">new</span> DirectoryInfo(SourceRoot).GetDirectories();</span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; dirs.Length; i++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> dir = dirs[i];</span><br><span class="line">            EditorUtility.DisplayProgressBar(<span class="string">&quot;打包图集&quot;</span>, <span class="string">$&quot;处理: <span class="subst">&#123;dir.Name&#125;</span>&quot;</span>, (<span class="built_in">float</span>)i / dirs.Length);</span><br><span class="line"></span><br><span class="line">            <span class="built_in">string</span> atlasPath = OutputPath + dir.Name + <span class="string">&quot;.spriteatlas&quot;</span>;</span><br><span class="line">            SpriteAtlas atlas = AssetDatabase.LoadAssetAtPath&lt;SpriteAtlas&gt;(atlasPath)</span><br><span class="line">                                ?? CreateAtlas(atlasPath);</span><br><span class="line"></span><br><span class="line">            UpdateAtlasContent(atlas, SourceRoot + dir.Name);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        EditorUtility.ClearProgressBar();</span><br><span class="line">        AssetDatabase.SaveAssets();</span><br><span class="line">        AssetDatabase.Refresh();</span><br><span class="line">        Debug.Log(<span class="string">&quot;图集打包完成&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> SpriteAtlas <span class="title">CreateAtlas</span>(<span class="params"><span class="built_in">string</span> savePath</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> atlas = <span class="keyword">new</span> SpriteAtlas();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 基础打包设置</span></span><br><span class="line">        atlas.SetPackingSettings(<span class="keyword">new</span> SpriteAtlasPackingSettings</span><br><span class="line">        &#123;</span><br><span class="line">            blockOffset = <span class="number">1</span>,</span><br><span class="line">            enableRotation = <span class="literal">false</span>,    <span class="comment">// 禁止旋转，避免 UI 显示异常</span></span><br><span class="line">            enableTightPacking = <span class="literal">false</span>, <span class="comment">// 禁止紧密排列，避免图片边缘互相干扰</span></span><br><span class="line">            padding = <span class="number">4</span>,</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 纹理设置</span></span><br><span class="line">        atlas.SetTextureSettings(<span class="keyword">new</span> SpriteAtlasTextureSettings</span><br><span class="line">        &#123;</span><br><span class="line">            readable = <span class="literal">false</span>,</span><br><span class="line">            generateMipMaps = <span class="literal">false</span>,</span><br><span class="line">            sRGB = <span class="literal">true</span>,</span><br><span class="line">            filterMode = FilterMode.Bilinear,</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Android 平台压缩格式</span></span><br><span class="line">        <span class="keyword">var</span> androidSettings = atlas.GetPlatformSettings(<span class="string">&quot;Android&quot;</span>);</span><br><span class="line">        androidSettings.overridden = <span class="literal">true</span>;</span><br><span class="line">        androidSettings.maxTextureSize = <span class="number">2048</span>;</span><br><span class="line">        androidSettings.format = TextureImporterFormat.ASTC_6x6;</span><br><span class="line">        atlas.SetPlatformSettings(androidSettings);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// iOS 平台压缩格式</span></span><br><span class="line">        <span class="keyword">var</span> iosSettings = atlas.GetPlatformSettings(<span class="string">&quot;iPhone&quot;</span>);</span><br><span class="line">        iosSettings.overridden = <span class="literal">true</span>;</span><br><span class="line">        iosSettings.maxTextureSize = <span class="number">2048</span>;</span><br><span class="line">        iosSettings.format = TextureImporterFormat.PVRTC_RGB4;</span><br><span class="line">        atlas.SetPlatformSettings(iosSettings);</span><br><span class="line"></span><br><span class="line">        AssetDatabase.CreateAsset(atlas, savePath);</span><br><span class="line">        <span class="keyword">return</span> atlas;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">UpdateAtlasContent</span>(<span class="params">SpriteAtlas atlas, <span class="built_in">string</span> folderPath</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> existing = <span class="keyword">new</span> HashSet&lt;Object&gt;(atlas.GetPackables());</span><br><span class="line">        <span class="keyword">var</span> toAdd = <span class="keyword">new</span> List&lt;Object&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> <span class="keyword">file</span> <span class="keyword">in</span> Directory.GetFiles(folderPath, <span class="string">&quot;*&quot;</span>, SearchOption.AllDirectories))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (!<span class="keyword">file</span>.EndsWith(<span class="string">&quot;.png&quot;</span>) &amp;&amp; !<span class="keyword">file</span>.EndsWith(<span class="string">&quot;.jpg&quot;</span>)) <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 转换为相对于 Assets 的路径</span></span><br><span class="line">            <span class="built_in">string</span> relativePath = <span class="string">&quot;Assets&quot;</span> + <span class="keyword">file</span>.Replace(Application.dataPath, <span class="string">&quot;&quot;</span>).Replace(<span class="string">&quot;\\&quot;</span>, <span class="string">&quot;/&quot;</span>);</span><br><span class="line">            <span class="keyword">var</span> obj = AssetDatabase.LoadAssetAtPath&lt;Object&gt;(relativePath);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (obj != <span class="literal">null</span> &amp;&amp; !existing.Contains(obj))</span><br><span class="line">                toAdd.Add(obj);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (toAdd.Count &gt; <span class="number">0</span>)</span><br><span class="line">            atlas.Add(toAdd.ToArray());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="运行时动态检查-DrawCall（调试用）"><a href="#运行时动态检查-DrawCall（调试用）" class="headerlink" title="运行时动态检查 DrawCall（调试用）"></a>运行时动态检查 DrawCall（调试用）</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">if</span> UNITY_EDITOR</span></span><br><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.Profiling;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 挂到场景中，运行时在 Console 输出当前帧的渲染统计</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">DrawCallMonitor</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Update</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 需要在 Editor 的 Stats 面板查看，或通过 Profiler API</span></span><br><span class="line">        <span class="comment">// UnityStats 仅在编辑器下可用</span></span><br><span class="line">        <span class="keyword">if</span> (Time.frameCount % <span class="number">60</span> == <span class="number">0</span>) <span class="comment">// 每 60 帧输出一次</span></span><br><span class="line">        &#123;</span><br><span class="line">            Debug.Log(<span class="string">$&quot;[渲染统计] 帧: <span class="subst">&#123;Time.frameCount&#125;</span> | &quot;</span> +</span><br><span class="line">                      <span class="string">$&quot;已分配内存: <span class="subst">&#123;Profiler.GetTotalAllocatedMemoryLong() / <span class="number">1024</span> / <span class="number">1024</span>&#125;</span> MB&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
-
-<h1 id="注意事项与最佳实践"><a href="#注意事项与最佳实践" class="headerlink" title="注意事项与最佳实践"></a>注意事项与最佳实践</h1><h2 id="内存陷阱"><a href="#内存陷阱" class="headerlink" title="内存陷阱"></a>内存陷阱</h2><p>图集中只要有一个 Sprite 被引用，整张图集纹理都会加载进内存。所以图集的划分策略很关键：</p>
-<ul>
-<li>按功能模块划分（登录界面、大厅界面、战斗界面各一个图集）</li>
-<li>避免把低频资源和高频资源放在同一图集</li>
-<li>单个图集不要超过 2048×2048，超出部分 Unity 会自动忽略 MaxTextureSize 设置</li>
-</ul>
-<h2 id="合批失效的常见原因："><a href="#合批失效的常见原因：" class="headerlink" title="合批失效的常见原因："></a>合批失效的常见原因：</h2><ul>
-<li>两个 Sprite 来自不同图集</li>
-<li>中间插入了使用不同材质的对象（打断批次）</li>
-<li>开启了 Tight Packing 导致 UV 计算异常</li>
-</ul>
-<h1 id="Sprite-Atlas-和-Drawcall"><a href="#Sprite-Atlas-和-Drawcall" class="headerlink" title="Sprite Atlas 和 Drawcall"></a>Sprite Atlas 和 Drawcall</h1><p>Atlas 本身不减少 Draw Call，它是让 batching 成为可能的前提条件。</p>
-<h2 id="Sprite-Atlas"><a href="#Sprite-Atlas" class="headerlink" title="Sprite Atlas"></a>Sprite Atlas</h2><p>图集解决的是纹理问题，把多张小图合并成一张大图。<br>原来每个 sprite 用不同纹理 → 不同材质 → 每次渲染都要 SetPass Call 切换。合并后所有 sprite 共享同一张纹理 → 同一个材质 → 为后续 batching 创造条件。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">没有图集：</span><br><span class="line">  图标A (tex_a) → SetPass → Draw</span><br><span class="line">  图标B (tex_b) → SetPass → Draw   ← 纹理不同，必须切换</span><br><span class="line">  图标C (tex_c) → SetPass → Draw</span><br><span class="line"></span><br><span class="line">有图集：</span><br><span class="line">  图标A (atlas) → SetPass → Draw</span><br><span class="line">  图标B (atlas) →           Draw   ← 同一纹理，可以 batch</span><br><span class="line">  图标C (atlas) →           Draw</span><br></pre></td></tr></table></figure>
-
-<h2 id="Batching"><a href="#Batching" class="headerlink" title="Batching"></a>Batching</h2><p>Static Batching &#x2F; GPU Instancing 能合并 Draw Call，但不能合并 SetPass Call 。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// GPU Instancing：同一材质的100个物体(DrawCall x 100)</span><br><span class="line">SetPass Call × 1   ← 只切换一次状态</span><br><span class="line">Draw Call × 1      ← 合并成一次绘制（instanced）</span><br></pre></td></tr></table></figure>
-<p>而 Dynamic Batching 同时减少两者，因为它把多个 mesh 合并成一个，用同一个材质一次画完。</p>
-<ul>
-<li>Draw Call 多 → GPU 压力大</li>
-<li>SetPass Call 多 → CPU 压力大（状态切换开销）</li>
-<li>先降 SetPass Call（合并材质、用图集），再降 Draw Call（Batching、Instancing）</li>
-</ul>
-<p>Unity Stats 窗口里显示的 “SetPass Calls” 和 “Batches” 分别对应这两个指标，看这两个数比只看 Draw Call 更有参考价值。</p>
-<h2 id="Sprite-Atlas-如何减少-Draw-Call"><a href="#Sprite-Atlas-如何减少-Draw-Call" class="headerlink" title="Sprite Atlas 如何减少 Draw Call"></a>Sprite Atlas 如何减少 Draw Call</h2><p>Sprite Atlas 确实减少 Draw Call，但不是靠自己，而是靠触发 Dynamic Batching。</p>
-<p>Draw Call 能被合并的条件是：多个物体使用完全相同的材质（同 shader + 同纹理 + 同参数）。</p>
-<p>没有 Atlas 时：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">图标A → 材质A (tex_a)  ← 不同纹理 = 不同材质</span><br><span class="line">图标B → 材质B (tex_b)  ← 无法 batch</span><br><span class="line">图标C → 材质C (tex_c)  ← 3个 Draw Call</span><br></pre></td></tr></table></figure>
-
-<p>有了 Atlas，所有图标共享同一张纹理，材质变成一样的，Dynamic Batching 才能介入把它们合并：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">图标A → 材质X (atlas)  ← 同一材质</span><br><span class="line">图标B → 材质X (atlas)  ← Dynamic Batching 合并</span><br><span class="line">图标C → 材质X (atlas)  ← 1个 Draw Call</span><br></pre></td></tr></table></figure>
-
-<p>所以准确说法是：Atlas 统一了纹理，使 batching 成为可能，batching 才是真正减少 Draw Call 的那一步。 两者缺一不可。</p>
-<p>即使不考虑 Draw Call，Atlas 本身也有价值：</p>
-<ul>
-<li>减少纹理切换的 SetPass Call，这个开销比 Draw Call 更重</li>
-<li>减少内存碎片，GPU 显存里一张大图比十张小图更高效</li>
-<li>减少文件 IO，加载一张图比加载十张快</li>
-</ul>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>Atlas 的核心价值是”统一材质”，Draw Call 的减少是这个统一带来的副产品，真正执行合并的是 Dynamic Batching。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1893,7 +1916,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">45</span>
+          <span class="site-state-item-count">46</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
