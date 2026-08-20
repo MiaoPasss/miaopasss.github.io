@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="HybridCLR扩充了IL2CPP的代码，使它由纯AOT Runtime变成“AOT+Interpreter“混合Runtime，进而原生支持动态加载Assembly，使得基于IL2CPP Backend打包的游戏不仅能在Android平台，也能在iOS、Consoles等限制了JIT的平台上高效地以AOT+interpreter混合模式执行。 通过 “Differential Hybrid d">
+  <meta name="description" content="HybridCLR 为什么存在Unity 常见的 C# 运行方式有两种：  Mono：运行 IL，可以使用 JIT，理论上比较容易动态加载 DLL。 IL2CPP：把 C# 编译成 IL，再转换成 C++，最后编译成原生机器码。  IL2CPP Player 发布以后，逻辑已经变成原生代码。后面下载一个新的普通 C# DLL，原版 IL2CPP 并没有完整的 IL 执行能力，因此无法像 Mono">
 <meta property="og:type" content="article">
 <meta property="og:title" content="HybridCLR简述">
 <meta property="og:url" content="https://miaopasss.github.io/2026/02/09/HybridCLR/index.html">
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:description" content="HybridCLR扩充了IL2CPP的代码，使它由纯AOT Runtime变成“AOT+Interpreter“混合Runtime，进而原生支持动态加载Assembly，使得基于IL2CPP Backend打包的游戏不仅能在Android平台，也能在iOS、Consoles等限制了JIT的平台上高效地以AOT+interpreter混合模式执行。 通过 “Differential Hybrid d">
+<meta property="og:description" content="HybridCLR 为什么存在Unity 常见的 C# 运行方式有两种：  Mono：运行 IL，可以使用 JIT，理论上比较容易动态加载 DLL。 IL2CPP：把 C# 编译成 IL，再转换成 C++，最后编译成原生机器码。  IL2CPP Player 发布以后，逻辑已经变成原生代码。后面下载一个新的普通 C# DLL，原版 IL2CPP 并没有完整的 IL 执行能力，因此无法像 Mono">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-02-09T09:31:56.000Z">
-<meta property="article:modified_time" content="2026-02-12T06:54:48.511Z">
+<meta property="article:modified_time" content="2026-08-20T07:54:27.624Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="C#">
 <meta property="article:tag" content="Hotfix">
@@ -202,7 +202,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-02-12 14:54:48" itemprop="dateModified" datetime="2026-02-12T14:54:48+08:00">2026-02-12</time>
+                <time title="Modified: 2026-08-20 15:54:27" itemprop="dateModified" datetime="2026-08-20T15:54:27+08:00">2026-08-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -232,7 +232,13 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>HybridCLR扩充了IL2CPP的代码，使它由纯AOT Runtime变成“AOT+Interpreter“混合Runtime，进而原生支持动态加载Assembly，使得基于IL2CPP Backend打包的游戏不仅能在Android平台，也能在iOS、Consoles等限制了JIT的平台上高效地以AOT+interpreter混合模式执行。</p>
+        <h1 id="HybridCLR-为什么存在"><a href="#HybridCLR-为什么存在" class="headerlink" title="HybridCLR 为什么存在"></a>HybridCLR 为什么存在</h1><p>Unity 常见的 C# 运行方式有两种：</p>
+<ul>
+<li>Mono：运行 IL，可以使用 JIT，理论上比较容易动态加载 DLL。</li>
+<li>IL2CPP：把 C# 编译成 IL，再转换成 C++，最后编译成原生机器码。</li>
+</ul>
+<p>IL2CPP Player 发布以后，逻辑已经变成原生代码。后面下载一个新的普通 C# DLL，原版 IL2CPP 并没有完整的 IL 执行能力，因此无法像 Mono 那样直接运行。</p>
+<p>HybridCLR扩充了IL2CPP的代码，为它增加了 IL 解释执行能力，使它由纯AOT Runtime变成“AOT+Interpreter“混合Runtime，进而原生支持动态加载Assembly，使得基于IL2CPP Backend打包的游戏不仅能在Android平台，也能在iOS、Consoles等限制了JIT的平台上高效地以AOT+interpreter混合模式执行。</p>
 <p>通过 “Differential Hybrid dll” 技术，可以对 AOT dll 实现任意增删改，会智能地让 <em>被修改或者新增的类和方法</em> 以 Interpreter 模式运行，但 <em>未被修改的类</em> 以AOT方式运行，从而使 <em>热更新的游戏逻辑</em> 的运行性能基本达到原生AOT的水平。</p>
 <hr>
 <h1 id="基础原理"><a href="#基础原理" class="headerlink" title="基础原理"></a>基础原理</h1><p>CLR，即Common Language Runtime，中文叫公共语言运行时，是让.NET程序执行所需的外部服务的集合，是.NET平台的核心和最重要的组件，类似于Java的JVM。</p>
@@ -274,6 +280,39 @@
 <h1 id="HybridCLR核心构成"><a href="#HybridCLR核心构成" class="headerlink" title="HybridCLR核心构成"></a>HybridCLR核心构成</h1><p>IL2CPP是一个纯静态的AOT运行时，不支持运行时加载DLL，因此不支持热更新；不像Mono有Hybrid mode execution，可支持动态加载DLL。</p>
 <p>目前Unity平台的主流热更新方案xLua、ILRuntime之类都是引入一个第三方VM（Virtual Machine），在VM中解释执行代码，来实现热更新。这里我们只分析使用C#为开发语言的热更新方案。这些热更新方案的VM与IL2CPP是独立的，意味着它们的元数据系统是不相通的，在热更新里新增一个类型是无法被IL2CPP所识别的（例如，通过System.Activator.CreateInstance是不可能创建出这个热更新类型的实例），这种看起来像，但实际上又不是的伪CLR虚拟机，在与IL2CPP这种复杂的CLR运行时交互时，会产生极大量的兼容性问题，另外还有严重的性能问题。</p>
 <p>HybridCLR 对 IL2CPP运行时进行扩充，添加Interpreter模块，将它由AOT运行时改造为“AOT + interpreter”双引擎的混合运行时，进而实现Mono hybrid mode execution这样的机制。这样一来就能彻底支持热更新，并且兼容性极佳。对开发者来说，除了解释模式运行的部分执行得比较慢，其他方面跟标准的运行时没有区别，完美支持在iOS这种禁止JIT的平台上以解释模式无缝地运行动态加载的DLL。</p>
+<h1 id="热更新流程"><a href="#热更新流程" class="headerlink" title="热更新流程"></a>热更新流程</h1><p>通常把业务逻辑放到独立的 asmdef，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Game.Runtime       基础/AOT 程序集</span><br><span class="line">Game.HotUpdate     热更新程序集</span><br></pre></td></tr></table></figure>
+<p>构建后得到 <em>Game.HotUpdate.dll</em></p>
+<ul>
+<li>为了让 Unity 把 DLL 当作普通资源打进 AssetBundle，通常复制并改名为：<em>Game.HotUpdate.dll.bytes</em></li>
+</ul>
+<p>它在 AB 中只是一个 TextAsset，Addressables 下载后获取字节：</p>
+<figure class="highlight cs"><figcaption><span>加载.dll.bytes文件</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">TextAsset hotDll = <span class="keyword">await</span> Addressables</span><br><span class="line">    .LoadAssetAsync&lt;TextAsset&gt;(<span class="string">&quot;Game.HotUpdate.dll.bytes&quot;</span>)</span><br><span class="line">    .Task;</span><br><span class="line"></span><br><span class="line">Assembly hotAssembly = Assembly.Load(hotDll.bytes);</span><br></pre></td></tr></table></figure>
+<p>在 HybridCLR 环境中，Assembly.Load 会创建一个解释程序集映像。调用里面的方法时，HybridCLR 解释其 IL 指令。</p>
+<h2 id="AOT-与热更新代码互相调用"><a href="#AOT-与热更新代码互相调用" class="headerlink" title="AOT 与热更新代码互相调用"></a>AOT 与热更新代码互相调用</h2><p>程序执行过程中可能发生：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">热更新方法 → 热更新方法：解释执行</span><br><span class="line">热更新方法 → Unity/AOT 方法：通过桥接调用原生代码</span><br><span class="line">AOT 方法 → 热更新方法：通过接口、虚方法、委托、反射等进入解释器</span><br></pre></td></tr></table></figure>
+<p>解释器的参数布局与原生 ABI 不完全相同，所以 HybridCLR 会生成 Method Bridge，将参数、返回值、结构体、泛型等在解释器与 AOT 代码之间转换。</p>
+<ul>
+<li>什么是ABI<br>ABI &#x3D; Application Binary Interface，应用二进制接口，它规定了两段已经编译成机器码的程序，在二进制层面怎样互相调用<br>例如热更新DLL中调用AOT方法： GameObject.Find(“Main Character”)，GameObject.Find 是 Unity 已经 AOT 编译好的原生方法：热更新解释器栈中的参数 -&gt; 原生 ABI参数<br>或者Unity程序集调用hotEntry.Start(userId, token)，这里 Start 在热更新 DLL 中：AOT 原生代码按 ABI 得到 userId、token -&gt; Bridge 从寄存器&#x2F;原生栈取出参数 -&gt; 组装成 HybridCLR 解释器参数</li>
+</ul>
+<p>这也是为什么 Player（游戏客户端） 发布前通常要执行 HybridCLR 的 Generate 流程，生成：</p>
+<ul>
+<li>Method Bridge</li>
+<li>Reverse P&#x2F;Invoke Wrapper</li>
+<li>AOT Generic References</li>
+<li>link.xml</li>
+<li>其他 IL2CPP 辅助代码<br>这些生成结果会被编译进 Player。以后热更新 DLL 如果引入了基础 Player 未覆盖的新桥接签名、被裁剪的 API 或特殊泛型，可能仍然需要重新发布 Player。</li>
+</ul>
+<h2 id="补充-AOT-元数据"><a href="#补充-AOT-元数据" class="headerlink" title="补充 AOT 元数据"></a>补充 AOT 元数据</h2><p>HybridCLR 项目中还经常看到另一类 DLL：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mscorlib.dll.bytes</span><br><span class="line">System.dll.bytes</span><br><span class="line">Game.Runtime.dll.bytes</span><br><span class="line">UnityEngine.CoreModule.dll.bytes</span><br></pre></td></tr></table></figure>
+<p>这些不是新的热更新逻辑，而是“AOT 补充元数据”。</p>
+<p>IL2CPP 构建时会裁剪程序集，而且某些泛型实例、方法体和反射元数据不会完整保留。热更新代码可能需要这些信息，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">List&lt;SomeHotUpdateType&gt;</span><br><span class="line">Dictionary&lt;string, SomeHotUpdateType&gt;</span><br><span class="line">反射访问 AOT 类型</span><br></pre></td></tr></table></figure>
+
+<p>启动时先加载对应元数据：</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">RuntimeApi.LoadMetadataForAOTAssembly(</span><br><span class="line">    aotMetadataBytes,</span><br><span class="line">    HomologousImageMode.SuperSet</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>然后再加载热更新 DLL。</p>
+<p>AOT 元数据必须来自对应平台、对应 Player 基线的 HybridCLR&#x2F;IL2CPP 构建产物，不能随意拿 Editor DLL、Android DLL给 iOS，也不能拿新 Player 的元数据给旧 Player。</p>
 <h1 id="与其他热更新方案对比"><a href="#与其他热更新方案对比" class="headerlink" title="与其他热更新方案对比"></a>与其他热更新方案对比</h1><p>HybridCLR是原生的C#热更新方案。通俗地说，IL2CPP相当于Mono的AOT模块，HybridCLR相当于Mono的Interpreter模块，两者合一成为完整Mono。HybridCLR使得IL2CPP变成一个全功能的Runtime，原生（即通过System.Reflection.Assembly.Load）支持动态加载DLL，从而支持iOS平台的热更新。</p>
 <p>正因为HybridCLR是原生Runtime级别实现，热更新部分的类型与主工程AOT部分类型是完全等价并且无缝统一的。可以随意调用、继承、反射或多线程，不需要生成代码或者写适配器。</p>
 <p>其他热更新方案则是独立VM，与IL2CPP的关系本质上相当于Mono中嵌入Lua的关系。因此类型系统不统一，为了让热更新类型能够继承AOT部分类型，需要写适配器，并且解释器中的类型不能为主工程的类型系统所识别。特性不完整、开发麻烦、运行效率低下。</p>
@@ -361,7 +400,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">基础原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#IL2Cpp%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="nav-number">1.1.</span> <span class="nav-text">IL2Cpp运行时</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HybridCLR%E6%A0%B8%E5%BF%83%E6%9E%84%E6%88%90"><span class="nav-number">2.</span> <span class="nav-text">HybridCLR核心构成</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8E%E5%85%B6%E4%BB%96%E7%83%AD%E6%9B%B4%E6%96%B0%E6%96%B9%E6%A1%88%E5%AF%B9%E6%AF%94"><span class="nav-number">3.</span> <span class="nav-text">与其他热更新方案对比</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#HybridCLR-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AD%98%E5%9C%A8"><span class="nav-number">1.</span> <span class="nav-text">HybridCLR 为什么存在</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">基础原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#IL2Cpp%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="nav-number">2.1.</span> <span class="nav-text">IL2Cpp运行时</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HybridCLR%E6%A0%B8%E5%BF%83%E6%9E%84%E6%88%90"><span class="nav-number">3.</span> <span class="nav-text">HybridCLR核心构成</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%83%AD%E6%9B%B4%E6%96%B0%E6%B5%81%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">热更新流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AOT-%E4%B8%8E%E7%83%AD%E6%9B%B4%E6%96%B0%E4%BB%A3%E7%A0%81%E4%BA%92%E7%9B%B8%E8%B0%83%E7%94%A8"><span class="nav-number">4.1.</span> <span class="nav-text">AOT 与热更新代码互相调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%A5%E5%85%85-AOT-%E5%85%83%E6%95%B0%E6%8D%AE"><span class="nav-number">4.2.</span> <span class="nav-text">补充 AOT 元数据</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8E%E5%85%B6%E4%BB%96%E7%83%AD%E6%9B%B4%E6%96%B0%E6%96%B9%E6%A1%88%E5%AF%B9%E6%AF%94"><span class="nav-number">5.</span> <span class="nav-text">与其他热更新方案对比</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -383,7 +422,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-count">48</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

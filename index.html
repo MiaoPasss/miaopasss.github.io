@@ -161,6 +161,169 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/08/20/Unity%E7%83%AD%E6%9B%B4%E6%96%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/08/20/Unity%E7%83%AD%E6%9B%B4%E6%96%B0/" class="post-title-link" itemprop="url">Unity热更新</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-08-20 18:13:46 / Modified: 18:47:07" itemprop="dateCreated datePublished" datetime="2026-08-20T18:13:46+08:00">2026-08-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Unity热更新可以通过Lua框架（xLua, toLua等）或者HybridCLR实现。</p>
+<p>xLua 下载的是 Lua 脚本，由 Lua VM 执行。<br>HybridCLR 下载的是 C# DLL，由 HybridCLR 在 IL2CPP 中解释执行。</p>
+<h1 id="主要流程"><a href="#主要流程" class="headerlink" title="主要流程"></a>主要流程</h1><p>如果你项目使用 Addressables，那么 catalog.json、AB 包、New Build &#x2F; Update Build 的流程，对两者都一样。<br>Addressables 不关心文件是 Lua 还是 DLL；它只负责把指定地址的资源拿回来。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Player 内置启动器</span><br><span class="line">  ↓</span><br><span class="line">检查远端 catalog.hash / catalog.json</span><br><span class="line">  ↓</span><br><span class="line">下载变化的 AssetBundle</span><br><span class="line">  ↓</span><br><span class="line">从 AB 取出热更新文件</span><br><span class="line">  ↓</span><br><span class="line">加载并运行热更新逻辑</span><br></pre></td></tr></table></figure>
+
+<p>首次发布Android平台远端资源时，可以这样做：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Addressables → New Build</span><br><span class="line">  ↓</span><br><span class="line">ServerData/Android/</span><br><span class="line">  ↓</span><br><span class="line">将其中内容部署到 Cloudflare/CDN 的 Android 资源目录</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">本地：</span><br><span class="line">ServerData/Android/</span><br><span class="line">  catalog_xxx.json</span><br><span class="line">  catalog_xxx.hash</span><br><span class="line">  hotcode_a1.bundle</span><br><span class="line">  ui_b1.bundle</span><br><span class="line"></span><br><span class="line">CDN：</span><br><span class="line">https://assets.example.com/aa/Android/</span><br><span class="line">  catalog_xxx.json</span><br><span class="line">  catalog_xxx.hash</span><br><span class="line">  hotcode_a1.bundle</span><br><span class="line">  ui_b1.bundle</span><br></pre></td></tr></table></figure>
+
+<p>需要确保以下两点：</p>
+<ol>
+<li>指定远端资源构建。需要启用 Build Remote Catalog，并将需要热更的 Group 设置为：</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Build Path = Remote.BuildPath</span><br><span class="line">Load Path = Remote.LoadPath</span><br></pre></td></tr></table></figure>
+<p>仅在当前项目点击 New Build，因远端 Catalog 关闭、默认 Group 是 Local，未必会产生可部署的 ServerData&#x2F;Android 完整热更新内容。</p>
+<ol start="2">
+<li>Remote.LoadPath 必须在构建前指向真实 CDN 地址，例如：</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://assets.example.com/aa/[BuildTarget]</span><br></pre></td></tr></table></figure>
+<p>不要先用 localhost 构建，再直接把文件传到 Cloudflare；Catalog 中会保留构建时写入的 LoadPath。</p>
+<p>首次发布后，后续的操作不同：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Update Previous Build</span><br><span class="line">  ↓</span><br><span class="line">只产生新增/变化的 Bundle 与新 Catalog</span><br><span class="line">  ↓</span><br><span class="line">合并到服务器已有 Android 资源目录</span><br></pre></td></tr></table></figure>
+<p>不要清空服务器 Android 目录，也不要只部署本次 Update Build 的少量输出。新 Catalog 文件替换，旧 Bundle 保留。</p>
+<h1 id="xLua：Lua-驱动-C"><a href="#xLua：Lua-驱动-C" class="headerlink" title="xLua：Lua 驱动 C#"></a>xLua：Lua 驱动 C#</h1><p>xLua 的核心是把 Lua VM 放进 Player：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">C# AOT Player</span><br><span class="line">  ↓</span><br><span class="line">LuaEnv</span><br><span class="line">  ↓</span><br><span class="line">下载 Main.lua、Login.lua、Battle.lua</span><br><span class="line">  ↓</span><br><span class="line">Lua 脚本解释执行</span><br><span class="line">  ↓</span><br><span class="line">通过绑定层调用 Unity/C#</span><br></pre></td></tr></table></figure>
+<p>游戏启动时，C# 通常创建一个全局 LuaEnv<br>所以它不是“把 Lua 脚本编译进原生 Player”；而是 Player 预先带着 Lua 解释器，后续下载 Lua 脚本，解释器负责运行这些新脚本。</p>
+<p>Lua 与 C# 的交互通常需要配置生成：</p>
+<ul>
+<li>CSharpCallLua：让 C# 调用 Lua。</li>
+<li>LuaCallCSharp：让 Lua 高效调用 C#。</li>
+<li>Delegate、Interface、泛型、重载等都要处理绑定与代码生成。</li>
+</ul>
+<h2 id="xLua-的两种“热更新”"><a href="#xLua-的两种“热更新”" class="headerlink" title="xLua 的两种“热更新”"></a>xLua 的两种“热更新”</h2><ul>
+<li>Lua 业务热更新<br>这是最常见、最稳的方式：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">C#：框架、Unity 封装、网络、资源管理</span><br><span class="line">Lua：UI 流程、活动、战斗规则、业务逻辑</span><br></pre></td></tr></table></figure>
+<p>后续下载新的 Lua 文件即可生效。<br>优点是包小、更新快；代价是业务层需要长期使用 Lua 开发，并维护 Lua&#x2F;C# 边界。</p>
+<ul>
+<li>xLua Hotfix：Lua 覆盖 C# 方法<br>xLua 还有 Hotfix 注入机制。你在发包前标记&#x2F;生成可热修复的 C# 方法，构建时 xLua 向这些方法插入跳板：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">原 C# 方法</span><br><span class="line">  ↓</span><br><span class="line">预先注入 Hotfix 检查点</span><br><span class="line">  ↓</span><br><span class="line">运行时 Lua 可替换该方法实现</span><br></pre></td></tr></table></figure>
+<p>例如 Lua 可以通过 xlua.hotfix(…) 替换一个已预留的 C# 方法。<br>关键限制是：xLua 不能在 Player 发布后，任意修改一个当初没有注入 Hotfix 跳板的 C# 方法。<br>也就是说，它是“预埋可替换点”，不是发布后任意加载新 C# 代码。</p>
+<h1 id="HybridCLR：运行新的-C-逻辑"><a href="#HybridCLR：运行新的-C-逻辑" class="headerlink" title="HybridCLR：运行新的 C# 逻辑"></a>HybridCLR：运行新的 C# 逻辑</h1><p>HybridCLR 则更接近“可加载新的 C# 程序集”，但同样受基础 Player 的 API、裁剪、泛型、桥接代码约束。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">C# AOT Player</span><br><span class="line">  ↓</span><br><span class="line">HybridCLR Runtime</span><br><span class="line">  ↓</span><br><span class="line">下载 Game.HotUpdate.dll.bytes</span><br><span class="line">  ↓</span><br><span class="line">Assembly.Load</span><br><span class="line">  ↓</span><br><span class="line">解释执行新的 C# IL</span><br></pre></td></tr></table></figure>
+
+<p>热更新代码仍是 C#：</p>
+<ul>
+<li>可以新增普通 C# 类、接口、业务系统。</li>
+<li>可以使用熟悉的 C# 语法、async、LINQ、泛型、异常等。</li>
+<li>可以直接引用已有 AOT 层 API。</li>
+<li>主体逻辑通常无需改写成另一种语言。<br>但它不能改变已经编译进 Player 的原生 AOT 代码；它解决的是“新增&#x2F;替换热更新程序集中的逻辑”。</li>
+</ul>
+<h1 id="Catalog-与-AB包"><a href="#Catalog-与-AB包" class="headerlink" title="Catalog 与 AB包"></a>Catalog 与 AB包</h1><p>假设热更入口地址为 <code>HotEntry</code>。</p>
+<ul>
+<li>xLua</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">catalog.json</span><br><span class="line">  &quot;HotEntry&quot;</span><br><span class="line">    → lua_main_abc.bundle</span><br><span class="line"></span><br><span class="line">lua_main_abc.bundle</span><br><span class="line">  → Main.lua</span><br><span class="line">  → Login.lua</span><br><span class="line">  → Battle.lua</span><br></pre></td></tr></table></figure>
+
+<p>运行时：</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">luaEnv.DoString(luaTextAsset.text, <span class="string">&quot;Main.lua&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>HybridCLR</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">catalog.json</span><br><span class="line">  &quot;HotEntry&quot;</span><br><span class="line">    → hotcode_abc.bundle</span><br><span class="line"></span><br><span class="line">hotcode_abc.bundle</span><br><span class="line">  → Game.HotUpdate.dll.bytes</span><br></pre></td></tr></table></figure>
+
+<p>运行时：</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Assembly.Load(hotDllTextAsset.bytes);</span><br></pre></td></tr></table></figure>
+
+<p>HybridCLR 可能还多一组</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">aotmetadata_abc.bundle</span><br><span class="line">  → Game.Runtime.dll.bytes</span><br><span class="line">  → System.dll.bytes</span><br></pre></td></tr></table></figure>
+<p>这些 AOT 元数据要在加载热更新 DLL 前处理。</p>
+<h2 id="New-Build-Update-Build-对比"><a href="#New-Build-Update-Build-对比" class="headerlink" title="New Build &#x2F; Update Build 对比"></a>New Build &#x2F; Update Build 对比</h2><p>它们的发布方式一致。第一次发包：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">xLua：</span><br><span class="line">New Build → Lua AB + Catalog → 打入/上传</span><br><span class="line"></span><br><span class="line">HybridCLR：</span><br><span class="line">生成 HybridCLR 必要代码</span><br><span class="line">→ 构建 Player</span><br><span class="line">→ 打包热更新 DLL / AOT 元数据到 AB</span><br><span class="line">→ New Build → Catalog + AB</span><br></pre></td></tr></table></figure>
+
+<p>后续只改热更逻辑：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">xLua：</span><br><span class="line">改 Lua → Update Previous Build → 上传新 Lua AB + Catalog</span><br><span class="line"></span><br><span class="line">HybridCLR：</span><br><span class="line">编译新 HotUpdate.dll</span><br><span class="line">→ Update Previous Build</span><br><span class="line">→ 上传新 DLL AB + Catalog</span><br></pre></td></tr></table></figure>
+
+<p>两者都不是二进制增量补丁：</p>
+<ul>
+<li>修改一个 Lua 文件，通常重下它所在的整个 Lua Bundle。</li>
+<li>修改一个 DLL，通常重下它所在的整个 DLL Bundle。</li>
+<li>Bundle 划分越细，下载越小；Bundle 越大，依赖和管理越简单。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/08/07/unity-%E8%AE%A1%E7%AE%97%E7%82%B9%E5%88%B0%E7%9B%B4%E7%BA%BF%E8%B7%9D%E7%A6%BB/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1715,125 +1878,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/31/Unity-Trail-Renderer/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/03/31/Unity-Trail-Renderer/" class="post-title-link" itemprop="url">Unity Trail Renderer</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2026-03-31 17:10:13 / Modified: 17:30:02" itemprop="dateCreated datePublished" datetime="2026-03-31T17:10:13+08:00">2026-03-31</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Trail Renderer 是 Unity 中的一个组件，用于在移动对象后面创建拖尾效果，常用于粒子轨迹、运动模糊、武器轨迹等视觉效果。</p>
-<h1 id="主要功能"><a href="#主要功能" class="headerlink" title="主要功能"></a>主要功能</h1><ul>
-<li>轨迹生成: 基于对象位置历史记录创建连续的轨迹线条</li>
-<li>材质支持: 支持自定义纹理、颜色渐变和透明度</li>
-<li>宽度控制: 可设置轨迹的起始和结束宽度，支持曲线调整</li>
-<li>生命周期: 可控制轨迹的生存时间和淡出效果</li>
-<li>性能优化: 自动批处理，适合移动平台</li>
-</ul>
-<h2 id="自动批处理"><a href="#自动批处理" class="headerlink" title="自动批处理"></a>自动批处理</h2><p>Unity 的渲染系统会自动检测并合并使用相同材质的 Trail Renderer 组件，将多个轨迹渲染合并为单个 Draw Call。</p>
-<p>批处理条件：</p>
-<ul>
-<li>相同的 Material（材质）</li>
-<li>相同的 Shader 变体</li>
-<li>相似的渲染状态（深度测试、混合模式等）</li>
-<li>轨迹顶点总数不超过批处理限制</li>
-</ul>
-<figure class="highlight cs"><figcaption><span>触发Trail Renderer 自动批处理</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TrailBatchOptimizer</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 为相似轨迹使用同一个 Material 实例</span></span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> Material sharedTrailMaterial;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> TrailRenderer[] trailRenderers;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 确保所有轨迹使用相同材质以启用批处理</span></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> trail <span class="keyword">in</span> trailRenderers)</span><br><span class="line">        &#123;</span><br><span class="line">            trail.material = sharedTrailMaterial;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 优化设置</span></span><br><span class="line">            trail.minVertexDistance = <span class="number">0.1f</span>;  <span class="comment">// 减少顶点数量避免过度细分</span></span><br><span class="line">            trail.time = <span class="number">1.0f</span>;               <span class="comment">// 控制轨迹长度防止轨迹过长</span></span><br><span class="line">            trail.widthMultiplier = <span class="number">1.0f</span>;    <span class="comment">// 统一宽度比例</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h1><p>GameObject → Add Component → Effects → Trail Renderer</p>
-<ul>
-<li>Material: 设置轨迹材质</li>
-<li>Width: 轨迹宽度曲线</li>
-<li>Color: 颜色渐变</li>
-<li>Lifetime: 轨迹持续时间</li>
-<li>Min Vertex Distance: 最小顶点距离（影响轨迹平滑度）</li>
-</ul>
-<h1 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h1><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TrailController</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> TrailRenderer trailRenderer;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        trailRenderer = GetComponent&lt;TrailRenderer&gt;();</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 设置轨迹材质</span></span><br><span class="line">        trailRenderer.material = Resources.Load&lt;Material&gt;(<span class="string">&quot;TrailMaterial&quot;</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 设置宽度（起始0.1，结束0.5）</span></span><br><span class="line">        trailRenderer.startWidth = <span class="number">0.1f</span>;</span><br><span class="line">        trailRenderer.endWidth = <span class="number">0.5f</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 设置生命周期</span></span><br><span class="line">        trailRenderer.time = <span class="number">2.0f</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 设置颜色渐变</span></span><br><span class="line">        Gradient gradient = <span class="keyword">new</span> Gradient();</span><br><span class="line">        gradient.SetKeys(</span><br><span class="line">            <span class="keyword">new</span> GradientColorKey[] &#123; </span><br><span class="line">                <span class="keyword">new</span> GradientColorKey(Color.red, <span class="number">0.0f</span>), </span><br><span class="line">                <span class="keyword">new</span> GradientColorKey(Color.yellow, <span class="number">0.5f</span>), </span><br><span class="line">                <span class="keyword">new</span> GradientColorKey(Color.blue, <span class="number">1.0f</span>) </span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="keyword">new</span> GradientAlphaKey[] &#123; </span><br><span class="line">                <span class="keyword">new</span> GradientAlphaKey(<span class="number">1.0f</span>, <span class="number">0.0f</span>), </span><br><span class="line">                <span class="keyword">new</span> GradientAlphaKey(<span class="number">1.0f</span>, <span class="number">0.8f</span>), </span><br><span class="line">                <span class="keyword">new</span> GradientAlphaKey(<span class="number">0.0f</span>, <span class="number">1.0f</span>) </span><br><span class="line">            &#125;</span><br><span class="line">        );</span><br><span class="line">        trailRenderer.colorGradient = gradient;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Update</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 移动对象以生成轨迹</span></span><br><span class="line">        transform.Translate(Vector3.forward * Time.deltaTime);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>注意事项：</p>
-<ul>
-<li>Trail Renderer 需要对象持续移动才会产生轨迹</li>
-<li>对于高速移动对象，可调整 Min Vertex Distance 避免轨迹断裂</li>
-<li>轨迹顶点数量会影响性能，建议合理设置 Lifetime</li>
-<li>支持 Texture Mode 用于更复杂的纹理映射效果</li>
-</ul>
-<h1 id="Trail-Renderer-和粒子系统"><a href="#Trail-Renderer-和粒子系统" class="headerlink" title="Trail Renderer 和粒子系统"></a>Trail Renderer 和粒子系统</h1><p>Trail Renderer专门用于创建移动对象的连续拖尾轨迹，基于对象位置历史记录生成线条。<br>而粒子系统由发射参数控制，用于发射和管理大量离散粒子（如烟雾、火花、雨滴），每个粒子独立运动。</p>
-<h2 id="常见结合"><a href="#常见结合" class="headerlink" title="常见结合"></a>常见结合</h2><ul>
-<li>粒子轨迹: 为粒子系统中的粒子添加 Trail Renderer，创建带拖尾的粒子效果（如流星、魔法弹道）。</li>
-<li>增强效果: Trail Renderer 提供连续轨迹，粒子系统提供散射效果。</li>
-</ul>
-<figure class="highlight cs"><figcaption><span>为游戏对象同时适配ParticleSystem 和 TrailRenderer</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ParticleTrailExample</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> ParticleSystem particleSystem;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> TrailRenderer trailRenderer;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 为粒子系统的主发射器添加轨迹</span></span><br><span class="line">        <span class="keyword">var</span> main = particleSystem.main;</span><br><span class="line">        main.startLifetime = <span class="number">2.0f</span>;  <span class="comment">// 粒子生命周期</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 配置轨迹</span></span><br><span class="line">        trailRenderer.time = <span class="number">1.0f</span>;</span><br><span class="line">        trailRenderer.startWidth = <span class="number">0.1f</span>;</span><br><span class="line">        trailRenderer.endWidth = <span class="number">0.0f</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 轨迹跟随粒子发射器移动</span></span><br><span class="line">        trailRenderer.transform.SetParent(particleSystem.transform);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1911,7 +1955,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-count">48</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

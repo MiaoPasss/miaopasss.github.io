@@ -28,7 +28,7 @@
 <meta property="og:description" content="Draw Call (绘制调用): CPU 告诉 GPU “请按照这些状态，把这个网格画出来” 的一次命令。这个命令本身有开销。Draw Call 太多，CPU 就会因为一直忙于下达指令而成为瓶颈。目标：减少 Draw Call 的总次数。SetPass Call (状态切换调用): 在 Draw Call 之前，CPU 需要告诉 GPU 使用哪个 Shader、材质属性（颜色、贴图等）是什么。切">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-03-27T10:28:12.000Z">
-<meta property="article:modified_time" content="2026-06-04T05:37:19.761Z">
+<meta property="article:modified_time" content="2026-08-14T12:55:52.605Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Rendering pipeline">
 <meta property="article:tag" content="Shader">
@@ -202,7 +202,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-06-04 13:37:19" itemprop="dateModified" datetime="2026-06-04T13:37:19+08:00">2026-06-04</time>
+                <time title="Modified: 2026-08-14 20:55:52" itemprop="dateModified" datetime="2026-08-14T20:55:52+08:00">2026-08-14</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -239,13 +239,21 @@
         <p>Draw Call (绘制调用): CPU 告诉 GPU “请按照这些状态，把这个网格画出来” 的一次命令。这个命令本身有开销。Draw Call 太多，CPU 就会因为一直忙于下达指令而成为瓶颈。目标：减少 Draw Call 的总次数。<br>SetPass Call (状态切换调用): 在 Draw Call 之前，CPU 需要告诉 GPU 使用哪个 Shader、材质属性（颜色、贴图等）是什么。切换这些状态（特别是材质）是一个非常耗时的操作。目标：减少渲染状态的切换次数。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CPU 准备渲染数据</span><br><span class="line">    ↓</span><br><span class="line">设置渲染状态（材质、Shader、纹理绑定）← SetPass Call</span><br><span class="line">    ↓</span><br><span class="line">提交 DrawCall（告诉 GPU 画什么、怎么画）</span><br><span class="line">    ↓</span><br><span class="line">GPU 执行光栅化、着色、输出像素</span><br></pre></td></tr></table></figure>
 <p>关键点：DrawCall 本身消耗资源，但准备阶段（SetPass Call）通常比 DrawCall 本身更耗性能。<br>开启批处理后，Unity 可以用一次 SetPass Call 复用同一材质状态，然后提交多个 DrawCall。所以降低 SetPass Call 往往比降低 DrawCall 更重要。</p>
+<hr>
 <h1 id="DrawCall（绘制调用）"><a href="#DrawCall（绘制调用）" class="headerlink" title="DrawCall（绘制调用）"></a>DrawCall（绘制调用）</h1><p>DrawCall 是 CPU 向 GPU 发送的一次渲染指令，包含了 GPU 绘制所需的全部信息：几何数据、纹理、Shader、Buffer 等。<br>CPU 先准备好数据，并通过调用图形API接口命令GPU对指定物体进行渲染一次的操作，称为一次DrawCall。</p>
 <p>每次调用 DrawMesh、DrawRenderer 等，就是一个 Draw Call。GPU 收到命令后开始渲染对应的几何体。</p>
 <p>当收到一个DrawCall时，GPU会按照指令，根据渲染状态和输入的顶点信息，指定一个网格（Mesh）进行渲染，绘制材质。<br>GPU 渲染时，同一批次的对象必须使用相同的材质和纹理。一旦纹理不同，就必须切换渲染状态，触发新的 DrawCall。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Image A（纹理1）→ DrawCall 1</span><br><span class="line">Image B（纹理2）→ DrawCall 2（纹理不同，无法合批）</span><br><span class="line">Image C（纹理1）→ 可以与 A 合批，不增加 DrawCall</span><br></pre></td></tr></table></figure>
 
 <p>为了CPU和GPU可以进行并行工作，需要一个命令缓冲区，由CPU向其中添加命令，然后由GPU从中读取命令，这样就实现了通过CPU准备数据，通知GPU进行渲染。</p>
+<hr>
 <h1 id="SetPass-Call"><a href="#SetPass-Call" class="headerlink" title="SetPass Call"></a>SetPass Call</h1><p>在 Draw Call 之前，如果需要切换渲染状态（shader、材质属性、纹理等），CPU 就要先做一次 SetPass Call 来通知 GPU 切换 Pass。<br>SetPass Call 才是真正的性能瓶颈，因为它涉及 shader 编译、状态切换等开销。</p>
+<p>一次 SetPass 可能同时完成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">绑定 Shader</span><br><span class="line">绑定纹理</span><br><span class="line">设置 Blend</span><br><span class="line">设置 Depth Test</span><br><span class="line">设置 Cull</span><br><span class="line">绑定材质参数</span><br></pre></td></tr></table></figure>
+
+<p>随后可以复用这些状态，执行多个 Draw Call：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SetPass</span><br><span class="line">├── Draw Call 1</span><br><span class="line">├── Draw Call 2</span><br><span class="line">└── Draw Call 3</span><br></pre></td></tr></table></figure>
+
 <p>例如场景里有 5 个物体：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">物体A - 材质1 (Shader: Standard, 纹理: tex_a)</span><br><span class="line">物体B - 材质1 (同上)</span><br><span class="line">物体C - 材质1 (同上)</span><br><span class="line">物体D - 材质2 (Shader: Standard, 纹理: tex_b)</span><br><span class="line">物体E - 材质3 (Shader: Unlit,   纹理: tex_c)</span><br></pre></td></tr></table></figure>
 
@@ -261,7 +269,23 @@
 <p>渲染这一个物体时，GPU 会走两遍：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SetPass Call → 激活 Pass 0 (OUTLINE)，设置 Cull Front 状态</span><br><span class="line">  Draw Call  → 用 Pass 0 的 shader 绘制物体（画出描边）</span><br><span class="line"></span><br><span class="line">SetPass Call → 激活 Pass 1 (BASE)，设置 Cull Back 状态</span><br><span class="line">  Draw Call  → 用 Pass 1 的 shader 绘制物体（画出本体）</span><br></pre></td></tr></table></figure>
 <p>所以 1 个物体、1 个材质，产生了 2 个 SetPass Call + 2 个 Draw Call。</p>
-
+<hr>
+<h1 id="Batch"><a href="#Batch" class="headerlink" title="Batch"></a>Batch</h1><p>在 Unity 中：</p>
+<ul>
+<li>Batch：Unity 引擎层组织好的一批渲染数据。</li>
+<li>Draw Call：Unity通过图形 API（如 Metal、Vulkan）实际提交的绘制命令。</li>
+</ul>
+<p>通常 1 Batch ≈ 1 Draw Call，区别在于层级：Batch 是“准备好的一批东西”，Draw Call 是“把这批东西画出去的命令”。<br>1 Draw Call 是向 GPU 提交“绘制这 1 个 Batch”的命令。</p>
+<p>Batch 可以理解为一次绘制所需数据的集合或引用，主要包括：</p>
+<ul>
+<li>几何数据：顶点缓冲、索引缓冲、SubMesh 范围。</li>
+<li>Shader&#x2F;材质状态：Shader Pass、关键字、混合、深度、剔除方式。</li>
+<li>材质资源：纹理、颜色、材质参数。</li>
+<li>物体数据：位置旋转缩放矩阵、光照贴图参数等。</li>
+<li>绘制参数：绘制多少索引、从哪里开始、实例数量。</li>
+</ul>
+<p>不过 Batch 通常不是把这些数据复制成一个“大包”。很多数据已经在 GPU 中，Draw Call 只是引用它们：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">绑定材质和缓冲区</span><br><span class="line">→ DrawIndexed(索引数量, 起始位置, 实例数量)</span><br></pre></td></tr></table></figure>
     </div>
 
     
@@ -345,7 +369,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#DrawCall%EF%BC%88%E7%BB%98%E5%88%B6%E8%B0%83%E7%94%A8%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">DrawCall（绘制调用）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SetPass-Call"><span class="nav-number">2.</span> <span class="nav-text">SetPass Call</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Pass-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">2.1.</span> <span class="nav-text">Pass 是什么</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#DrawCall%EF%BC%88%E7%BB%98%E5%88%B6%E8%B0%83%E7%94%A8%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">DrawCall（绘制调用）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SetPass-Call"><span class="nav-number">2.</span> <span class="nav-text">SetPass Call</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Pass-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">2.1.</span> <span class="nav-text">Pass 是什么</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Batch"><span class="nav-number">3.</span> <span class="nav-text">Batch</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -367,7 +391,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-count">48</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
