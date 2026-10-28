@@ -28,7 +28,7 @@
 <meta property="og:description" content="Google Protocol Buffers（简称 Protobuf）是一套“数据结构定义 + 代码生成 + 二进制序列化”工具。先在 .proto 文件里约定字段，再生成 C#、Java、Go 等语言的读写代码，让客户端和服务端遵守同一份协议。 数据定义以这份玩家数据为例： 1&#123;&quot;chips&quot;:150,&quot;money&quot;:12.5,&quot;bo">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-10-27T09:49:23.000Z">
-<meta property="article:modified_time" content="2026-10-28T07:24:59.126Z">
+<meta property="article:modified_time" content="2026-10-28T07:26:29.660Z">
 <meta property="article:author" content="Haotian Luo">
 <meta name="twitter:card" content="summary">
 
@@ -200,7 +200,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-10-28 15:24:59" itemprop="dateModified" datetime="2026-10-28T15:24:59+08:00">2026-10-28</time>
+                <time title="Modified: 2026-10-28 15:26:29" itemprop="dateModified" datetime="2026-10-28T15:26:29+08:00">2026-10-28</time>
               </span>
 
           
@@ -225,7 +225,7 @@
 <h1 id="数据定义"><a href="#数据定义" class="headerlink" title="数据定义"></a>数据定义</h1><p>以这份玩家数据为例：</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;chips&quot;</span><span class="punctuation">:</span><span class="number">150</span><span class="punctuation">,</span><span class="attr">&quot;money&quot;</span><span class="punctuation">:</span><span class="number">12.5</span><span class="punctuation">,</span><span class="attr">&quot;bonus&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
 <p>不带空格的 UTF-8 JSON 是 34 字节。<br>JSON 是文本格式，字段名、数值、字符串以及标点，最终都编码成文本字节传输。</p>
-<p>比如{“chips”:150}的chips字段，除了字段名本身，还需要两个字节传输引号。 连同冒号，”chips”: 共占 8 字节。</p>
+<p>比如 {“chips”:150} 的chips字段，除了字段名本身，还需要两个字节传输引号。 连同冒号，”chips”: 共占 8 字节。</p>
 <p>这里 150 是 JSON 数值，占 3 字节。<br>接收方解析后，才会把数值文本 150 转换为内存中的数字；它在 JSON 传输时并不是一个固定 4 字节的整数。<br>类似地，12.5 传的是四个字符 1、2、.、5，JSON 本身也不区分 float 和 double，由接收程序决定怎么存储。</p>
 <p>你的protobuf数据可以定义为：</p>
 <figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">PlayerBalance</span> &#123;</span><br><span class="line">  <span class="type">int32</span> chips = <span class="number">1</span>;</span><br><span class="line">  <span class="type">float</span> money = <span class="number">2</span>;</span><br><span class="line">  <span class="type">float</span> bonus = <span class="number">3</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
