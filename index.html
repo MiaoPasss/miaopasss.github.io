@@ -161,6 +161,172 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/10/27/Google-Protobuf/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/10/27/Google-Protobuf/" class="post-title-link" itemprop="url">Google Protobuf</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2026-10-27 17:49:23" itemprop="dateCreated datePublished" datetime="2026-10-27T17:49:23+08:00">2026-10-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-10-28 15:24:59" itemprop="dateModified" datetime="2026-10-28T15:24:59+08:00">2026-10-28</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Google Protocol Buffers（简称 Protobuf）是一套“数据结构定义 + 代码生成 + 二进制序列化”工具。<br>先在 .proto 文件里约定字段，再生成 C#、Java、Go 等语言的读写代码，让客户端和服务端遵守同一份协议。</p>
+<h1 id="数据定义"><a href="#数据定义" class="headerlink" title="数据定义"></a>数据定义</h1><p>以这份玩家数据为例：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;chips&quot;</span><span class="punctuation">:</span><span class="number">150</span><span class="punctuation">,</span><span class="attr">&quot;money&quot;</span><span class="punctuation">:</span><span class="number">12.5</span><span class="punctuation">,</span><span class="attr">&quot;bonus&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>不带空格的 UTF-8 JSON 是 34 字节。<br>JSON 是文本格式，字段名、数值、字符串以及标点，最终都编码成文本字节传输。</p>
+<p>比如{“chips”:150}的chips字段，除了字段名本身，还需要两个字节传输引号。 连同冒号，”chips”: 共占 8 字节。</p>
+<p>这里 150 是 JSON 数值，占 3 字节。<br>接收方解析后，才会把数值文本 150 转换为内存中的数字；它在 JSON 传输时并不是一个固定 4 字节的整数。<br>类似地，12.5 传的是四个字符 1、2、.、5，JSON 本身也不区分 float 和 double，由接收程序决定怎么存储。</p>
+<p>你的protobuf数据可以定义为：</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">PlayerBalance</span> &#123;</span><br><span class="line">  <span class="type">int32</span> chips = <span class="number">1</span>;</span><br><span class="line">  <span class="type">float</span> money = <span class="number">2</span>;</span><br><span class="line">  <span class="type">float</span> bonus = <span class="number">3</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的 1、2、3 是固定的字段编号，不是字段值。</p>
+<p>按上面的协议，Protobuf 二进制通常只需要 8 字节：</p>
+<table>
+<thead>
+<tr>
+<th>内容</th>
+<th>JSON</th>
+<th>Protobuf</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>字段标识</td>
+<td>每次发送 <code>&quot;chips&quot;</code> 等字段名</td>
+<td>发送字段编号和编码类型组成的标签</td>
+</tr>
+<tr>
+<td>整数 <code>150</code></td>
+<td>3 个文本字节</td>
+<td>2 个变长整数字节</td>
+</tr>
+<tr>
+<td>浮点数 <code>12.5</code></td>
+<td>文本表示</td>
+<td><code>float</code> 固定 4 字节</td>
+</tr>
+<tr>
+<td><code>bonus = 0</code></td>
+<td>仍包含字段名和值</td>
+<td>此例中，proto3 默认值省略</td>
+</tr>
+<tr>
+<td>结构</td>
+<td>花括号、引号、冒号、逗号</td>
+<td>无须这些文本符号</td>
+</tr>
+</tbody></table>
+<p>这个例子里的 8 字节，chips 占 3 字节，money 占 5 字节，bonus 不占空间。（每个字段标签占1字节）<br>Protobuf的标签不包含字段名，也不一定直接包含字段长度。标签包含这个字段的部分元数据：字段编号和底层编码方式。 </p>
+<p>整条消息的结束位置则由外层提供，例如 HTTP 响应体的长度或嵌套消息的长度前缀。Protobuf 本身没有一个通用的“消息结束符”，所以在连续的 TCP 字节流中发送多条消息时，需要另外约定每条消息的长度。</p>
+<h1 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h1><p>字段编号与字段名的对应关系需要额外存储。<br>Protobuf 的关键是：把这份映射提前放在客户端和服务端的协议定义、生成代码里，而不是每次发送数据时重复传输。</p>
+<p>所以它用“双方提前约定数据结构”的成本，换取“每条消息更小”的收益。</p>
+<p>但缩小比例取决于数据：大量重复字段名、数字、列表通常收益明显；很长的字符串内容仍然要传。<br>Protobuf 不是压缩算法，也不是加密算法，还可以与 gzip 等压缩一起使用。<br>若用 Protobuf 的 JSON 输出模式，传输的仍是 JSON，拿不到上述二进制收益。</p>
+<p>接入时需要注意这几件事：</p>
+<ol>
+<li>客户端和服务端共同支持协议。 如果服务端仍然只接受表单和 JSON，单独换 Unity 序列化方式无法使用。</li>
+<li>网络层改为处理字节。 通常用 UploadHandlerRaw 发送，读取 downloadHandler.data 接收；Protobuf 也可以继续通过普通 HTTP 使用，不要求 gRPC。</li>
+<li>Unity 可以使用 Google.Protobuf，但接入后仍需验证程序集引用和目标平台的 IL2CPP 构建</li>
+</ol>
+<h1 id="字段映射"><a href="#字段映射" class="headerlink" title="字段映射"></a>字段映射</h1><p>开发时，.proto 文件就是协议定义：</p>
+<table>
+<thead>
+<tr>
+<th>字段编号</th>
+<th>字段名</th>
+<th>数据类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>chips</td>
+<td>int32</td>
+</tr>
+<tr>
+<td>2</td>
+<td>money</td>
+<td>float</td>
+</tr>
+<tr>
+<td>3</td>
+<td>bonus</td>
+<td>float</td>
+</tr>
+</tbody></table>
+<p>通过 protoc 编译器，可以为客户端生成 C# 类，为服务端生成对应语言的类。</p>
+<p>字段名还可能保存在生成的描述信息中，用于反射、JSON 转换等功能。这些内容属于程序代码和元数据，不需要跟着每条网络消息发送。<br>可以理解为双方事先约定：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">“编号 1 表示筹码，编号 2 表示余额，编号 3 表示奖励余额。”</span><br></pre></td></tr></table></figure>
+<p>此后每次通信只发送“编号和值”。</p>
+<p>JSON 则会在每次通信时重复发送：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">“chips 的值是 150，money 的值是 12.5……”</span><br></pre></td></tr></table></figure>
+<p>因此，Protobuf 并没有消灭映射，而是把映射从每条消息里移到了双方程序里。</p>
+<p>以及二进制里并不是只有字段值，Protobuf 不能直接把 150 和 12.5 连起来，因为接收方需要知道：</p>
+<ul>
+<li>这是哪个字段？</li>
+<li>这个字段的值占多少字节？</li>
+<li>读完后下一个字段在哪里？</li>
+</ul>
+<p>所以每个实际发送的字段，基本结构是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">字段标签 tag + 字段值</span><br></pre></td></tr></table></figure>
+<p>对于字符串等可变长度的数据，则是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">字段标签 tag + 内容长度 + 内容</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/08/20/Unity%E7%83%AD%E6%9B%B4%E6%96%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -799,10 +965,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-06-04 13:25:14 / Modified: 15:37:45" itemprop="dateCreated datePublished" datetime="2026-06-04T13:25:14+08:00">2026-06-04</time>
+              <time title="Created: 2026-06-04 13:25:14" itemprop="dateCreated datePublished" datetime="2026-06-04T13:25:14+08:00">2026-06-04</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-08-27 18:05:07" itemprop="dateModified" datetime="2026-08-27T18:05:07+08:00">2026-08-27</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -930,6 +1102,62 @@
 <li>Materials must use SRP-compatible shaders</li>
 </ul>
 <p>在标准的渲染流程下，CPU需要收集所有场景物体的参数，场景中的材质越多CPU提交给GPU的数据就越多。<br>而在SRP中流程下GPU拥有数据管理的 “生命权” ,管理大量不同材质但Shader变动较小的的内容。<br>让数据在GPU中持久存在,从而减少消耗(SetPass Call)。</p>
+<h3 id="UnityPerDraw-和-UnityPerMaterial"><a href="#UnityPerDraw-和-UnityPerMaterial" class="headerlink" title="UnityPerDraw 和 UnityPerMaterial"></a>UnityPerDraw 和 UnityPerMaterial</h3><p><code>UnityPerDraw</code> 和 <code>UnityPerMaterial</code> 都是 Shader 使用的常量缓冲区（CBUFFER），区别在于数据更新频率和来源。</p>
+<table>
+<thead>
+<tr>
+<th>缓冲区</th>
+<th>数据来源</th>
+<th>常见内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>UnityPerDraw</code></td>
+<td>当前绘制的 Renderer&#x2F;物体</td>
+<td>模型矩阵、光照贴图索引、探针数据、物体变换</td>
+</tr>
+<tr>
+<td><code>UnityPerMaterial</code></td>
+<td>当前材质参数</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>关系可以理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Renderer</span><br><span class="line">├─ Mesh / Transform ──────&gt; UnityPerDraw</span><br><span class="line">└─ Material</span><br><span class="line">   └─ Shader Properties ──&gt; UnityPerMaterial</span><br></pre></td></tr></table></figure>
+
+<p>例如两个 Renderer 共用一个 Material：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Renderer A：自己的 UnityPerDraw ─┐</span><br><span class="line">                                ├─ 共用 UnityPerMaterial</span><br><span class="line">Renderer B：自己的 UnityPerDraw ─┘</span><br></pre></td></tr></table></figure>
+
+<p>因此它们颜色、粗糙度等材质属性相同，但模型矩阵不同。</p>
+<p>Renderer 是产生绘制任务的组件。Unity准备 Draw Call 时：</p>
+<ol>
+<li>从 Renderer、Transform、Lightmap 等获得每物体数据。</li>
+<li>写入或绑定 <code>UnityPerDraw</code>。</li>
+<li>从 Renderer 使用的 Material 获得材质参数。</li>
+<li>绑定 <code>UnityPerMaterial</code>。</li>
+<li>使用 Shader 绘制 Mesh。</li>
+</ol>
+<p>不过“PerDraw”不完全等于“PerRenderer”。一个 Renderer 可能因为多个 SubMesh、Pass 或阴影阶段产生多个 Draw Call。</p>
+<p>兼容 SRP Batcher 的 Shader 通常要求：</p>
+<ul>
+<li>Unity内置的每物体属性集中在一个 <code>UnityPerDraw</code> CBUFFER。</li>
+<li>所有材质属性集中在一个 <code>UnityPerMaterial</code> CBUFFER。</li>
+<li>不要把材质属性零散放进其他 CBUFFER。</li>
+</ul>
+<p>URP 自定义 Shader 常见写法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CBUFFER_START(UnityPerMaterial)</span><br><span class="line">    float4 _BaseColor;</span><br><span class="line">    float4 _BaseMap_ST;</span><br><span class="line">    float _Smoothness;</span><br><span class="line">CBUFFER_END</span><br></pre></td></tr></table></figure>
+
+<p><code>UnityPerDraw</code> 通常已经由 URP&#x2F;HDRP 的公共 include 文件声明，不应自己重复声明。</p>
+<p>SRP Batcher 会缓存 <code>UnityPerMaterial</code> 数据，在连续绘制使用同一 Shader Variant 的 Renderer 时，主要切换 <code>UnityPerDraw</code>。这样减少 CPU 向 GPU 设置状态和上传参数的成本。</p>
+<p>需要注意：</p>
+<ul>
+<li>SRP Batcher通常不会合并 Draw Call，只是降低每个 Draw Call 的 CPU 成本。</li>
+<li>GPU Instancing 才侧重于把多个相似 Renderer 合并为实例化绘制。</li>
+<li><code>MaterialPropertyBlock</code> 可以给不同 Renderer 设置不同属性，但通常会使该 Renderer 无法走标准 SRP Batcher 路径。</li>
+<li>多个 Renderer 共用 Material，更有利于缓存和批处理。</li>
+<li><code>renderer.material</code> 会创建材质实例；<code>renderer.sharedMaterial</code> 使用共享材质。</li>
+</ul>
+<p>一句话总结：<code>Renderer</code> 决定“画什么以及在哪里画”，<code>UnityPerDraw</code> 保存这次绘制的物体数据，<code>UnityPerMaterial</code> 保存材质数据，而 SRP Batcher 利用这种数据分组来降低渲染提交成本。</p>
 <h3 id="SRP-Batcher-vs-Dynamic-Batching"><a href="#SRP-Batcher-vs-Dynamic-Batching" class="headerlink" title="SRP Batcher vs. Dynamic Batching"></a>SRP Batcher vs. Dynamic Batching</h3><p>Both can be used together in SRP, but SRP Batcher takes precedence when enabled. For optimal performance in modern Unity projects, prefer SRP Batcher with proper shader setup.</p>
 <p>Both Dynamic Batching and SRP Batcher are triggered automatically in Unity when their conditions are met:</p>
 <ul>
@@ -1768,116 +1996,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/04/01/Bleeding-%E5%83%8F%E7%B4%A0%E6%B8%97%E6%BC%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/04/01/Bleeding-%E5%83%8F%E7%B4%A0%E6%B8%97%E6%BC%8F/" class="post-title-link" itemprop="url">Bleeding 渗色</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2026-04-01 16:59:48 / Modified: 17:28:42" itemprop="dateCreated datePublished" datetime="2026-04-01T16:59:48+08:00">2026-04-01</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Bleeding"><a href="#Bleeding" class="headerlink" title="Bleeding"></a>Bleeding</h1><p>纹理渗色&#x2F;纹理出血，这是一种图像处理或显示技术问题，指一种颜色“溢出”到相邻像素的现象，导致颜色边界不清晰、产生伪影或颜色混杂。</p>
-<p><img src="/2026/04/01/Bleeding-%E5%83%8F%E7%B4%A0%E6%B8%97%E6%BC%8F/p1.png" title="2D Sprite Renderer Bleeding"></p>
-<p>Texture bleeding is when pixels from outside a sprite’s intended boundary leak into the visible edge of the sprite.</p>
-<p>Here’s why it happens. When the GPU samples a texture, it rarely samples at an exact pixel center.<br>Bilinear filtering works by taking the 4 nearest pixels and blending them together based on how close the sample point is to each one.<br>At the very edge of a sprite, one of those 4 neighbors is outside the sprite — it could be a transparent black pixel, a pixel from another sprite in an atlas, or garbage data. That outside color gets mixed into your edge pixel, producing a fringe（边缘）.</p>
-<p>For example:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[ edge pixel: orange ][ outside: transparent black (0,0,0,0) ]</span><br><span class="line">                      ^</span><br><span class="line">              bilinear samples here → blends orange + black = dark muddy fringe</span><br></pre></td></tr></table></figure>
-
-<p>This is exactly what you saw — the logo’s colored edge pixels were bleeding into the transparent area around it, and because the shader was Opaque, those blended semi-transparent edge pixels were written as solid color instead of being discarded.</p>
-<p>There are three common sources of bleeding:</p>
-<ul>
-<li>Wrap Mode: Repeat — the GPU wraps around and samples the opposite edge of the texture</li>
-<li>Atlas packing with no padding — neighboring sprites bleed into each other</li>
-<li>Opaque surface type with a transparent sprite — alpha is ignored so blended edge pixels render solid</li>
-</ul>
-<h1 id="Opaque-vs-Transparent"><a href="#Opaque-vs-Transparent" class="headerlink" title="Opaque vs Transparent"></a>Opaque vs Transparent</h1><p>The GPU renders geometry in two stages: rasterization and blending.<br>When Surface Type is Opaque, the blending stage is skipped entirely — the GPU writes every pixel the fragment shader touches directly to the framebuffer, alpha value be damned.<br>Your shader was correctly computing alpha from the texture, but the pipeline threw it away before it ever reached the screen.</p>
-<p>The “noise” you saw was bilinear filtering. At the sprite’s edges, the sampler blends the last row&#x2F;column of real pixels with whatever is just outside the sprite boundary (either transparent black rgba(0,0,0,0) or neighboring texture data).<br>With opaque mode, those semi-transparent edge pixels get written as fully solid, so you see that fringe of mixed color.</p>
-<p>Use <code>Opaque</code> when:<br>The object has no see-through areas at all (terrain, walls, characters without cutouts)<br>Performance matters — opaque objects are rendered in a single front-to-back pass and benefit from early-z culling, which skips fragment shading on occluded pixels entirely</p>
-<p>Use <code>Transparent</code> when:<br>The object has partial or full transparency (UI sprites, glass, particles, logos with alpha)<br>You need the blending stage to mix the fragment color with what’s already in the framebuffer<br>The cost of transparent is real — transparent objects can’t use early-z, must be sorted back-to-front, and can cause overdraw issues. So don’t default everything to transparent.</p>
-<h2 id="Blend-Mode-within-Transparent"><a href="#Blend-Mode-within-Transparent" class="headerlink" title="Blend Mode (within Transparent)"></a>Blend Mode (within Transparent)</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">| Mode | Formula | Use case |</span><br><span class="line">| --- | --- | --- |</span><br><span class="line">| Alpha     |   src.rgb * src.a + dst.rgb * (1 - src.a) | Standard transparency, sprites, UI</span><br><span class="line">| Additive  |   src.rgb * src.a + dst.rgb   |   Glows, fire, particles that should brighten</span><br><span class="line">| Multiply  |	src.rgb * dst.rgb   |   Darkening effects, shadows, tinted overlays</span><br><span class="line">| Premultiply |	src.rgb + dst.rgb * (1 - src.a) |   Textures with premultiplied alpha baked in</span><br></pre></td></tr></table></figure>
-
-<h1 id="The-Z-Buffer"><a href="#The-Z-Buffer" class="headerlink" title="The Z-Buffer"></a>The Z-Buffer</h1><p>The GPU maintains a depth buffer (z-buffer) alongside the color buffer. Every pixel stores the depth of the closest thing rendered to it so far.<br>When a new fragment arrives, the GPU compares its depth against what’s already in the buffer — if it’s further away, it gets discarded.</p>
-<h2 id="Front-to-Back-Pass"><a href="#Front-to-Back-Pass" class="headerlink" title="Front-to-Back Pass"></a>Front-to-Back Pass</h2><p>For opaque objects, Unity sorts them front-to-back before drawing. So the closest objects get drawn first.</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Camera → [Chair] → [Table] → [Wall behind]</span><br><span class="line">           drawn     drawn      drawn</span><br><span class="line">           first     second     third</span><br></pre></td></tr></table></figure>
-<p>This matters because of early-z.</p>
-<h2 id="Early-Z-Culling"><a href="#Early-Z-Culling" class="headerlink" title="Early-Z Culling"></a>Early-Z Culling</h2><p>Once the chair is drawn and its depth is written to the z-buffer, when the wall fragment arrives at the same pixel, the GPU checks:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wall depth (5.0) &gt; z-buffer value (1.2) → discard, skip fragment shader</span><br></pre></td></tr></table></figure>
-<p>It never runs the fragment shader for the wall pixel at all. This is early-z culling — rejecting fragments before the expensive shading work happens.<br>The savings are significant. Fragment shaders do lighting, texture sampling, math — all skipped for occluded pixels.</p>
-<h2 id="Why-transparent-objects-break-this"><a href="#Why-transparent-objects-break-this" class="headerlink" title="Why transparent objects break this"></a>Why transparent objects break this</h2><p>Transparent objects need to blend with what’s behind them, so they must be drawn last, back-to-front:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Camera → [Wall] → [Table] → [Glass in front]</span><br></pre></td></tr></table></figure>
-
-<p>The glass needs the wall already in the framebuffer to blend against it. This means:</p>
-<ul>
-<li>You can’t sort front-to-back</li>
-<li>Early-z culling doesn’t apply</li>
-<li>Every transparent fragment runs the full fragment shader regardless of what’s in front of it</li>
-</ul>
-<p>That’s the real performance cost of transparency — not the blending itself, but losing early-z and the overdraw that comes with back-to-front rendering.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1955,7 +2073,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">48</span>
+          <span class="site-state-item-count">49</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1978,7 +2096,7 @@
         <a href="https://github.com/miaopasss" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;miaopasss" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
-        <a href="mailto:hubery.luo@icloud.com" title="E-Mail → mailto:hubery.luo@icloud.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+        <a href="https://miaopasss.github.io/Portfolio/src/files/Resume.pdf" title="Resume → https:&#x2F;&#x2F;miaopasss.github.io&#x2F;Portfolio&#x2F;src&#x2F;files&#x2F;Resume.pdf"><i class="fa fa-external-link-alt fa-fw"></i>Resume</a>
       </span>
   </div>
 

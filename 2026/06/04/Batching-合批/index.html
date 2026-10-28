@@ -28,7 +28,7 @@
 <meta property="og:description" content="Batching静态合批: 将相同材质并且始终不动的的Mesh合并成为一个大Mesh，然后由CPU合并为一个批次发送给GPU处理,从而减少DrawCall带来的消耗。动态合批: 相同材质并且会动的物体Mesh合并成为一个大MeshSRP Batcher: 将多个网格合并成单个批次进行渲染，从而提高性能。与其他合批不同，SRP Batcher将未改变属性的Mesh缓存起来，从而减少消耗GPU Ins">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-06-04T05:25:14.000Z">
-<meta property="article:modified_time" content="2026-06-04T07:37:45.454Z">
+<meta property="article:modified_time" content="2026-08-27T10:05:07.668Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Rendering pipeline">
 <meta name="twitter:card" content="summary">
@@ -193,10 +193,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-06-04 13:25:14 / Modified: 15:37:45" itemprop="dateCreated datePublished" datetime="2026-06-04T13:25:14+08:00">2026-06-04</time>
+              <time title="Created: 2026-06-04 13:25:14" itemprop="dateCreated datePublished" datetime="2026-06-04T13:25:14+08:00">2026-06-04</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-08-27 18:05:07" itemprop="dateModified" datetime="2026-08-27T18:05:07+08:00">2026-08-27</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -331,6 +337,62 @@
 <li>Materials must use SRP-compatible shaders</li>
 </ul>
 <p>在标准的渲染流程下，CPU需要收集所有场景物体的参数，场景中的材质越多CPU提交给GPU的数据就越多。<br>而在SRP中流程下GPU拥有数据管理的 “生命权” ,管理大量不同材质但Shader变动较小的的内容。<br>让数据在GPU中持久存在,从而减少消耗(SetPass Call)。</p>
+<h3 id="UnityPerDraw-和-UnityPerMaterial"><a href="#UnityPerDraw-和-UnityPerMaterial" class="headerlink" title="UnityPerDraw 和 UnityPerMaterial"></a>UnityPerDraw 和 UnityPerMaterial</h3><p><code>UnityPerDraw</code> 和 <code>UnityPerMaterial</code> 都是 Shader 使用的常量缓冲区（CBUFFER），区别在于数据更新频率和来源。</p>
+<table>
+<thead>
+<tr>
+<th>缓冲区</th>
+<th>数据来源</th>
+<th>常见内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>UnityPerDraw</code></td>
+<td>当前绘制的 Renderer&#x2F;物体</td>
+<td>模型矩阵、光照贴图索引、探针数据、物体变换</td>
+</tr>
+<tr>
+<td><code>UnityPerMaterial</code></td>
+<td>当前材质参数</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>关系可以理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Renderer</span><br><span class="line">├─ Mesh / Transform ──────&gt; UnityPerDraw</span><br><span class="line">└─ Material</span><br><span class="line">   └─ Shader Properties ──&gt; UnityPerMaterial</span><br></pre></td></tr></table></figure>
+
+<p>例如两个 Renderer 共用一个 Material：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Renderer A：自己的 UnityPerDraw ─┐</span><br><span class="line">                                ├─ 共用 UnityPerMaterial</span><br><span class="line">Renderer B：自己的 UnityPerDraw ─┘</span><br></pre></td></tr></table></figure>
+
+<p>因此它们颜色、粗糙度等材质属性相同，但模型矩阵不同。</p>
+<p>Renderer 是产生绘制任务的组件。Unity准备 Draw Call 时：</p>
+<ol>
+<li>从 Renderer、Transform、Lightmap 等获得每物体数据。</li>
+<li>写入或绑定 <code>UnityPerDraw</code>。</li>
+<li>从 Renderer 使用的 Material 获得材质参数。</li>
+<li>绑定 <code>UnityPerMaterial</code>。</li>
+<li>使用 Shader 绘制 Mesh。</li>
+</ol>
+<p>不过“PerDraw”不完全等于“PerRenderer”。一个 Renderer 可能因为多个 SubMesh、Pass 或阴影阶段产生多个 Draw Call。</p>
+<p>兼容 SRP Batcher 的 Shader 通常要求：</p>
+<ul>
+<li>Unity内置的每物体属性集中在一个 <code>UnityPerDraw</code> CBUFFER。</li>
+<li>所有材质属性集中在一个 <code>UnityPerMaterial</code> CBUFFER。</li>
+<li>不要把材质属性零散放进其他 CBUFFER。</li>
+</ul>
+<p>URP 自定义 Shader 常见写法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CBUFFER_START(UnityPerMaterial)</span><br><span class="line">    float4 _BaseColor;</span><br><span class="line">    float4 _BaseMap_ST;</span><br><span class="line">    float _Smoothness;</span><br><span class="line">CBUFFER_END</span><br></pre></td></tr></table></figure>
+
+<p><code>UnityPerDraw</code> 通常已经由 URP&#x2F;HDRP 的公共 include 文件声明，不应自己重复声明。</p>
+<p>SRP Batcher 会缓存 <code>UnityPerMaterial</code> 数据，在连续绘制使用同一 Shader Variant 的 Renderer 时，主要切换 <code>UnityPerDraw</code>。这样减少 CPU 向 GPU 设置状态和上传参数的成本。</p>
+<p>需要注意：</p>
+<ul>
+<li>SRP Batcher通常不会合并 Draw Call，只是降低每个 Draw Call 的 CPU 成本。</li>
+<li>GPU Instancing 才侧重于把多个相似 Renderer 合并为实例化绘制。</li>
+<li><code>MaterialPropertyBlock</code> 可以给不同 Renderer 设置不同属性，但通常会使该 Renderer 无法走标准 SRP Batcher 路径。</li>
+<li>多个 Renderer 共用 Material，更有利于缓存和批处理。</li>
+<li><code>renderer.material</code> 会创建材质实例；<code>renderer.sharedMaterial</code> 使用共享材质。</li>
+</ul>
+<p>一句话总结：<code>Renderer</code> 决定“画什么以及在哪里画”，<code>UnityPerDraw</code> 保存这次绘制的物体数据，<code>UnityPerMaterial</code> 保存材质数据，而 SRP Batcher 利用这种数据分组来降低渲染提交成本。</p>
 <h3 id="SRP-Batcher-vs-Dynamic-Batching"><a href="#SRP-Batcher-vs-Dynamic-Batching" class="headerlink" title="SRP Batcher vs. Dynamic Batching"></a>SRP Batcher vs. Dynamic Batching</h3><p>Both can be used together in SRP, but SRP Batcher takes precedence when enabled. For optimal performance in modern Unity projects, prefer SRP Batcher with proper shader setup.</p>
 <p>Both Dynamic Batching and SRP Batcher are triggered automatically in Unity when their conditions are met:</p>
 <ul>
@@ -459,7 +521,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Batching"><span class="nav-number">1.</span> <span class="nav-text">Batching</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Static-Batching"><span class="nav-number">1.1.</span> <span class="nav-text">Static Batching</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dynamic-Batching"><span class="nav-number">1.2.</span> <span class="nav-text">Dynamic Batching</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SRP-Batcher"><span class="nav-number">1.3.</span> <span class="nav-text">SRP Batcher</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SRP-Batcher-vs-Dynamic-Batching"><span class="nav-number">1.3.1.</span> <span class="nav-text">SRP Batcher vs. Dynamic Batching</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GPU-Instancing"><span class="nav-number">1.4.</span> <span class="nav-text">GPU Instancing</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Batching"><span class="nav-number">1.</span> <span class="nav-text">Batching</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Static-Batching"><span class="nav-number">1.1.</span> <span class="nav-text">Static Batching</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dynamic-Batching"><span class="nav-number">1.2.</span> <span class="nav-text">Dynamic Batching</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SRP-Batcher"><span class="nav-number">1.3.</span> <span class="nav-text">SRP Batcher</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UnityPerDraw-%E5%92%8C-UnityPerMaterial"><span class="nav-number">1.3.1.</span> <span class="nav-text">UnityPerDraw 和 UnityPerMaterial</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SRP-Batcher-vs-Dynamic-Batching"><span class="nav-number">1.3.2.</span> <span class="nav-text">SRP Batcher vs. Dynamic Batching</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GPU-Instancing"><span class="nav-number">1.4.</span> <span class="nav-text">GPU Instancing</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -481,7 +543,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">48</span>
+          <span class="site-state-item-count">49</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -504,7 +566,7 @@
         <a href="https://github.com/miaopasss" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;miaopasss" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
-        <a href="mailto:hubery.luo@icloud.com" title="E-Mail → mailto:hubery.luo@icloud.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+        <a href="https://miaopasss.github.io/Portfolio/src/files/Resume.pdf" title="Resume → https:&#x2F;&#x2F;miaopasss.github.io&#x2F;Portfolio&#x2F;src&#x2F;files&#x2F;Resume.pdf"><i class="fa fa-external-link-alt fa-fw"></i>Resume</a>
       </span>
   </div>
 
