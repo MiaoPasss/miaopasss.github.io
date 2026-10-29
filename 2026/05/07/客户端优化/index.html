@@ -28,7 +28,7 @@
 <meta property="og:description" content="在面试中回答这个问题，建议从宏观的系统层面和微观的渲染层面两个维度来展开，并重点围绕“CPU瓶颈”与“GPU瓶颈”这两个核心概念来阐述。 系统层面CPU与逻辑优化（解决主线程阻塞）减少DrawCall（绘制调用）  这是最常见的优化点。通过静态合批（合并静态场景）、动态合批（合并同材质小模型）以及GPU Instancing（大量重复物体如草丛、子弹的实例化渲染）来大幅降低CPU向GPU发送指令的">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-05-07T08:36:32.000Z">
-<meta property="article:modified_time" content="2026-05-21T09:50:47.594Z">
+<meta property="article:modified_time" content="2026-10-28T11:47:02.534Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Optimization">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-05-21 17:50:47" itemprop="dateModified" datetime="2026-05-21T17:50:47+08:00">2026-05-21</time>
+                <time title="Modified: 2026-10-28 19:47:02" itemprop="dateModified" datetime="2026-10-28T19:47:02+08:00">2026-10-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -238,8 +238,10 @@
 </ul>
 <p><strong>预加载</strong></p>
 <ul>
-<li>预加载常用的资源，比如场景中的静态资源、UI 资源、音效资源等等。</li>
-<li>在场景加载阶段（Loading 界面）预先实例化核心 UI 并隐藏（SetActive(false)），这属于将提前初始化，而非延迟初始化，适合高频使用的核心界面。</li>
+<li>预加载常用的资源，比如场景中的静态资源、UI 资源、音效资源等等。这些UI可以在游戏开始前加载UI资源但不实例化，只是将其加载到内存中。</li>
+<li>有些UI的实例化和初始化也可以提前到游戏开始前。实例化和初始化完成后，将其“隐藏”起来，待到需要的时候再将其展示出来。</li>
+<li>“隐藏”既可以将UI放在某一特定不被渲染或者未激活的层级，也可以将其放到摄像机视角之外藏起来。或者可以单独设置一个层级为不可见的layout，需要显示时再将UI元素放在可见层级中去。</li>
+<li>比如在场景加载阶段（Loading 界面）预先实例化核心 UI 并隐藏（SetActive(false)），这属于将提前初始化，而非延迟初始化，适合高频使用的核心界面。</li>
 </ul>
 <p><strong>异步处理与分帧加载 (Time-Slicing)</strong></p>
 <ul>
@@ -264,6 +266,26 @@
 <ul>
 <li>将资源采用高压缩率格式压缩，例如LZ4HC (用打包时间换空间)</li>
 <li>大世界采用流式加载，只加载玩家周围一定范围内的资源；切换场景或退出副本时，强制卸载无用资源并释放内存。</li>
+<li>在背包或一些数据项比较多的应用中，scroll view常常会有大量的元素存在，他们在窗口中的不断滚动变化导致前面说的网格重构，消耗大量的CPU资源。</li>
+<li>可以只实例化加载稍微比可视化区域大点的数据项UI，当滚动达到一定范围后再销毁一部分不可见的元素，同时加载一部分后续可能显示的元素（结合对象池）</li>
+</ul>
+<p><strong>字体拆分</strong></p>
+<ul>
+<li>字体一定程度上站了很大的空间（汉字😣），而且游戏打多需要的文字固定，没必要仅为少数的文字使用而加入整个字体库。</li>
+<li>数字字母等固定的字符可以单独打包，汉字常用字符3000足够游戏使用，真遇到特殊字符可以单独添加进去，在通过unity下的字体制作工具打包处理。</li>
+</ul>
+<p><strong>UI贴图</strong></p>
+<ul>
+<li>倒入贴图资源时，贴图的某些属性或数据其实并不是必要的，但要占用很大的空间，不合理的贴图大小也会增大资源占用。</li>
+<li>导入贴图资源时注意事项：<ol>
+<li>alpha通道是否需要&#x2F;</li>
+<li>2次方贴图大小 （宽、高分别是 2 的整数次幂，也叫 Power of Two 纹理，例如：256 × 256，512 × 1024）<br>  以前很多 GPU 对非 POT 纹理有限制，现在通常支持。但部分压缩格式仍对尺寸有要求，例如 PVRTC 常有 2 次幂限制，具体取决于平台和格式。不必把所有图片都强制改成 POT，应结合目标平台、压缩格式和图集设置判断。</li>
+<li>读写权限是否需要</li>
+<li>MipMap是否需要（多级渐远纹理）。它会为原图生成一组逐级缩小的版本，例如：1024 × 1024 → 512 × 512 → 256 × 256 → … → 1 × 1，物体远离镜头、贴图只占少量屏幕像素时，GPU 可以使用较小的版本<br>  开启 Mipmap 后，在普通纹理采样中，GPU 通常会自动选择合适的层级，前提是采样设置允许使用 Mipmap。它主要根据纹理坐标在相邻屏幕像素之间的变化率判断，相当于估算：一个屏幕像素覆盖了原贴图多少像素。</li>
+<li>合适的压缩方式</li>
+</ol>
+</li>
+<li>上述过程可以通过unity editor扩展asset importer pipeline的方式自动化管理，可以通过Texture Importer类控制指定导入路径的图片具体设置。</li>
 </ul>
 <h2 id="网络与IO优化"><a href="#网络与IO优化" class="headerlink" title="网络与IO优化"></a>网络与IO优化</h2><p><strong>协议压缩</strong></p>
 <ul>
@@ -273,12 +295,19 @@
 </ul>
 <p><strong>数据差分同步</strong></p>
 <ul>
-<li>状态同步时只发送变化的数据（如位置偏移量、血量变化），而不是发送全量数据。</li>
+<li>状态同步时只发送变化的数据（如位置偏移量、血量变化），而不是发送全量数据。<ol>
+<li>只发送变化的字段：血量从 100 变成 90，只发送 { hp: 90 }，省略未变化的位置、装备等字段。</li>
+<li>只发送变化量：发送 { hpDelta: -10 }，客户端在原有血量上减去 10。</li>
+</ol>
+</li>
+<li>前者更容易纠正状态，后者依赖双方基准一致；丢包、重复处理或乱序可能导致偏差，因此通常需要版本号、顺序控制，以及定期全量同步来校准。</li>
 </ul>
 <hr>
 <h1 id="渲染层面"><a href="#渲染层面" class="headerlink" title="渲染层面"></a>渲染层面</h1><p>渲染优化的核心是减轻GPU的压力，核心指标是降低 Overdraw（过度绘制）和 FillRate（填充率）的消耗。</p>
 <h2 id="UI画布"><a href="#UI画布" class="headerlink" title="UI画布"></a>UI画布</h2><p><strong>动静分离</strong></p>
 <ul>
+<li>unity中UGUI系统都是使用网格模型来构建，UI元素只要“动”，就会发生网格的重构合并。正所谓牵一发而动全身，少的UI元素的动导致整个UI的重构，由此带来重绘导致了cpu的开销。</li>
+<li>UGUI系统以Canvas作为自己的重绘节点，所以需要以canvas作为节点拆分动和静的UI元素。</li>
 <li>将频繁更新的动态 UI 与不常变动的静态 UI 拆分到不同的 Canvas 中，因为每次UI更新都会触发 Canvas 的重建。</li>
 <li>这样当动态 UI 延迟加载并触发重建（Rebuild）时，不会影响到静态 Canvas 的性能。</li>
 </ul>
@@ -292,6 +321,13 @@
 <ul>
 <li>瞬间加载大量元素到含有 VerticalLayoutGroup 的父物体时，会导致剧烈的 Layout 重建。</li>
 <li>可以先禁用 Layout 组件，等所有元素加载完毕后，使用 LayoutRebuilder.ForceRebuildLayoutImmediate 一次性刷新。</li>
+</ul>
+<p><strong>网格重构</strong></p>
+<ul>
+<li>UGUI系统网格合并机制是，只有将相同材质球的网格合并在一起，才能达到最佳效果。一个材质球对应一个图集，只有相同图集内的图片才需要合并在一起。</li>
+<li>当元素需要改变颜色时，是通过改变顶点颜色实现，然后将他们重新合批到网格中去。在UI动画里修改UI颜色时，UGUI都会对网格进行重构。</li>
+<li>此时我们需要自定义UI元素的材质球，通过自定义材质球改变相应的颜色变化。</li>
+<li>此时UGUI不再重构网格，因为把渲染工作交给了新的材质球，而非通过UGUI设置顶点颜色达到效果。</li>
 </ul>
 <h2 id="模型与纹理优化"><a href="#模型与纹理优化" class="headerlink" title="模型与纹理优化"></a>模型与纹理优化</h2><p><strong>LOD（多细节层次）</strong></p>
 <ul>
@@ -420,7 +456,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">49</span>
+          <span class="site-state-item-count">50</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -433,7 +469,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

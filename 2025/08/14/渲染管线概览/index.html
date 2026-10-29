@@ -33,7 +33,7 @@
 <meta property="og:image" content="https://miaopasss.github.io/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p4.png">
 <meta property="og:image" content="https://miaopasss.github.io/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p5.png">
 <meta property="article:published_time" content="2025-08-14T09:45:38.000Z">
-<meta property="article:modified_time" content="2025-08-15T09:58:21.591Z">
+<meta property="article:modified_time" content="2026-10-29T07:23:51.771Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Rendering pipeline">
 <meta property="article:tag" content="Shader">
@@ -208,7 +208,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-08-15 17:58:21" itemprop="dateModified" datetime="2025-08-15T17:58:21+08:00">2025-08-15</time>
+                <time title="Modified: 2026-10-29 15:23:51" itemprop="dateModified" datetime="2026-10-29T15:23:51+08:00">2026-10-29</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -260,6 +260,20 @@
 <li>Frame Buffer：post processing 抗锯齿 校色 景深（DOF） 动态模糊</li>
 </ol>
 <p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p1.jpg" title="全览图"> <br></p>
+<h2 id="顶点着色器-vs-片元着色器"><a href="#顶点着色器-vs-片元着色器" class="headerlink" title="顶点着色器 vs 片元着色器"></a>顶点着色器 vs 片元着色器</h2><p>One main difference is that a vertex shader can manipulate the attributes of vertices. which are the corner points of your polygons.<br>The fragment shader on the other hand takes care of how the pixels between the vertices look. They are interpolated between the defined vertices following specific rules.</p>
+<h2 id="顶点着色器-Vertex-Shader"><a href="#顶点着色器-Vertex-Shader" class="headerlink" title="顶点着色器(Vertex Shader)"></a>顶点着色器(Vertex Shader)</h2><p>顶点着色器是图形渲染管线中的第一个可编程阶段。它的主要任务是处理从CPU发送到GPU的顶点数据。每个顶点都会通过顶点着色器进行一次，通常用于执行以下操作：</p>
+<ul>
+<li>变换：将顶点从模型空间转换到世界空间，然后进一步转换到视图空间和投影空间。这通常涉及到矩阵乘法运算，用于实现平移、旋转和缩放等变换。</li>
+<li>光照计算（可选）：在某些情况下，顶点着色器也用于执行初步的光照计算，但这通常是在更简单的渲染场景中，或者作为更复杂的片元级光照计算的一个初步步骤。</li>
+<li>传递数据：顶点着色器可以计算并传递额外的数据到后续的渲染阶段，如片元着色器。这些数据可以是颜色、纹理坐标或其他自定义属性。</li>
+</ul>
+<h2 id="片元着色器"><a href="#片元着色器" class="headerlink" title="片元着色器"></a>片元着色器</h2><p>片元着色器是图形渲染管线中处理像素级渲染的阶段。它接收由顶点着色器插值得到的片元（即屏幕上的像素或像素的候选者），并生成最终的颜色和其他与像素相关的数据。以下是片元着色器的一些主要用途：</p>
+<ul>
+<li>纹理映射：从纹理中读取颜色信息，并应用到相应的像素上。这可以用于实现贴图、细节增强等效果。</li>
+<li>光照计算：执行更详细的光照计算，如计算每个像素上的光照强度和颜色。这可以包括漫反射、镜面反射、环境光等多种光照模型。</li>
+<li>颜色混合和特殊效果：实现各种颜色混合模式，以及应用如模糊、发光、深度测试等后处理效果。</li>
+<li>输出最终颜色：基于上述计算，确定每个像素的最终颜色，并将其发送到渲染管线的下一个阶段（通常是帧缓冲区）。</li>
+</ul>
 <h1 id="图元-vs-片元"><a href="#图元-vs-片元" class="headerlink" title="图元 vs 片元"></a>图元 vs 片元</h1><ul>
 <li>图元</li>
 </ul>
@@ -358,7 +372,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU-GPU%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">CPU + GPU工作流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF"><span class="nav-number">2.</span> <span class="nav-text">GPU渲染管线</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%BE%E5%85%83-vs-%E7%89%87%E5%85%83"><span class="nav-number">3.</span> <span class="nav-text">图元 vs 片元</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number">4.</span> <span class="nav-text">Credits</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU-GPU%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">CPU + GPU工作流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF"><span class="nav-number">2.</span> <span class="nav-text">GPU渲染管线</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%B6%E7%82%B9%E7%9D%80%E8%89%B2%E5%99%A8-vs-%E7%89%87%E5%85%83%E7%9D%80%E8%89%B2%E5%99%A8"><span class="nav-number">2.1.</span> <span class="nav-text">顶点着色器 vs 片元着色器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%B6%E7%82%B9%E7%9D%80%E8%89%B2%E5%99%A8-Vertex-Shader"><span class="nav-number">2.2.</span> <span class="nav-text">顶点着色器(Vertex Shader)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%87%E5%85%83%E7%9D%80%E8%89%B2%E5%99%A8"><span class="nav-number">2.3.</span> <span class="nav-text">片元着色器</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%BE%E5%85%83-vs-%E7%89%87%E5%85%83"><span class="nav-number">3.</span> <span class="nav-text">图元 vs 片元</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Credits"><span class="nav-number">4.</span> <span class="nav-text">Credits</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -380,7 +394,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">49</span>
+          <span class="site-state-item-count">50</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -393,7 +407,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

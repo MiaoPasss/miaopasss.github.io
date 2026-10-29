@@ -161,6 +161,126 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/10/28/MipMap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/10/28/MipMap/" class="post-title-link" itemprop="url">MipMap</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2026-10-28 20:53:38" itemprop="dateCreated datePublished" datetime="2026-10-28T20:53:38+08:00">2026-10-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-10-29 15:19:05" itemprop="dateModified" datetime="2026-10-29T15:19:05+08:00">2026-10-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>MipMap（多级纹理映射）是计算机图形学中用于提高渲染效率和图像质量的一种技术。在Unity 3D等游戏开发中，MipMap的作用主要体现在以下几个方面：</p>
+<ul>
+<li>减少模糊效果：当纹理在屏幕上缩小时，使用MipMap可以避免出现模糊和失真现象。MipMap的概念是为同一纹理创建多个采样级别，每个级别的分辨率逐渐降低。当物体离摄像机较远时，使用较低分辨率的纹理进行渲染，从而提供更清晰、自然的视觉效果。</li>
+<li>提高渲染效率：通过选择合适的MipMap级别，可以减少显存带宽的使用。这是因为较低分辨率的纹理占用的内存较少，传输到显卡时也能够更快速，从而提高渲染速度。</li>
+<li>减少锯齿现象：MipMap有助于减少远景物体的锯齿效果。当物体距离摄像机较远时，使用低分辨率的MipMap纹理能够更自然地显示物体的轮廓。</li>
+<li>支持纹理过滤：MipMap通常和各种纹理过滤技术（如双线性、三线性过滤）结合使用，进一步改善渲染质量。</li>
+</ul>
+<p>在Unity中，开发者可以在材质的设置中开启MipMap，系统会自动为指定的纹理生成适当的MipMap级别，从而优化游戏的表现。总之，MipMap在Unity 3D中的作用是提高画面质量和渲染性能，使游戏体验更加流畅和真实。</p>
+<h1 id="纹理采样"><a href="#纹理采样" class="headerlink" title="纹理采样"></a>纹理采样</h1><p>我们对纹理采样进行显示的过程，可以理解为将屏幕上的一个像素（下文用像素表示）映射到纹理上的一个像素（下文用纹素表示），然后用纹理上的这个像素的颜色进行显示。</p>
+<p>理想情况下，屏幕上的每个像素都可以正好对应到纹理上的一个纹素。<br><img src="/2026/10/28/MipMap/p1.png" title="1对1采样"> <br></p>
+<p>如上图这种情况，将3X3的纹理显示到3X3的屏幕上时，屏幕坐标（1，1）的像素对应的正好也是纹理上（1，1）的纹素。<br>图中黑点代表的是每个纹素的位置，红点代表的是屏幕像素映射到纹理上的位置（uv），此时只需要取对应纹素的颜色进行显示即可。</p>
+<ul>
+<li>这里的 UV 通常指归一化坐标，一般在 [0, 1] 范围内，可以理解为百分比位置，但实际用小数表示。例如 (0.5, 0.5) 表示纹理中心。它不是直接的纹素坐标。</li>
+<li>对于宽 W、高 H 的纹理：UV (u, v) 对应纹素空间的位置为 (u × W, v × H)。</li>
+</ul>
+<p>但在实际情况中，纹理采样的范围与显示该纹理的屏幕范围并不是一一对应的；<br>并且在透视相机下，随着纹理所附着的物体与摄像机间的距离改变，其占据的屏幕空间的大小也会发生变化，也就是纹理覆盖的屏幕区域的大小会发生变化。这就会出现纹理过小和纹理过大两种情况。</p>
+<h2 id="纹理过小"><a href="#纹理过小" class="headerlink" title="纹理过小"></a>纹理过小</h2><p>当物体靠近透视相机，占据的屏幕空间变大，屏幕上更大范围的像素会被用来显示物体身上的纹理，就会出现纹理过小的情况。<br><img src="/2026/10/28/MipMap/p2.png" title="多个屏幕像素对应一个纹素"> <br></p>
+<p>比如上图3X3的纹理需要显示在6X6的屏幕范围上时，图中红点和黄点分别代表屏幕空间的前两个像素，此时二者都对应纹理空间的第一个纹素，且其采样位置也不是正好在纹素的位置。<br>可见，纹理过小时会出现多个像素拥挤到同一个纹理像素上，并且纹理与屏幕范围差距越大，拥挤到同一个纹素上的像素数量越多。此时可以采用：</p>
+<ul>
+<li>就近点采样（最近邻采样）：根据 UV 选择最近的纹素中心，返回它的颜色。</li>
+<li>双线性过滤：混合周围几个纹素的颜色。</li>
+</ul>
+<h3 id="就近点采样"><a href="#就近点采样" class="headerlink" title="就近点采样"></a>就近点采样</h3><p><img src="/2026/10/28/MipMap/p3.png" title="采用最近的纹素"> <br><br>如上图所示，红点为屏幕像素映射到的位置，当使用就近点采样进行滤波时，会查找距离目标最近的纹素进行采样，也就是图中的蓝点对应的纹素。</p>
+<p>就近点采样速度快，但问题也很明显，当纹理过小且纹理与屏幕范围差距较大时，如果采用就近点采样，就会导致大片的像素都采样到同一个颜色，使渲染出来的图像看起来一块一块的，颗粒感（或像素化）严重。</p>
+<h3 id="双线性插值"><a href="#双线性插值" class="headerlink" title="双线性插值"></a>双线性插值</h3><p><img src="/2026/10/28/MipMap/p4.png" title="计算横向差值"> <br><br>在双线性插值中，会考虑离采样点最近的四个纹素作为参考点，也就是上图中P1 P2 P3 P4四个蓝点<br>根据采样点与参考点的水平距离，对P1 P2进行插值得到新参考点P5的颜色、对P3 P4进行插值得到新参考点P6的颜色</p>
+<p><img src="/2026/10/28/MipMap/p5.png" title="计算横向差值的纵向差值"> <br><br>之后根据采样点与参考点之间的纵向距离对新参考点P5P6进行插值，从而得到最终的采样颜色。</p>
+<p>双线性插值通过两次插值计算，使采样结果在一定程度上反映出采样点附近的综合颜色，且速度也较快，是最常用的滤波方式。</p>
+<h2 id="纹理过大"><a href="#纹理过大" class="headerlink" title="纹理过大"></a>纹理过大</h2><p>当物体远离透视相机，占据的屏幕空间变小，物体身上的纹理只能被显示在屏幕上很少的几个像素上，就会出现纹理过大的情况。<br><img src="/2026/10/28/MipMap/p6.png" title="1个屏幕像素对应多个纹素"> <br></p>
+<p>当出现纹理过大时，如将6X6的纹理显示在4X4的屏幕范围内，一个屏幕像素内就需要塞下多个纹素，上图中红框和黄框分别代表相邻的2个屏幕像素对应的纹素范围。</p>
+<p>由于一个像素无法包含如此多的颜色，因而会导致纹理信息丢失，并进一步导致相邻像素间颜色信息不连贯，从而产生摩尔纹或者锯齿化的现象（采样不足产生的混叠现象）。</p>
+<ul>
+<li>锯齿：斜线或物体边缘呈阶梯状。屏幕像素数量有限，无法准确表达连续的边界；物体移动时，边缘还可能闪烁</li>
+<li>摩尔纹：密集的重复图案出现原本不存在的条纹、波纹。例如远处的砖墙、格子地板，看起来产生大块明暗条带，移动时也可能闪烁</li>
+</ul>
+<h3 id="Mipmap"><a href="#Mipmap" class="headerlink" title="Mipmap"></a>Mipmap</h3><p>纹理过大问题的本质是一个像素无法表达多个纹素而导致的颜色信息丢失。<br>最直观的解决方案便是对单个屏幕像素覆盖的多个纹素进行多次采样，然后按照取平均值或者其他方式进行合并，以最终的合并结果作为采样得到的颜色值，也就是超采样技术。</p>
+<p>实时超采样的开销无疑是巨大的，为了提升采样速度，我们可以按照一定范围将纹素提前进行合并，生成一张新的纹理，当需要进行超采样时，只要对新生成的纹理直接采样显示即可。<br>另外一个问题是，当物体与透视相机的距离发生改变，单个屏幕像素要表达的纹素数量也会发生变化，为了使采样结果更加可靠，我们可以以像素覆盖纹素的数量作为依据划分几个等级，计算每个等级需要合并的纹素范围，生成多张新纹理，在渲染时选择对应等级的新纹理进行采样。</p>
+<p>以上便是MipMap的原理。</p>
+<p>在MipMap中，以原始纹理作为Level 0。<br>将当前Level D的相邻四个像素进行合并，生成次一级的纹理Level D + 1。所以 Mipmap 每升一级，宽和高都减半。<br>在渲染时，根据相邻屏幕像素的UV坐标最大距离，算出每个屏幕像素覆盖的纹素范围L，然后对 L 取以 2 为底的对数即可得到对应的MipMap等级D。<br>最后从已经提前生成的Level D级的纹理中进行采样。</p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/zhiai315/article/details/138750976">https://blog.csdn.net/zhiai315/article/details/138750976</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/10/27/Google-Protobuf/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -198,8 +318,17 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-10-28 15:26:29" itemprop="dateModified" datetime="2026-10-28T15:26:29+08:00">2026-10-28</time>
+                <time title="Modified: 2026-10-28 20:59:47" itemprop="dateModified" datetime="2026-10-28T20:59:47+08:00">2026-10-28</time>
               </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Networks/" itemprop="url" rel="index"><span itemprop="name">Networks</span></a>
+                </span>
+            </span>
 
           
 
@@ -1441,7 +1570,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-05-21 17:50:47" itemprop="dateModified" datetime="2026-05-21T17:50:47+08:00">2026-05-21</time>
+                <time title="Modified: 2026-10-28 19:47:02" itemprop="dateModified" datetime="2026-10-28T19:47:02+08:00">2026-10-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1471,8 +1600,10 @@
 </ul>
 <p><strong>预加载</strong></p>
 <ul>
-<li>预加载常用的资源，比如场景中的静态资源、UI 资源、音效资源等等。</li>
-<li>在场景加载阶段（Loading 界面）预先实例化核心 UI 并隐藏（SetActive(false)），这属于将提前初始化，而非延迟初始化，适合高频使用的核心界面。</li>
+<li>预加载常用的资源，比如场景中的静态资源、UI 资源、音效资源等等。这些UI可以在游戏开始前加载UI资源但不实例化，只是将其加载到内存中。</li>
+<li>有些UI的实例化和初始化也可以提前到游戏开始前。实例化和初始化完成后，将其“隐藏”起来，待到需要的时候再将其展示出来。</li>
+<li>“隐藏”既可以将UI放在某一特定不被渲染或者未激活的层级，也可以将其放到摄像机视角之外藏起来。或者可以单独设置一个层级为不可见的layout，需要显示时再将UI元素放在可见层级中去。</li>
+<li>比如在场景加载阶段（Loading 界面）预先实例化核心 UI 并隐藏（SetActive(false)），这属于将提前初始化，而非延迟初始化，适合高频使用的核心界面。</li>
 </ul>
 <p><strong>异步处理与分帧加载 (Time-Slicing)</strong></p>
 <ul>
@@ -1497,6 +1628,26 @@
 <ul>
 <li>将资源采用高压缩率格式压缩，例如LZ4HC (用打包时间换空间)</li>
 <li>大世界采用流式加载，只加载玩家周围一定范围内的资源；切换场景或退出副本时，强制卸载无用资源并释放内存。</li>
+<li>在背包或一些数据项比较多的应用中，scroll view常常会有大量的元素存在，他们在窗口中的不断滚动变化导致前面说的网格重构，消耗大量的CPU资源。</li>
+<li>可以只实例化加载稍微比可视化区域大点的数据项UI，当滚动达到一定范围后再销毁一部分不可见的元素，同时加载一部分后续可能显示的元素（结合对象池）</li>
+</ul>
+<p><strong>字体拆分</strong></p>
+<ul>
+<li>字体一定程度上站了很大的空间（汉字😣），而且游戏打多需要的文字固定，没必要仅为少数的文字使用而加入整个字体库。</li>
+<li>数字字母等固定的字符可以单独打包，汉字常用字符3000足够游戏使用，真遇到特殊字符可以单独添加进去，在通过unity下的字体制作工具打包处理。</li>
+</ul>
+<p><strong>UI贴图</strong></p>
+<ul>
+<li>倒入贴图资源时，贴图的某些属性或数据其实并不是必要的，但要占用很大的空间，不合理的贴图大小也会增大资源占用。</li>
+<li>导入贴图资源时注意事项：<ol>
+<li>alpha通道是否需要&#x2F;</li>
+<li>2次方贴图大小 （宽、高分别是 2 的整数次幂，也叫 Power of Two 纹理，例如：256 × 256，512 × 1024）<br>  以前很多 GPU 对非 POT 纹理有限制，现在通常支持。但部分压缩格式仍对尺寸有要求，例如 PVRTC 常有 2 次幂限制，具体取决于平台和格式。不必把所有图片都强制改成 POT，应结合目标平台、压缩格式和图集设置判断。</li>
+<li>读写权限是否需要</li>
+<li>MipMap是否需要（多级渐远纹理）。它会为原图生成一组逐级缩小的版本，例如：1024 × 1024 → 512 × 512 → 256 × 256 → … → 1 × 1，物体远离镜头、贴图只占少量屏幕像素时，GPU 可以使用较小的版本<br>  开启 Mipmap 后，在普通纹理采样中，GPU 通常会自动选择合适的层级，前提是采样设置允许使用 Mipmap。它主要根据纹理坐标在相邻屏幕像素之间的变化率判断，相当于估算：一个屏幕像素覆盖了原贴图多少像素。</li>
+<li>合适的压缩方式</li>
+</ol>
+</li>
+<li>上述过程可以通过unity editor扩展asset importer pipeline的方式自动化管理，可以通过Texture Importer类控制指定导入路径的图片具体设置。</li>
 </ul>
 <h2 id="网络与IO优化"><a href="#网络与IO优化" class="headerlink" title="网络与IO优化"></a>网络与IO优化</h2><p><strong>协议压缩</strong></p>
 <ul>
@@ -1506,12 +1657,19 @@
 </ul>
 <p><strong>数据差分同步</strong></p>
 <ul>
-<li>状态同步时只发送变化的数据（如位置偏移量、血量变化），而不是发送全量数据。</li>
+<li>状态同步时只发送变化的数据（如位置偏移量、血量变化），而不是发送全量数据。<ol>
+<li>只发送变化的字段：血量从 100 变成 90，只发送 { hp: 90 }，省略未变化的位置、装备等字段。</li>
+<li>只发送变化量：发送 { hpDelta: -10 }，客户端在原有血量上减去 10。</li>
+</ol>
+</li>
+<li>前者更容易纠正状态，后者依赖双方基准一致；丢包、重复处理或乱序可能导致偏差，因此通常需要版本号、顺序控制，以及定期全量同步来校准。</li>
 </ul>
 <hr>
 <h1 id="渲染层面"><a href="#渲染层面" class="headerlink" title="渲染层面"></a>渲染层面</h1><p>渲染优化的核心是减轻GPU的压力，核心指标是降低 Overdraw（过度绘制）和 FillRate（填充率）的消耗。</p>
 <h2 id="UI画布"><a href="#UI画布" class="headerlink" title="UI画布"></a>UI画布</h2><p><strong>动静分离</strong></p>
 <ul>
+<li>unity中UGUI系统都是使用网格模型来构建，UI元素只要“动”，就会发生网格的重构合并。正所谓牵一发而动全身，少的UI元素的动导致整个UI的重构，由此带来重绘导致了cpu的开销。</li>
+<li>UGUI系统以Canvas作为自己的重绘节点，所以需要以canvas作为节点拆分动和静的UI元素。</li>
 <li>将频繁更新的动态 UI 与不常变动的静态 UI 拆分到不同的 Canvas 中，因为每次UI更新都会触发 Canvas 的重建。</li>
 <li>这样当动态 UI 延迟加载并触发重建（Rebuild）时，不会影响到静态 Canvas 的性能。</li>
 </ul>
@@ -1525,6 +1683,13 @@
 <ul>
 <li>瞬间加载大量元素到含有 VerticalLayoutGroup 的父物体时，会导致剧烈的 Layout 重建。</li>
 <li>可以先禁用 Layout 组件，等所有元素加载完毕后，使用 LayoutRebuilder.ForceRebuildLayoutImmediate 一次性刷新。</li>
+</ul>
+<p><strong>网格重构</strong></p>
+<ul>
+<li>UGUI系统网格合并机制是，只有将相同材质球的网格合并在一起，才能达到最佳效果。一个材质球对应一个图集，只有相同图集内的图片才需要合并在一起。</li>
+<li>当元素需要改变颜色时，是通过改变顶点颜色实现，然后将他们重新合批到网格中去。在UI动画里修改UI颜色时，UGUI都会对网格进行重构。</li>
+<li>此时我们需要自定义UI元素的材质球，通过自定义材质球改变相应的颜色变化。</li>
+<li>此时UGUI不再重构网格，因为把渲染工作交给了新的材质球，而非通过UGUI设置顶点颜色达到效果。</li>
 </ul>
 <h2 id="模型与纹理优化"><a href="#模型与纹理优化" class="headerlink" title="模型与纹理优化"></a>模型与纹理优化</h2><p><strong>LOD（多细节层次）</strong></p>
 <ul>
@@ -1856,146 +2021,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/04/13/Unity%E7%B2%92%E5%AD%90%E7%89%B9%E6%95%88/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/04/13/Unity%E7%B2%92%E5%AD%90%E7%89%B9%E6%95%88/" class="post-title-link" itemprop="url">Unity粒子特效</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2026-04-13 13:23:57" itemprop="dateCreated datePublished" datetime="2026-04-13T13:23:57+08:00">2026-04-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-07-24 17:04:31" itemprop="dateModified" datetime="2026-07-24T17:04:31+08:00">2026-07-24</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Unity 的粒子特效主要基于内置的 <code>Particle System</code> 组件。它适合创建火焰、烟雾、爆炸、雪花、魔法光效等视觉效果。<br>粒子系统通过一组不断生成、模拟、渲染的“粒子”来表现复杂的视觉效果，而不需要为每一个物体写单独的网格。</p>
-<h1 id="粒子系统的核心概念"><a href="#粒子系统的核心概念" class="headerlink" title="粒子系统的核心概念"></a>粒子系统的核心概念</h1><ul>
-<li><strong>Emitter（发射器）</strong>：粒子从何处发射，通常由发射形状（Shape）决定。</li>
-<li><strong>Lifetime（寿命）</strong>：每个粒子存在的时间。</li>
-<li><strong>Velocity（速度）</strong>：粒子运动方向与速度。</li>
-<li><strong>Size &#x2F; Color over Lifetime</strong>：粒子在生命周期中大小和颜色的变化。</li>
-<li><strong>Emission Rate（发射率）</strong>：每秒生成粒子数量。</li>
-<li><strong>Renderer</strong>：粒子最终如何绘制，常见为 Billboard、Mesh、Stretch Billboard。</li>
-</ul>
-<h1 id="Unity-粒子系统常用模块"><a href="#Unity-粒子系统常用模块" class="headerlink" title="Unity 粒子系统常用模块"></a>Unity 粒子系统常用模块</h1><ul>
-<li><code>Emission</code>：控制发射速率、爆发次数。</li>
-<li><code>Shape</code>：控制粒子发射区域，如 Sphere、Cone、Box 等。</li>
-<li><code>Velocity over Lifetime</code>：设置粒子在生命周期内的速度变化。</li>
-<li><code>Color over Lifetime</code>：设置颜色渐变。</li>
-<li><code>Size over Lifetime</code>：控制大小随时间变化。</li>
-<li><code>Rotation over Lifetime</code>：控制粒子旋转。</li>
-<li><code>Noise</code>：添加噪声让粒子运动更自然。</li>
-<li><code>Collision</code>：让粒子与世界碰撞。</li>
-</ul>
-<h1 id="混合代码与粒子系统使用方式"><a href="#混合代码与粒子系统使用方式" class="headerlink" title="混合代码与粒子系统使用方式"></a>混合代码与粒子系统使用方式</h1><p>粒子系统通常由编辑器配置，但也可以通过脚本动态控制。下面是一个常见的代码用例：创建、配置并触发粒子效果。</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ParticleEffectSpawner</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// `ParticleSystem` 组件可直接挂在预制体上，脚本通过 `Instantiate` 生成实例。</span></span><br><span class="line">    <span class="keyword">public</span> ParticleSystem particlePrefab;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (particlePrefab == <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogWarning(<span class="string">&quot;请在 Inspector 中指定 particlePrefab&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">SpawnEffect</span>(<span class="params">Vector3 position</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> instance = Instantiate(particlePrefab, position, Quaternion.identity);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// `main`、`emission`、`shape` 等模块都可以在运行时通过脚本访问。</span></span><br><span class="line">        <span class="keyword">var</span> main = instance.main;</span><br><span class="line">        main.startLifetime = <span class="number">1.5f</span>;</span><br><span class="line">        main.startSpeed = <span class="number">4f</span>;</span><br><span class="line">        main.startSize = <span class="number">0.8f</span>;</span><br><span class="line">        main.startColor = Color.cyan;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> emission = instance.emission;</span><br><span class="line">        emission.rateOverTime = <span class="number">100f</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> shape = instance.shape;</span><br><span class="line">        shape.shapeType = ParticleSystemShapeType.Cone;</span><br><span class="line">        shape.angle = <span class="number">20f</span>;</span><br><span class="line">        shape.radius = <span class="number">0.5f</span>;</span><br><span class="line"></span><br><span class="line">        instance.Play();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// `Destroy` 用于清理粒子对象，避免特效结束后残留内存。</span></span><br><span class="line">        Destroy(instance.gameObject, main.startLifetime.constant + <span class="number">0.5f</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="运行时参数控制示例"><a href="#运行时参数控制示例" class="headerlink" title="运行时参数控制示例"></a>运行时参数控制示例</h1><p>通过脚本修改粒子参数，可以实现不同风格的特效，例如爆炸效果：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Explode</span>(<span class="params">Vector3 position</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> instance = Instantiate(particlePrefab, position, Quaternion.identity);</span><br><span class="line">    <span class="keyword">var</span> main = instance.main;</span><br><span class="line">    main.startLifetime = <span class="number">0.8f</span>;</span><br><span class="line">    main.startSpeed = <span class="number">10f</span>;</span><br><span class="line">    main.startSize = <span class="number">1.5f</span>;</span><br><span class="line">    main.startColor = <span class="keyword">new</span> Color(<span class="number">1f</span>, <span class="number">0.5f</span>, <span class="number">0.1f</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> emission = instance.emission;</span><br><span class="line">    emission.rateOverTime = <span class="number">0f</span>;</span><br><span class="line">    emission.SetBurst(<span class="number">0</span>, <span class="keyword">new</span> ParticleSystem.Burst(<span class="number">0f</span>, <span class="number">50</span>, <span class="number">80</span>));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> shape = instance.shape;</span><br><span class="line">    shape.shapeType = ParticleSystemShapeType.Sphere;</span><br><span class="line">    shape.radius = <span class="number">0.3f</span>;</span><br><span class="line"></span><br><span class="line">    instance.Play();</span><br><span class="line">    Destroy(instance.gameObject, main.startLifetime.constant + <span class="number">0.5f</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="与-Shader-的区别"><a href="#与-Shader-的区别" class="headerlink" title="与 Shader 的区别"></a>与 Shader 的区别</h1><p>Unity 粒子特效通常由 <code>Particle System</code> 来驱动整体行为，而 <code>Shader</code> 决定粒子的最终视觉表现。<br>两者搭配使用，既可以快速构建特效逻辑，也能在渲染上实现更加细腻的视觉结果。</p>
-<h2 id="粒子系统和-Shader-的职责不同"><a href="#粒子系统和-Shader-的职责不同" class="headerlink" title="粒子系统和 Shader 的职责不同"></a>粒子系统和 Shader 的职责不同</h2><ul>
-<li><code>Particle System</code>：负责粒子的生成、生命周期、位置、速度、发射、碰撞、颜色和大小变化等整体行为。</li>
-<li><code>Shader</code>：负责单个粒子的最终渲染效果，如纹理、颜色混合、透明度、光照、动画遮罩等。</li>
-</ul>
-<p>粒子系统通常使用内置或自定义材质，材质中可以包含 Shader。也就是说，粒子系统负责“做出粒子”，Shader 负责“怎么画粒子”。</p>
-<h2 id="使用场景差异"><a href="#使用场景差异" class="headerlink" title="使用场景差异"></a>使用场景差异</h2><ul>
-<li>粒子系统适合快速搭建常见特效、控制复杂行为、在编辑器中调整参数。</li>
-<li>Shader 适合实现特效的渲染细节，如渐隐、闪烁、扫描、光晕与特殊混合模式。</li>
-</ul>
-<p>例如：你可以让 <code>Particle System</code> 负责生成烟雾粒子，而使用 <code>Unlit</code> 或 <code>Additive</code> Shader 实现在透明面上绘制柔和、发光的烟雾纹理。</p>
-<h2 id="性能与复杂度"><a href="#性能与复杂度" class="headerlink" title="性能与复杂度"></a>性能与复杂度</h2><ul>
-<li><code>Particle System</code> 自身封装了大量行为，适合面向特效设计师快速迭代。</li>
-<li><code>Shader</code> 则在 GPU 上运行、效率更高，但需要编写渲染代码，对每个像素&#x2F;顶点进行控制。</li>
-</ul>
-<p>如果希望增强粒子表现，可以结合 <code>Shader Graph</code> 或自定义 Shader，使粒子面具备“流动光晕”、“波动边缘”、“复杂透明度曲线”等效果。</p>
-<h2 id="结合-Shader-的粒子效果"><a href="#结合-Shader-的粒子效果" class="headerlink" title="结合 Shader 的粒子效果"></a>结合 Shader 的粒子效果</h2><p>一个常见做法是：</p>
-<ol>
-<li>在 <code>Particle System</code> 中设置材质为 <code>Particle/Additive</code> 或自定义粒子材质。</li>
-<li>使用纹理图集、<code>Color over Lifetime</code>、<code>Size over Lifetime</code> 调整粒子表现。</li>
-<li>在 Shader 中实现附加效果，例如渐隐、扭曲、噪声贴图 UV 变换。</li>
-</ol>
-<h1 id="自定义-Shader-示例"><a href="#自定义-Shader-示例" class="headerlink" title="自定义 Shader 示例"></a>自定义 Shader 示例</h1><p>下面是一个简单的粒子自定义 Shader，它对粒子透明度和 UV 进行了处理：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">Shader &quot;Custom/ParticleSoft&quot;</span><br><span class="line">&#123;</span><br><span class="line">    Properties</span><br><span class="line">    &#123;</span><br><span class="line">        _MainTex (&quot;Texture&quot;, 2D) = &quot;white&quot; &#123;&#125;</span><br><span class="line">        _Color (&quot;Tint&quot;, Color) = (1,1,1,1)</span><br><span class="line">    &#125;</span><br><span class="line">    SubShader</span><br><span class="line">    &#123;</span><br><span class="line">        Tags &#123; &quot;Queue&quot;=&quot;Transparent&quot; &quot;RenderType&quot;=&quot;Transparent&quot; &#125;</span><br><span class="line">        Blend SrcAlpha One</span><br><span class="line">        Cull Off</span><br><span class="line">        Lighting Off</span><br><span class="line">        ZWrite Off</span><br><span class="line"></span><br><span class="line">        Pass</span><br><span class="line">        &#123;</span><br><span class="line">            CGPROGRAM</span><br><span class="line">            #pragma vertex vert</span><br><span class="line">            #pragma fragment frag</span><br><span class="line">            #include &quot;UnityCG.cginc&quot;</span><br><span class="line"></span><br><span class="line">            sampler2D _MainTex;</span><br><span class="line">            float4 _Color;</span><br><span class="line"></span><br><span class="line">            struct appdata</span><br><span class="line">            &#123;</span><br><span class="line">                float4 vertex : POSITION;</span><br><span class="line">                float2 uv : TEXCOORD0;</span><br><span class="line">                float4 color : COLOR;</span><br><span class="line">            &#125;;</span><br><span class="line"></span><br><span class="line">            struct v2f</span><br><span class="line">            &#123;</span><br><span class="line">                float4 pos : SV_POSITION;</span><br><span class="line">                float2 uv : TEXCOORD0;</span><br><span class="line">                float4 color : COLOR;</span><br><span class="line">            &#125;;</span><br><span class="line"></span><br><span class="line">            v2f vert(appdata v)</span><br><span class="line">            &#123;</span><br><span class="line">                v2f o;</span><br><span class="line">                o.pos = UnityObjectToClipPos(v.vertex);</span><br><span class="line">                o.uv = v.uv;</span><br><span class="line">                o.color = v.color * _Color;</span><br><span class="line">                return o;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            fixed4 frag(v2f i) : SV_Target</span><br><span class="line">            &#123;</span><br><span class="line">                fixed4 tex = tex2D(_MainTex, i.uv);</span><br><span class="line">                tex.rgb *= i.color.rgb;</span><br><span class="line">                tex.a *= i.color.a;</span><br><span class="line">                return tex;</span><br><span class="line">            &#125;</span><br><span class="line">            ENDCG</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这个 Shader 只负责将粒子贴图按颜色和透明度渲染出来，而粒子系统仍然负责产生位置、速度和生命周期。</p>
-<h2 id="实战建议"><a href="#实战建议" class="headerlink" title="实战建议"></a>实战建议</h2><ul>
-<li>先用编辑器调整粒子系统参数，确认效果后再用脚本控制动画和触发时机。</li>
-<li>将复杂行为拆成多个粒子系统，如火焰、烟雾、火花分别使用不同系统组合。</li>
-<li>如果粒子数量大或效果复杂，可考虑粒子 Shader 优化，例如使用 <code>Soft Particles</code>、<code>GPU Instancing</code> 或 <code>Shader Graph</code>。</li>
-<li>当粒子需要与场景光照、阴影或深度融合时，配合自定义 Shader 和深度测试设置提高表现力。</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2073,7 +2098,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">49</span>
+          <span class="site-state-item-count">50</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -2086,7 +2111,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
