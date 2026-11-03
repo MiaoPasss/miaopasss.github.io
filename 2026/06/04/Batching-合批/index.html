@@ -28,7 +28,7 @@
 <meta property="og:description" content="Batching静态合批: 将相同材质并且始终不动的的Mesh合并成为一个大Mesh，然后由CPU合并为一个批次发送给GPU处理,从而减少DrawCall带来的消耗。动态合批: 相同材质并且会动的物体Mesh合并成为一个大MeshSRP Batcher: 将多个网格合并成单个批次进行渲染，从而提高性能。与其他合批不同，SRP Batcher将未改变属性的Mesh缓存起来，从而减少消耗GPU Ins">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-06-04T05:25:14.000Z">
-<meta property="article:modified_time" content="2026-08-27T10:05:07.668Z">
+<meta property="article:modified_time" content="2026-11-03T11:25:57.387Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Rendering pipeline">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-08-27 18:05:07" itemprop="dateModified" datetime="2026-08-27T18:05:07+08:00">2026-08-27</time>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -265,7 +265,9 @@
 <td align="left">场景中静止不动的所有物体，如建筑、地面、大块的岩石、静态的装饰物等。</td>
 </tr>
 </tbody></table>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">场景里100棵树（同材质，Static）：</span><br><span class="line">  构建时合并 → 1个大mesh</span><br><span class="line">  运行时：SetPass × 1，Draw Call × 1</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>场景里100棵树（同材质，Static）：<br>构建时合并 → 1个大mesh<br>运行时：SetPass × 1，Draw Call × 1  </p>
+</blockquote>
 <p>代价是内存，合并后的大 mesh 常驻内存，物体也不能移动。</p>
 <h2 id="Dynamic-Batching"><a href="#Dynamic-Batching" class="headerlink" title="Dynamic Batching"></a>Dynamic Batching</h2><p>与静态合批不同，动态合批是的物体是可以运动的，针对动态小物体。每帧 CPU 实时把符合条件的 mesh 合并，然后一次提交。<br>条件很苛刻：顶点数 &lt; 300，不能使用lightmap，不能使用多通道的shader，不能是缩放比不同的物体。<br>Unity 的 Dynamic Batching（动态批处理）是自动触发的。只要启用了该功能且物体满足特定条件（如使用相同材质、顶点数较少），Unity 引擎就会在运行时自动合并 Draw Call，无需手动干预。</p>
 <table>
@@ -296,7 +298,9 @@
 <td align="left">在旧的内置渲染管线（Built-in RP）中，用于处理大量简单粒子、子弹等小物体。<strong>在现代项目中几乎不再使用</strong>。</td>
 </tr>
 </tbody></table>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">每帧：</span><br><span class="line">  CPU 检查哪些动态物体同材质 → 临时合并 mesh → 一次 Draw Call</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>每帧：<br>CPU 检查哪些动态物体同材质 → 临时合并 mesh → 一次 Draw Call  </p>
+</blockquote>
 <p>代价是 CPU 每帧都要做合并，物体多了反而更慢。</p>
 <h2 id="SRP-Batcher"><a href="#SRP-Batcher" class="headerlink" title="SRP Batcher"></a>SRP Batcher</h2><p>Batches draw calls by grouping objects that use the same shader variant, reducing SetPass calls<br>Shader properties stored in GPU buffers instead of individual material constants</p>
 <p>创建大型 GPU 缓冲区: 在每一帧开始时，SRP Batcher 会在 GPU 上开辟一个巨大的、持久化的缓冲区 (在现代图形API中通常是 Constant Buffer 或 UBO)。<br>打包所有数据: 它会遍历所有使用相同 Shader Variant（着色器变体）的物体，把它们的材质属性（颜色、向量、浮点数等）全部打包塞进这个大缓冲区里。</p>
@@ -358,11 +362,13 @@
 </tr>
 </tbody></table>
 <p>关系可以理解为：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Renderer</span><br><span class="line">├─ Mesh / Transform ──────&gt; UnityPerDraw</span><br><span class="line">└─ Material</span><br><span class="line">   └─ Shader Properties ──&gt; UnityPerMaterial</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>Renderer<br>├─ Mesh &#x2F; Transform ──────&gt; UnityPerDraw<br>└─ Material<br>└─ Shader Properties ──&gt; UnityPerMaterial  </p>
+</blockquote>
 <p>例如两个 Renderer 共用一个 Material：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Renderer A：自己的 UnityPerDraw ─┐</span><br><span class="line">                                ├─ 共用 UnityPerMaterial</span><br><span class="line">Renderer B：自己的 UnityPerDraw ─┘</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>Renderer A：自己的 UnityPerDraw ─┐<br>├─ 共用 UnityPerMaterial<br>Renderer B：自己的 UnityPerDraw ─┘  </p>
+</blockquote>
 <p>因此它们颜色、粗糙度等材质属性相同，但模型矩阵不同。</p>
 <p>Renderer 是产生绘制任务的组件。Unity准备 Draw Call 时：</p>
 <ol>
@@ -438,7 +444,10 @@
 <li>粒子对像不能合批</li>
 </ul>
 <p>此时的CPU依然只提交1次Drawcall</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">100棵树（同mesh，同材质，不同位置/颜色）：</span><br><span class="line">  CPU：提交1次mesh + 100个transform数组</span><br><span class="line">  GPU：自己 instance 100次</span><br><span class="line">  结果：SetPass × 1，Draw Call × 1</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>100棵树（同mesh，同材质，不同位置&#x2F;颜色）：<br>CPU：提交1次mesh + 100个transform数组<br>GPU：自己 instance 100次<br>结果：SetPass × 1，Draw Call × 1  </p>
+</blockquote>
+
     </div>
 
     
@@ -543,7 +552,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">51</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

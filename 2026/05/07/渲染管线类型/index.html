@@ -28,7 +28,7 @@
 <meta property="og:description" content="CPU-GPU 交互流程关注点：CPU 如何告诉 GPU “要画什么”？这决定了代码架构和内存管理方式。 立刻渲染模式（Immediate Mode）每一帧都在 Update 或 OnGUI 里写 DrawButton()，简单直观，但如果物体多，CPU 喊口令会累死。 工作原理 核心在于“每帧重新绘制”，无需保存图形对象的复杂状态 它具有简单直接、易于动态更新的优点，但因缺乏对象层级的记录，CP">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-05-07T05:24:44.000Z">
-<meta property="article:modified_time" content="2026-05-08T04:31:03.170Z">
+<meta property="article:modified_time" content="2026-11-03T11:25:57.389Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Rendering pipeline">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-05-08 12:31:03" itemprop="dateModified" datetime="2026-05-08T12:31:03+08:00">2026-05-08</time>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -238,8 +238,9 @@
 <li>它具有简单直接、易于动态更新的优点，但因缺乏对象层级的记录，CPU负载通常较高</li>
 <li>每次调用绘制命令（如 glDrawArrays、DrawPrimitive），GPU 就立即执行渲染，结果直接写入帧缓冲区。</li>
 </ul>
-<h3 id="执行流程"><a href="#执行流程" class="headerlink" title="执行流程"></a>执行流程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">绘制物体A → 立即渲染A → 绘制物体B → 立即渲染B → 绘制物体C → 立即渲染C</span><br></pre></td></tr></table></figure>
-
+<h3 id="执行流程"><a href="#执行流程" class="headerlink" title="执行流程"></a>执行流程</h3><blockquote>
+<p>绘制物体A → 立即渲染A → 绘制物体B → 立即渲染B → 绘制物体C → 立即渲染C  </p>
+</blockquote>
 <h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><ol>
 <li>无状态管理 - 每次绘制独立，不保存场景信息</li>
 <li>实时响应 - 调用即渲染，适合简单场景</li>
@@ -253,8 +254,9 @@
 </ul>
 </li>
 </ul>
-<h3 id="执行流程-1"><a href="#执行流程-1" class="headerlink" title="执行流程"></a>执行流程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">构建场景图 → 提交给引擎 → 引擎优化（剔除、排序、批处理）→ 统一渲染</span><br></pre></td></tr></table></figure>
-
+<h3 id="执行流程-1"><a href="#执行流程-1" class="headerlink" title="执行流程"></a>执行流程</h3><blockquote>
+<p>构建场景图 → 提交给引擎 → 引擎优化（剔除、排序、批处理）→ 统一渲染  </p>
+</blockquote>
 <h3 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h3><ol>
 <li>层次化管理 - 通过场景图管理物体关系</li>
 <li>自动优化 - 视锥剔除、遮挡剔除、状态排序</li>
@@ -272,8 +274,9 @@
 <li>光源数量有限（通常 4-8 个）</li>
 <li>性能随光源线性下降</li>
 </ul>
-<h3 id="多-Pass-方式"><a href="#多-Pass-方式" class="headerlink" title="多 Pass 方式"></a>多 Pass 方式</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Pass 1: 渲染物体 + 主光源</span><br><span class="line">Pass 2: 添加光源1贡献（混合）</span><br><span class="line">Pass 3: 添加光源2贡献（混合）</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
+<h3 id="多-Pass-方式"><a href="#多-Pass-方式" class="headerlink" title="多 Pass 方式"></a>多 Pass 方式</h3><blockquote>
+<p>Pass 1: 渲染物体 + 主光源<br>Pass 2: 添加光源1贡献（混合）<br>Pass 3: 添加光源2贡献（混合）<br>…  </p>
+</blockquote>
 <h3 id="特点-2"><a href="#特点-2" class="headerlink" title="特点"></a>特点</h3><ol>
 <li>直接计算 - 几何和光照同时处理，适合光源较少的场景</li>
 <li>透明物体友好 - 天然支持透明度排序</li>
@@ -285,25 +288,79 @@
 <li>几何处理阶段 (Geometry Pass)：将场景中的每个物体进行顶点变换、光栅化，并记录所有相关的几何信息（如位置、法线、漫反射颜色、粗糙度等），将物体的几何属性存储在一组被称为 G-Buffer (Geometry Buffer) 的高带宽纹理中</li>
 <li>光照处理阶段 (Lighting Pass)：将G-Buffer里的记录的光照信息进行计算，针对屏幕上的每个像素统一计算最终的光照效果并输出到屏幕缓冲区。</li>
 </ol>
-<h3 id="几何-Pass"><a href="#几何-Pass" class="headerlink" title="几何 Pass"></a>几何 Pass</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">对于每个物体：</span><br><span class="line">    只写入几何信息到 G-Buffer</span><br><span class="line">    不计算任何光照</span><br></pre></td></tr></table></figure>
-
-<h3 id="光照-Pass"><a href="#光照-Pass" class="headerlink" title="光照 Pass"></a>光照 Pass</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">对于每个像素：</span><br><span class="line">    从 G-Buffer 读取几何信息</span><br><span class="line">    计算所有光照贡献</span><br><span class="line">    输出最终颜色</span><br></pre></td></tr></table></figure>
-
-<h3 id="G-Buffer-结构"><a href="#G-Buffer-结构" class="headerlink" title="G-Buffer 结构"></a>G-Buffer 结构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">RT0: RGB = Albedo颜色       A = Metallic</span><br><span class="line">RT1: RGB = 法线             A = Roughness</span><br><span class="line">RT2: RGB = 自发光           A = AO</span><br><span class="line">RT3: RGB = 世界坐标/深度</span><br></pre></td></tr></table></figure>
-
+<h3 id="几何-Pass"><a href="#几何-Pass" class="headerlink" title="几何 Pass"></a>几何 Pass</h3><blockquote>
+<p>对于每个物体：<br>只写入几何信息到 G-Buffer<br>不计算任何光照  </p>
+</blockquote>
+<h3 id="光照-Pass"><a href="#光照-Pass" class="headerlink" title="光照 Pass"></a>光照 Pass</h3><blockquote>
+<p>对于每个像素：<br>从 G-Buffer 读取几何信息<br>计算所有光照贡献<br>输出最终颜色  </p>
+</blockquote>
+<h3 id="G-Buffer-结构"><a href="#G-Buffer-结构" class="headerlink" title="G-Buffer 结构"></a>G-Buffer 结构</h3><blockquote>
+<p>RT0: RGB &#x3D; Albedo颜色       A &#x3D; Metallic<br>RT1: RGB &#x3D; 法线             A &#x3D; Roughness<br>RT2: RGB &#x3D; 自发光           A &#x3D; AO<br>RT3: RGB &#x3D; 世界坐标&#x2F;深度  </p>
+</blockquote>
 <p>每个渲染目标（RT）有 4 个通道：R、G、B、A</p>
 <p>RT0: 基础材质属性</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────┐</span><br><span class="line">│  R        G        B        A               │</span><br><span class="line">│  Albedo.r  Albedo.g  Albedo.b  Metallic     │</span><br><span class="line">└─────────────────────────────────────────────┘</span><br><span class="line"></span><br><span class="line">RGB (Albedo): 物体的基础颜色（漫反射颜色）</span><br><span class="line">- 例如：红色物体 → (1.0, 0.0, 0.0)</span><br><span class="line">- 从纹理采样得到</span><br><span class="line"></span><br><span class="line">A (Metallic): 金属度 (0.0 ~ 1.0)</span><br><span class="line">- 0.0 = 非金属（电介质）：塑料、木材、布料</span><br><span class="line">- 1.0 = 金属：金、银、铜</span><br><span class="line">- 影响高光和反射计算方式</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>┌─────────────────────────────────────────────┐<br>│  R        G        B        A               │<br>│  Albedo.r  Albedo.g  Albedo.b  Metallic     │<br>└─────────────────────────────────────────────┘  </p>
+<p>RGB (Albedo): 物体的基础颜色（漫反射颜色）  </p>
+<ul>
+<li>例如：红色物体 → (1.0, 0.0, 0.0)  </li>
+<li>从纹理采样得到</li>
+</ul>
+<p>A (Metallic): 金属度 (0.0 ~ 1.0)  </p>
+<ul>
+<li>0.0 &#x3D; 非金属（电介质）：塑料、木材、布料  </li>
+<li>1.0 &#x3D; 金属：金、银、铜  </li>
+<li>影响高光和反射计算方式</li>
+</ul>
+</blockquote>
 <p>RT1: 表面细节属性</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────┐</span><br><span class="line">│  R        G        B        A               │</span><br><span class="line">│  Normal.r  Normal.g  Normal.b  Roughness    │</span><br><span class="line">└─────────────────────────────────────────────┘</span><br><span class="line"></span><br><span class="line">RGB (Normal): 世界空间法线向量</span><br><span class="line">- 表示表面朝向</span><br><span class="line">- 单位向量，范围 [-1, 1] 映射到 [0, 1]</span><br><span class="line">- 例如：(0, 1, 0) = 表面朝上</span><br><span class="line">- 用于光照计算（漫反射、高光）</span><br><span class="line"></span><br><span class="line">A (Roughness): 粗糙度 (0.0 ~ 1.0)</span><br><span class="line">- 0.0 = 光滑表面：镜子、水面（清晰反射）</span><br><span class="line">- 1.0 = 粗糙表面：混凝土、沙石（模糊高光）</span><br><span class="line">- 控制高光的锐利程度</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>┌─────────────────────────────────────────────┐<br>│  R        G        B        A               │<br>│  Normal.r  Normal.g  Normal.b  Roughness    │<br>└─────────────────────────────────────────────┘  </p>
+<p>RGB (Normal): 世界空间法线向量  </p>
+<ul>
+<li>表示表面朝向  </li>
+<li>单位向量，范围 [-1, 1] 映射到 [0, 1]  </li>
+<li>例如：(0, 1, 0) &#x3D; 表面朝上  </li>
+<li>用于光照计算（漫反射、高光）</li>
+</ul>
+<p>A (Roughness): 粗糙度 (0.0 ~ 1.0)  </p>
+<ul>
+<li>0.0 &#x3D; 光滑表面：镜子、水面（清晰反射）  </li>
+<li>1.0 &#x3D; 粗糙表面：混凝土、沙石（模糊高光）  </li>
+<li>控制高光的锐利程度</li>
+</ul>
+</blockquote>
 <p>RT2: 发光与环境光遮蔽</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────┐</span><br><span class="line">│  R        G        B        A               │</span><br><span class="line">│  Emissive.r Emissive.g Emissive.b AO        │</span><br><span class="line">└─────────────────────────────────────────────┘</span><br><span class="line"></span><br><span class="line">RGB (Emissive): 自发光颜色</span><br><span class="line">- 物体自身发出的光</span><br><span class="line">- 例如：霓虹灯、LED、发光材质</span><br><span class="line">- 不受光照影响，直接叠加到最终颜色</span><br><span class="line"></span><br><span class="line">A (AO - Ambient Occlusion): 环境光遮蔽 (0.0 ~ 1.0)</span><br><span class="line">- 0.0 = 完全遮蔽（角落、缝隙）</span><br><span class="line">- 1.0 = 无遮蔽（暴露表面）</span><br><span class="line">- 模拟缝隙中的阴影，增加真实感</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>┌─────────────────────────────────────────────┐<br>│  R        G        B        A               │<br>│  Emissive.r Emissive.g Emissive.b AO        │<br>└─────────────────────────────────────────────┘  </p>
+<p>RGB (Emissive): 自发光颜色  </p>
+<ul>
+<li>物体自身发出的光  </li>
+<li>例如：霓虹灯、LED、发光材质  </li>
+<li>不受光照影响，直接叠加到最终颜色</li>
+</ul>
+<p>A (AO - Ambient Occlusion): 环境光遮蔽 (0.0 ~ 1.0)  </p>
+<ul>
+<li>0.0 &#x3D; 完全遮蔽（角落、缝隙）  </li>
+<li>1.0 &#x3D; 无遮蔽（暴露表面）  </li>
+<li>模拟缝隙中的阴影，增加真实感</li>
+</ul>
+</blockquote>
 <p>RT3: 深度&#x2F;位置信息</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────┐</span><br><span class="line">│  R        G        B        A               │</span><br><span class="line">│  Position.r Position.g Position.b Depth     │</span><br><span class="line">│         或仅使用 Depth 作为单通道              │</span><br><span class="line">└─────────────────────────────────────────────┘</span><br><span class="line"></span><br><span class="line">RGB (World Position): 世界坐标</span><br><span class="line">- 像素在世界空间中的 XYZ 位置</span><br><span class="line">- 或者从深度值重建位置（节省显存）</span><br><span class="line"></span><br><span class="line">A (Depth): 深度值</span><br><span class="line">- 像素到相机的距离</span><br><span class="line">- 用于重建世界坐标</span><br><span class="line">- 用于后处理效果（雾、景深）</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>┌─────────────────────────────────────────────┐<br>│  R        G        B        A               │<br>│  Position.r Position.g Position.b Depth     │<br>│         或仅使用 Depth 作为单通道              │<br>└─────────────────────────────────────────────┘  </p>
+<p>RGB (World Position): 世界坐标  </p>
+<ul>
+<li>像素在世界空间中的 XYZ 位置  </li>
+<li>或者从深度值重建位置（节省显存）</li>
+</ul>
+<p>A (Depth): 深度值  </p>
+<ul>
+<li>像素到相机的距离  </li>
+<li>用于重建世界坐标  </li>
+<li>用于后处理效果（雾、景深）</li>
+</ul>
+</blockquote>
 <h3 id="特点-3"><a href="#特点-3" class="headerlink" title="特点"></a>特点</h3><ol>
 <li>解耦几何与光照 - 几何阶段只处理位置、法线等</li>
 <li>光照与物体数无关 - 光照计算只针对可见像素</li>
@@ -550,7 +607,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">51</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

@@ -161,6 +161,356 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/05/07/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E7%B1%BB%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/05/07/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E7%B1%BB%E5%9E%8B/" class="post-title-link" itemprop="url">渲染管线类型</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2026-05-07 13:24:44" itemprop="dateCreated datePublished" datetime="2026-05-07T13:24:44+08:00">2026-05-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="CPU-GPU-交互流程"><a href="#CPU-GPU-交互流程" class="headerlink" title="CPU-GPU 交互流程"></a>CPU-GPU 交互流程</h1><p>关注点：CPU 如何告诉 GPU “要画什么”？这决定了代码架构和内存管理方式。</p>
+<h2 id="立刻渲染模式（Immediate-Mode）"><a href="#立刻渲染模式（Immediate-Mode）" class="headerlink" title="立刻渲染模式（Immediate Mode）"></a>立刻渲染模式（Immediate Mode）</h2><p>每一帧都在 Update 或 OnGUI 里写 DrawButton()，简单直观，但如果物体多，CPU 喊口令会累死。</p>
+<h3 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h3><ul>
+<li>核心在于“每帧重新绘制”，无需保存图形对象的复杂状态</li>
+<li>它具有简单直接、易于动态更新的优点，但因缺乏对象层级的记录，CPU负载通常较高</li>
+<li>每次调用绘制命令（如 glDrawArrays、DrawPrimitive），GPU 就立即执行渲染，结果直接写入帧缓冲区。</li>
+</ul>
+<h3 id="执行流程"><a href="#执行流程" class="headerlink" title="执行流程"></a>执行流程</h3><blockquote>
+<p>绘制物体A → 立即渲染A → 绘制物体B → 立即渲染B → 绘制物体C → 立即渲染C  </p>
+</blockquote>
+<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><ol>
+<li>无状态管理 - 每次绘制独立，不保存场景信息</li>
+<li>实时响应 - 调用即渲染，适合简单场景</li>
+<li>内存占用小 - 不需要额外的场景数据结构</li>
+</ol>
+<h2 id="保留模式（Retained-Mode）"><a href="#保留模式（Retained-Mode）" class="headerlink" title="保留模式（Retained Mode）"></a>保留模式（Retained Mode）</h2><p>创建一个 GameObject 或 DOM 节点，之后除非它变了，否则你不用管它，内存占用高（要存菜单），但 CPU 负担轻，库会帮你自动优化。</p>
+<h3 id="工作原理-1"><a href="#工作原理-1" class="headerlink" title="工作原理"></a>工作原理</h3><ul>
+<li>与立刻模式相对的渲染模式，其核心逻辑是“由图形库管理场景”</li>
+<li>在这种模式下，应用程序通过构建一个场景模型（如对象树或场景图）来告诉库“要画什么”，然后库会负责具体的绘制细节、状态维护和按需重绘<ul>
+<li>例如在Unity中，场景模型就是对象树，对象树中的每个对象都包含着对象模型（如Mesh）、材质（如Shader）、变换矩阵等信息</li>
+</ul>
+</li>
+</ul>
+<h3 id="执行流程-1"><a href="#执行流程-1" class="headerlink" title="执行流程"></a>执行流程</h3><blockquote>
+<p>构建场景图 → 提交给引擎 → 引擎优化（剔除、排序、批处理）→ 统一渲染  </p>
+</blockquote>
+<h3 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h3><ol>
+<li>层次化管理 - 通过场景图管理物体关系</li>
+<li>自动优化 - 视锥剔除、遮挡剔除、状态排序</li>
+<li>延迟执行 - 可以批量处理多个绘制调用，适合大型场景的优化</li>
+</ol>
+<hr>
+<h1 id="渲染路径"><a href="#渲染路径" class="headerlink" title="渲染路径"></a>渲染路径</h1><p>GPU 收到命令后，“具体怎么算光影”？这决定了显卡的计算逻辑和画面表现。</p>
+<h2 id="前向渲染（Forward-Rendering）"><a href="#前向渲染（Forward-Rendering）" class="headerlink" title="前向渲染（Forward Rendering）"></a>前向渲染（Forward Rendering）</h2><p>Unity URP 默认使用的是前向渲染<br>拿一个零件（物体），直接打磨、上色、抛光（算所有光照），彻底做完再拿下一个零件。<br>但如果零件受 10 盏灯照，每个零件都要算 10 遍，灯多了会慢。</p>
+<h3 id="工作原理-2"><a href="#工作原理-2" class="headerlink" title="工作原理"></a>工作原理</h3><ul>
+<li>图形学中最传统、最基础的渲染路径。</li>
+<li>它的核心逻辑是“遍历物体，直接着色”：针对场景中的每一个几何物体，依次进行顶点变换、光栅化，并直接在像素着色器中计算所有相关的光照效果，最后输出到屏幕缓冲区。</li>
+</ul>
+<h3 id="单-Pass-方式"><a href="#单-Pass-方式" class="headerlink" title="单 Pass 方式"></a>单 Pass 方式</h3><ul>
+<li>一次绘制计算所有光照</li>
+<li>光源数量有限（通常 4-8 个）</li>
+<li>性能随光源线性下降</li>
+</ul>
+<h3 id="多-Pass-方式"><a href="#多-Pass-方式" class="headerlink" title="多 Pass 方式"></a>多 Pass 方式</h3><blockquote>
+<p>Pass 1: 渲染物体 + 主光源<br>Pass 2: 添加光源1贡献（混合）<br>Pass 3: 添加光源2贡献（混合）<br>…  </p>
+</blockquote>
+<h3 id="特点-2"><a href="#特点-2" class="headerlink" title="特点"></a>特点</h3><ol>
+<li>直接计算 - 几何和光照同时处理，适合光源较少的场景</li>
+<li>透明物体友好 - 天然支持透明度排序</li>
+<li>MSAA 原生支持 - 多重采样抗锯齿直接可用</li>
+</ol>
+<h2 id="延迟渲染（Deferred-Rendering-Deferred-Shading）"><a href="#延迟渲染（Deferred-Rendering-Deferred-Shading）" class="headerlink" title="延迟渲染（Deferred Rendering &#x2F; Deferred Shading）"></a>延迟渲染（Deferred Rendering &#x2F; Deferred Shading）</h2><p>Unity HDRP 默认使用延迟渲染<br>第一批人先给零件分类（记录位置、颜色到 G-Buffer）。第二批人最后统一刷漆（对着 G-Buffer 统一算光照）。<br>不怕灯多，适合 PC 大作；但费内存（G-Buffer 很大），且处理不了半透明物体。</p>
+<h3 id="工作原理-3"><a href="#工作原理-3" class="headerlink" title="工作原理"></a>工作原理</h3><p>它的核心理念是“先记录信息，最后统一算光照”，流程分为以下两个阶段：</p>
+<ol>
+<li>几何处理阶段 (Geometry Pass)：将场景中的每个物体进行顶点变换、光栅化，并记录所有相关的几何信息（如位置、法线、漫反射颜色、粗糙度等），将物体的几何属性存储在一组被称为 G-Buffer (Geometry Buffer) 的高带宽纹理中</li>
+<li>光照处理阶段 (Lighting Pass)：将G-Buffer里的记录的光照信息进行计算，针对屏幕上的每个像素统一计算最终的光照效果并输出到屏幕缓冲区。</li>
+</ol>
+<h3 id="几何-Pass"><a href="#几何-Pass" class="headerlink" title="几何 Pass"></a>几何 Pass</h3><blockquote>
+<p>对于每个物体：<br>只写入几何信息到 G-Buffer<br>不计算任何光照  </p>
+</blockquote>
+<h3 id="光照-Pass"><a href="#光照-Pass" class="headerlink" title="光照 Pass"></a>光照 Pass</h3><blockquote>
+<p>对于每个像素：<br>从 G-Buffer 读取几何信息<br>计算所有光照贡献<br>输出最终颜色  </p>
+</blockquote>
+<h3 id="G-Buffer-结构"><a href="#G-Buffer-结构" class="headerlink" title="G-Buffer 结构"></a>G-Buffer 结构</h3><blockquote>
+<p>RT0: RGB &#x3D; Albedo颜色       A &#x3D; Metallic<br>RT1: RGB &#x3D; 法线             A &#x3D; Roughness<br>RT2: RGB &#x3D; 自发光           A &#x3D; AO<br>RT3: RGB &#x3D; 世界坐标&#x2F;深度  </p>
+</blockquote>
+<p>每个渲染目标（RT）有 4 个通道：R、G、B、A</p>
+<p>RT0: 基础材质属性</p>
+<blockquote>
+<p>┌─────────────────────────────────────────────┐<br>│  R        G        B        A               │<br>│  Albedo.r  Albedo.g  Albedo.b  Metallic     │<br>└─────────────────────────────────────────────┘  </p>
+<p>RGB (Albedo): 物体的基础颜色（漫反射颜色）  </p>
+<ul>
+<li>例如：红色物体 → (1.0, 0.0, 0.0)  </li>
+<li>从纹理采样得到</li>
+</ul>
+<p>A (Metallic): 金属度 (0.0 ~ 1.0)  </p>
+<ul>
+<li>0.0 &#x3D; 非金属（电介质）：塑料、木材、布料  </li>
+<li>1.0 &#x3D; 金属：金、银、铜  </li>
+<li>影响高光和反射计算方式</li>
+</ul>
+</blockquote>
+<p>RT1: 表面细节属性</p>
+<blockquote>
+<p>┌─────────────────────────────────────────────┐<br>│  R        G        B        A               │<br>│  Normal.r  Normal.g  Normal.b  Roughness    │<br>└─────────────────────────────────────────────┘  </p>
+<p>RGB (Normal): 世界空间法线向量  </p>
+<ul>
+<li>表示表面朝向  </li>
+<li>单位向量，范围 [-1, 1] 映射到 [0, 1]  </li>
+<li>例如：(0, 1, 0) &#x3D; 表面朝上  </li>
+<li>用于光照计算（漫反射、高光）</li>
+</ul>
+<p>A (Roughness): 粗糙度 (0.0 ~ 1.0)  </p>
+<ul>
+<li>0.0 &#x3D; 光滑表面：镜子、水面（清晰反射）  </li>
+<li>1.0 &#x3D; 粗糙表面：混凝土、沙石（模糊高光）  </li>
+<li>控制高光的锐利程度</li>
+</ul>
+</blockquote>
+<p>RT2: 发光与环境光遮蔽</p>
+<blockquote>
+<p>┌─────────────────────────────────────────────┐<br>│  R        G        B        A               │<br>│  Emissive.r Emissive.g Emissive.b AO        │<br>└─────────────────────────────────────────────┘  </p>
+<p>RGB (Emissive): 自发光颜色  </p>
+<ul>
+<li>物体自身发出的光  </li>
+<li>例如：霓虹灯、LED、发光材质  </li>
+<li>不受光照影响，直接叠加到最终颜色</li>
+</ul>
+<p>A (AO - Ambient Occlusion): 环境光遮蔽 (0.0 ~ 1.0)  </p>
+<ul>
+<li>0.0 &#x3D; 完全遮蔽（角落、缝隙）  </li>
+<li>1.0 &#x3D; 无遮蔽（暴露表面）  </li>
+<li>模拟缝隙中的阴影，增加真实感</li>
+</ul>
+</blockquote>
+<p>RT3: 深度&#x2F;位置信息</p>
+<blockquote>
+<p>┌─────────────────────────────────────────────┐<br>│  R        G        B        A               │<br>│  Position.r Position.g Position.b Depth     │<br>│         或仅使用 Depth 作为单通道              │<br>└─────────────────────────────────────────────┘  </p>
+<p>RGB (World Position): 世界坐标  </p>
+<ul>
+<li>像素在世界空间中的 XYZ 位置  </li>
+<li>或者从深度值重建位置（节省显存）</li>
+</ul>
+<p>A (Depth): 深度值  </p>
+<ul>
+<li>像素到相机的距离  </li>
+<li>用于重建世界坐标  </li>
+<li>用于后处理效果（雾、景深）</li>
+</ul>
+</blockquote>
+<h3 id="特点-3"><a href="#特点-3" class="headerlink" title="特点"></a>特点</h3><ol>
+<li>解耦几何与光照 - 几何阶段只处理位置、法线等</li>
+<li>光照与物体数无关 - 光照计算只针对可见像素</li>
+<li>需要大量显存 - G-Buffer 占用显著</li>
+</ol>
+<h3 id="延迟渲染为什么处理不了半透明物体"><a href="#延迟渲染为什么处理不了半透明物体" class="headerlink" title="延迟渲染为什么处理不了半透明物体"></a>延迟渲染为什么处理不了半透明物体</h3><ol>
+<li><p>G-Buffer 只能存储“最前面”的信息<br>延迟渲染的第一步是把物体的几何信息（颜色、法线、深度等）存入 G-Buffer。<br>硬件限制：对于屏幕上的每一个像素，G-Buffer 通常只能存储一个物体的属性。<br>信息丢失：当你画一个半透明物体（如玻璃）时，G-Buffer 会记录玻璃的信息。但半透明物体的本质是让你看到它后面的东西。延迟渲染无法在一个像素位置同时存下“玻璃”和“玻璃后的墙”这两层信息。</p>
+</li>
+<li><p>混合（Blending）需要“即时颜色”<br>在前向渲染中，当你画半透明物体时，背景已经画好了。你可以直接把玻璃的颜色和背景颜色按比例混合（Alpha Blending）。<br>在延迟渲染中，第一步根本不计算颜色，只存原始数据。到了第二步统一算光照时，由于 G-Buffer 里只有最前面的玻璃数据，后台已经没有“被挡住的物体”的数据了，因此无法进行物理上正确的混合计算。</p>
+</li>
+<li><p>排序难题<br>半透明物体必须遵循从后往前的顺序绘制，才能得到正确的视觉叠加效果。<br>延迟渲染的初衷是“不关心顺序”，它通过深度测试只保留最前面的像素来优化性能。这与半透明物体需要的“多层有序叠加”逻辑完全冲突。</p>
+</li>
+</ol>
+<p><strong>行业通用的解决方案：混合模式 (Hybrid Rendering)</strong><br>为了解决这个问题，现代引擎（如 Unity 和 Unreal）通常采用混合方案：</p>
+<ol>
+<li>先用延迟渲染：画完场景中所有的不透明物体。</li>
+<li>再用前向渲染：在已经算好光照的底图上，再用前向渲染的方式按照从后往前的顺序，把半透明物体“贴”上去。</li>
+</ol>
+<hr>
+<h1 id="帧缓冲内存与瓦片渲染-Tile-Based-Rendering"><a href="#帧缓冲内存与瓦片渲染-Tile-Based-Rendering" class="headerlink" title="帧缓冲内存与瓦片渲染(Tile-Based Rendering)"></a>帧缓冲内存与瓦片渲染(Tile-Based Rendering)</h1><p>TBR 是一种 GPU 渲染架构 &#x2F; 帧缓冲处理方式，通过把屏幕划分为小瓦片来组织光栅化和帧缓冲访问。</p>
+<ul>
+<li>TBR 关注的是：GPU 如何在底层处理像素、深度、缓存和内存带宽。</li>
+<li>Retained mode 关注的是：应用如何描述场景，谁负责保存和管理可渲染对象。</li>
+<li>TBR 可以支持 retained mode 的渲染引擎，也可以支持 immediate mode 的渲染流。</li>
+</ul>
+<h2 id="IMR：Immediate-Mode-Rendering"><a href="#IMR：Immediate-Mode-Rendering" class="headerlink" title="IMR：Immediate Mode Rendering"></a>IMR：Immediate Mode Rendering</h2><ul>
+<li>定义：每次 API 提交一个三角形，就马上开始光栅化并写入颜色&#x2F;深度缓冲。</li>
+<li>特点：渲染顺序与三角形提交顺序一致。</li>
+<li>问题：<ul>
+<li>读写帧缓冲和深度缓冲时，内存访问非常分散、不可预测。</li>
+<li>重叠像素（overdraw）会被重复计算、重复写回。</li>
+<li>即使有缓存，缓存命中率也会因为几何提交顺序和屏幕空间不一致而低。</li>
+</ul>
+</li>
+</ul>
+<h2 id="内存带宽消耗问题"><a href="#内存带宽消耗问题" class="headerlink" title="内存带宽消耗问题"></a>内存带宽消耗问题</h2><ul>
+<li>传统 IMR 中，三角形按提交顺序处理，导致帧缓冲访问顺序混乱。</li>
+<li>如果缓存行是线性排列，渲染过程会频繁加载&#x2F;写回不同位置的数据，导致大量内存带宽浪费。</li>
+<li>帧缓冲是按屏幕坐标组织的二维像素网格。未压缩情况下，内存里通常按行优先存储：<ul>
+<li>一行像素连续</li>
+<li>不同行之间的像素不连续 -&gt; 屏幕上的垂直相邻像素在内存中不连续</li>
+<li>如果缓存行也是“线性排列”，它就只覆盖一段连续内存，而不是一个二维小块。</li>
+</ul>
+</li>
+</ul>
+<h2 id="Tiled-Memory（瓦片化内存）"><a href="#Tiled-Memory（瓦片化内存）" class="headerlink" title="Tiled Memory（瓦片化内存）"></a>Tiled Memory（瓦片化内存）</h2><ul>
+<li>核心思想：把帧缓冲按“瓦片”切成多个小二维区域。</li>
+<li>缓存行不再是线性像素序列，而是覆盖一个小矩形区域。</li>
+<li>好处：<ul>
+<li>空间局部性更好：同一瓦片内的像素更可能连续访问。</li>
+<li>缓存命中率增加。</li>
+<li>可在片上缓存内完成更多渲染操作，减少外部内存访问。</li>
+</ul>
+</li>
+</ul>
+<p>这一步是 TBR 的基础：把大帧缓冲拆成可控的小块，减少外存读写。</p>
+<h2 id="Rasterizing-within-tiles（瓦片内光栅化）"><a href="#Rasterizing-within-tiles（瓦片内光栅化）" class="headerlink" title="Rasterizing within tiles（瓦片内光栅化）"></a>Rasterizing within tiles（瓦片内光栅化）</h2><ul>
+<li>进一步优化：不再按照三角形整体顺序光栅化，而是先完成一个瓦片内三角形所有像素，再处理下一个瓦片。</li>
+<li>一个大三角形跨多个瓦片时，会被分成多段，每段在对应瓦片处理。这样可以避免大三角形跨多瓦片时频繁换入换出缓存。</li>
+<li>同一个三角形的几何信息被重用多次，但每次只处理与当前瓦片相交的部分。<br>这就是“先处理瓦片，再处理三角形”的思路。</li>
+</ul>
+<h2 id="Binning（几何分箱）"><a href="#Binning（几何分箱）" class="headerlink" title="Binning（几何分箱）"></a>Binning（几何分箱）</h2><ul>
+<li>在 TBR 中，提交几何体时并不马上光栅化。</li>
+<li>先进行“分箱”：将三角形归类到它可能覆盖的瓦片中。</li>
+<li>这一过程需要顶点处理来确定三角形屏幕位置，但不涉及片段着色。这样后续光栅化阶段只需按瓦片读取对应几何列表。<br>Binning 是把“几何”和“像素”分离，先用几何决定哪些瓦片受影响，再按瓦片单独渲染。</li>
+</ul>
+<h2 id="Tile-based-rasterization（基于瓦片的光栅化）"><a href="#Tile-based-rasterization（基于瓦片的光栅化）" class="headerlink" title="Tile-based rasterization（基于瓦片的光栅化）"></a>Tile-based rasterization（基于瓦片的光栅化）</h2><ul>
+<li>处理方式：逐瓦片渲染，每个瓦片在片上缓存中独立完成。</li>
+<li>帧缓冲和深度缓冲只在瓦片处理完后写回一次。</li>
+<li>优势：<ul>
+<li>外部内存访问减少到“每个瓦片一次写回”。</li>
+<li>深度缓存可直接在片上使用，甚至不必写回主存。</li>
+<li>清除操作也可在瓦片内完成。<br>这正是移动 GPU 的核心高效方案：把对外内存的数据流降到最低。</li>
+</ul>
+</li>
+</ul>
+<h2 id="深度缓冲（Z-buffer）"><a href="#深度缓冲（Z-buffer）" class="headerlink" title="深度缓冲（Z-buffer）"></a>深度缓冲（Z-buffer）</h2><ul>
+<li>每个像素位置有一个深度值</li>
+<li>这个深度值表示该像素处距相机最近的物体的深度</li>
+<li>光栅化三角形时，逐像素进行深度测试：<ul>
+<li>读取该像素在深度缓冲中的当前深度值</li>
+<li>与新三角形在该像素的深度比较，如果新三角形更近，更新该像素的深度值和颜色</li>
+</ul>
+</li>
+<li>一个像素可能被多个三角形覆盖（overdraw），但深度缓冲只保留最近的那个三角形的深度值。</li>
+</ul>
+<h2 id="MultiSampling-AA（多重采样反锯齿）"><a href="#MultiSampling-AA（多重采样反锯齿）" class="headerlink" title="MultiSampling AA（多重采样反锯齿）"></a>MultiSampling AA（多重采样反锯齿）</h2><ul>
+<li>在瓦片渲染中，多重采样可以在片上缓存里完成采样和 resolve。</li>
+<li>传统 IMR：多采样需要读写高分辨率帧缓冲（每个像素多个样本），带宽消耗巨大</li>
+<li>多采样在瓦片缓存内完成（片上内存），只在最后 resolve（合并样本）时写回外部内存。外部内存只存储最终低分辨率结果，带宽大幅降低。</li>
+<li>瓦片缓存（片上内存）允许在本地处理高频读写操作，只在瓦片完成时与外部内存交互一次，从而把昂贵的带宽开销控制在可控范围内</li>
+</ul>
+<h2 id="Deferred-shading-与-TBR"><a href="#Deferred-shading-与-TBR" class="headerlink" title="Deferred shading 与 TBR"></a>Deferred shading 与 TBR</h2><ul>
+<li>传统延迟渲染需要先写入多个 G-buffer，再重新读取进行光照，带宽消耗大。</li>
+<li>如果在瓦片内完成延迟渲染，则：<ul>
+<li>G-buffer 数据可保留在片上缓存，光照计算直接在瓦片缓存上进行</li>
+<li>最终只写出渲染结果，减少外部内存读写</li>
+<li>带宽成本与普通渲染相当<br>这说明“TBDR”（Tile-Based Deferred Rendering）特别适合移动端延迟渲染场景。</li>
+</ul>
+</li>
+</ul>
+<h2 id="G-buffer-和-瓦片缓存"><a href="#G-buffer-和-瓦片缓存" class="headerlink" title="G-buffer 和 瓦片缓存"></a>G-buffer 和 瓦片缓存</h2><ol>
+<li>光照数据（光源参数，如位置、颜色、强度）是 CPU 在应用阶段通过 uniform 变量或缓冲区传给 GPU 的</li>
+<li>GPU 渲染几何到 G-buffer<ul>
+<li>顶点着色器负责把模型空间变换到屏幕空间（通过 MVP 矩阵）</li>
+<li>片段着色器计算每个像素的几何信息（如位置、法线、颜色），并写入 G-buffer</li>
+</ul>
+</li>
+</ol>
+<p>延迟渲染流程：</p>
+<ul>
+<li>几何阶段：光栅化 + 片段着色 → 写入 G-buffer（存储几何信息，如位置、法线）。</li>
+<li>光照阶段：使用 G-buffer 数据进行光照计算 → 输出最终颜色。</li>
+</ul>
+<p>TBDR：</p>
+<ul>
+<li>第一阶段：几何分箱 → 按瓦片光栅化 → 片段着色 → G-buffer 数据留在瓦片缓存（不写回外部内存）。</li>
+<li>第二阶段：瓦片缓存直接使用这些 G-buffer 数据进行光照计算（无需读取外部 G-buffer）。</li>
+</ul>
+<h2 id="TBR-的优势"><a href="#TBR-的优势" class="headerlink" title="TBR 的优势"></a>TBR 的优势</h2><ul>
+<li>大幅降低帧缓冲带宽。</li>
+<li>降低功耗、提高渲染速度。</li>
+<li>移动端共享内存、带宽贵，TBR 是最优方案。</li>
+<li>对纹理访问也有好处：一次处理一个瓦片，纹理访问局部性增强。</li>
+<li>相比通用帧缓冲缓存，TBR 需要更少片上缓存空间。</li>
+</ul>
+<h2 id="TBR-的限制"><a href="#TBR-的限制" class="headerlink" title="TBR 的限制"></a>TBR 的限制</h2><ul>
+<li>引入渲染延迟：必须先 binning 再 rasterize。</li>
+<li>需要双缓冲以避免流水线停顿。</li>
+<li>对需要全局帧缓冲读取的功能不友好，如屏幕空间光线追踪、某些后处理。</li>
+<li>几何分箱本身也有成本，顶点着色器瓶颈场景可能受限。</li>
+<li>切换渲染目标、频繁读写 framebuffer 会迫使瓦片数据 flush。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>传统 IMR 带宽和功耗太高；瓦片渲染通过“先分箱、后按瓦片渲染”把大帧缓冲操作压缩到片上缓存</li>
+<li>这对移动 GPU 极为关键，且现代 API（如 Vulkan Subpasses、OpenGL ES Pixel Local Storage）都开始支持这种模式</li>
+<li>对于多采样和延迟渲染，瓦片化处理能把原本非常昂贵的带宽开销降到可控范围</li>
+<li>然而瓦片化也有规则和限制，开发者要避免频繁 framebuffer 读写、避免不适合的渲染模式</li>
+</ul>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_70073176/article/details/141165074">https://blog.csdn.net/weixin_70073176/article/details/141165074</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/04/13/Unity%E7%B2%92%E5%AD%90%E7%89%B9%E6%95%88/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -330,10 +680,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-04-01 16:59:48 / Modified: 17:28:42" itemprop="dateCreated datePublished" datetime="2026-04-01T16:59:48+08:00">2026-04-01</time>
+              <time title="Created: 2026-04-01 16:59:48" itemprop="dateCreated datePublished" datetime="2026-04-01T16:59:48+08:00">2026-04-01</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -360,8 +716,9 @@
 <p>Texture bleeding is when pixels from outside a sprite’s intended boundary leak into the visible edge of the sprite.</p>
 <p>Here’s why it happens. When the GPU samples a texture, it rarely samples at an exact pixel center.<br>Bilinear filtering works by taking the 4 nearest pixels and blending them together based on how close the sample point is to each one.<br>At the very edge of a sprite, one of those 4 neighbors is outside the sprite — it could be a transparent black pixel, a pixel from another sprite in an atlas, or garbage data. That outside color gets mixed into your edge pixel, producing a fringe（边缘）.</p>
 <p>For example:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[ edge pixel: orange ][ outside: transparent black (0,0,0,0) ]</span><br><span class="line">                      ^</span><br><span class="line">              bilinear samples here → blends orange + black = dark muddy fringe</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>[ edge pixel: orange ][ outside: transparent black (0,0,0,0) ]<br>^<br>bilinear samples here → blends orange + black &#x3D; dark muddy fringe  </p>
+</blockquote>
 <p>This is exactly what you saw — the logo’s colored edge pixels were bleeding into the transparent area around it, and because the shader was Opaque, those blended semi-transparent edge pixels were written as solid color instead of being discarded.</p>
 <p>There are three common sources of bleeding:</p>
 <ul>
@@ -373,18 +730,52 @@
 <p>The “noise” you saw was bilinear filtering. At the sprite’s edges, the sampler blends the last row&#x2F;column of real pixels with whatever is just outside the sprite boundary (either transparent black rgba(0,0,0,0) or neighboring texture data).<br>With opaque mode, those semi-transparent edge pixels get written as fully solid, so you see that fringe of mixed color.</p>
 <p>Use <code>Opaque</code> when:<br>The object has no see-through areas at all (terrain, walls, characters without cutouts)<br>Performance matters — opaque objects are rendered in a single front-to-back pass and benefit from early-z culling, which skips fragment shading on occluded pixels entirely</p>
 <p>Use <code>Transparent</code> when:<br>The object has partial or full transparency (UI sprites, glass, particles, logos with alpha)<br>You need the blending stage to mix the fragment color with what’s already in the framebuffer<br>The cost of transparent is real — transparent objects can’t use early-z, must be sorted back-to-front, and can cause overdraw issues. So don’t default everything to transparent.</p>
-<h2 id="Blend-Mode-within-Transparent"><a href="#Blend-Mode-within-Transparent" class="headerlink" title="Blend Mode (within Transparent)"></a>Blend Mode (within Transparent)</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">| Mode | Formula | Use case |</span><br><span class="line">| --- | --- | --- |</span><br><span class="line">| Alpha     |   src.rgb * src.a + dst.rgb * (1 - src.a) | Standard transparency, sprites, UI</span><br><span class="line">| Additive  |   src.rgb * src.a + dst.rgb   |   Glows, fire, particles that should brighten</span><br><span class="line">| Multiply  |	src.rgb * dst.rgb   |   Darkening effects, shadows, tinted overlays</span><br><span class="line">| Premultiply |	src.rgb + dst.rgb * (1 - src.a) |   Textures with premultiplied alpha baked in</span><br></pre></td></tr></table></figure>
-
+<h2 id="Blend-Mode-within-Transparent"><a href="#Blend-Mode-within-Transparent" class="headerlink" title="Blend Mode (within Transparent)"></a>Blend Mode (within Transparent)</h2><blockquote>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Formula</th>
+<th>Use case</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Alpha</td>
+<td>src.rgb * src.a + dst.rgb * (1 - src.a)</td>
+<td>Standard transparency, sprites, UI</td>
+</tr>
+<tr>
+<td>Additive</td>
+<td>src.rgb * src.a + dst.rgb</td>
+<td>Glows, fire, particles that should brighten</td>
+</tr>
+<tr>
+<td>Multiply</td>
+<td>src.rgb * dst.rgb</td>
+<td>Darkening effects, shadows, tinted overlays</td>
+</tr>
+<tr>
+<td>Premultiply</td>
+<td>src.rgb + dst.rgb * (1 - src.a)</td>
+<td>Textures with premultiplied alpha baked in</td>
+</tr>
+</tbody></table>
+</blockquote>
 <h1 id="The-Z-Buffer"><a href="#The-Z-Buffer" class="headerlink" title="The Z-Buffer"></a>The Z-Buffer</h1><p>The GPU maintains a depth buffer (z-buffer) alongside the color buffer. Every pixel stores the depth of the closest thing rendered to it so far.<br>When a new fragment arrives, the GPU compares its depth against what’s already in the buffer — if it’s further away, it gets discarded.</p>
 <h2 id="Front-to-Back-Pass"><a href="#Front-to-Back-Pass" class="headerlink" title="Front-to-Back Pass"></a>Front-to-Back Pass</h2><p>For opaque objects, Unity sorts them front-to-back before drawing. So the closest objects get drawn first.</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Camera → [Chair] → [Table] → [Wall behind]</span><br><span class="line">           drawn     drawn      drawn</span><br><span class="line">           first     second     third</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Camera → [Chair] → [Table] → [Wall behind]<br>drawn     drawn      drawn<br>first     second     third  </p>
+</blockquote>
 <p>This matters because of early-z.</p>
 <h2 id="Early-Z-Culling"><a href="#Early-Z-Culling" class="headerlink" title="Early-Z Culling"></a>Early-Z Culling</h2><p>Once the chair is drawn and its depth is written to the z-buffer, when the wall fragment arrives at the same pixel, the GPU checks:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wall depth (5.0) &gt; z-buffer value (1.2) → discard, skip fragment shader</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>wall depth (5.0) &gt; z-buffer value (1.2) → discard, skip fragment shader  </p>
+</blockquote>
 <p>It never runs the fragment shader for the wall pixel at all. This is early-z culling — rejecting fragments before the expensive shading work happens.<br>The savings are significant. Fragment shaders do lighting, texture sampling, math — all skipped for occluded pixels.</p>
 <h2 id="Why-transparent-objects-break-this"><a href="#Why-transparent-objects-break-this" class="headerlink" title="Why transparent objects break this"></a>Why transparent objects break this</h2><p>Transparent objects need to blend with what’s behind them, so they must be drawn last, back-to-front:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Camera → [Wall] → [Table] → [Glass in front]</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>Camera → [Wall] → [Table] → [Glass in front]  </p>
+</blockquote>
 <p>The glass needs the wall already in the framebuffer to blend against it. This means:</p>
 <ul>
 <li>You can’t sort front-to-back</li>
@@ -567,7 +958,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-08-14 20:55:52" itemprop="dateModified" datetime="2026-08-14T20:55:52+08:00">2026-08-14</time>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -595,28 +986,36 @@
 
       
           <p>Draw Call (绘制调用): CPU 告诉 GPU “请按照这些状态，把这个网格画出来” 的一次命令。这个命令本身有开销。Draw Call 太多，CPU 就会因为一直忙于下达指令而成为瓶颈。目标：减少 Draw Call 的总次数。<br>SetPass Call (状态切换调用): 在 Draw Call 之前，CPU 需要告诉 GPU 使用哪个 Shader、材质属性（颜色、贴图等）是什么。切换这些状态（特别是材质）是一个非常耗时的操作。目标：减少渲染状态的切换次数。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CPU 准备渲染数据</span><br><span class="line">    ↓</span><br><span class="line">设置渲染状态（材质、Shader、纹理绑定）← SetPass Call</span><br><span class="line">    ↓</span><br><span class="line">提交 DrawCall（告诉 GPU 画什么、怎么画）</span><br><span class="line">    ↓</span><br><span class="line">GPU 执行光栅化、着色、输出像素</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>CPU 准备渲染数据<br>↓<br>设置渲染状态（材质、Shader、纹理绑定）← SetPass Call<br>↓<br>提交 DrawCall（告诉 GPU 画什么、怎么画）<br>↓<br>GPU 执行光栅化、着色、输出像素  </p>
+</blockquote>
 <p>关键点：DrawCall 本身消耗资源，但准备阶段（SetPass Call）通常比 DrawCall 本身更耗性能。<br>开启批处理后，Unity 可以用一次 SetPass Call 复用同一材质状态，然后提交多个 DrawCall。所以降低 SetPass Call 往往比降低 DrawCall 更重要。</p>
 <hr>
 <h1 id="DrawCall（绘制调用）"><a href="#DrawCall（绘制调用）" class="headerlink" title="DrawCall（绘制调用）"></a>DrawCall（绘制调用）</h1><p>DrawCall 是 CPU 向 GPU 发送的一次渲染指令，包含了 GPU 绘制所需的全部信息：几何数据、纹理、Shader、Buffer 等。<br>CPU 先准备好数据，并通过调用图形API接口命令GPU对指定物体进行渲染一次的操作，称为一次DrawCall。</p>
 <p>每次调用 DrawMesh、DrawRenderer 等，就是一个 Draw Call。GPU 收到命令后开始渲染对应的几何体。</p>
 <p>当收到一个DrawCall时，GPU会按照指令，根据渲染状态和输入的顶点信息，指定一个网格（Mesh）进行渲染，绘制材质。<br>GPU 渲染时，同一批次的对象必须使用相同的材质和纹理。一旦纹理不同，就必须切换渲染状态，触发新的 DrawCall。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Image A（纹理1）→ DrawCall 1</span><br><span class="line">Image B（纹理2）→ DrawCall 2（纹理不同，无法合批）</span><br><span class="line">Image C（纹理1）→ 可以与 A 合批，不增加 DrawCall</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>Image A（纹理1）→ DrawCall 1<br>Image B（纹理2）→ DrawCall 2（纹理不同，无法合批）<br>Image C（纹理1）→ 可以与 A 合批，不增加 DrawCall  </p>
+</blockquote>
 <p>为了CPU和GPU可以进行并行工作，需要一个命令缓冲区，由CPU向其中添加命令，然后由GPU从中读取命令，这样就实现了通过CPU准备数据，通知GPU进行渲染。</p>
 <hr>
 <h1 id="SetPass-Call"><a href="#SetPass-Call" class="headerlink" title="SetPass Call"></a>SetPass Call</h1><p>在 Draw Call 之前，如果需要切换渲染状态（shader、材质属性、纹理等），CPU 就要先做一次 SetPass Call 来通知 GPU 切换 Pass。<br>SetPass Call 才是真正的性能瓶颈，因为它涉及 shader 编译、状态切换等开销。</p>
 <p>一次 SetPass 可能同时完成：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">绑定 Shader</span><br><span class="line">绑定纹理</span><br><span class="line">设置 Blend</span><br><span class="line">设置 Depth Test</span><br><span class="line">设置 Cull</span><br><span class="line">绑定材质参数</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>绑定 Shader<br>绑定纹理<br>设置 Blend<br>设置 Depth Test<br>设置 Cull<br>绑定材质参数  </p>
+</blockquote>
 <p>随后可以复用这些状态，执行多个 Draw Call：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SetPass</span><br><span class="line">├── Draw Call 1</span><br><span class="line">├── Draw Call 2</span><br><span class="line">└── Draw Call 3</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>SetPass<br>├── Draw Call 1<br>├── Draw Call 2<br>└── Draw Call 3  </p>
+</blockquote>
 <p>例如场景里有 5 个物体：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">物体A - 材质1 (Shader: Standard, 纹理: tex_a)</span><br><span class="line">物体B - 材质1 (同上)</span><br><span class="line">物体C - 材质1 (同上)</span><br><span class="line">物体D - 材质2 (Shader: Standard, 纹理: tex_b)</span><br><span class="line">物体E - 材质3 (Shader: Unlit,   纹理: tex_c)</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>物体A - 材质1 (Shader: Standard, 纹理: tex_a)<br>物体B - 材质1 (同上)<br>物体C - 材质1 (同上)<br>物体D - 材质2 (Shader: Standard, 纹理: tex_b)<br>物体E - 材质3 (Shader: Unlit,   纹理: tex_c)  </p>
+</blockquote>
 <p>渲染顺序：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">SetPass Call → 切换到材质1</span><br><span class="line">  Draw Call → 绘制物体A</span><br><span class="line">  Draw Call → 绘制物体B</span><br><span class="line">  Draw Call → 绘制物体C</span><br><span class="line">SetPass Call → 切换到材质2</span><br><span class="line">  Draw Call → 绘制物体D</span><br><span class="line">SetPass Call → 切换到材质3</span><br><span class="line">  Draw Call → 绘制物体E</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>SetPass Call → 切换到材质1<br>Draw Call → 绘制物体A<br>Draw Call → 绘制物体B<br>Draw Call → 绘制物体C<br>SetPass Call → 切换到材质2<br>Draw Call → 绘制物体D<br>SetPass Call → 切换到材质3<br>Draw Call → 绘制物体E  </p>
+</blockquote>
 <p>结果：5 个 Draw Call，3 个 SetPass Call。</p>
 <h2 id="Pass-是什么"><a href="#Pass-是什么" class="headerlink" title="Pass 是什么"></a>Pass 是什么</h2><p>一个 Pass 就是 shader 里的一次完整渲染流程，包含一套完整的顶点着色器 + 片元着色器，以及对应的渲染状态（混合模式、深度测试、剔除等）。<br>一个材质可以有多个 Pass，每个 Pass 对同一个物体渲染一遍。</p>
 <ul>
@@ -625,7 +1024,10 @@
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line">Shader <span class="string">&quot;Custom/Outline&quot;</span></span><br><span class="line">&#123;</span><br><span class="line">    Properties</span><br><span class="line">    &#123;</span><br><span class="line">        _Color (<span class="string">&quot;Color&quot;</span>, Color) = (<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>)</span><br><span class="line">        _OutlineColor (<span class="string">&quot;Outline Color&quot;</span>, Color) = (<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>)</span><br><span class="line">        _OutlineWidth (<span class="string">&quot;Outline Width&quot;</span>, Float) = <span class="number">0.02</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    SubShader</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// ---- Pass 0：描边 ----</span></span><br><span class="line">        Pass</span><br><span class="line">        &#123;</span><br><span class="line">            Name <span class="string">&quot;OUTLINE&quot;</span></span><br><span class="line">            Cull Front  <span class="comment">// 只渲染背面，正面被裁掉</span></span><br><span class="line"></span><br><span class="line">            CGPROGRAM</span><br><span class="line">            <span class="meta">#<span class="keyword">pragma</span> vertex vert</span></span><br><span class="line">            <span class="meta">#<span class="keyword">pragma</span> fragment frag</span></span><br><span class="line"></span><br><span class="line">            <span class="type">float</span> _OutlineWidth;</span><br><span class="line">            float4 _OutlineColor;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">struct</span> <span class="title class_">appdata</span> &#123; float4 vertex : POSITION; float3 normal : NORMAL; &#125;;</span><br><span class="line">            <span class="keyword">struct</span> <span class="title class_">v2f</span>    &#123; float4 pos : SV_POSITION; &#125;;</span><br><span class="line"></span><br><span class="line">            <span class="function">v2f <span class="title">vert</span><span class="params">(appdata v)</span></span></span><br><span class="line"><span class="function">            </span>&#123;</span><br><span class="line">                v2f o;</span><br><span class="line">                <span class="comment">// 沿法线方向把顶点往外推</span></span><br><span class="line">                float3 expanded = v.vertex.xyz + v.normal * _OutlineWidth;</span><br><span class="line">                o.pos = <span class="built_in">UnityObjectToClipPos</span>(<span class="built_in">float4</span>(expanded, <span class="number">1</span>));</span><br><span class="line">                <span class="keyword">return</span> o;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="function">fixed4 <span class="title">frag</span><span class="params">(v2f i)</span> : SV_Target</span></span><br><span class="line"><span class="function">            &#123;</span></span><br><span class="line">                <span class="keyword">return</span> _OutlineColor;  <span class="comment">// 纯色描边</span></span><br><span class="line">            &#125;</span><br><span class="line">            ENDCG</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ---- Pass 1：正常渲染 ----</span></span><br><span class="line">        Pass</span><br><span class="line">        &#123;</span><br><span class="line">            Name <span class="string">&quot;BASE&quot;</span></span><br><span class="line">            Cull Back   <span class="comment">// 只渲染正面</span></span><br><span class="line"></span><br><span class="line">            CGPROGRAM</span><br><span class="line">            <span class="meta">#<span class="keyword">pragma</span> vertex vert</span></span><br><span class="line">            <span class="meta">#<span class="keyword">pragma</span> fragment frag</span></span><br><span class="line"></span><br><span class="line">            float4 _Color;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">struct</span> <span class="title class_">appdata</span> &#123; float4 vertex : POSITION; &#125;;</span><br><span class="line">            <span class="keyword">struct</span> <span class="title class_">v2f</span>    &#123; float4 pos : SV_POSITION; &#125;;</span><br><span class="line"></span><br><span class="line">            <span class="function">v2f <span class="title">vert</span><span class="params">(appdata v)</span></span></span><br><span class="line"><span class="function">            </span>&#123;</span><br><span class="line">                v2f o;</span><br><span class="line">                o.pos = <span class="built_in">UnityObjectToClipPos</span>(v.vertex);</span><br><span class="line">                <span class="keyword">return</span> o;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="function">fixed4 <span class="title">frag</span><span class="params">(v2f i)</span> : SV_Target</span></span><br><span class="line"><span class="function">            &#123;</span></span><br><span class="line">                <span class="keyword">return</span> _Color;</span><br><span class="line">            &#125;</span><br><span class="line">            ENDCG</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>渲染这一个物体时，GPU 会走两遍：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SetPass Call → 激活 Pass 0 (OUTLINE)，设置 Cull Front 状态</span><br><span class="line">  Draw Call  → 用 Pass 0 的 shader 绘制物体（画出描边）</span><br><span class="line"></span><br><span class="line">SetPass Call → 激活 Pass 1 (BASE)，设置 Cull Back 状态</span><br><span class="line">  Draw Call  → 用 Pass 1 的 shader 绘制物体（画出本体）</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>SetPass Call → 激活 Pass 0 (OUTLINE)，设置 Cull Front 状态<br>Draw Call  → 用 Pass 0 的 shader 绘制物体（画出描边）  </p>
+<p>SetPass Call → 激活 Pass 1 (BASE)，设置 Cull Back 状态<br>Draw Call  → 用 Pass 1 的 shader 绘制物体（画出本体）  </p>
+</blockquote>
 <p>所以 1 个物体、1 个材质，产生了 2 个 SetPass Call + 2 个 Draw Call。</p>
 <hr>
 <h1 id="Batch"><a href="#Batch" class="headerlink" title="Batch"></a>Batch</h1><p>在 Unity 中：</p>
@@ -643,7 +1045,10 @@
 <li>绘制参数：绘制多少索引、从哪里开始、实例数量。</li>
 </ul>
 <p>不过 Batch 通常不是把这些数据复制成一个“大包”。很多数据已经在 GPU 中，Draw Call 只是引用它们：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">绑定材质和缓冲区</span><br><span class="line">→ DrawIndexed(索引数量, 起始位置, 实例数量)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>绑定材质和缓冲区<br>→ DrawIndexed(索引数量, 起始位置, 实例数量)  </p>
+</blockquote>
+
       
     </div>
 
@@ -699,7 +1104,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-03-30 10:05:05" itemprop="dateModified" datetime="2026-03-30T10:05:05+08:00">2026-03-30</time>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -727,8 +1132,10 @@
 
       
           <h1 id="Sprite-Atlas-图集"><a href="#Sprite-Atlas-图集" class="headerlink" title="Sprite Atlas 图集"></a>Sprite Atlas 图集</h1><p>把多张小纹理合并成一张大纹理，GPU 渲染时所有引用该图集的 Sprite 共享同一张纹理，满足合批条件，从而将多个 DrawCall 合并为一个。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">未使用图集：</span><br><span class="line">  Sprite A（texture_a.png）→ DrawCall 1</span><br><span class="line">  Sprite B（texture_b.png）→ DrawCall 2</span><br><span class="line">  Sprite C（texture_c.png）→ DrawCall 3</span><br><span class="line"></span><br><span class="line">使用图集后：</span><br><span class="line">  Sprite A ─┐</span><br><span class="line">  Sprite B ─┼─ atlas.png → DrawCall 1（合批）</span><br><span class="line">  Sprite C ─┘</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>未使用图集：<br>Sprite A（texture_a.png）→ DrawCall 1<br>Sprite B（texture_b.png）→ DrawCall 2<br>Sprite C（texture_c.png）→ DrawCall 3  </p>
+<p>使用图集后：<br>Sprite A ─┐<br>Sprite B ─┼─ atlas.png → DrawCall 1（合批）<br>Sprite C ─┘  </p>
+</blockquote>
 <p>除了减少 DrawCall，图集还有两个底层优化：</p>
 <ul>
 <li>GPU 处理 2 的幂次方尺寸的纹理效率更高，图集会自动将小图打包成符合规范的大图</li>
@@ -764,10 +1171,14 @@
 </ul>
 <h1 id="Sprite-Atlas-和-Drawcall"><a href="#Sprite-Atlas-和-Drawcall" class="headerlink" title="Sprite Atlas 和 Drawcall"></a>Sprite Atlas 和 Drawcall</h1><p>Atlas 本身不减少 Draw Call，它是让 batching 成为可能的前提条件。</p>
 <h2 id="Sprite-Atlas"><a href="#Sprite-Atlas" class="headerlink" title="Sprite Atlas"></a>Sprite Atlas</h2><p>图集解决的是纹理问题，把多张小图合并成一张大图。<br>原来每个 sprite 用不同纹理 → 不同材质 → 每次渲染都要 SetPass Call 切换。合并后所有 sprite 共享同一张纹理 → 同一个材质 → 为后续 batching 创造条件。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">没有图集：</span><br><span class="line">  图标A (tex_a) → SetPass → Draw</span><br><span class="line">  图标B (tex_b) → SetPass → Draw   ← 纹理不同，必须切换</span><br><span class="line">  图标C (tex_c) → SetPass → Draw</span><br><span class="line"></span><br><span class="line">有图集：</span><br><span class="line">  图标A (atlas) → SetPass → Draw</span><br><span class="line">  图标B (atlas) →           Draw   ← 同一纹理，可以 batch</span><br><span class="line">  图标C (atlas) →           Draw</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>没有图集：<br>图标A (tex_a) → SetPass → Draw<br>图标B (tex_b) → SetPass → Draw   ← 纹理不同，必须切换<br>图标C (tex_c) → SetPass → Draw  </p>
+<p>有图集：<br>图标A (atlas) → SetPass → Draw<br>图标B (atlas) →           Draw   ← 同一纹理，可以 batch<br>图标C (atlas) →           Draw  </p>
+</blockquote>
 <h2 id="Batching"><a href="#Batching" class="headerlink" title="Batching"></a>Batching</h2><p>Static Batching &#x2F; GPU Instancing 能合并 Draw Call，但不能合并 SetPass Call 。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// GPU Instancing：同一材质的100个物体(DrawCall x 100)</span><br><span class="line">SetPass Call × 1   ← 只切换一次状态</span><br><span class="line">Draw Call × 1      ← 合并成一次绘制（instanced）</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>&#x2F;&#x2F; GPU Instancing：同一材质的100个物体(DrawCall x 100)<br>SetPass Call × 1   ← 只切换一次状态<br>Draw Call × 1      ← 合并成一次绘制（instanced）  </p>
+</blockquote>
 <p>而 Dynamic Batching 同时减少两者，因为它把多个 mesh 合并成一个，用同一个材质一次画完。</p>
 <ul>
 <li>Draw Call 多 → GPU 压力大</li>
@@ -778,11 +1189,13 @@
 <h2 id="Sprite-Atlas-如何减少-Draw-Call"><a href="#Sprite-Atlas-如何减少-Draw-Call" class="headerlink" title="Sprite Atlas 如何减少 Draw Call"></a>Sprite Atlas 如何减少 Draw Call</h2><p>Sprite Atlas 确实减少 Draw Call，但不是靠自己，而是靠触发 Dynamic Batching。</p>
 <p>Draw Call 能被合并的条件是：多个物体使用完全相同的材质（同 shader + 同纹理 + 同参数）。</p>
 <p>没有 Atlas 时：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">图标A → 材质A (tex_a)  ← 不同纹理 = 不同材质</span><br><span class="line">图标B → 材质B (tex_b)  ← 无法 batch</span><br><span class="line">图标C → 材质C (tex_c)  ← 3个 Draw Call</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>图标A → 材质A (tex_a)  ← 不同纹理 &#x3D; 不同材质<br>图标B → 材质B (tex_b)  ← 无法 batch<br>图标C → 材质C (tex_c)  ← 3个 Draw Call  </p>
+</blockquote>
 <p>有了 Atlas，所有图标共享同一张纹理，材质变成一样的，Dynamic Batching 才能介入把它们合并：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">图标A → 材质X (atlas)  ← 同一材质</span><br><span class="line">图标B → 材质X (atlas)  ← Dynamic Batching 合并</span><br><span class="line">图标C → 材质X (atlas)  ← 1个 Draw Call</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>图标A → 材质X (atlas)  ← 同一材质<br>图标B → 材质X (atlas)  ← Dynamic Batching 合并<br>图标C → 材质X (atlas)  ← 1个 Draw Call  </p>
+</blockquote>
 <p>所以准确说法是：Atlas 统一了纹理，使 batching 成为可能，batching 才是真正减少 Draw Call 的那一步。 两者缺一不可。</p>
 <p>即使不考虑 Draw Call，Atlas 本身也有价值：</p>
 <ul>
@@ -847,7 +1260,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-08-20 18:13:25" itemprop="dateModified" datetime="2026-08-20T18:13:25+08:00">2026-08-20</time>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -875,14 +1288,18 @@
 
       
           <h1 id="AssetBundle"><a href="#AssetBundle" class="headerlink" title="AssetBundle"></a>AssetBundle</h1><p>AssetBundle 本质是一个压缩的二进制文件，内部结构如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">AssetBundle 文件</span><br><span class="line">├── Header（包头：版本、压缩类型、元数据）</span><br><span class="line">├── Manifest（资源清单：资源名、依赖关系、GUID）</span><br><span class="line">└── Data Segment（序列化的资源数据）</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>AssetBundle 文件<br>├── Header（包头：版本、压缩类型、元数据）<br>├── Manifest（资源清单：资源名、依赖关系、GUID）<br>└── Data Segment（序列化的资源数据）  </p>
+</blockquote>
 <p>支持两种压缩格式：</p>
 <ul>
 <li>LZMA：压缩率高，但加载时需整包解压，内存占用大</li>
 <li>LZ4：块压缩，按需解压，加载更快，推荐使用</li>
 </ul>
 <h2 id="依赖关系"><a href="#依赖关系" class="headerlink" title="依赖关系"></a>依赖关系</h2><p>AB 包之间存在依赖链，必须按顺序加载：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bundle_character.ab</span><br><span class="line">    └── 依赖 bundle_texture.ab</span><br><span class="line">            └── 依赖 bundle_shader.ab</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>bundle_character.ab<br>└── 依赖 bundle_texture.ab<br>└── 依赖 bundle_shader.ab  </p>
+</blockquote>
 <p>如果 bundle_texture.ab 未加载，bundle_character.ab 中的资源会出现材质丢失（粉红色）。</p>
 <h2 id="打包脚本（Editor）"><a href="#打包脚本（Editor）" class="headerlink" title="打包脚本（Editor）"></a>打包脚本（Editor）</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Editor/AssetBundleBuilder.cs</span></span><br><span class="line"><span class="keyword">using</span> UnityEditor;</span><br><span class="line"><span class="keyword">using</span> System.IO;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AssetBundleBuilder</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">MenuItem(<span class="string">&quot;Tools/Build AssetBundles&quot;</span>)</span>]</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">BuildAllAB</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">string</span> outputPath = <span class="string">&quot;Assets/StreamingAssets/AssetBundles&quot;</span>;</span><br><span class="line">        <span class="keyword">if</span> (!Directory.Exists(outputPath))</span><br><span class="line">            Directory.CreateDirectory(outputPath);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// BuildAssetBundleOptions.ChunkBasedCompression 使用 LZ4 压缩</span></span><br><span class="line">        BuildPipeline.BuildAssetBundles(</span><br><span class="line">            outputPath,</span><br><span class="line">            BuildAssetBundleOptions.ChunkBasedCompression,</span><br><span class="line">            BuildTarget.StandaloneWindows64</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        AssetDatabase.Refresh();</span><br><span class="line">        UnityEngine.Debug.Log(<span class="string">&quot;AssetBundle 构建完成&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -902,11 +1319,13 @@
 <li>AB 是平台相关的，Android、iOS、Windows 通常需要分别构建。</li>
 </ul>
 <p><em>catalog.json</em> 不保存资源内容，它保存“资源怎样定位”的信息，例如：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">地址/Label/GUID</span><br><span class="line">  → 使用哪个 Provider</span><br><span class="line">  → 对应哪个 AssetBundle</span><br><span class="line">  → Bundle 的远端 URL</span><br><span class="line">  → Bundle Hash、CRC、大小</span><br><span class="line">  → 依赖哪些其他 Bundle</span><br><span class="line">  → 最终加载的资源类型</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>地址&#x2F;Label&#x2F;GUID<br>→ 使用哪个 Provider<br>→ 对应哪个 AssetBundle<br>→ Bundle 的远端 URL<br>→ Bundle Hash、CRC、大小<br>→ 依赖哪些其他 Bundle<br>→ 最终加载的资源类型  </p>
+</blockquote>
 <p>所以运行时链路是：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Addressables 地址</span><br><span class="line">      ↓ 查询</span><br><span class="line">catalog.json</span><br><span class="line">      ↓ 找到 Bundle 地址和依赖</span><br><span class="line">下载/读取 AssetBundle</span><br><span class="line">      ↓</span><br><span class="line">从 AB 中取出 TextAsset、Prefab 等实际资源</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>Addressables 地址<br>↓ 查询<br>catalog.json<br>↓ 找到 Bundle 地址和依赖<br>下载&#x2F;读取 AssetBundle<br>↓<br>从 AB 中取出 TextAsset、Prefab 等实际资源  </p>
+</blockquote>
 <p>启用 Remote Catalog 后，启动流程通常是：</p>
 <ol>
 <li>加载 Player 内置的 Addressables 设置</li>
@@ -919,10 +1338,12 @@
 <p>带内容 Hash 的 AB 应当视为不可变文件，旧 AB 不要立即删除，因为新 Catalog仍可能引用未变化的旧 Bundle。</p>
 <hr>
 <h1 id="Addressables"><a href="#Addressables" class="headerlink" title="Addressables"></a>Addressables</h1><p>Addressables 是对 AssetBundle 的高层封装，核心组件：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Addressables 系统</span><br><span class="line">├── Catalog（资源目录）</span><br><span class="line">│     └── 地址(string) → 资源位置(本地/远程) 的映射表</span><br><span class="line">├── ResourceLocator（资源定位器）</span><br><span class="line">│     └── 根据 Catalog 找到资源的实际路径</span><br><span class="line">├── ResourceProvider（资源提供者）</span><br><span class="line">│     └── 负责实际的加载逻辑（本地文件/网络下载）</span><br><span class="line">├── AsyncOperationHandle（异步操作句柄）</span><br><span class="line">│     └── 管理加载状态、进度、回调</span><br><span class="line">└── ResourceManager（资源管理器）</span><br><span class="line">      └── 引用计数、内存管理</span><br></pre></td></tr></table></figure>
-
-<h2 id="加载流程"><a href="#加载流程" class="headerlink" title="加载流程"></a>加载流程</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Addressables.LoadAssetAsync(&quot;Hero&quot;)</span><br><span class="line">    ↓</span><br><span class="line">ResourceLocator 查询 Catalog</span><br><span class="line">    ↓</span><br><span class="line">找到资源位置（本地 StreamingAssets 或远程 CDN URL）</span><br><span class="line">    ↓</span><br><span class="line">ResourceProvider 加载对应的 AssetBundle</span><br><span class="line">    ↓</span><br><span class="line">自动加载所有依赖 Bundle</span><br><span class="line">    ↓</span><br><span class="line">从 Bundle 中提取目标资源</span><br><span class="line">    ↓</span><br><span class="line">引用计数 +1，返回 AsyncOperationHandle</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>Addressables 系统<br>├── Catalog（资源目录）<br>│     └── 地址(string) → 资源位置(本地&#x2F;远程) 的映射表<br>├── ResourceLocator（资源定位器）<br>│     └── 根据 Catalog 找到资源的实际路径<br>├── ResourceProvider（资源提供者）<br>│     └── 负责实际的加载逻辑（本地文件&#x2F;网络下载）<br>├── AsyncOperationHandle（异步操作句柄）<br>│     └── 管理加载状态、进度、回调<br>└── ResourceManager（资源管理器）<br>└── 引用计数、内存管理  </p>
+</blockquote>
+<h2 id="加载流程"><a href="#加载流程" class="headerlink" title="加载流程"></a>加载流程</h2><blockquote>
+<p><code>Addressables.LoadAssetAsync(&quot;Hero&quot;)</code><br>↓<br>ResourceLocator 查询 Catalog<br>↓<br>找到资源位置（本地 StreamingAssets 或远程 CDN URL）<br>↓<br>ResourceProvider 加载对应的 AssetBundle<br>↓<br>自动加载所有依赖 Bundle<br>↓<br>从 Bundle 中提取目标资源<br>↓<br>引用计数 +1，返回 AsyncOperationHandle  </p>
+</blockquote>
 <h2 id="引用计数机制"><a href="#引用计数机制" class="headerlink" title="引用计数机制"></a>引用计数机制</h2><p>Addressables 内部维护引用计数，每次 LoadAssetAsync 计数 +1，每次 Release 计数 -1，归零时自动卸载 Bundle，这是它比原生 AB 包更安全的核心原因。</p>
 <h2 id="基础加载与释放"><a href="#基础加载与释放" class="headerlink" title="基础加载与释放"></a>基础加载与释放</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Runtime/AddressablesLoader.cs</span></span><br><span class="line"><span class="keyword">using</span> System.Collections;</span><br><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.AddressableAssets;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.ResourceManagement.AsyncOperations;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AddressablesLoader</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 在 Inspector 中直接引用 Addressable 资源（推荐，类型安全）</span></span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> AssetReferenceGameObject _heroPrefabRef;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> AsyncOperationHandle&lt;GameObject&gt; _loadHandle;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 方式一：通过 AssetReference（Inspector 拖拽绑定）</span></span><br><span class="line">        LoadViaAssetReference();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 方式二：通过地址字符串</span></span><br><span class="line">        <span class="comment">// LoadViaAddress(&quot;Hero&quot;);</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过 AssetReference 加载（推荐）</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">LoadViaAssetReference</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _loadHandle = _heroPrefabRef.LoadAssetAsync&lt;GameObject&gt;();</span><br><span class="line">        _loadHandle.Completed += OnLoadComplete;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过地址字符串加载</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">LoadViaAddress</span>(<span class="params"><span class="built_in">string</span> address</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _loadHandle = Addressables.LoadAssetAsync&lt;GameObject&gt;(address);</span><br><span class="line">        _loadHandle.Completed += OnLoadComplete;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnLoadComplete</span>(<span class="params">AsyncOperationHandle&lt;GameObject&gt; handle</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (handle.Status == AsyncOperationStatus.Succeeded)</span><br><span class="line">        &#123;</span><br><span class="line">            Instantiate(handle.Result, Vector3.zero, Quaternion.identity);</span><br><span class="line">            Debug.Log(<span class="string">&quot;资源加载成功&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(<span class="string">$&quot;资源加载失败: <span class="subst">&#123;handle.OperationException&#125;</span>&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnDestroy</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 必须释放句柄，否则引用计数不归零，内存泄漏</span></span><br><span class="line">        <span class="keyword">if</span> (_loadHandle.IsValid())</span><br><span class="line">            Addressables.Release(_loadHandle);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -935,8 +1356,9 @@
 <h2 id="热更新检查（远程内容更新）"><a href="#热更新检查（远程内容更新）" class="headerlink" title="热更新检查（远程内容更新）"></a>热更新检查（远程内容更新）</h2><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System.Collections.Generic;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.AddressableAssets.ResourceLocators;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AddressablesUpdater</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function">IEnumerator <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// Step 1：检查 Catalog 是否有更新</span></span><br><span class="line">        <span class="keyword">var</span> checkHandle = Addressables.CheckForCatalogUpdates(autoReleaseHandle: <span class="literal">false</span>);</span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">return</span> checkHandle;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (checkHandle.Status != AsyncOperationStatus.Succeeded)</span><br><span class="line">        &#123;</span><br><span class="line">            Addressables.Release(checkHandle);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        List&lt;<span class="built_in">string</span>&gt; catalogsToUpdate = checkHandle.Result;</span><br><span class="line">        Addressables.Release(checkHandle);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (catalogsToUpdate.Count == <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.Log(<span class="string">&quot;无需更新&quot;</span>);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Step 2：更新 Catalog</span></span><br><span class="line">        <span class="keyword">var</span> updateHandle = Addressables.UpdateCatalogs(catalogsToUpdate, autoReleaseHandle: <span class="literal">false</span>);</span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">return</span> updateHandle;</span><br><span class="line"></span><br><span class="line">        List&lt;IResourceLocator&gt; updatedLocators = updateHandle.Result;</span><br><span class="line">        Addressables.Release(updateHandle);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Step 3：下载更新的内容</span></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> locator <span class="keyword">in</span> updatedLocators)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> sizeHandle = Addressables.GetDownloadSizeAsync(locator.Keys);</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">return</span> sizeHandle;</span><br><span class="line"></span><br><span class="line">            <span class="built_in">long</span> downloadSize = sizeHandle.Result;</span><br><span class="line">            Addressables.Release(sizeHandle);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (downloadSize &gt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                Debug.Log(<span class="string">$&quot;需要下载: <span class="subst">&#123;downloadSize / <span class="number">1024f</span> / <span class="number">1024f</span>:F2&#125;</span> MB&quot;</span>);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">var</span> downloadHandle = Addressables.DownloadDependenciesAsync(locator.Keys);</span><br><span class="line">                <span class="keyword">yield</span> <span class="keyword">return</span> downloadHandle;</span><br><span class="line">                Addressables.Release(downloadHandle);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Debug.Log(<span class="string">&quot;更新完成&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="Create-New-Build"><a href="#Create-New-Build" class="headerlink" title="Create New Build"></a>Create New Build</h2><p>这里指 Addressables 的：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Build</span><br><span class="line">  → New Build</span><br><span class="line">  → Default Build Script</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>Build<br>→ New Build<br>→ Default Build Script  </p>
+</blockquote>
 <p>它构建的是 Addressables 内容，不等于构建 APK、AAB、IPA。New Build 的含义是“建立一个新的内容基线”：</p>
 <ul>
 <li>根据当前 Group 和 Schema 重新生成 Catalog。</li>
@@ -957,8 +1379,9 @@
 <li>更换平台。</li>
 </ul>
 <p>每个正式 Player 基线都应该保存：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Android / Player 1.0 / addressables_content_state.bin</span><br><span class="line">iOS     / Player 1.0 / addressables_content_state.bin</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>Android &#x2F; Player 1.0 &#x2F; addressables_content_state.bin<br>iOS     &#x2F; Player 1.0 &#x2F; addressables_content_state.bin  </p>
+</blockquote>
 <h2 id="Update-a-Previous-Build"><a href="#Update-a-Previous-Build" class="headerlink" title="Update a Previous Build"></a>Update a Previous Build</h2><p>Update Build 获取已发布内容对应的addressables_content_state.bin，把它与当前资源状态比较，然后：</p>
 <ul>
 <li>未变化的 Bundle 保持原名称和引用。</li>
@@ -969,9 +1392,13 @@
 <li>Bundle 内只改了一个文件，也可能需要重新下载整个 Bundle。</li>
 </ul>
 <p>例如初始版本：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">catalog v1:</span><br><span class="line">HotCode → hotcode_aaa.bundle</span><br><span class="line">Lobby   → lobby_111.bundle</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>catalog v1:<br>HotCode → hotcode_aaa.bundle<br>Lobby   → lobby_111.bundle  </p>
+</blockquote>
 <p>只修改热更新 DLL 后：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">catalog v2:</span><br><span class="line">HotCode → hotcode_bbb.bundle   新 Bundle</span><br><span class="line">Lobby   → lobby_111.bundle     继续引用旧 Bundle</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>catalog v2:<br>HotCode → hotcode_bbb.bundle   新 Bundle<br>Lobby   → lobby_111.bundle     继续引用旧 Bundle  </p>
+</blockquote>
 <p>客户端只需要下载新 Catalog 和 hotcode_bbb.bundle。</p>
 <p>Update Build 适合：</p>
 <ul>
@@ -1028,10 +1455,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-03-24 11:49:36 / Modified: 16:13:04" itemprop="dateCreated datePublished" datetime="2026-03-24T11:49:36+08:00">2026-03-24</time>
+              <time title="Created: 2026-03-24 11:49:36" itemprop="dateCreated datePublished" datetime="2026-03-24T11:49:36+08:00">2026-03-24</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -1066,13 +1499,25 @@
 <li><p>Instance ID（实例ID）<br>运行时层面，Unity 内存中每个 Object 的唯一标识，本质是一个整数，运行时动态分配<br>是 File GUID + Local ID 的运行时映射</p>
 </li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">磁盘：  File GUID + Local ID  →  唯一定位一个资源</span><br><span class="line">运行时：Instance ID           →  指向内存中的 Object</span><br><span class="line"></span><br><span class="line">Instance ID Cache = 这个映射表</span><br><span class="line">&#123; Instance ID → (File GUID, Local ID, 内存地址或null) &#125;</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>磁盘：  File GUID + Local ID  →  唯一定位一个资源<br>运行时：Instance ID           →  指向内存中的 Object  </p>
+<p>Instance ID Cache &#x3D; 这个映射表<br>{ Instance ID → (File GUID, Local ID, 内存地址或null) }  </p>
+</blockquote>
 <ul>
 <li>Instance ID Cache 的作用</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">启动时预填充：</span><br><span class="line">- 所有场景直接引用的资源</span><br><span class="line">- Resources 文件夹下的所有资源</span><br><span class="line">→ 这些 Object 的 Instance ID 提前注册，但不一定加载进内存</span><br><span class="line"></span><br><span class="line">运行时追加：</span><br><span class="line">- 从 AB 包加载新资源时</span><br><span class="line">- 代码里 new Texture2D() 创建时</span><br><span class="line">→ 新 Instance ID 动态加入缓存</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>启动时预填充：  </p>
+<ul>
+<li>所有场景直接引用的资源  </li>
+<li>Resources 文件夹下的所有资源<br>→ 这些 Object 的 Instance ID 提前注册，但不一定加载进内存</li>
+</ul>
+<p>运行时追加：  </p>
+<ul>
+<li>从 AB 包加载新资源时  </li>
+<li>代码里 new Texture2D() 创建时<br>→ 新 Instance ID 动态加入缓存</li>
+</ul>
+</blockquote>
 <p>当你持有一个对象引用，Unity 内部就是拿着 Instance ID 去缓存里查：</p>
 <ol>
 <li>查到且有内存地址 → 直接返回</li>
@@ -1136,7 +1581,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-10-28 20:58:58" itemprop="dateModified" datetime="2026-10-28T20:58:58+08:00">2026-10-28</time>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1172,7 +1617,9 @@
 <li>就算prefab不是在resources文件来而是在不同于它引用的贴图的AB包中，也一样要在实例化前把贴图所在的AB加载出来；但不用把贴图加载出来，prefab会自动去加载它。</li>
 </ul>
 <h2 id="Resources-Load"><a href="#Resources-Load" class="headerlink" title="Resources.Load"></a>Resources.Load</h2><p>Unity 打包时为每个资源分配 UID，同时建立一张”路径→UID”映射表存在配置文件里。<br>加载时先查表把路径转成 UID，再用 UID 找到实际数据。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Assets/Resources/ui/icon.png</span><br><span class="line">         ↓ 打包</span><br><span class="line">resources.assets（包含所有未被场景引用的Resources资源）</span><br><span class="line">         ↓ 运行时</span><br><span class="line">Resources.Load(&quot;ui/icon&quot;, typeof(Sprite))</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Assets&#x2F;Resources&#x2F;ui&#x2F;icon.png<br>↓ 打包<br>resources.assets（包含所有未被场景引用的Resources资源）<br>↓ 运行时<br><code>Resources.Load(&quot;ui/icon&quot;, typeof(Sprite))</code>  </p>
+</blockquote>
 <p>特殊情况：如果 Resources 下的资源被场景直接引用，会打进 sharedassets[level].assets 而不是 resources.assets，不同目录下的 Resources 文件夹资源路径最好不重名。</p>
 <p>卸载资源时用UnloadUnusedAssets（注意：UnloadAsset 对 Resources 无效）</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// 加载</span><br><span class="line">Texture2D tex = Resources.Load(&quot;ui/icon&quot;, typeof(Texture2D)) as Texture2D;</span><br><span class="line"></span><br><span class="line">// 卸载</span><br><span class="line">Resources.UnloadUnusedAssets(); // 正确方式</span><br><span class="line">// Resources.UnloadAsset(tex); 只对 AB 包加载的资源有效</span><br><span class="line"></span><br><span class="line">// 查找场景中所有同类型对象（包括未激活的）</span><br><span class="line">Resources.FindObjectsOfTypeAll&lt;GameObject&gt;();</span><br></pre></td></tr></table></figure>
@@ -1197,8 +1644,9 @@
 </ul>
 </li>
 </ul>
-<h2 id="各平台存储位置"><a href="#各平台存储位置" class="headerlink" title="各平台存储位置"></a>各平台存储位置</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Windows/Editor  → [项目]/Assets/StreamingAssets/</span><br><span class="line">iOS             → [.ipa包]/Data/Raw/</span><br><span class="line">Android         → [.apk包]/assets/  （压缩存储在zip内）</span><br><span class="line">WebGL           → 无法直接访问</span><br></pre></td></tr></table></figure>
-
+<h2 id="各平台存储位置"><a href="#各平台存储位置" class="headerlink" title="各平台存储位置"></a>各平台存储位置</h2><blockquote>
+<p>Windows&#x2F;Editor  → [项目]&#x2F;Assets&#x2F;StreamingAssets&#x2F;<br>iOS             → [.ipa包]&#x2F;Data&#x2F;Raw&#x2F;<br>Android         → [.apk包]&#x2F;assets&#x2F;  （压缩存储在zip内）<br>WebGL           → 无法直接访问  </p>
+</blockquote>
 <p>Android 特殊处理（存在 APK 压缩包内，不能直接用文件路径）：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// Android 必须用 UnityWebRequest</span><br><span class="line">IEnumerator LoadVideoAndroid(string fileName)</span><br><span class="line">&#123;</span><br><span class="line">    string path = Path.Combine(Application.streamingAssetsPath, fileName);</span><br><span class="line">    using var req = UnityWebRequest.Get(path);</span><br><span class="line">    yield return req.SendWebRequest();</span><br><span class="line">    byte[] data = req.downloadHandler.data;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 其他平台可以直接用文件路径</span><br><span class="line">string videoPath = Path.Combine(Application.streamingAssetsPath, &quot;intro.mp4&quot;);</span><br><span class="line">videoPlayer.url = videoPath;</span><br></pre></td></tr></table></figure>
 
@@ -1226,8 +1674,9 @@
 <li>可以将一些需要读写的文件先放在Streaming Assets，在App安装后通过代码Copy到PersistentDataPath文件夹，比如上面提到的数据库初始文件</li>
 </ul>
 <h1 id="AssetBundle"><a href="#AssetBundle" class="headerlink" title="AssetBundle"></a>AssetBundle</h1><p>资源在 Inspector 面板右下角设置包名和变体名，相同包名打进同一个 .ab 文件。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">包名: characters/hero    变体名: hd</span><br><span class="line">包名: characters/hero    变体名: sd</span><br><span class="line">→ 生成 characters/hero.hd 和 characters/hero.sd 两个变体包</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>包名: characters&#x2F;hero    变体名: hd<br>包名: characters&#x2F;hero    变体名: sd<br>→ 生成 characters&#x2F;hero.hd 和 characters&#x2F;hero.sd 两个变体包  </p>
+</blockquote>
 <p>变体包（Variant）是同一资源的不同版本，用于针对不同设备&#x2F;平台加载不同质量的内容，但代码层面引用名称保持一致。</p>
 <figure class="highlight cs"><figcaption><span>根据设备性能决定加载哪个变体</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> variant = SystemInfo.systemMemorySize &gt; <span class="number">4096</span> ? <span class="string">&quot;hd&quot;</span> : <span class="string">&quot;sd&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 加载对应变体的 AB 包</span></span><br><span class="line"><span class="built_in">string</span> bundlePath = <span class="string">$&quot;characters/hero.<span class="subst">&#123;variant&#125;</span>&quot;</span>;</span><br><span class="line">AssetBundle ab = AssetBundle.LoadFromFile(bundlePath);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 资源名称不变，Unity 自动从当前加载的变体中取</span></span><br><span class="line">GameObject hero = ab.LoadAsset&lt;GameObject&gt;(<span class="string">&quot;Hero&quot;</span>);</span><br><span class="line">Instantiate(hero);</span><br></pre></td></tr></table></figure>
 
@@ -1311,7 +1760,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-10-28 20:58:55" itemprop="dateModified" datetime="2026-10-28T20:58:55+08:00">2026-10-28</time>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1335,8 +1784,11 @@
 
       
           <h1 id="LZ-系列（通用数据压缩）"><a href="#LZ-系列（通用数据压缩）" class="headerlink" title="LZ 系列（通用数据压缩）"></a>LZ 系列（通用数据压缩）</h1><p>LZ 系列都基于同一个核心思想：找重复的字节序列，用引用替代。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">原始数据：</span><br><span class="line">&quot;abcdefabcdef&quot;</span><br><span class="line"></span><br><span class="line">压缩后：</span><br><span class="line">&quot;abcdef&quot; + (往前6个字节，复制6个字节)</span><br><span class="line">            ↑ 这就是一个&quot;引用&quot;，比重复存储省空间</span><br><span class="line"></span><br><span class="line">压缩结果：</span><br><span class="line">[literal: abcdef] [match: offset=6, len=6]</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>原始数据：<br>“abcdefabcdef”  </p>
+<p>压缩后：<br>“abcdef” + (往前6个字节，复制6个字节)<br>↑ 这就是一个”引用”，比重复存储省空间  </p>
+<p>压缩结果：<br>[literal: abcdef] [match: offset&#x3D;6, len&#x3D;6]  </p>
+</blockquote>
 <h2 id="LZMA-Lempel-Ziv-Markov-chain-Algorithm"><a href="#LZMA-Lempel-Ziv-Markov-chain-Algorithm" class="headerlink" title="LZMA (Lempel-Ziv-Markov chain Algorithm)"></a>LZMA (Lempel-Ziv-Markov chain Algorithm)</h2><p>7-Zip 使用的算法，压缩率极高但速度慢。</p>
 <ul>
 <li>在 LZ 基础上加了马尔可夫链概率模型</li>
@@ -1356,8 +1808,13 @@
 <li>输出格式极简，解压只需简单的内存拷贝操作</li>
 <li>几乎不做概率统计，纯粹的字节匹配</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">LZ4 数据块格式：</span><br><span class="line">[token 1字节] [extra literal长度?] [literal数据] [match偏移 2字节] [extra match长度?]</span><br><span class="line"></span><br><span class="line">数据: &quot;abcdeabcde&quot;</span><br><span class="line"></span><br><span class="line">序列1: literal=&quot;abcde&quot;(5字节) + match(偏移5, 长度4) → 复制&quot;abcd&quot;</span><br><span class="line">序列2: literal=&quot;e&quot;(1字节，收尾无match)</span><br><span class="line"></span><br><span class="line">但 LZ4 规范明确规定：最后一个序列必须以至少5字节的 literal 结尾，且没有 match 部分。</span><br><span class="line">所以实际上 LZ4 编码器会放弃这个 match，直接把整个 &quot;abcdeabcde&quot; 当 literal 输出：</span><br><span class="line"></span><br><span class="line">token = 0xA0  → 高4位=10(literal长度10), 低4位=0</span><br><span class="line">literal = &quot;abcdeabcde&quot;</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>LZ4 数据块格式：<br>[token 1字节] [extra literal长度?] [literal数据] [match偏移 2字节] [extra match长度?]  </p>
+<p>数据: “abcdeabcde”  </p>
+<p>序列1: literal&#x3D;”abcde”(5字节) + match(偏移5, 长度4) → 复制”abcd”<br>序列2: literal&#x3D;”e”(1字节，收尾无match)  </p>
+<p>但 LZ4 规范明确规定：最后一个序列必须以至少5字节的 literal 结尾，且没有 match 部分。<br>所以实际上 LZ4 编码器会放弃这个 match，直接把整个 “abcdeabcde” 当 literal 输出：  </p>
+<p>token &#x3D; 0xA0  → 高4位&#x3D;10(literal长度10), 低4位&#x3D;0<br>literal &#x3D; “abcdeabcde”  </p>
+</blockquote>
 <ul>
 <li>压缩率：一般</li>
 <li>压缩速度：极快</li>
@@ -1365,33 +1822,50 @@
 <li>适合：运行时实时解压、游戏资源热加载</li>
 </ul>
 <h2 id="LZ4HC-LZ4-High-Compression"><a href="#LZ4HC-LZ4-High-Compression" class="headerlink" title="LZ4HC (LZ4 High Compression)"></a>LZ4HC (LZ4 High Compression)</h2><p>LZ4 的高压缩变体，压缩慢但解压和 LZ4 一样快。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LZ4   → 快速找&quot;够用&quot;的匹配就行</span><br><span class="line">LZ4HC → 穷举搜索&quot;最优&quot;匹配，压缩慢3-10倍</span><br><span class="line">         但输出格式完全兼容LZ4，解压速度相同</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>LZ4   → 快速找”够用”的匹配就行<br>LZ4HC → 穷举搜索”最优”匹配，压缩慢3-10倍<br>但输出格式完全兼容LZ4，解压速度相同  </p>
+</blockquote>
 <p>适合：离线打包资源（压缩慢没关系），运行时快速解压。</p>
 <hr>
 <h1 id="DXT-Texture（GPU-纹理压缩）"><a href="#DXT-Texture（GPU-纹理压缩）" class="headerlink" title="DXT Texture（GPU 纹理压缩）"></a>DXT Texture（GPU 纹理压缩）</h1><p>和上面完全不同，DXT 是专门为 GPU 设计的，解压在 GPU 硬件上完成，不占 CPU。</p>
-<h2 id="块压缩（Block-Compression）"><a href="#块压缩（Block-Compression）" class="headerlink" title="块压缩（Block Compression）"></a>块压缩（Block Compression）</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">把纹理分成 4×4 像素的小块：</span><br><span class="line">┌──┬──┬──┬──┐</span><br><span class="line">│  │  │  │  │</span><br><span class="line">├──┼──┼──┼──┤  </span><br><span class="line">│  │  │  │  │  每个 4×4 块 = 16个像素</span><br><span class="line">├──┼──┼──┼──┤</span><br><span class="line">│  │  │  │  │  原始大小 = 16 × 4字节(RGBA) = 64字节</span><br><span class="line">├──┼──┼──┼──┤</span><br><span class="line">│  │  │  │  │  </span><br><span class="line">└──┴──┴──┴──┘</span><br></pre></td></tr></table></figure>
-
-<h2 id="DXT1-BC1"><a href="#DXT1-BC1" class="headerlink" title="DXT1 (BC1)"></a>DXT1 (BC1)</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">每个 4×4 块只存：</span><br><span class="line">- 2个&quot;端点颜色&quot; color0, color1（各16位）</span><br><span class="line">- 16个像素各2位的索引（选0%/33%/66%/100%插值）</span><br><span class="line"></span><br><span class="line">存储大小 = 8字节（原来64字节）→ 压缩比 8:1</span><br><span class="line"></span><br><span class="line">color0 ──────────────────── color1</span><br><span class="line">  |        |         |        |</span><br><span class="line"> 100%     66%       33%       0%</span><br><span class="line">  ↑ 每个像素用2bit选择落在哪个位置</span><br></pre></td></tr></table></figure>
-
+<h2 id="块压缩（Block-Compression）"><a href="#块压缩（Block-Compression）" class="headerlink" title="块压缩（Block Compression）"></a>块压缩（Block Compression）</h2><blockquote>
+<p>把纹理分成 4×4 像素的小块：<br>┌──┬──┬──┬──┐<br>│  │  │  │  │<br>├──┼──┼──┼──┤<br>│  │  │  │  │  每个 4×4 块 &#x3D; 16个像素<br>├──┼──┼──┼──┤<br>│  │  │  │  │  原始大小 &#x3D; 16 × 4字节(RGBA) &#x3D; 64字节<br>├──┼──┼──┼──┤<br>│  │  │  │  │<br>└──┴──┴──┴──┘  </p>
+</blockquote>
+<h2 id="DXT1-BC1"><a href="#DXT1-BC1" class="headerlink" title="DXT1 (BC1)"></a>DXT1 (BC1)</h2><blockquote>
+<p>每个 4×4 块只存：  </p>
+<ul>
+<li>2个”端点颜色” color0, color1（各16位）  </li>
+<li>16个像素各2位的索引（选0%&#x2F;33%&#x2F;66%&#x2F;100%插值）</li>
+</ul>
+<p>存储大小 &#x3D; 8字节（原来64字节）→ 压缩比 8:1  </p>
+<p>color0 ──────────────────── color1<br>|        |         |        |<br>100%     66%       33%       0%<br>↑ 每个像素用2bit选择落在哪个位置  </p>
+</blockquote>
 <hr>
 <h1 id="Unity-中的压缩格式"><a href="#Unity-中的压缩格式" class="headerlink" title="Unity 中的压缩格式"></a>Unity 中的压缩格式</h1><p>AssetBundle有三种压缩模式</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">AssetBundle 文件：</span><br><span class="line">┌─────────────────────────────┐</span><br><span class="line">│         Header              │  版本、压缩类型、文件信息</span><br><span class="line">├─────────────────────────────┤</span><br><span class="line">│      Catalog/Manifest       │  资源索引表（资源名→文件偏移）</span><br><span class="line">├─────────────────────────────┤</span><br><span class="line">│       Asset Data            │  实际资源数据（压缩块）</span><br><span class="line">│  [block0][block1][block2]   │</span><br><span class="line">└─────────────────────────────┘</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>AssetBundle 文件：<br>┌─────────────────────────────┐<br>│         Header              │  版本、压缩类型、文件信息<br>├─────────────────────────────┤<br>│      Catalog&#x2F;Manifest       │  资源索引表（资源名→文件偏移）<br>├─────────────────────────────┤<br>│       Asset Data            │  实际资源数据（压缩块）<br>│  [block0][block1][block2]   │<br>└─────────────────────────────┘  </p>
+</blockquote>
 <figure class="highlight cs"><figcaption><span>打包时指定压缩方式</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">BuildAssetBundles(<span class="string">&quot;Assets/AB&quot;</span>, BuildAssetBundleOptions.None);              <span class="comment">// LZMA</span></span><br><span class="line">BuildAssetBundles(<span class="string">&quot;Assets/AB&quot;</span>, BuildAssetBundleOptions.ChunkBasedCompression); <span class="comment">// LZ4</span></span><br><span class="line">BuildAssetBundles(<span class="string">&quot;Assets/AB&quot;</span>, BuildAssetBundleOptions.UncompressedAssetBundle); <span class="comment">// 不压缩</span></span><br></pre></td></tr></table></figure>
 
 <p>LZMA（整体压缩）</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">整个 AB 文件作为一个流压缩：</span><br><span class="line">┌────────────────────────────────────┐</span><br><span class="line">│  LZMA压缩流（Header+Catalog+Data）   │</span><br><span class="line">└────────────────────────────────────┘</span><br><span class="line"></span><br><span class="line">加载时必须解压整个文件才能读取任何一个资源</span><br><span class="line">→ 体积最小，但加载慢，内存峰值高</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>整个 AB 文件作为一个流压缩：<br>┌────────────────────────────────────┐<br>│  LZMA压缩流（Header+Catalog+Data）   │<br>└────────────────────────────────────┘  </p>
+<p>加载时必须解压整个文件才能读取任何一个资源<br>→ 体积最小，但加载慢，内存峰值高  </p>
+</blockquote>
 <p>LZ4（块压缩）</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">每个数据块独立压缩：</span><br><span class="line">┌────────┬────────┬────────┬────────┐</span><br><span class="line">│ block0 │ block1 │ block2 │ block3 │  每块独立LZ4压缩</span><br><span class="line">└────────┴────────┴────────┴────────┘</span><br><span class="line"></span><br><span class="line">加载某个资源时只解压它所在的块</span><br><span class="line">→ 体积稍大，但可以随机访问，加载快</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>每个数据块独立压缩：<br>┌────────┬────────┬────────┬────────┐<br>│ block0 │ block1 │ block2 │ block3 │  每块独立LZ4压缩<br>└────────┴────────┴────────┴────────┘  </p>
+<p>加载某个资源时只解压它所在的块<br>→ 体积稍大，但可以随机访问，加载快  </p>
+</blockquote>
 <h2 id="下载包-vs-运行时加载"><a href="#下载包-vs-运行时加载" class="headerlink" title="下载包 vs 运行时加载"></a>下载包 vs 运行时加载</h2><p>这是两个不同阶段，关注点完全不同：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">下载阶段：</span><br><span class="line">用户等待下载 → 关注流量和时间</span><br><span class="line">→ 用 LZMA，体积最小，节省流量和下载时间</span><br><span class="line">→ 下载完存到本地磁盘</span><br><span class="line"></span><br><span class="line">运行时加载阶段：</span><br><span class="line">游戏运行中加载资源 → 关注速度和流畅度</span><br><span class="line">→ 用 LZ4，随机访问，解压快，不卡帧</span><br><span class="line">→ 从本地磁盘读取并解压到内存</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>下载阶段：<br>用户等待下载 → 关注流量和时间<br>→ 用 LZMA，体积最小，节省流量和下载时间<br>→ 下载完存到本地磁盘  </p>
+<p>运行时加载阶段：<br>游戏运行中加载资源 → 关注速度和流畅度<br>→ 用 LZ4，随机访问，解压快，不卡帧<br>→ 从本地磁盘读取并解压到内存  </p>
+</blockquote>
 <p>实际工作流：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">服务器存 LZMA 包</span><br><span class="line">    ↓ 用户下载</span><br><span class="line">本地磁盘存 LZMA 包</span><br><span class="line">    ↓ 首次加载时 Unity 转换（RecompressAssetBundleAsync）</span><br><span class="line">本地缓存存 LZ4 包</span><br><span class="line">    ↓ 之后每次启动</span><br><span class="line">直接加载 LZ4 包，速度快</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>服务器存 LZMA 包<br>↓ 用户下载<br>本地磁盘存 LZMA 包<br>↓ 首次加载时 Unity 转换（RecompressAssetBundleAsync）<br>本地缓存存 LZ4 包<br>↓ 之后每次启动<br>直接加载 LZ4 包，速度快  </p>
+</blockquote>
 <ul>
 <li>Unity 不会自动将LZMA转换成LZ4（除非用 UnityWebRequest + 缓存版本号）</li>
 <li>转换 &#x3D; 解压 LZMA + 重压缩 LZ4，是两步操作</li>
@@ -1401,213 +1875,18 @@
 
 <hr>
 <h1 id="哈夫曼编码"><a href="#哈夫曼编码" class="headerlink" title="哈夫曼编码"></a>哈夫曼编码</h1><p>思路：高频字符用短编码，低频字符用长编码，减少总位数。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">原始数据：&quot;AAAAABBBCD&quot;</span><br><span class="line">统计频率：A=5, B=3, C=1, D=1</span><br><span class="line"></span><br><span class="line">建哈夫曼树：</span><br><span class="line">        10</span><br><span class="line">       /  \</span><br><span class="line">      A    5</span><br><span class="line">     (5)  / \</span><br><span class="line">         B   2</span><br><span class="line">        (3) / \</span><br><span class="line">           C   D</span><br><span class="line">          (1) (1)</span><br><span class="line"></span><br><span class="line">编码结果：</span><br><span class="line">A → 0      (1位)</span><br><span class="line">B → 10     (2位)</span><br><span class="line">C → 110    (3位)</span><br><span class="line">D → 111    (3位)</span><br><span class="line"></span><br><span class="line">原始：10字符 × 8位 = 80位</span><br><span class="line">压缩：5×1 + 3×2 + 1×3 + 1×3 = 17位  → 压缩率 79%</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>原始数据：”AAAAABBBCD”<br>统计频率：A&#x3D;5, B&#x3D;3, C&#x3D;1, D&#x3D;1  </p>
+<p>建哈夫曼树：<br>10<br>&#x2F;  \<br>A    5<br>(5)  &#x2F; \<br>B   2<br>(3) &#x2F; \<br>C   D<br>(1) (1)  </p>
+<p>编码结果：<br>A → 0      (1位)<br>B → 10     (2位)<br>C → 110    (3位)<br>D → 111    (3位)  </p>
+<p>原始：10字符 × 8位 &#x3D; 80位<br>压缩：5×1 + 3×2 + 1×3 + 1×3 &#x3D; 17位  → 压缩率 79%  </p>
+</blockquote>
 <h2 id="DEFLATE-LZ77-哈夫曼（zip-gzip-PNG-都用这个）"><a href="#DEFLATE-LZ77-哈夫曼（zip-gzip-PNG-都用这个）" class="headerlink" title="DEFLATE &#x3D; LZ77 + 哈夫曼（zip&#x2F;gzip&#x2F;PNG 都用这个）"></a>DEFLATE &#x3D; LZ77 + 哈夫曼（zip&#x2F;gzip&#x2F;PNG 都用这个）</h2><p>先用 LZ 消除重复，再用哈夫曼压缩剩余符号：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">第一步 LZ77：</span><br><span class="line">原始: &quot;abcdeabcde&quot;</span><br><span class="line">输出: [literal:abcde] [match:5,5]</span><br><span class="line">      ↓ 转成符号流</span><br><span class="line">      a b c d e &lt;match:5,5&gt;</span><br><span class="line"></span><br><span class="line">第二步 哈夫曼：</span><br><span class="line">对符号流统计频率，高频符号用短编码</span><br><span class="line">      a,b,c,d,e 各出现1次</span><br><span class="line">      &lt;match&gt; 出现1次</span><br><span class="line">      → 再压缩一遍</span><br><span class="line"></span><br><span class="line">两步叠加，压缩率比单独用任何一种都高</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/17/%E5%B8%A7%E5%90%8C%E6%AD%A5%E5%92%8C%E7%8A%B6%E6%80%81%E5%90%8C%E6%AD%A5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/03/17/%E5%B8%A7%E5%90%8C%E6%AD%A5%E5%92%8C%E7%8A%B6%E6%80%81%E5%90%8C%E6%AD%A5/" class="post-title-link" itemprop="url">帧同步和状态同步</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2026-03-17 18:14:51" itemprop="dateCreated datePublished" datetime="2026-03-17T18:14:51+08:00">2026-03-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-04-14 13:42:28" itemprop="dateModified" datetime="2026-04-14T13:42:28+08:00">2026-04-14</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="帧同步-Lockstep-Frame-Sync"><a href="#帧同步-Lockstep-Frame-Sync" class="headerlink" title="帧同步 (Lockstep &#x2F; Frame Sync)"></a>帧同步 (Lockstep &#x2F; Frame Sync)</h1><p>核心思想：所有客户端执行相同的输入，保证逻辑完全一致，只同步”操作指令”不同步状态。</p>
-<ol>
-<li>客户端收集本帧输入</li>
-<li>将输入发送给服务器</li>
-<li>服务器等待所有客户端输入（或超时补默认输入）</li>
-<li>服务器广播所有客户端的输入</li>
-<li>所有客户端用相同输入推进同一逻辑帧</li>
-<li>定期做 checksum 校验防止逻辑分叉</li>
-</ol>
-<figure class="highlight cs"><figcaption><span>帧同步客户端</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 输入数据结构</span></span><br><span class="line">[<span class="meta">System.Serializable</span>]</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">struct</span> FrameInput</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> playerId;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> frame;</span><br><span class="line">    <span class="keyword">public</span> Vector2 moveDir;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">bool</span> firePressed;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 帧同步管理器</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">LockstepManager</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">int</span> CurrentFrame &#123; <span class="keyword">get</span>; <span class="keyword">private</span> <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">const</span> <span class="built_in">float</span> FrameInterval = <span class="number">0.066f</span>; <span class="comment">// ~15帧/秒逻辑帧</span></span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">float</span> _timer;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 存储每帧所有玩家的输入</span></span><br><span class="line">    <span class="keyword">private</span> Dictionary&lt;<span class="built_in">int</span>, List&lt;FrameInput&gt;&gt; _frameInputBuffer = <span class="keyword">new</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 本地玩家输入</span></span><br><span class="line">    <span class="keyword">private</span> FrameInput _localInput;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Update</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        CollectLocalInput();</span><br><span class="line"></span><br><span class="line">        _timer += Time.deltaTime;</span><br><span class="line">        <span class="keyword">if</span> (_timer &gt;= FrameInterval)</span><br><span class="line">        &#123;</span><br><span class="line">            _timer -= FrameInterval;</span><br><span class="line">            TrySendInput();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">CollectLocalInput</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _localInput = <span class="keyword">new</span> FrameInput</span><br><span class="line">        &#123;</span><br><span class="line">            playerId = NetworkManager.LocalPlayerId,</span><br><span class="line">            frame = CurrentFrame,</span><br><span class="line">            moveDir = <span class="keyword">new</span> Vector2(Input.GetAxisRaw(<span class="string">&quot;Horizontal&quot;</span>), Input.GetAxisRaw(<span class="string">&quot;Vertical&quot;</span>)),</span><br><span class="line">            firePressed = Input.GetButton(<span class="string">&quot;Fire1&quot;</span>)</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">TrySendInput</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 发送本地输入到服务器</span></span><br><span class="line">        NetworkManager.Send(_localInput);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 服务器广播回来后调用</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">OnReceiveFrameInputs</span>(<span class="params">List&lt;FrameInput&gt; inputs</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _frameInputBuffer[CurrentFrame] = inputs;</span><br><span class="line">        ExecuteFrame(CurrentFrame, inputs);</span><br><span class="line">        CurrentFrame++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">ExecuteFrame</span>(<span class="params"><span class="built_in">int</span> frame, List&lt;FrameInput&gt; inputs</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> input <span class="keyword">in</span> inputs)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> player = PlayerManager.GetPlayer(input.playerId);</span><br><span class="line">            player.ApplyInput(input); <span class="comment">// 确定性逻辑，不用 Time.deltaTime</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// checksum 校验</span></span><br><span class="line">        <span class="built_in">int</span> checksum = ComputeChecksum();</span><br><span class="line">        NetworkManager.SendChecksum(frame, checksum);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="built_in">int</span> <span class="title">ComputeChecksum</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 简单示例：对所有玩家位置做哈希</span></span><br><span class="line">        <span class="built_in">int</span> hash = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> player <span class="keyword">in</span> PlayerManager.AllPlayers)</span><br><span class="line">        &#123;</span><br><span class="line">            hash ^= player.LogicPosition.GetHashCode();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> hash;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 玩家逻辑（必须确定性，避免浮点误差用定点数）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">PlayerLogic</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> Vector2Int LogicPosition; <span class="comment">// 用整数或定点数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">const</span> <span class="built_in">int</span> Speed = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">ApplyInput</span>(<span class="params">FrameInput input</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 确定性移动，不依赖 Time.deltaTime</span></span><br><span class="line">        LogicPosition += Vector2Int.RoundToInt(input.moveDir * Speed);</span><br><span class="line">        transform.position = <span class="keyword">new</span> Vector3(LogicPosition.x * <span class="number">0.01f</span>, <span class="number">0</span>, LogicPosition.y * <span class="number">0.01f</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h1 id="状态同步"><a href="#状态同步" class="headerlink" title="状态同步"></a>状态同步</h1><p>核心思想：服务器是权威，定期将游戏状态广播给所有客户端，客户端做插值表现。</p>
-<ol>
-<li>客户端发送输入&#x2F;操作到服务器</li>
-<li>服务器执行逻辑，更新权威状态</li>
-<li>服务器定期广播状态快照</li>
-<li>客户端收到状态后做插值&#x2F;预测修正</li>
-<li>客户端本地预测（可选，减少延迟感）</li>
-</ol>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 状态数据结构</span></span><br><span class="line">[<span class="meta">System.Serializable</span>]</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">struct</span> PlayerState</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> playerId;</span><br><span class="line">    <span class="keyword">public</span> Vector3 position;</span><br><span class="line">    <span class="keyword">public</span> Vector3 velocity;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">float</span> timestamp;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 服务器端逻辑（Server-side，可用 Mirror/Netcode 等框架）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ServerPlayerController</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> Rigidbody _rb;</span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">float</span> _broadcastInterval = <span class="number">0.05f</span>; <span class="comment">// 20次/秒</span></span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">float</span> _timer;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">FixedUpdate</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _timer += Time.fixedDeltaTime;</span><br><span class="line">        <span class="keyword">if</span> (_timer &gt;= _broadcastInterval)</span><br><span class="line">        &#123;</span><br><span class="line">            _timer = <span class="number">0</span>;</span><br><span class="line">            BroadcastState();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 收到客户端输入</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">OnReceiveInput</span>(<span class="params">Vector2 moveDir, <span class="built_in">int</span> playerId</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 服务器执行权威逻辑</span></span><br><span class="line">        Vector3 force = <span class="keyword">new</span> Vector3(moveDir.x, <span class="number">0</span>, moveDir.y) * <span class="number">10f</span>;</span><br><span class="line">        _rb.AddForce(force);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">BroadcastState</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> state = <span class="keyword">new</span> PlayerState</span><br><span class="line">        &#123;</span><br><span class="line">            playerId = GetPlayerId(),</span><br><span class="line">            position = transform.position,</span><br><span class="line">            velocity = _rb.velocity,</span><br><span class="line">            timestamp = Time.time</span><br><span class="line">        &#125;;</span><br><span class="line">        NetworkManager.BroadcastToAll(state);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端插值</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ClientPlayerInterpolation</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> PlayerState _from;</span><br><span class="line">    <span class="keyword">private</span> PlayerState _to;</span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">float</span> _lerpT;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">const</span> <span class="built_in">float</span> InterpDelay = <span class="number">0.1f</span>; <span class="comment">// 100ms 缓冲</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Queue&lt;PlayerState&gt; _stateBuffer = <span class="keyword">new</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 收到服务器状态</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">OnReceiveState</span>(<span class="params">PlayerState state</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _stateBuffer.Enqueue(state);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Update</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">float</span> renderTime = Time.time - InterpDelay;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 找到合适的插值区间</span></span><br><span class="line">        <span class="keyword">while</span> (_stateBuffer.Count &gt; <span class="number">1</span> &amp;&amp; _stateBuffer.Peek().timestamp &lt;= renderTime)</span><br><span class="line">        &#123;</span><br><span class="line">            _from = _stateBuffer.Dequeue();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (_stateBuffer.Count &gt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            _to = _stateBuffer.Peek();</span><br><span class="line">            <span class="built_in">float</span> t = Mathf.InverseLerp(_from.timestamp, _to.timestamp, renderTime);</span><br><span class="line">            transform.position = Vector3.Lerp(_from.position, _to.position, t);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端预测（本地玩家）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ClientPrediction</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> Vector3 _predictedPos;</span><br><span class="line">    <span class="keyword">private</span> Rigidbody _rb;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Update</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 本地立即响应输入</span></span><br><span class="line">        Vector2 input = <span class="keyword">new</span> Vector2(Input.GetAxisRaw(<span class="string">&quot;Horizontal&quot;</span>), Input.GetAxisRaw(<span class="string">&quot;Vertical&quot;</span>));</span><br><span class="line">        _rb.AddForce(<span class="keyword">new</span> Vector3(input.x, <span class="number">0</span>, input.y) * <span class="number">10f</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 发送输入到服务器</span></span><br><span class="line">        NetworkManager.SendInput(input);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 服务器校正</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">OnServerCorrection</span>(<span class="params">PlayerState authoritative</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">float</span> posError = Vector3.Distance(transform.position, authoritative.position);</span><br><span class="line">        <span class="keyword">if</span> (posError &gt; <span class="number">0.5f</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 误差过大，强制修正</span></span><br><span class="line">            transform.position = authoritative.position;</span><br><span class="line">            _rb.velocity = authoritative.velocity;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 平滑修正</span></span><br><span class="line">            transform.position = Vector3.Lerp(transform.position, authoritative.position, <span class="number">0.3f</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h1 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h1><table>
-<thead>
-<tr>
-<th>维度</th>
-<th>帧同步</th>
-<th>状态同步</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>核心职责</td>
-<td>客户端跑逻辑，服务器转发输入</td>
-<td>服务器跑逻辑，客户端渲染状态</td>
-</tr>
-<tr>
-<td>网络带宽</td>
-<td>低（只传输入指令）</td>
-<td>高（传完整状态数据）</td>
-</tr>
-<tr>
-<td>服务器压力</td>
-<td>低</td>
-<td>高</td>
-</tr>
-<tr>
-<td>延迟敏感度</td>
-<td>高，需等待最慢玩家</td>
-<td>低，可做客户端预测掩盖延迟</td>
-</tr>
-<tr>
-<td>反外挂能力</td>
-<td>弱，逻辑在客户端</td>
-<td>强，服务器权威不可篡改</td>
-</tr>
-<tr>
-<td>断线重连</td>
-<td>慢，需回放所有历史帧</td>
-<td>快，直接同步当前状态快照</td>
-</tr>
-<tr>
-<td>实现复杂度</td>
-<td>高（必须保证确定性）</td>
-<td>中（需处理插值和预测修正）</td>
-</tr>
-<tr>
-<td>适用场景</td>
-<td>RTS、MOBA、格斗游戏</td>
-<td>FPS、MMO、竞技射击</td>
-</tr>
-</tbody></table>
-<h2 id="帧同步（Lockstep）"><a href="#帧同步（Lockstep）" class="headerlink" title="帧同步（Lockstep）"></a>帧同步（Lockstep）</h2><p>所有客户端共享相同的初始状态，服务器只负责收集并广播每帧所有玩家的输入指令。每个客户端用完全相同的输入自行推进逻辑，只要逻辑是确定性的，所有客户端的状态就会始终一致。本质是”同步输入，各自计算”。</p>
-<ul>
-<li>浮点数在不同平台&#x2F;编译器结果可能不同，必须用定点数</li>
-<li>不能用任何随机函数，需用确定性伪随机（相同种子）</li>
-<li>物理引擎（如 Unity PhysX）本身不确定，需自研或用确定性物理库</li>
-</ul>
-<h2 id="状态同步（State-Sync）"><a href="#状态同步（State-Sync）" class="headerlink" title="状态同步（State Sync）"></a>状态同步（State Sync）</h2><p>服务器是唯一的权威，负责运行所有游戏逻辑并定期将结果（位置、血量等状态）广播给客户端。客户端只负责展示，不参与权威计算。本质是”服务器计算，同步结果”。</p>
-<ul>
-<li>网络延迟导致操作反馈滞后，需要客户端预测</li>
-<li>预测结果和服务器权威状态不一致时需要平滑修正（防止位置跳变）</li>
-<li>状态数据量大时需要做差量同步（delta compression）降低带宽</li>
-</ul>
-<h3 id="为什么帧同步必须用定点数"><a href="#为什么帧同步必须用定点数" class="headerlink" title="为什么帧同步必须用定点数"></a>为什么帧同步必须用定点数</h3><p>帧同步的前提是：所有客户端用相同输入，得到完全相同的结果。浮点数破坏这个前提：</p>
-<figure class="highlight cs"><figcaption><span>浮点数在不同平台/编译器的问题</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">float</span> a = <span class="number">1.0f</span> / <span class="number">3.0f</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// x86 FPU (80位精度中间计算): 0.33333334326744...</span></span><br><span class="line"><span class="comment">// ARM NEON (32位严格计算):     0.33333331346511...</span></span><br><span class="line"><span class="comment">// 结果不同！</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 累积误差示例：同样的逻辑跑1000帧</span></span><br><span class="line"><span class="built_in">float</span> pos = <span class="number">0f</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++)</span><br><span class="line">    pos += <span class="number">0.1f</span>; <span class="comment">// 每帧微小误差累积</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 平台A结果: 99.99999...</span></span><br><span class="line"><span class="comment">// 平台B结果: 100.00001...</span></span><br><span class="line"><span class="comment">// 1000帧后两个客户端玩家位置已经不同了</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cs"><figcaption><span>定点数：整数运算，在所有平台结果完全一致</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Fixed pos = Fixed.From(<span class="number">0</span>);</span><br><span class="line">Fixed step = Fixed.From(<span class="number">0.1f</span>); <span class="comment">// 初始化时转换一次</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++)</span><br><span class="line">    pos += step; <span class="comment">// 整数加法，任何平台结果都是同一个整数</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 所有平台：raw = 6553600，ToFloat() = 100.0 ✓</span></span><br></pre></td></tr></table></figure>
-
-<p>状态同步中客户端收到的是服务器算好的结果，不存在”两台机器算同一件事结果不同”的问题。</p>
-<p>定点数 -&gt; 用整数放大 65536 倍模拟小数 -&gt; 牺牲数值范围，换取跨平台一致性</p>
-<p>帧同步需要定点数：多个客户端必须算出完全相同的结果，必须保证结果一致 -&gt; 必须用定点数<br>状态同步不需要：只有服务器一处计算，结果天然唯一 -&gt; 浮点数完全没问题，只有一份唯一结果广播给所有客户端</p>
-<hr>
-<h1 id="在Unity中实现状态同步"><a href="#在Unity中实现状态同步" class="headerlink" title="在Unity中实现状态同步"></a>在Unity中实现状态同步</h1><h2 id="NetworkVariable-—-自动状态同步"><a href="#NetworkVariable-—-自动状态同步" class="headerlink" title="NetworkVariable — 自动状态同步"></a>NetworkVariable — 自动状态同步</h2><p>使用NetCode库中的 <em>NetworkVariable</em>，在数值变化时自动同步给所有客户端。</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> Unity.Netcode;</span><br><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">PlayerStats</span> : <span class="title">NetworkBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 服务器修改，自动同步到所有客户端</span></span><br><span class="line">    <span class="keyword">public</span> NetworkVariable&lt;<span class="built_in">int</span>&gt; Health = <span class="keyword">new</span>(<span class="number">100</span>);</span><br><span class="line">    <span class="keyword">public</span> NetworkVariable&lt;Vector3&gt; Position = <span class="keyword">new</span>(Vector3.zero);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnNetworkSpawn</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 监听变化</span></span><br><span class="line">        Health.OnValueChanged += OnHealthChanged;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnHealthChanged</span>(<span class="params"><span class="built_in">int</span> oldVal, <span class="built_in">int</span> newVal</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 客户端收到变化后更新 UI</span></span><br><span class="line">        UIManager.UpdateHealthBar(newVal);</span><br><span class="line">        <span class="keyword">if</span> (newVal &lt;= <span class="number">0</span>) PlayDeathEffect();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 只有服务器能修改</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">TakeDamage</span>(<span class="params"><span class="built_in">int</span> damage</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (!IsServer) <span class="keyword">return</span>;</span><br><span class="line">        Health.Value = Mathf.Max(<span class="number">0</span>, Health.Value - damage);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="插值-Interpolation-—-让移动平滑"><a href="#插值-Interpolation-—-让移动平滑" class="headerlink" title="插值 (Interpolation) — 让移动平滑"></a>插值 (Interpolation) — 让移动平滑</h2><p>客户端缓存服务器状态，在两个快照之间做插值，消除网络抖动。</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">InterpolatedTransform</span> : <span class="title">NetworkBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">struct</span> TransformSnapshot</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">float</span> time;</span><br><span class="line">        <span class="keyword">public</span> Vector3 position;</span><br><span class="line">        <span class="keyword">public</span> Quaternion rotation;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Queue&lt;TransformSnapshot&gt; _buffer = <span class="keyword">new</span>();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">const</span> <span class="built_in">float</span> BufferDelay = <span class="number">0.1f</span>; <span class="comment">// 100ms 缓冲</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 服务器广播位置</span></span><br><span class="line">    [<span class="meta">ClientRpc</span>]</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">UpdateTransformClientRpc</span>(<span class="params">Vector3 pos, Quaternion rot</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (IsOwner) <span class="keyword">return</span>; <span class="comment">// 本地玩家不需要插值</span></span><br><span class="line">        _buffer.Enqueue(<span class="keyword">new</span> TransformSnapshot</span><br><span class="line">        &#123;</span><br><span class="line">            time = Time.time,</span><br><span class="line">            position = pos,</span><br><span class="line">            rotation = rot</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Update</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (IsOwner || _buffer.Count &lt; <span class="number">2</span>) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">float</span> renderTime = Time.time - BufferDelay;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 找到插值区间</span></span><br><span class="line">        TransformSnapshot <span class="keyword">from</span> = _buffer.Peek();</span><br><span class="line">        TransformSnapshot to = <span class="literal">default</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> snap <span class="keyword">in</span> _buffer)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (snap.time &lt;= renderTime) <span class="keyword">from</span> = snap;</span><br><span class="line">            <span class="keyword">else</span> &#123; to = snap; <span class="keyword">break</span>; &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (to.time == <span class="number">0</span>) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">float</span> t = Mathf.InverseLerp(<span class="keyword">from</span>.time, to.time, renderTime);</span><br><span class="line">        transform.position = Vector3.Lerp(<span class="keyword">from</span>.position, to.position, t);</span><br><span class="line">        transform.rotation = Quaternion.Slerp(<span class="keyword">from</span>.rotation, to.rotation, t);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="客户端预测-Client-Prediction-—-消除操作延迟感"><a href="#客户端预测-Client-Prediction-—-消除操作延迟感" class="headerlink" title="客户端预测 (Client Prediction) — 消除操作延迟感"></a>客户端预测 (Client Prediction) — 消除操作延迟感</h2><p>本地玩家立即响应输入，同时发送给服务器，收到服务器校正后平滑修正。</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ClientPrediction</span> : <span class="title">NetworkBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> Rigidbody _rb;</span><br><span class="line">    <span class="keyword">private</span> Vector3 _serverPosition;</span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">bool</span> _hasCorrection;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Update</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (!IsOwner) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 1. 本地立即执行输入（预测）</span></span><br><span class="line">        Vector3 input = <span class="keyword">new</span> Vector3(</span><br><span class="line">            Input.GetAxisRaw(<span class="string">&quot;Horizontal&quot;</span>), <span class="number">0</span>,</span><br><span class="line">            Input.GetAxisRaw(<span class="string">&quot;Vertical&quot;</span>)</span><br><span class="line">        );</span><br><span class="line">        _rb.MovePosition(transform.position + input * <span class="number">5f</span> * Time.deltaTime);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 发送输入到服务器</span></span><br><span class="line">        MoveServerRpc(input);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. 收到服务器校正后修正</span></span><br><span class="line">        <span class="keyword">if</span> (_hasCorrection)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">float</span> error = Vector3.Distance(transform.position, _serverPosition);</span><br><span class="line">            transform.position = error &gt; <span class="number">1f</span></span><br><span class="line">                ? _serverPosition                                          <span class="comment">// 误差大：强制修正</span></span><br><span class="line">                : Vector3.Lerp(transform.position, _serverPosition, <span class="number">0.2f</span>); <span class="comment">// 误差小：平滑修正</span></span><br><span class="line">            _hasCorrection = <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">ServerRpc</span>]</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">MoveServerRpc</span>(<span class="params">Vector3 input</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 服务器执行权威逻辑</span></span><br><span class="line">        _rb.MovePosition(transform.position + input * <span class="number">5f</span> * Time.deltaTime);</span><br><span class="line">        <span class="comment">// 广播权威位置给该客户端</span></span><br><span class="line">        CorrectPositionClientRpc(transform.position);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">ClientRpc</span>]</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">CorrectPositionClientRpc</span>(<span class="params">Vector3 authoritative</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (!IsOwner) <span class="keyword">return</span>;</span><br><span class="line">        _serverPosition = authoritative;</span><br><span class="line">        _hasCorrection = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="RPC-—-触发瞬时事件"><a href="#RPC-—-触发瞬时事件" class="headerlink" title="RPC — 触发瞬时事件"></a>RPC — 触发瞬时事件</h2><p>RPC 不用于持续状态同步，专门处理”一次性事件”如特效、音效、技能触发。</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CombatEffects</span> : <span class="title">NetworkBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> ParticleSystem _hitEffect;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> AudioClip _hitSound;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 服务器判定命中后，通知所有客户端播放特效</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">OnHit</span>(<span class="params">Vector3 hitPoint</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (!IsServer) <span class="keyword">return</span>;</span><br><span class="line">        PlayHitEffectClientRpc(hitPoint);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">ClientRpc</span>]</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">PlayHitEffectClientRpc</span>(<span class="params">Vector3 hitPoint</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _hitEffect.transform.position = hitPoint;</span><br><span class="line">        _hitEffect.Play();</span><br><span class="line">        AudioSource.PlayClipAtPoint(_hitSound, hitPoint);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 客户端请求服务器执行技能</span></span><br><span class="line">    [<span class="meta">ServerRpc(RequireOwnership = true)</span>]</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">CastSkillServerRpc</span>(<span class="params"><span class="built_in">int</span> skillId, Vector3 targetPos</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 服务器验证并执行</span></span><br><span class="line">        SkillManager.Execute(skillId, targetPos, OwnerClientId);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="RPC特性"><a href="#RPC特性" class="headerlink" title="RPC特性"></a>RPC特性</h3><p>[ClientRpc] 是 C# 的 Attribute（特性） 语法，是 Unity Netcode for GameObjects (NGO) 框架提供的标记。</p>
-<figure class="highlight cs"><figcaption><span>标记特性</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">AttributeName</span>]          <span class="comment">// 标记在类、方法、字段上</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">MyMethod</span>()</span> &#123; &#125;</span><br></pre></td></tr></table></figure>
-<p>本质是一种元数据标签，告诉框架”这个方法有特殊行为”。</p>
-<figure class="highlight cs"><figcaption><span>NGO 中的 RPC 特性</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MyNetworkObject</span> : <span class="title">NetworkBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// [ClientRpc] = 服务器调用，在所有客户端执行</span></span><br><span class="line">    <span class="comment">// 方法名必须以 ClientRpc 结尾</span></span><br><span class="line">    [<span class="meta">ClientRpc</span>]</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">PlayEffectClientRpc</span>(<span class="params">Vector3 pos</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 这段代码在每个客户端上运行</span></span><br><span class="line">        Instantiate(effectPrefab, pos, Quaternion.identity);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// [ServerRpc] = 客户端调用，在服务器执行</span></span><br><span class="line">    <span class="comment">// 方法名必须以 ServerRpc 结尾</span></span><br><span class="line">    [<span class="meta">ServerRpc</span>]</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">RequestFireServerRpc</span>(<span class="params">Vector3 direction</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 这段代码只在服务器上运行</span></span><br><span class="line">        SpawnBullet(direction);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用方式</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Update</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (IsServer)</span><br><span class="line">        PlayEffectClientRpc(transform.position); <span class="comment">// 服务器调用，广播到所有客户端</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (IsOwner)</span><br><span class="line">        RequestFireServerRpc(aimDirection);      <span class="comment">// 客户端调用，发送到服务器</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>NGO 2.0 之后推荐统一用 [Rpc]：</p>
-<figure class="highlight cs"><figcaption><span>NGO 2.0 新写法（Rpc Attribute）</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 新写法</span></span><br><span class="line">[<span class="meta">Rpc(SendTo.ClientsAndHost)</span>]</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">PlayEffectRpc</span>(<span class="params">Vector3 pos</span>)</span> &#123; &#125;</span><br><span class="line"></span><br><span class="line">[<span class="meta">Rpc(SendTo.Server)</span>]</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">RequestFireRpc</span>(<span class="params">Vector3 dir</span>)</span> &#123; &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 旧写法（仍然支持）</span></span><br><span class="line">[<span class="meta">ClientRpc</span>]</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">PlayEffectClientRpc</span>(<span class="params">Vector3 pos</span>)</span> &#123; &#125;</span><br><span class="line"></span><br><span class="line">[<span class="meta">ServerRpc</span>]</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">RequestFireServerRpc</span>(<span class="params">Vector3 dir</span>)</span> &#123; &#125;</span><br></pre></td></tr></table></figure>
-
-<p>[ClientRpc]  → 方法名必须以 ClientRpc 结尾，否则报错<br>[ServerRpc]  → 方法名必须以 ServerRpc 结尾，否则报错</p>
-<h2 id="差量同步-Delta-Compression"><a href="#差量同步-Delta-Compression" class="headerlink" title="差量同步 (Delta Compression)"></a>差量同步 (Delta Compression)</h2><p>核心思想：只发送”变化的部分”，不发送没变的数据。</p>
-<h3 id="最简单的实现：字段级脏标记"><a href="#最简单的实现：字段级脏标记" class="headerlink" title="最简单的实现：字段级脏标记"></a>最简单的实现：字段级脏标记</h3><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">System.Flags</span>]</span><br><span class="line"><span class="keyword">public</span> <span class="built_in">enum</span> PlayerDirtyFlags : <span class="built_in">uint</span></span><br><span class="line">&#123;</span><br><span class="line">    None        = <span class="number">0</span>,</span><br><span class="line">    Position    = <span class="number">1</span> &lt;&lt; <span class="number">0</span>,</span><br><span class="line">    Rotation    = <span class="number">1</span> &lt;&lt; <span class="number">1</span>,</span><br><span class="line">    Health      = <span class="number">1</span> &lt;&lt; <span class="number">2</span>,</span><br><span class="line">    Mana        = <span class="number">1</span> &lt;&lt; <span class="number">3</span>,</span><br><span class="line">    Animation   = <span class="number">1</span> &lt;&lt; <span class="number">4</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">PlayerState</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> Vector3 Position;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">float</span> Rotation;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> Health;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> Mana;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> AnimationId;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> PlayerState _lastSent = <span class="keyword">new</span>(); <span class="comment">// 上次发送的快照</span></span><br><span class="line">    <span class="keyword">private</span> PlayerDirtyFlags _dirty;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 修改字段时标记脏</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">SetPosition</span>(<span class="params">Vector3 pos</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (Position == pos) <span class="keyword">return</span>;</span><br><span class="line">        Position = pos;</span><br><span class="line">        _dirty |= PlayerDirtyFlags.Position;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">SetHealth</span>(<span class="params"><span class="built_in">int</span> hp</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (Health == hp) <span class="keyword">return</span>;</span><br><span class="line">        Health = hp;</span><br><span class="line">        _dirty |= PlayerDirtyFlags.Health;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 序列化：只写入脏字段</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">byte</span>[] <span class="title">SerializeDelta</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">using</span> <span class="keyword">var</span> writer = <span class="keyword">new</span> BinaryWriter(<span class="keyword">new</span> MemoryStream());</span><br><span class="line"></span><br><span class="line">        writer.Write((<span class="built_in">uint</span>)_dirty); <span class="comment">// 先写标记位</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (_dirty.HasFlag(PlayerDirtyFlags.Position))</span><br><span class="line">        &#123;</span><br><span class="line">            writer.Write(Position.x);</span><br><span class="line">            writer.Write(Position.y);</span><br><span class="line">            writer.Write(Position.z);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (_dirty.HasFlag(PlayerDirtyFlags.Health))</span><br><span class="line">            writer.Write(Health);</span><br><span class="line">        <span class="keyword">if</span> (_dirty.HasFlag(PlayerDirtyFlags.Mana))</span><br><span class="line">            writer.Write(Mana);</span><br><span class="line">        <span class="comment">// ... 其他字段</span></span><br><span class="line"></span><br><span class="line">        _dirty = PlayerDirtyFlags.None; <span class="comment">// 清除脏标记</span></span><br><span class="line">        <span class="keyword">return</span> ((MemoryStream)writer.BaseStream).ToArray();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 反序列化：根据标记位读取对应字段</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">DeserializeDelta</span>(<span class="params"><span class="built_in">byte</span>[] data</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">using</span> <span class="keyword">var</span> reader = <span class="keyword">new</span> BinaryReader(<span class="keyword">new</span> MemoryStream(data));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> flags = (PlayerDirtyFlags)reader.ReadUInt32();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (flags.HasFlag(PlayerDirtyFlags.Position))</span><br><span class="line">        &#123;</span><br><span class="line">            Position = <span class="keyword">new</span> Vector3(</span><br><span class="line">                reader.ReadSingle(),</span><br><span class="line">                reader.ReadSingle(),</span><br><span class="line">                reader.ReadSingle()</span><br><span class="line">            );</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (flags.HasFlag(PlayerDirtyFlags.Health))</span><br><span class="line">            Health = reader.ReadInt32();</span><br><span class="line">        <span class="keyword">if</span> (flags.HasFlag(PlayerDirtyFlags.Mana))</span><br><span class="line">            Mana = reader.ReadInt32();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="快照对比法（适合复杂状态）"><a href="#快照对比法（适合复杂状态）" class="headerlink" title="快照对比法（适合复杂状态）"></a>快照对比法（适合复杂状态）</h3><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SnapshotDelta</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 完整快照</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">struct</span> WorldSnapshot</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">public</span> Dictionary&lt;<span class="built_in">int</span>, PlayerSnapshot&gt; Players;</span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">int</span> Tick;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">struct</span> PlayerSnapshot</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">public</span> Vector3 Position;</span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">int</span> Health;</span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">int</span> Score;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> WorldSnapshot _baseline; <span class="comment">// 客户端已确认的基准快照</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 服务器：对比两个快照，生成差量包</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">byte</span>[] <span class="title">GenerateDelta</span>(<span class="params">WorldSnapshot <span class="keyword">from</span>, WorldSnapshot to</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">using</span> <span class="keyword">var</span> writer = <span class="keyword">new</span> BinaryWriter(<span class="keyword">new</span> MemoryStream());</span><br><span class="line"></span><br><span class="line">        writer.Write(to.Tick);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> (id, toPlayer) <span class="keyword">in</span> to.Players)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 新增玩家</span></span><br><span class="line">            <span class="keyword">if</span> (!<span class="keyword">from</span>.Players.TryGetValue(id, <span class="keyword">out</span> <span class="keyword">var</span> fromPlayer))</span><br><span class="line">            &#123;</span><br><span class="line">                writer.Write((<span class="built_in">byte</span>)DeltaOp.Add);</span><br><span class="line">                writer.Write(id);</span><br><span class="line">                WriteFullPlayer(writer, toPlayer);</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 对比变化</span></span><br><span class="line">            PlayerDirtyFlags dirty = PlayerDirtyFlags.None;</span><br><span class="line">            <span class="keyword">if</span> (fromPlayer.Position != toPlayer.Position) dirty |= PlayerDirtyFlags.Position;</span><br><span class="line">            <span class="keyword">if</span> (fromPlayer.Health   != toPlayer.Health)   dirty |= PlayerDirtyFlags.Health;</span><br><span class="line">            <span class="keyword">if</span> (fromPlayer.Score    != toPlayer.Score)    dirty |= PlayerDirtyFlags.Score;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (dirty != PlayerDirtyFlags.None)</span><br><span class="line">            &#123;</span><br><span class="line">                writer.Write((<span class="built_in">byte</span>)DeltaOp.Update);</span><br><span class="line">                writer.Write(id);</span><br><span class="line">                writer.Write((<span class="built_in">uint</span>)dirty);</span><br><span class="line">                <span class="keyword">if</span> (dirty.HasFlag(PlayerDirtyFlags.Position)) WriteVector3(writer, toPlayer.Position);</span><br><span class="line">                <span class="keyword">if</span> (dirty.HasFlag(PlayerDirtyFlags.Health))   writer.Write(toPlayer.Health);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 离开的玩家</span></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> id <span class="keyword">in</span> <span class="keyword">from</span>.Players.Keys)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (!to.Players.ContainsKey(id))</span><br><span class="line">            &#123;</span><br><span class="line">                writer.Write((<span class="built_in">byte</span>)DeltaOp.Remove);</span><br><span class="line">                writer.Write(id);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ((MemoryStream)writer.BaseStream).ToArray();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">enum</span> DeltaOp : <span class="built_in">byte</span> &#123; Add, Update, Remove &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="位置压缩（进一步降低带宽）"><a href="#位置压缩（进一步降低带宽）" class="headerlink" title="位置压缩（进一步降低带宽）"></a>位置压缩（进一步降低带宽）</h3><p>位置数据是最频繁变化的，可以额外压缩：</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title">PositionCompressor</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 全量：Vector3 = 12字节</span></span><br><span class="line">    <span class="comment">// 压缩后：只发变化量，用short存，约4-6字节</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">const</span> <span class="built_in">float</span> Precision = <span class="number">0.01f</span>; <span class="comment">// 1cm精度</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">const</span> <span class="built_in">float</span> MaxDelta = <span class="number">32767</span> * Precision; <span class="comment">// short最大值对应的距离</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 发送位置差值而不是绝对值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">short</span>[] <span class="title">CompressDelta</span>(<span class="params">Vector3 <span class="keyword">from</span>, Vector3 to</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Vector3 delta = to - <span class="keyword">from</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">short</span>[]</span><br><span class="line">        &#123;</span><br><span class="line">            (<span class="built_in">short</span>)(delta.x / Precision),</span><br><span class="line">            (<span class="built_in">short</span>)(delta.y / Precision),</span><br><span class="line">            (<span class="built_in">short</span>)(delta.z / Precision)</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="comment">// 3个short = 6字节，比12字节少一半</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Vector3 <span class="title">DecompressDelta</span>(<span class="params">Vector3 baseline, <span class="built_in">short</span>[] delta</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> baseline + <span class="keyword">new</span> Vector3(</span><br><span class="line">            delta[<span class="number">0</span>] * Precision,</span><br><span class="line">            delta[<span class="number">1</span>] * Precision,</span><br><span class="line">            delta[<span class="number">2</span>] * Precision</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="带宽对比"><a href="#带宽对比" class="headerlink" title="带宽对比"></a>带宽对比</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">100个玩家，每人10个字段，20次/秒广播：</span><br><span class="line"></span><br><span class="line">全量同步：</span><br><span class="line">100 × 10字段 × 4字节 × 20次 = 800 KB/s</span><br><span class="line"></span><br><span class="line">差量同步（假设每帧平均20%字段变化）：</span><br><span class="line">4字节标记位 + 变化字段</span><br><span class="line">100 × (4 + 2字段×4字节) × 20次 ≈ 176 KB/s  → 节省约78%</span><br></pre></td></tr></table></figure>
-
-<p>在实际游戏中，应该根据不同的数据类型需要使用不同的差量压缩机制：</p>
-<ul>
-<li>移动中的玩家：位置每帧变，用压缩差值</li>
-<li>静止玩家：位置不变，完全不发</li>
-<li>血量&#x2F;状态：只在变化时发一次，不需要每帧发</li>
-<li>大地图场景：加上 AOI（Area of Interest），只同步视野范围内的玩家，带宽再降一个数量级</li>
-</ul>
-<h2 id="核心流程总结"><a href="#核心流程总结" class="headerlink" title="核心流程总结"></a>核心流程总结</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">客户端输入</span><br><span class="line">    ↓ ServerRpc</span><br><span class="line">服务器执行权威逻辑</span><br><span class="line">    ↓ NetworkVariable 自动同步 / ClientRpc 触发事件</span><br><span class="line">所有客户端收到状态</span><br><span class="line">    ↓</span><br><span class="line">插值平滑表现 + 本地预测修正</span><br></pre></td></tr></table></figure>
-
-<p>NetworkVariable 管持续状态，RPC 管瞬时事件，预测+插值管体验，三者配合就是状态同步在 Unity 里的完整实现。</p>
+<blockquote>
+<p>第一步 LZ77：<br>原始: “abcdeabcde”<br>输出: [literal:abcde] [match:5,5]<br>↓ 转成符号流<br>a b c d e <code>&lt;match:5,5&gt;</code>  </p>
+<p>第二步 哈夫曼：<br>对符号流统计频率，高频符号用短编码<br>a,b,c,d,e 各出现1次<br><match> 出现1次<br>→ 再压缩一遍  </p>
+<p>两步叠加，压缩率比单独用任何一种都高  </p>
+</blockquote>
 
       
     </div>
@@ -1626,7 +1905,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1700,7 +1979,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">51</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

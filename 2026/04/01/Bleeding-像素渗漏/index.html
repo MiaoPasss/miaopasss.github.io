@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://miaopasss.github.io/2026/04/01/Bleeding-%E5%83%8F%E7%B4%A0%E6%B8%97%E6%BC%8F/p1.png">
 <meta property="article:published_time" content="2026-04-01T08:59:48.000Z">
-<meta property="article:modified_time" content="2026-04-01T09:28:42.170Z">
+<meta property="article:modified_time" content="2026-11-03T11:25:57.387Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Rendering pipeline">
 <meta name="twitter:card" content="summary">
@@ -195,10 +195,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-04-01 16:59:48 / Modified: 17:28:42" itemprop="dateCreated datePublished" datetime="2026-04-01T16:59:48+08:00">2026-04-01</time>
+              <time title="Created: 2026-04-01 16:59:48" itemprop="dateCreated datePublished" datetime="2026-04-01T16:59:48+08:00">2026-04-01</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -232,8 +238,9 @@
 <p>Texture bleeding is when pixels from outside a sprite’s intended boundary leak into the visible edge of the sprite.</p>
 <p>Here’s why it happens. When the GPU samples a texture, it rarely samples at an exact pixel center.<br>Bilinear filtering works by taking the 4 nearest pixels and blending them together based on how close the sample point is to each one.<br>At the very edge of a sprite, one of those 4 neighbors is outside the sprite — it could be a transparent black pixel, a pixel from another sprite in an atlas, or garbage data. That outside color gets mixed into your edge pixel, producing a fringe（边缘）.</p>
 <p>For example:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[ edge pixel: orange ][ outside: transparent black (0,0,0,0) ]</span><br><span class="line">                      ^</span><br><span class="line">              bilinear samples here → blends orange + black = dark muddy fringe</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>[ edge pixel: orange ][ outside: transparent black (0,0,0,0) ]<br>^<br>bilinear samples here → blends orange + black &#x3D; dark muddy fringe  </p>
+</blockquote>
 <p>This is exactly what you saw — the logo’s colored edge pixels were bleeding into the transparent area around it, and because the shader was Opaque, those blended semi-transparent edge pixels were written as solid color instead of being discarded.</p>
 <p>There are three common sources of bleeding:</p>
 <ul>
@@ -245,18 +252,52 @@
 <p>The “noise” you saw was bilinear filtering. At the sprite’s edges, the sampler blends the last row&#x2F;column of real pixels with whatever is just outside the sprite boundary (either transparent black rgba(0,0,0,0) or neighboring texture data).<br>With opaque mode, those semi-transparent edge pixels get written as fully solid, so you see that fringe of mixed color.</p>
 <p>Use <code>Opaque</code> when:<br>The object has no see-through areas at all (terrain, walls, characters without cutouts)<br>Performance matters — opaque objects are rendered in a single front-to-back pass and benefit from early-z culling, which skips fragment shading on occluded pixels entirely</p>
 <p>Use <code>Transparent</code> when:<br>The object has partial or full transparency (UI sprites, glass, particles, logos with alpha)<br>You need the blending stage to mix the fragment color with what’s already in the framebuffer<br>The cost of transparent is real — transparent objects can’t use early-z, must be sorted back-to-front, and can cause overdraw issues. So don’t default everything to transparent.</p>
-<h2 id="Blend-Mode-within-Transparent"><a href="#Blend-Mode-within-Transparent" class="headerlink" title="Blend Mode (within Transparent)"></a>Blend Mode (within Transparent)</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">| Mode | Formula | Use case |</span><br><span class="line">| --- | --- | --- |</span><br><span class="line">| Alpha     |   src.rgb * src.a + dst.rgb * (1 - src.a) | Standard transparency, sprites, UI</span><br><span class="line">| Additive  |   src.rgb * src.a + dst.rgb   |   Glows, fire, particles that should brighten</span><br><span class="line">| Multiply  |	src.rgb * dst.rgb   |   Darkening effects, shadows, tinted overlays</span><br><span class="line">| Premultiply |	src.rgb + dst.rgb * (1 - src.a) |   Textures with premultiplied alpha baked in</span><br></pre></td></tr></table></figure>
-
+<h2 id="Blend-Mode-within-Transparent"><a href="#Blend-Mode-within-Transparent" class="headerlink" title="Blend Mode (within Transparent)"></a>Blend Mode (within Transparent)</h2><blockquote>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Formula</th>
+<th>Use case</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Alpha</td>
+<td>src.rgb * src.a + dst.rgb * (1 - src.a)</td>
+<td>Standard transparency, sprites, UI</td>
+</tr>
+<tr>
+<td>Additive</td>
+<td>src.rgb * src.a + dst.rgb</td>
+<td>Glows, fire, particles that should brighten</td>
+</tr>
+<tr>
+<td>Multiply</td>
+<td>src.rgb * dst.rgb</td>
+<td>Darkening effects, shadows, tinted overlays</td>
+</tr>
+<tr>
+<td>Premultiply</td>
+<td>src.rgb + dst.rgb * (1 - src.a)</td>
+<td>Textures with premultiplied alpha baked in</td>
+</tr>
+</tbody></table>
+</blockquote>
 <h1 id="The-Z-Buffer"><a href="#The-Z-Buffer" class="headerlink" title="The Z-Buffer"></a>The Z-Buffer</h1><p>The GPU maintains a depth buffer (z-buffer) alongside the color buffer. Every pixel stores the depth of the closest thing rendered to it so far.<br>When a new fragment arrives, the GPU compares its depth against what’s already in the buffer — if it’s further away, it gets discarded.</p>
 <h2 id="Front-to-Back-Pass"><a href="#Front-to-Back-Pass" class="headerlink" title="Front-to-Back Pass"></a>Front-to-Back Pass</h2><p>For opaque objects, Unity sorts them front-to-back before drawing. So the closest objects get drawn first.</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Camera → [Chair] → [Table] → [Wall behind]</span><br><span class="line">           drawn     drawn      drawn</span><br><span class="line">           first     second     third</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Camera → [Chair] → [Table] → [Wall behind]<br>drawn     drawn      drawn<br>first     second     third  </p>
+</blockquote>
 <p>This matters because of early-z.</p>
 <h2 id="Early-Z-Culling"><a href="#Early-Z-Culling" class="headerlink" title="Early-Z Culling"></a>Early-Z Culling</h2><p>Once the chair is drawn and its depth is written to the z-buffer, when the wall fragment arrives at the same pixel, the GPU checks:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wall depth (5.0) &gt; z-buffer value (1.2) → discard, skip fragment shader</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>wall depth (5.0) &gt; z-buffer value (1.2) → discard, skip fragment shader  </p>
+</blockquote>
 <p>It never runs the fragment shader for the wall pixel at all. This is early-z culling — rejecting fragments before the expensive shading work happens.<br>The savings are significant. Fragment shaders do lighting, texture sampling, math — all skipped for occluded pixels.</p>
 <h2 id="Why-transparent-objects-break-this"><a href="#Why-transparent-objects-break-this" class="headerlink" title="Why transparent objects break this"></a>Why transparent objects break this</h2><p>Transparent objects need to blend with what’s behind them, so they must be drawn last, back-to-front:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Camera → [Wall] → [Table] → [Glass in front]</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>Camera → [Wall] → [Table] → [Glass in front]  </p>
+</blockquote>
 <p>The glass needs the wall already in the framebuffer to blend against it. This means:</p>
 <ul>
 <li>You can’t sort front-to-back</li>
@@ -369,7 +410,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">51</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

@@ -161,6 +161,249 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/11/03/%E6%B8%B8%E6%88%8FUI%E6%A1%86%E6%9E%B6%E8%AE%BE%E8%AE%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/11/03/%E6%B8%B8%E6%88%8FUI%E6%A1%86%E6%9E%B6%E8%AE%BE%E8%AE%A1/" class="post-title-link" itemprop="url">游戏UI框架设计</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-11-03 12:04:14 / Modified: 19:21:35" itemprop="dateCreated datePublished" datetime="2026-11-03T12:04:14+08:00">2026-11-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Design-Paradigm/" itemprop="url" rel="index"><span itemprop="name">Design Paradigm</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>游戏 UI 中的“框架”通常指两类东西：负责显示界面的 UI 系统，以及负责组织界面代码的架构框架。</p>
+<p>以 Unity 为例，uGUI、UI Toolkit 属于第一类；MVC、MVP、MVVM，以及窗口管理、页面导航、数据绑定等机制属于第二类。<br>它们可以组合使用，例如：</p>
+<blockquote>
+<p>用 uGUI 制作界面，用 MVP 组织代码，再用 UIManager 管理窗口的打开、关闭和层级。</p>
+</blockquote>
+<h1 id="UI系统"><a href="#UI系统" class="headerlink" title="UI系统"></a>UI系统</h1><table>
+<thead>
+<tr>
+<th>UI 系统</th>
+<th>核心方式</th>
+<th>常见用途</th>
+<th>主要特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>uGUI</td>
+<td>Canvas + GameObject + Component</td>
+<td>游戏 HUD、背包、商店、弹窗</td>
+<td>与 Unity 场景、Prefab、动画系统结合紧密</td>
+</tr>
+<tr>
+<td>UI Toolkit</td>
+<td>VisualElement + UXML + USS</td>
+<td>编辑器工具、菜单、设置、列表型界面</td>
+<td>文档结构、样式与逻辑分离</td>
+</tr>
+<tr>
+<td>IMGUI</td>
+<td>在 <code>OnGUI()</code> 中通过代码绘制</td>
+<td>简单调试界面、旧编辑器工具</td>
+<td>写起来直接，但不适合作为复杂游戏 UI 的主系统</td>
+</tr>
+<tr>
+<td>FairyGUI 等第三方方案</td>
+<td>专用编辑器 + 对应运行时</td>
+<td>界面量大、依赖 UI 设计协作的项目</td>
+<td>强调界面制作、组件复用、过渡动画等完整工作流</td>
+</tr>
+</tbody></table>
+<p>这里的选择决定了“界面怎么制作和渲染”，但不会自动解决“业务逻辑怎么组织”。</p>
+<h1 id="代码框架"><a href="#代码框架" class="headerlink" title="代码框架"></a>代码框架</h1><p>无论用哪种 UI 系统，都会遇到同一个问题：</p>
+<blockquote>
+<p>用户点了按钮，谁处理操作？数据变了，谁更新界面？</p>
+</blockquote>
+<p>MVC、MVP、MVVM 就是在回答这个问题。</p>
+<table>
+<thead>
+<tr>
+<th>架构</th>
+<th>主要角色</th>
+<th>界面如何更新</th>
+<th>适合情况</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MVC</td>
+<td>Model、View、Controller</td>
+<td>由 Controller 或模型通知机制推动</td>
+<td>流程简单、团队约定清晰</td>
+</tr>
+<tr>
+<td>MVP</td>
+<td>Model、View、Presenter</td>
+<td>Presenter 显式调用 View</td>
+<td>uGUI 项目、希望逻辑清晰且容易测试</td>
+</tr>
+<tr>
+<td>MVVM</td>
+<td>Model、View、ViewModel</td>
+<td>通过绑定或状态通知更新</td>
+<td>表单、列表、状态较多的界面</td>
+</tr>
+<tr>
+<td>单向数据流</td>
+<td>State、Action、Reducer&#x2F;处理器、View</td>
+<td>操作更新状态，界面读取状态</td>
+<td>状态组合复杂、需要追踪变化的界面</td>
+</tr>
+<tr>
+<td>这些名字不是自动就能带来良好设计。关键在于：显示、交互协调和业务规则是否有明确边界。</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h1 id="项目设计"><a href="#项目设计" class="headerlink" title="项目设计"></a>项目设计</h1><p>MVC、MVP、MVVM 只解决代码组织的一部分。游戏项目还需要处理以下问题。</p>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>Unity 中的典型问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>窗口管理</td>
+<td>同一个窗口能否重复打开？关闭后销毁还是缓存？</td>
+</tr>
+<tr>
+<td>生命周期</td>
+<td>什么时候绑定事件、刷新数据、播放动画、释放资源？</td>
+</tr>
+<tr>
+<td>分层</td>
+<td>HUD、普通页面、弹窗、加载遮罩谁在上面？</td>
+</tr>
+<tr>
+<td>导航</td>
+<td>返回键关闭弹窗，还是回到上一个页面？</td>
+</tr>
+<tr>
+<td>资源加载</td>
+<td>Prefab 从哪里加载？异步加载如何避免重复？</td>
+</tr>
+<tr>
+<td>数据同步</td>
+<td>金币变化后，哪些可见页面需要刷新？</td>
+</tr>
+<tr>
+<td>列表复用</td>
+<td>几百个背包物品如何避免生成几百套复杂控件？</td>
+</tr>
+<tr>
+<td>输入管理</td>
+<td>弹窗打开后，下面的页面还能否被点击？</td>
+</tr>
+<tr>
+<td>分辨率适配</td>
+<td>安全区域、横竖屏、锚点、长文本如何处理？</td>
+</tr>
+<tr>
+<td>异步取消</td>
+<td>窗口关闭后，请求结果是否还会写入控件？</td>
+</tr>
+<tr>
+<td>其中最容易被低估的是生命周期和异步处理。</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>假设玩家打开排行榜，界面开始请求数据，然后玩家马上关闭它：</p>
+<blockquote>
+<p>打开排行榜<br>↓<br>开始网络请求<br>    ↓<br>关闭排行榜<br>    ↓<br>请求返回</p>
+</blockquote>
+<p>此时如果直接执行：<code>rankText.text = result;</code><br>可能出现对象已经销毁、数据更新到下一次打开的界面，或旧请求覆盖新请求的情况。<br>框架需要明确约定：关闭时取消请求，或在结果返回时检查本次打开是否仍然有效。</p>
+<h2 id="窗口生命周期"><a href="#窗口生命周期" class="headerlink" title="窗口生命周期"></a>窗口生命周期</h2><p>一种常见设计是：</p>
+<blockquote>
+<p>创建<br>↓<br>初始化<br>    ↓<br>打开<br>    ↓<br>显示<br>    ↓<br>关闭<br>    ↓<br>隐藏并缓存 &#x2F; 销毁</p>
+</blockquote>
+<p>假如约定以下方法：</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">OnCreate()</span><br><span class="line">OnOpen(<span class="keyword">args</span>)</span><br><span class="line">OnShow()</span><br><span class="line">OnHide()</span><br><span class="line">OnClose()</span><br><span class="line">OnDestroy()</span><br></pre></td></tr></table></figure>
+<p>这些名字的具体含义由框架决定，并不是 Unity 内置生命周期。<br>还要与 Unity 的 <code>Awake</code>、<code>OnEnable</code>、<code>OnDisable</code>、<code>OnDestroy</code> 区分。例如隐藏一个缓存窗口，只会使它停用；下一次打开时，<code>Awake()</code> 不会重新执行。</p>
+<h2 id="分层与导航"><a href="#分层与导航" class="headerlink" title="分层与导航"></a>分层与导航</h2><p>常见层级可以是：</p>
+<blockquote>
+<p>HUD<br>Page<br>Popup<br>Loading<br>Toast</p>
+</blockquote>
+<p>但“画在上面”和“阻止下面接收输入”是两个问题。一个透明遮罩即使视觉上位于最上层，也需要正确配置射线或输入处理，才能阻止点击穿透。</p>
+<p>导航则适合使用页面栈：</p>
+<blockquote>
+<p>主界面 → 背包 → 物品详情</p>
+</blockquote>
+<p>返回时：</p>
+<blockquote>
+<p>物品详情 → 背包 → 主界面</p>
+</blockquote>
+<p>Toast、加载遮罩和长期显示的 HUD 通常不应该全部放进同一套返回栈。</p>
+<h2 id="缓存与列表虚拟化"><a href="#缓存与列表虚拟化" class="headerlink" title="缓存与列表虚拟化"></a>缓存与列表虚拟化</h2><p>这两者容易混淆：</p>
+<ul>
+<li>窗口缓存：关闭背包后保留整个背包实例，下次直接复用。</li>
+<li>对象池：反复使用物品格子，减少创建和销毁。</li>
+<li>列表虚拟化：只保留可视区域附近的格子，根据滚动位置展示不同数据。<br>有 1000 件物品时，即使通过对象池创建了 1000 个格子，它们仍可能带来大量布局和渲染成本。虚拟化解决的是“同时存在多少个显示单元”的问题。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/10/28/MipMap/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -318,7 +561,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-10-28 20:59:47" itemprop="dateModified" datetime="2026-10-28T20:59:47+08:00">2026-10-28</time>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -423,10 +666,14 @@
 </tbody></table>
 <p>通过 protoc 编译器，可以为客户端生成 C# 类，为服务端生成对应语言的类。</p>
 <p>字段名还可能保存在生成的描述信息中，用于反射、JSON 转换等功能。这些内容属于程序代码和元数据，不需要跟着每条网络消息发送。<br>可以理解为双方事先约定：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">“编号 1 表示筹码，编号 2 表示余额，编号 3 表示奖励余额。”</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>“编号 1 表示筹码，编号 2 表示余额，编号 3 表示奖励余额。”  </p>
+</blockquote>
 <p>此后每次通信只发送“编号和值”。</p>
 <p>JSON 则会在每次通信时重复发送：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">“chips 的值是 150，money 的值是 12.5……”</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>“chips 的值是 150，money 的值是 12.5……”  </p>
+</blockquote>
 <p>因此，Protobuf 并没有消灭映射，而是把映射从每条消息里移到了双方程序里。</p>
 <p>以及二进制里并不是只有字段值，Protobuf 不能直接把 150 和 12.5 连起来，因为接收方需要知道：</p>
 <ul>
@@ -435,9 +682,14 @@
 <li>读完后下一个字段在哪里？</li>
 </ul>
 <p>所以每个实际发送的字段，基本结构是：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">字段标签 tag + 字段值</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>字段标签 tag + 字段值  </p>
+</blockquote>
 <p>对于字符串等可变长度的数据，则是：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">字段标签 tag + 内容长度 + 内容</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>字段标签 tag + 内容长度 + 内容  </p>
+</blockquote>
+
       
     </div>
 
@@ -485,10 +737,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-08-20 18:13:46 / Modified: 18:47:07" itemprop="dateCreated datePublished" datetime="2026-08-20T18:13:46+08:00">2026-08-20</time>
+              <time title="Created: 2026-08-20 18:13:46" itemprop="dateCreated datePublished" datetime="2026-08-20T18:13:46+08:00">2026-08-20</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -517,30 +775,42 @@
           <p>Unity热更新可以通过Lua框架（xLua, toLua等）或者HybridCLR实现。</p>
 <p>xLua 下载的是 Lua 脚本，由 Lua VM 执行。<br>HybridCLR 下载的是 C# DLL，由 HybridCLR 在 IL2CPP 中解释执行。</p>
 <h1 id="主要流程"><a href="#主要流程" class="headerlink" title="主要流程"></a>主要流程</h1><p>如果你项目使用 Addressables，那么 catalog.json、AB 包、New Build &#x2F; Update Build 的流程，对两者都一样。<br>Addressables 不关心文件是 Lua 还是 DLL；它只负责把指定地址的资源拿回来。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Player 内置启动器</span><br><span class="line">  ↓</span><br><span class="line">检查远端 catalog.hash / catalog.json</span><br><span class="line">  ↓</span><br><span class="line">下载变化的 AssetBundle</span><br><span class="line">  ↓</span><br><span class="line">从 AB 取出热更新文件</span><br><span class="line">  ↓</span><br><span class="line">加载并运行热更新逻辑</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>Player 内置启动器<br>↓<br>检查远端 catalog.hash &#x2F; catalog.json<br>↓<br>下载变化的 AssetBundle<br>↓<br>从 AB 取出热更新文件<br>↓<br>加载并运行热更新逻辑  </p>
+</blockquote>
 <p>首次发布Android平台远端资源时，可以这样做：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Addressables → New Build</span><br><span class="line">  ↓</span><br><span class="line">ServerData/Android/</span><br><span class="line">  ↓</span><br><span class="line">将其中内容部署到 Cloudflare/CDN 的 Android 资源目录</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>Addressables → New Build<br>↓<br>ServerData&#x2F;Android&#x2F;<br>↓<br>将其中内容部署到 Cloudflare&#x2F;CDN 的 Android 资源目录  </p>
+</blockquote>
 <p>例如：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">本地：</span><br><span class="line">ServerData/Android/</span><br><span class="line">  catalog_xxx.json</span><br><span class="line">  catalog_xxx.hash</span><br><span class="line">  hotcode_a1.bundle</span><br><span class="line">  ui_b1.bundle</span><br><span class="line"></span><br><span class="line">CDN：</span><br><span class="line">https://assets.example.com/aa/Android/</span><br><span class="line">  catalog_xxx.json</span><br><span class="line">  catalog_xxx.hash</span><br><span class="line">  hotcode_a1.bundle</span><br><span class="line">  ui_b1.bundle</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>本地：<br>ServerData&#x2F;Android&#x2F;<br>catalog_xxx.json<br>catalog_xxx.hash<br>hotcode_a1.bundle<br>ui_b1.bundle  </p>
+<p>CDN：<br><a target="_blank" rel="noopener" href="https://assets.example.com/aa/Android/">https://assets.example.com/aa/Android/</a><br>catalog_xxx.json<br>catalog_xxx.hash<br>hotcode_a1.bundle<br>ui_b1.bundle  </p>
+</blockquote>
 <p>需要确保以下两点：</p>
 <ol>
 <li>指定远端资源构建。需要启用 Build Remote Catalog，并将需要热更的 Group 设置为：</li>
 </ol>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Build Path = Remote.BuildPath</span><br><span class="line">Load Path = Remote.LoadPath</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Build Path &#x3D; Remote.BuildPath<br>Load Path &#x3D; Remote.LoadPath  </p>
+</blockquote>
 <p>仅在当前项目点击 New Build，因远端 Catalog 关闭、默认 Group 是 Local，未必会产生可部署的 ServerData&#x2F;Android 完整热更新内容。</p>
 <ol start="2">
 <li>Remote.LoadPath 必须在构建前指向真实 CDN 地址，例如：</li>
 </ol>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://assets.example.com/aa/[BuildTarget]</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://assets.example.com/aa/[BuildTarget]">https://assets.example.com/aa/[BuildTarget]</a>  </p>
+</blockquote>
 <p>不要先用 localhost 构建，再直接把文件传到 Cloudflare；Catalog 中会保留构建时写入的 LoadPath。</p>
 <p>首次发布后，后续的操作不同：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Update Previous Build</span><br><span class="line">  ↓</span><br><span class="line">只产生新增/变化的 Bundle 与新 Catalog</span><br><span class="line">  ↓</span><br><span class="line">合并到服务器已有 Android 资源目录</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Update Previous Build<br>↓<br>只产生新增&#x2F;变化的 Bundle 与新 Catalog<br>↓<br>合并到服务器已有 Android 资源目录  </p>
+</blockquote>
 <p>不要清空服务器 Android 目录，也不要只部署本次 Update Build 的少量输出。新 Catalog 文件替换，旧 Bundle 保留。</p>
 <h1 id="xLua：Lua-驱动-C"><a href="#xLua：Lua-驱动-C" class="headerlink" title="xLua：Lua 驱动 C#"></a>xLua：Lua 驱动 C#</h1><p>xLua 的核心是把 Lua VM 放进 Player：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">C# AOT Player</span><br><span class="line">  ↓</span><br><span class="line">LuaEnv</span><br><span class="line">  ↓</span><br><span class="line">下载 Main.lua、Login.lua、Battle.lua</span><br><span class="line">  ↓</span><br><span class="line">Lua 脚本解释执行</span><br><span class="line">  ↓</span><br><span class="line">通过绑定层调用 Unity/C#</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>C# AOT Player<br>↓<br>LuaEnv<br>↓<br>下载 Main.lua、Login.lua、Battle.lua<br>↓<br>Lua 脚本解释执行<br>↓<br>通过绑定层调用 Unity&#x2F;C#  </p>
+</blockquote>
 <p>游戏启动时，C# 通常创建一个全局 LuaEnv<br>所以它不是“把 Lua 脚本编译进原生 Player”；而是 Player 预先带着 Lua 解释器，后续下载 Lua 脚本，解释器负责运行这些新脚本。</p>
 <p>Lua 与 C# 的交互通常需要配置生成：</p>
 <ul>
@@ -551,16 +821,21 @@
 <h2 id="xLua-的两种“热更新”"><a href="#xLua-的两种“热更新”" class="headerlink" title="xLua 的两种“热更新”"></a>xLua 的两种“热更新”</h2><ul>
 <li>Lua 业务热更新<br>这是最常见、最稳的方式：</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">C#：框架、Unity 封装、网络、资源管理</span><br><span class="line">Lua：UI 流程、活动、战斗规则、业务逻辑</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>C#：框架、Unity 封装、网络、资源管理<br>Lua：UI 流程、活动、战斗规则、业务逻辑  </p>
+</blockquote>
 <p>后续下载新的 Lua 文件即可生效。<br>优点是包小、更新快；代价是业务层需要长期使用 Lua 开发，并维护 Lua&#x2F;C# 边界。</p>
 <ul>
 <li>xLua Hotfix：Lua 覆盖 C# 方法<br>xLua 还有 Hotfix 注入机制。你在发包前标记&#x2F;生成可热修复的 C# 方法，构建时 xLua 向这些方法插入跳板：</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">原 C# 方法</span><br><span class="line">  ↓</span><br><span class="line">预先注入 Hotfix 检查点</span><br><span class="line">  ↓</span><br><span class="line">运行时 Lua 可替换该方法实现</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>原 C# 方法<br>↓<br>预先注入 Hotfix 检查点<br>↓<br>运行时 Lua 可替换该方法实现  </p>
+</blockquote>
 <p>例如 Lua 可以通过 xlua.hotfix(…) 替换一个已预留的 C# 方法。<br>关键限制是：xLua 不能在 Player 发布后，任意修改一个当初没有注入 Hotfix 跳板的 C# 方法。<br>也就是说，它是“预埋可替换点”，不是发布后任意加载新 C# 代码。</p>
 <h1 id="HybridCLR：运行新的-C-逻辑"><a href="#HybridCLR：运行新的-C-逻辑" class="headerlink" title="HybridCLR：运行新的 C# 逻辑"></a>HybridCLR：运行新的 C# 逻辑</h1><p>HybridCLR 则更接近“可加载新的 C# 程序集”，但同样受基础 Player 的 API、裁剪、泛型、桥接代码约束。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">C# AOT Player</span><br><span class="line">  ↓</span><br><span class="line">HybridCLR Runtime</span><br><span class="line">  ↓</span><br><span class="line">下载 Game.HotUpdate.dll.bytes</span><br><span class="line">  ↓</span><br><span class="line">Assembly.Load</span><br><span class="line">  ↓</span><br><span class="line">解释执行新的 C# IL</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>C# AOT Player<br>↓<br>HybridCLR Runtime<br>↓<br>下载 Game.HotUpdate.dll.bytes<br>↓<br>Assembly.Load<br>↓<br>解释执行新的 C# IL  </p>
+</blockquote>
 <p>热更新代码仍是 C#：</p>
 <ul>
 <li>可以新增普通 C# 类、接口、业务系统。</li>
@@ -572,28 +847,38 @@
 <ul>
 <li>xLua</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">catalog.json</span><br><span class="line">  &quot;HotEntry&quot;</span><br><span class="line">    → lua_main_abc.bundle</span><br><span class="line"></span><br><span class="line">lua_main_abc.bundle</span><br><span class="line">  → Main.lua</span><br><span class="line">  → Login.lua</span><br><span class="line">  → Battle.lua</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>catalog.json<br>“HotEntry”<br>→ lua_main_abc.bundle  </p>
+<p>lua_main_abc.bundle<br>→ Main.lua<br>→ Login.lua<br>→ Battle.lua  </p>
+</blockquote>
 <p>运行时：</p>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">luaEnv.DoString(luaTextAsset.text, <span class="string">&quot;Main.lua&quot;</span>);</span><br></pre></td></tr></table></figure>
 
 <ul>
 <li>HybridCLR</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">catalog.json</span><br><span class="line">  &quot;HotEntry&quot;</span><br><span class="line">    → hotcode_abc.bundle</span><br><span class="line"></span><br><span class="line">hotcode_abc.bundle</span><br><span class="line">  → Game.HotUpdate.dll.bytes</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>catalog.json<br>“HotEntry”<br>→ hotcode_abc.bundle  </p>
+<p>hotcode_abc.bundle<br>→ Game.HotUpdate.dll.bytes  </p>
+</blockquote>
 <p>运行时：</p>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Assembly.Load(hotDllTextAsset.bytes);</span><br></pre></td></tr></table></figure>
 
 <p>HybridCLR 可能还多一组</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">aotmetadata_abc.bundle</span><br><span class="line">  → Game.Runtime.dll.bytes</span><br><span class="line">  → System.dll.bytes</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>aotmetadata_abc.bundle<br>→ Game.Runtime.dll.bytes<br>→ System.dll.bytes  </p>
+</blockquote>
 <p>这些 AOT 元数据要在加载热更新 DLL 前处理。</p>
 <h2 id="New-Build-Update-Build-对比"><a href="#New-Build-Update-Build-对比" class="headerlink" title="New Build &#x2F; Update Build 对比"></a>New Build &#x2F; Update Build 对比</h2><p>它们的发布方式一致。第一次发包：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">xLua：</span><br><span class="line">New Build → Lua AB + Catalog → 打入/上传</span><br><span class="line"></span><br><span class="line">HybridCLR：</span><br><span class="line">生成 HybridCLR 必要代码</span><br><span class="line">→ 构建 Player</span><br><span class="line">→ 打包热更新 DLL / AOT 元数据到 AB</span><br><span class="line">→ New Build → Catalog + AB</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>xLua：<br>New Build → Lua AB + Catalog → 打入&#x2F;上传  </p>
+<p>HybridCLR：<br>生成 HybridCLR 必要代码<br>→ 构建 Player<br>→ 打包热更新 DLL &#x2F; AOT 元数据到 AB<br>→ New Build → Catalog + AB  </p>
+</blockquote>
 <p>后续只改热更逻辑：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">xLua：</span><br><span class="line">改 Lua → Update Previous Build → 上传新 Lua AB + Catalog</span><br><span class="line"></span><br><span class="line">HybridCLR：</span><br><span class="line">编译新 HotUpdate.dll</span><br><span class="line">→ Update Previous Build</span><br><span class="line">→ 上传新 DLL AB + Catalog</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>xLua：<br>改 Lua → Update Previous Build → 上传新 Lua AB + Catalog  </p>
+<p>HybridCLR：<br>编译新 HotUpdate.dll<br>→ Update Previous Build<br>→ 上传新 DLL AB + Catalog  </p>
+</blockquote>
 <p>两者都不是二进制增量补丁：</p>
 <ul>
 <li>修改一个 Lua 文件，通常重下它所在的整个 Lua Bundle。</li>
@@ -1102,7 +1387,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-08-27 18:05:07" itemprop="dateModified" datetime="2026-08-27T18:05:07+08:00">2026-08-27</time>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1159,7 +1444,9 @@
 <td align="left">场景中静止不动的所有物体，如建筑、地面、大块的岩石、静态的装饰物等。</td>
 </tr>
 </tbody></table>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">场景里100棵树（同材质，Static）：</span><br><span class="line">  构建时合并 → 1个大mesh</span><br><span class="line">  运行时：SetPass × 1，Draw Call × 1</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>场景里100棵树（同材质，Static）：<br>构建时合并 → 1个大mesh<br>运行时：SetPass × 1，Draw Call × 1  </p>
+</blockquote>
 <p>代价是内存，合并后的大 mesh 常驻内存，物体也不能移动。</p>
 <h2 id="Dynamic-Batching"><a href="#Dynamic-Batching" class="headerlink" title="Dynamic Batching"></a>Dynamic Batching</h2><p>与静态合批不同，动态合批是的物体是可以运动的，针对动态小物体。每帧 CPU 实时把符合条件的 mesh 合并，然后一次提交。<br>条件很苛刻：顶点数 &lt; 300，不能使用lightmap，不能使用多通道的shader，不能是缩放比不同的物体。<br>Unity 的 Dynamic Batching（动态批处理）是自动触发的。只要启用了该功能且物体满足特定条件（如使用相同材质、顶点数较少），Unity 引擎就会在运行时自动合并 Draw Call，无需手动干预。</p>
 <table>
@@ -1190,7 +1477,9 @@
 <td align="left">在旧的内置渲染管线（Built-in RP）中，用于处理大量简单粒子、子弹等小物体。<strong>在现代项目中几乎不再使用</strong>。</td>
 </tr>
 </tbody></table>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">每帧：</span><br><span class="line">  CPU 检查哪些动态物体同材质 → 临时合并 mesh → 一次 Draw Call</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>每帧：<br>CPU 检查哪些动态物体同材质 → 临时合并 mesh → 一次 Draw Call  </p>
+</blockquote>
 <p>代价是 CPU 每帧都要做合并，物体多了反而更慢。</p>
 <h2 id="SRP-Batcher"><a href="#SRP-Batcher" class="headerlink" title="SRP Batcher"></a>SRP Batcher</h2><p>Batches draw calls by grouping objects that use the same shader variant, reducing SetPass calls<br>Shader properties stored in GPU buffers instead of individual material constants</p>
 <p>创建大型 GPU 缓冲区: 在每一帧开始时，SRP Batcher 会在 GPU 上开辟一个巨大的、持久化的缓冲区 (在现代图形API中通常是 Constant Buffer 或 UBO)。<br>打包所有数据: 它会遍历所有使用相同 Shader Variant（着色器变体）的物体，把它们的材质属性（颜色、向量、浮点数等）全部打包塞进这个大缓冲区里。</p>
@@ -1252,11 +1541,13 @@
 </tr>
 </tbody></table>
 <p>关系可以理解为：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Renderer</span><br><span class="line">├─ Mesh / Transform ──────&gt; UnityPerDraw</span><br><span class="line">└─ Material</span><br><span class="line">   └─ Shader Properties ──&gt; UnityPerMaterial</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>Renderer<br>├─ Mesh &#x2F; Transform ──────&gt; UnityPerDraw<br>└─ Material<br>└─ Shader Properties ──&gt; UnityPerMaterial  </p>
+</blockquote>
 <p>例如两个 Renderer 共用一个 Material：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Renderer A：自己的 UnityPerDraw ─┐</span><br><span class="line">                                ├─ 共用 UnityPerMaterial</span><br><span class="line">Renderer B：自己的 UnityPerDraw ─┘</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>Renderer A：自己的 UnityPerDraw ─┐<br>├─ 共用 UnityPerMaterial<br>Renderer B：自己的 UnityPerDraw ─┘  </p>
+</blockquote>
 <p>因此它们颜色、粗糙度等材质属性相同，但模型矩阵不同。</p>
 <p>Renderer 是产生绘制任务的组件。Unity准备 Draw Call 时：</p>
 <ol>
@@ -1332,7 +1623,10 @@
 <li>粒子对像不能合批</li>
 </ul>
 <p>此时的CPU依然只提交1次Drawcall</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">100棵树（同mesh，同材质，不同位置/颜色）：</span><br><span class="line">  CPU：提交1次mesh + 100个transform数组</span><br><span class="line">  GPU：自己 instance 100次</span><br><span class="line">  结果：SetPass × 1，Draw Call × 1</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>100棵树（同mesh，同材质，不同位置&#x2F;颜色）：<br>CPU：提交1次mesh + 100个transform数组<br>GPU：自己 instance 100次<br>结果：SetPass × 1，Draw Call × 1  </p>
+</blockquote>
+
       
     </div>
 
@@ -1728,303 +2022,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/05/07/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E7%B1%BB%E5%9E%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/05/07/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E7%B1%BB%E5%9E%8B/" class="post-title-link" itemprop="url">渲染管线类型</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2026-05-07 13:24:44" itemprop="dateCreated datePublished" datetime="2026-05-07T13:24:44+08:00">2026-05-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-05-08 12:31:03" itemprop="dateModified" datetime="2026-05-08T12:31:03+08:00">2026-05-08</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="CPU-GPU-交互流程"><a href="#CPU-GPU-交互流程" class="headerlink" title="CPU-GPU 交互流程"></a>CPU-GPU 交互流程</h1><p>关注点：CPU 如何告诉 GPU “要画什么”？这决定了代码架构和内存管理方式。</p>
-<h2 id="立刻渲染模式（Immediate-Mode）"><a href="#立刻渲染模式（Immediate-Mode）" class="headerlink" title="立刻渲染模式（Immediate Mode）"></a>立刻渲染模式（Immediate Mode）</h2><p>每一帧都在 Update 或 OnGUI 里写 DrawButton()，简单直观，但如果物体多，CPU 喊口令会累死。</p>
-<h3 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h3><ul>
-<li>核心在于“每帧重新绘制”，无需保存图形对象的复杂状态</li>
-<li>它具有简单直接、易于动态更新的优点，但因缺乏对象层级的记录，CPU负载通常较高</li>
-<li>每次调用绘制命令（如 glDrawArrays、DrawPrimitive），GPU 就立即执行渲染，结果直接写入帧缓冲区。</li>
-</ul>
-<h3 id="执行流程"><a href="#执行流程" class="headerlink" title="执行流程"></a>执行流程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">绘制物体A → 立即渲染A → 绘制物体B → 立即渲染B → 绘制物体C → 立即渲染C</span><br></pre></td></tr></table></figure>
-
-<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><ol>
-<li>无状态管理 - 每次绘制独立，不保存场景信息</li>
-<li>实时响应 - 调用即渲染，适合简单场景</li>
-<li>内存占用小 - 不需要额外的场景数据结构</li>
-</ol>
-<h2 id="保留模式（Retained-Mode）"><a href="#保留模式（Retained-Mode）" class="headerlink" title="保留模式（Retained Mode）"></a>保留模式（Retained Mode）</h2><p>创建一个 GameObject 或 DOM 节点，之后除非它变了，否则你不用管它，内存占用高（要存菜单），但 CPU 负担轻，库会帮你自动优化。</p>
-<h3 id="工作原理-1"><a href="#工作原理-1" class="headerlink" title="工作原理"></a>工作原理</h3><ul>
-<li>与立刻模式相对的渲染模式，其核心逻辑是“由图形库管理场景”</li>
-<li>在这种模式下，应用程序通过构建一个场景模型（如对象树或场景图）来告诉库“要画什么”，然后库会负责具体的绘制细节、状态维护和按需重绘<ul>
-<li>例如在Unity中，场景模型就是对象树，对象树中的每个对象都包含着对象模型（如Mesh）、材质（如Shader）、变换矩阵等信息</li>
-</ul>
-</li>
-</ul>
-<h3 id="执行流程-1"><a href="#执行流程-1" class="headerlink" title="执行流程"></a>执行流程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">构建场景图 → 提交给引擎 → 引擎优化（剔除、排序、批处理）→ 统一渲染</span><br></pre></td></tr></table></figure>
-
-<h3 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h3><ol>
-<li>层次化管理 - 通过场景图管理物体关系</li>
-<li>自动优化 - 视锥剔除、遮挡剔除、状态排序</li>
-<li>延迟执行 - 可以批量处理多个绘制调用，适合大型场景的优化</li>
-</ol>
-<hr>
-<h1 id="渲染路径"><a href="#渲染路径" class="headerlink" title="渲染路径"></a>渲染路径</h1><p>GPU 收到命令后，“具体怎么算光影”？这决定了显卡的计算逻辑和画面表现。</p>
-<h2 id="前向渲染（Forward-Rendering）"><a href="#前向渲染（Forward-Rendering）" class="headerlink" title="前向渲染（Forward Rendering）"></a>前向渲染（Forward Rendering）</h2><p>Unity URP 默认使用的是前向渲染<br>拿一个零件（物体），直接打磨、上色、抛光（算所有光照），彻底做完再拿下一个零件。<br>但如果零件受 10 盏灯照，每个零件都要算 10 遍，灯多了会慢。</p>
-<h3 id="工作原理-2"><a href="#工作原理-2" class="headerlink" title="工作原理"></a>工作原理</h3><ul>
-<li>图形学中最传统、最基础的渲染路径。</li>
-<li>它的核心逻辑是“遍历物体，直接着色”：针对场景中的每一个几何物体，依次进行顶点变换、光栅化，并直接在像素着色器中计算所有相关的光照效果，最后输出到屏幕缓冲区。</li>
-</ul>
-<h3 id="单-Pass-方式"><a href="#单-Pass-方式" class="headerlink" title="单 Pass 方式"></a>单 Pass 方式</h3><ul>
-<li>一次绘制计算所有光照</li>
-<li>光源数量有限（通常 4-8 个）</li>
-<li>性能随光源线性下降</li>
-</ul>
-<h3 id="多-Pass-方式"><a href="#多-Pass-方式" class="headerlink" title="多 Pass 方式"></a>多 Pass 方式</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Pass 1: 渲染物体 + 主光源</span><br><span class="line">Pass 2: 添加光源1贡献（混合）</span><br><span class="line">Pass 3: 添加光源2贡献（混合）</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-<h3 id="特点-2"><a href="#特点-2" class="headerlink" title="特点"></a>特点</h3><ol>
-<li>直接计算 - 几何和光照同时处理，适合光源较少的场景</li>
-<li>透明物体友好 - 天然支持透明度排序</li>
-<li>MSAA 原生支持 - 多重采样抗锯齿直接可用</li>
-</ol>
-<h2 id="延迟渲染（Deferred-Rendering-Deferred-Shading）"><a href="#延迟渲染（Deferred-Rendering-Deferred-Shading）" class="headerlink" title="延迟渲染（Deferred Rendering &#x2F; Deferred Shading）"></a>延迟渲染（Deferred Rendering &#x2F; Deferred Shading）</h2><p>Unity HDRP 默认使用延迟渲染<br>第一批人先给零件分类（记录位置、颜色到 G-Buffer）。第二批人最后统一刷漆（对着 G-Buffer 统一算光照）。<br>不怕灯多，适合 PC 大作；但费内存（G-Buffer 很大），且处理不了半透明物体。</p>
-<h3 id="工作原理-3"><a href="#工作原理-3" class="headerlink" title="工作原理"></a>工作原理</h3><p>它的核心理念是“先记录信息，最后统一算光照”，流程分为以下两个阶段：</p>
-<ol>
-<li>几何处理阶段 (Geometry Pass)：将场景中的每个物体进行顶点变换、光栅化，并记录所有相关的几何信息（如位置、法线、漫反射颜色、粗糙度等），将物体的几何属性存储在一组被称为 G-Buffer (Geometry Buffer) 的高带宽纹理中</li>
-<li>光照处理阶段 (Lighting Pass)：将G-Buffer里的记录的光照信息进行计算，针对屏幕上的每个像素统一计算最终的光照效果并输出到屏幕缓冲区。</li>
-</ol>
-<h3 id="几何-Pass"><a href="#几何-Pass" class="headerlink" title="几何 Pass"></a>几何 Pass</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">对于每个物体：</span><br><span class="line">    只写入几何信息到 G-Buffer</span><br><span class="line">    不计算任何光照</span><br></pre></td></tr></table></figure>
-
-<h3 id="光照-Pass"><a href="#光照-Pass" class="headerlink" title="光照 Pass"></a>光照 Pass</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">对于每个像素：</span><br><span class="line">    从 G-Buffer 读取几何信息</span><br><span class="line">    计算所有光照贡献</span><br><span class="line">    输出最终颜色</span><br></pre></td></tr></table></figure>
-
-<h3 id="G-Buffer-结构"><a href="#G-Buffer-结构" class="headerlink" title="G-Buffer 结构"></a>G-Buffer 结构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">RT0: RGB = Albedo颜色       A = Metallic</span><br><span class="line">RT1: RGB = 法线             A = Roughness</span><br><span class="line">RT2: RGB = 自发光           A = AO</span><br><span class="line">RT3: RGB = 世界坐标/深度</span><br></pre></td></tr></table></figure>
-
-<p>每个渲染目标（RT）有 4 个通道：R、G、B、A</p>
-<p>RT0: 基础材质属性</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────┐</span><br><span class="line">│  R        G        B        A               │</span><br><span class="line">│  Albedo.r  Albedo.g  Albedo.b  Metallic     │</span><br><span class="line">└─────────────────────────────────────────────┘</span><br><span class="line"></span><br><span class="line">RGB (Albedo): 物体的基础颜色（漫反射颜色）</span><br><span class="line">- 例如：红色物体 → (1.0, 0.0, 0.0)</span><br><span class="line">- 从纹理采样得到</span><br><span class="line"></span><br><span class="line">A (Metallic): 金属度 (0.0 ~ 1.0)</span><br><span class="line">- 0.0 = 非金属（电介质）：塑料、木材、布料</span><br><span class="line">- 1.0 = 金属：金、银、铜</span><br><span class="line">- 影响高光和反射计算方式</span><br></pre></td></tr></table></figure>
-
-<p>RT1: 表面细节属性</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────┐</span><br><span class="line">│  R        G        B        A               │</span><br><span class="line">│  Normal.r  Normal.g  Normal.b  Roughness    │</span><br><span class="line">└─────────────────────────────────────────────┘</span><br><span class="line"></span><br><span class="line">RGB (Normal): 世界空间法线向量</span><br><span class="line">- 表示表面朝向</span><br><span class="line">- 单位向量，范围 [-1, 1] 映射到 [0, 1]</span><br><span class="line">- 例如：(0, 1, 0) = 表面朝上</span><br><span class="line">- 用于光照计算（漫反射、高光）</span><br><span class="line"></span><br><span class="line">A (Roughness): 粗糙度 (0.0 ~ 1.0)</span><br><span class="line">- 0.0 = 光滑表面：镜子、水面（清晰反射）</span><br><span class="line">- 1.0 = 粗糙表面：混凝土、沙石（模糊高光）</span><br><span class="line">- 控制高光的锐利程度</span><br></pre></td></tr></table></figure>
-
-<p>RT2: 发光与环境光遮蔽</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────┐</span><br><span class="line">│  R        G        B        A               │</span><br><span class="line">│  Emissive.r Emissive.g Emissive.b AO        │</span><br><span class="line">└─────────────────────────────────────────────┘</span><br><span class="line"></span><br><span class="line">RGB (Emissive): 自发光颜色</span><br><span class="line">- 物体自身发出的光</span><br><span class="line">- 例如：霓虹灯、LED、发光材质</span><br><span class="line">- 不受光照影响，直接叠加到最终颜色</span><br><span class="line"></span><br><span class="line">A (AO - Ambient Occlusion): 环境光遮蔽 (0.0 ~ 1.0)</span><br><span class="line">- 0.0 = 完全遮蔽（角落、缝隙）</span><br><span class="line">- 1.0 = 无遮蔽（暴露表面）</span><br><span class="line">- 模拟缝隙中的阴影，增加真实感</span><br></pre></td></tr></table></figure>
-
-<p>RT3: 深度&#x2F;位置信息</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────┐</span><br><span class="line">│  R        G        B        A               │</span><br><span class="line">│  Position.r Position.g Position.b Depth     │</span><br><span class="line">│         或仅使用 Depth 作为单通道              │</span><br><span class="line">└─────────────────────────────────────────────┘</span><br><span class="line"></span><br><span class="line">RGB (World Position): 世界坐标</span><br><span class="line">- 像素在世界空间中的 XYZ 位置</span><br><span class="line">- 或者从深度值重建位置（节省显存）</span><br><span class="line"></span><br><span class="line">A (Depth): 深度值</span><br><span class="line">- 像素到相机的距离</span><br><span class="line">- 用于重建世界坐标</span><br><span class="line">- 用于后处理效果（雾、景深）</span><br></pre></td></tr></table></figure>
-
-<h3 id="特点-3"><a href="#特点-3" class="headerlink" title="特点"></a>特点</h3><ol>
-<li>解耦几何与光照 - 几何阶段只处理位置、法线等</li>
-<li>光照与物体数无关 - 光照计算只针对可见像素</li>
-<li>需要大量显存 - G-Buffer 占用显著</li>
-</ol>
-<h3 id="延迟渲染为什么处理不了半透明物体"><a href="#延迟渲染为什么处理不了半透明物体" class="headerlink" title="延迟渲染为什么处理不了半透明物体"></a>延迟渲染为什么处理不了半透明物体</h3><ol>
-<li><p>G-Buffer 只能存储“最前面”的信息<br>延迟渲染的第一步是把物体的几何信息（颜色、法线、深度等）存入 G-Buffer。<br>硬件限制：对于屏幕上的每一个像素，G-Buffer 通常只能存储一个物体的属性。<br>信息丢失：当你画一个半透明物体（如玻璃）时，G-Buffer 会记录玻璃的信息。但半透明物体的本质是让你看到它后面的东西。延迟渲染无法在一个像素位置同时存下“玻璃”和“玻璃后的墙”这两层信息。</p>
-</li>
-<li><p>混合（Blending）需要“即时颜色”<br>在前向渲染中，当你画半透明物体时，背景已经画好了。你可以直接把玻璃的颜色和背景颜色按比例混合（Alpha Blending）。<br>在延迟渲染中，第一步根本不计算颜色，只存原始数据。到了第二步统一算光照时，由于 G-Buffer 里只有最前面的玻璃数据，后台已经没有“被挡住的物体”的数据了，因此无法进行物理上正确的混合计算。</p>
-</li>
-<li><p>排序难题<br>半透明物体必须遵循从后往前的顺序绘制，才能得到正确的视觉叠加效果。<br>延迟渲染的初衷是“不关心顺序”，它通过深度测试只保留最前面的像素来优化性能。这与半透明物体需要的“多层有序叠加”逻辑完全冲突。</p>
-</li>
-</ol>
-<p><strong>行业通用的解决方案：混合模式 (Hybrid Rendering)</strong><br>为了解决这个问题，现代引擎（如 Unity 和 Unreal）通常采用混合方案：</p>
-<ol>
-<li>先用延迟渲染：画完场景中所有的不透明物体。</li>
-<li>再用前向渲染：在已经算好光照的底图上，再用前向渲染的方式按照从后往前的顺序，把半透明物体“贴”上去。</li>
-</ol>
-<hr>
-<h1 id="帧缓冲内存与瓦片渲染-Tile-Based-Rendering"><a href="#帧缓冲内存与瓦片渲染-Tile-Based-Rendering" class="headerlink" title="帧缓冲内存与瓦片渲染(Tile-Based Rendering)"></a>帧缓冲内存与瓦片渲染(Tile-Based Rendering)</h1><p>TBR 是一种 GPU 渲染架构 &#x2F; 帧缓冲处理方式，通过把屏幕划分为小瓦片来组织光栅化和帧缓冲访问。</p>
-<ul>
-<li>TBR 关注的是：GPU 如何在底层处理像素、深度、缓存和内存带宽。</li>
-<li>Retained mode 关注的是：应用如何描述场景，谁负责保存和管理可渲染对象。</li>
-<li>TBR 可以支持 retained mode 的渲染引擎，也可以支持 immediate mode 的渲染流。</li>
-</ul>
-<h2 id="IMR：Immediate-Mode-Rendering"><a href="#IMR：Immediate-Mode-Rendering" class="headerlink" title="IMR：Immediate Mode Rendering"></a>IMR：Immediate Mode Rendering</h2><ul>
-<li>定义：每次 API 提交一个三角形，就马上开始光栅化并写入颜色&#x2F;深度缓冲。</li>
-<li>特点：渲染顺序与三角形提交顺序一致。</li>
-<li>问题：<ul>
-<li>读写帧缓冲和深度缓冲时，内存访问非常分散、不可预测。</li>
-<li>重叠像素（overdraw）会被重复计算、重复写回。</li>
-<li>即使有缓存，缓存命中率也会因为几何提交顺序和屏幕空间不一致而低。</li>
-</ul>
-</li>
-</ul>
-<h2 id="内存带宽消耗问题"><a href="#内存带宽消耗问题" class="headerlink" title="内存带宽消耗问题"></a>内存带宽消耗问题</h2><ul>
-<li>传统 IMR 中，三角形按提交顺序处理，导致帧缓冲访问顺序混乱。</li>
-<li>如果缓存行是线性排列，渲染过程会频繁加载&#x2F;写回不同位置的数据，导致大量内存带宽浪费。</li>
-<li>帧缓冲是按屏幕坐标组织的二维像素网格。未压缩情况下，内存里通常按行优先存储：<ul>
-<li>一行像素连续</li>
-<li>不同行之间的像素不连续 -&gt; 屏幕上的垂直相邻像素在内存中不连续</li>
-<li>如果缓存行也是“线性排列”，它就只覆盖一段连续内存，而不是一个二维小块。</li>
-</ul>
-</li>
-</ul>
-<h2 id="Tiled-Memory（瓦片化内存）"><a href="#Tiled-Memory（瓦片化内存）" class="headerlink" title="Tiled Memory（瓦片化内存）"></a>Tiled Memory（瓦片化内存）</h2><ul>
-<li>核心思想：把帧缓冲按“瓦片”切成多个小二维区域。</li>
-<li>缓存行不再是线性像素序列，而是覆盖一个小矩形区域。</li>
-<li>好处：<ul>
-<li>空间局部性更好：同一瓦片内的像素更可能连续访问。</li>
-<li>缓存命中率增加。</li>
-<li>可在片上缓存内完成更多渲染操作，减少外部内存访问。</li>
-</ul>
-</li>
-</ul>
-<p>这一步是 TBR 的基础：把大帧缓冲拆成可控的小块，减少外存读写。</p>
-<h2 id="Rasterizing-within-tiles（瓦片内光栅化）"><a href="#Rasterizing-within-tiles（瓦片内光栅化）" class="headerlink" title="Rasterizing within tiles（瓦片内光栅化）"></a>Rasterizing within tiles（瓦片内光栅化）</h2><ul>
-<li>进一步优化：不再按照三角形整体顺序光栅化，而是先完成一个瓦片内三角形所有像素，再处理下一个瓦片。</li>
-<li>一个大三角形跨多个瓦片时，会被分成多段，每段在对应瓦片处理。这样可以避免大三角形跨多瓦片时频繁换入换出缓存。</li>
-<li>同一个三角形的几何信息被重用多次，但每次只处理与当前瓦片相交的部分。<br>这就是“先处理瓦片，再处理三角形”的思路。</li>
-</ul>
-<h2 id="Binning（几何分箱）"><a href="#Binning（几何分箱）" class="headerlink" title="Binning（几何分箱）"></a>Binning（几何分箱）</h2><ul>
-<li>在 TBR 中，提交几何体时并不马上光栅化。</li>
-<li>先进行“分箱”：将三角形归类到它可能覆盖的瓦片中。</li>
-<li>这一过程需要顶点处理来确定三角形屏幕位置，但不涉及片段着色。这样后续光栅化阶段只需按瓦片读取对应几何列表。<br>Binning 是把“几何”和“像素”分离，先用几何决定哪些瓦片受影响，再按瓦片单独渲染。</li>
-</ul>
-<h2 id="Tile-based-rasterization（基于瓦片的光栅化）"><a href="#Tile-based-rasterization（基于瓦片的光栅化）" class="headerlink" title="Tile-based rasterization（基于瓦片的光栅化）"></a>Tile-based rasterization（基于瓦片的光栅化）</h2><ul>
-<li>处理方式：逐瓦片渲染，每个瓦片在片上缓存中独立完成。</li>
-<li>帧缓冲和深度缓冲只在瓦片处理完后写回一次。</li>
-<li>优势：<ul>
-<li>外部内存访问减少到“每个瓦片一次写回”。</li>
-<li>深度缓存可直接在片上使用，甚至不必写回主存。</li>
-<li>清除操作也可在瓦片内完成。<br>这正是移动 GPU 的核心高效方案：把对外内存的数据流降到最低。</li>
-</ul>
-</li>
-</ul>
-<h2 id="深度缓冲（Z-buffer）"><a href="#深度缓冲（Z-buffer）" class="headerlink" title="深度缓冲（Z-buffer）"></a>深度缓冲（Z-buffer）</h2><ul>
-<li>每个像素位置有一个深度值</li>
-<li>这个深度值表示该像素处距相机最近的物体的深度</li>
-<li>光栅化三角形时，逐像素进行深度测试：<ul>
-<li>读取该像素在深度缓冲中的当前深度值</li>
-<li>与新三角形在该像素的深度比较，如果新三角形更近，更新该像素的深度值和颜色</li>
-</ul>
-</li>
-<li>一个像素可能被多个三角形覆盖（overdraw），但深度缓冲只保留最近的那个三角形的深度值。</li>
-</ul>
-<h2 id="MultiSampling-AA（多重采样反锯齿）"><a href="#MultiSampling-AA（多重采样反锯齿）" class="headerlink" title="MultiSampling AA（多重采样反锯齿）"></a>MultiSampling AA（多重采样反锯齿）</h2><ul>
-<li>在瓦片渲染中，多重采样可以在片上缓存里完成采样和 resolve。</li>
-<li>传统 IMR：多采样需要读写高分辨率帧缓冲（每个像素多个样本），带宽消耗巨大</li>
-<li>多采样在瓦片缓存内完成（片上内存），只在最后 resolve（合并样本）时写回外部内存。外部内存只存储最终低分辨率结果，带宽大幅降低。</li>
-<li>瓦片缓存（片上内存）允许在本地处理高频读写操作，只在瓦片完成时与外部内存交互一次，从而把昂贵的带宽开销控制在可控范围内</li>
-</ul>
-<h2 id="Deferred-shading-与-TBR"><a href="#Deferred-shading-与-TBR" class="headerlink" title="Deferred shading 与 TBR"></a>Deferred shading 与 TBR</h2><ul>
-<li>传统延迟渲染需要先写入多个 G-buffer，再重新读取进行光照，带宽消耗大。</li>
-<li>如果在瓦片内完成延迟渲染，则：<ul>
-<li>G-buffer 数据可保留在片上缓存，光照计算直接在瓦片缓存上进行</li>
-<li>最终只写出渲染结果，减少外部内存读写</li>
-<li>带宽成本与普通渲染相当<br>这说明“TBDR”（Tile-Based Deferred Rendering）特别适合移动端延迟渲染场景。</li>
-</ul>
-</li>
-</ul>
-<h2 id="G-buffer-和-瓦片缓存"><a href="#G-buffer-和-瓦片缓存" class="headerlink" title="G-buffer 和 瓦片缓存"></a>G-buffer 和 瓦片缓存</h2><ol>
-<li>光照数据（光源参数，如位置、颜色、强度）是 CPU 在应用阶段通过 uniform 变量或缓冲区传给 GPU 的</li>
-<li>GPU 渲染几何到 G-buffer<ul>
-<li>顶点着色器负责把模型空间变换到屏幕空间（通过 MVP 矩阵）</li>
-<li>片段着色器计算每个像素的几何信息（如位置、法线、颜色），并写入 G-buffer</li>
-</ul>
-</li>
-</ol>
-<p>延迟渲染流程：</p>
-<ul>
-<li>几何阶段：光栅化 + 片段着色 → 写入 G-buffer（存储几何信息，如位置、法线）。</li>
-<li>光照阶段：使用 G-buffer 数据进行光照计算 → 输出最终颜色。</li>
-</ul>
-<p>TBDR：</p>
-<ul>
-<li>第一阶段：几何分箱 → 按瓦片光栅化 → 片段着色 → G-buffer 数据留在瓦片缓存（不写回外部内存）。</li>
-<li>第二阶段：瓦片缓存直接使用这些 G-buffer 数据进行光照计算（无需读取外部 G-buffer）。</li>
-</ul>
-<h2 id="TBR-的优势"><a href="#TBR-的优势" class="headerlink" title="TBR 的优势"></a>TBR 的优势</h2><ul>
-<li>大幅降低帧缓冲带宽。</li>
-<li>降低功耗、提高渲染速度。</li>
-<li>移动端共享内存、带宽贵，TBR 是最优方案。</li>
-<li>对纹理访问也有好处：一次处理一个瓦片，纹理访问局部性增强。</li>
-<li>相比通用帧缓冲缓存，TBR 需要更少片上缓存空间。</li>
-</ul>
-<h2 id="TBR-的限制"><a href="#TBR-的限制" class="headerlink" title="TBR 的限制"></a>TBR 的限制</h2><ul>
-<li>引入渲染延迟：必须先 binning 再 rasterize。</li>
-<li>需要双缓冲以避免流水线停顿。</li>
-<li>对需要全局帧缓冲读取的功能不友好，如屏幕空间光线追踪、某些后处理。</li>
-<li>几何分箱本身也有成本，顶点着色器瓶颈场景可能受限。</li>
-<li>切换渲染目标、频繁读写 framebuffer 会迫使瓦片数据 flush。</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
-<li>传统 IMR 带宽和功耗太高；瓦片渲染通过“先分箱、后按瓦片渲染”把大帧缓冲操作压缩到片上缓存</li>
-<li>这对移动 GPU 极为关键，且现代 API（如 Vulkan Subpasses、OpenGL ES Pixel Local Storage）都开始支持这种模式</li>
-<li>对于多采样和延迟渲染，瓦片化处理能把原本非常昂贵的带宽开销降到可控范围</li>
-<li>然而瓦片化也有规则和限制，开发者要避免频繁 framebuffer 读写、避免不适合的渲染模式</li>
-</ul>
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_70073176/article/details/141165074">https://blog.csdn.net/weixin_70073176/article/details/141165074</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -2098,7 +2099,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">51</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

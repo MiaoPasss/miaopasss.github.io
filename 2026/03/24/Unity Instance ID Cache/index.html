@@ -28,7 +28,7 @@
 <meta property="og:description" content="At startup, the Instance ID cache is initialized with data for all Objects immediately required by the project (i.e., referenced in built Scenes), as well as all Objects contained in the Resources fol">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-03-24T03:49:36.000Z">
-<meta property="article:modified_time" content="2026-03-24T08:13:04.878Z">
+<meta property="article:modified_time" content="2026-11-03T11:25:57.388Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Resource Management">
 <meta name="twitter:card" content="summary">
@@ -193,10 +193,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-03-24 11:49:36 / Modified: 16:13:04" itemprop="dateCreated datePublished" datetime="2026-03-24T11:49:36+08:00">2026-03-24</time>
+              <time title="Created: 2026-03-24 11:49:36" itemprop="dateCreated datePublished" datetime="2026-03-24T11:49:36+08:00">2026-03-24</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -238,13 +244,25 @@
 <li><p>Instance ID（实例ID）<br>运行时层面，Unity 内存中每个 Object 的唯一标识，本质是一个整数，运行时动态分配<br>是 File GUID + Local ID 的运行时映射</p>
 </li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">磁盘：  File GUID + Local ID  →  唯一定位一个资源</span><br><span class="line">运行时：Instance ID           →  指向内存中的 Object</span><br><span class="line"></span><br><span class="line">Instance ID Cache = 这个映射表</span><br><span class="line">&#123; Instance ID → (File GUID, Local ID, 内存地址或null) &#125;</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>磁盘：  File GUID + Local ID  →  唯一定位一个资源<br>运行时：Instance ID           →  指向内存中的 Object  </p>
+<p>Instance ID Cache &#x3D; 这个映射表<br>{ Instance ID → (File GUID, Local ID, 内存地址或null) }  </p>
+</blockquote>
 <ul>
 <li>Instance ID Cache 的作用</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">启动时预填充：</span><br><span class="line">- 所有场景直接引用的资源</span><br><span class="line">- Resources 文件夹下的所有资源</span><br><span class="line">→ 这些 Object 的 Instance ID 提前注册，但不一定加载进内存</span><br><span class="line"></span><br><span class="line">运行时追加：</span><br><span class="line">- 从 AB 包加载新资源时</span><br><span class="line">- 代码里 new Texture2D() 创建时</span><br><span class="line">→ 新 Instance ID 动态加入缓存</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>启动时预填充：  </p>
+<ul>
+<li>所有场景直接引用的资源  </li>
+<li>Resources 文件夹下的所有资源<br>→ 这些 Object 的 Instance ID 提前注册，但不一定加载进内存</li>
+</ul>
+<p>运行时追加：  </p>
+<ul>
+<li>从 AB 包加载新资源时  </li>
+<li>代码里 new Texture2D() 创建时<br>→ 新 Instance ID 动态加入缓存</li>
+</ul>
+</blockquote>
 <p>当你持有一个对象引用，Unity 内部就是拿着 Instance ID 去缓存里查：</p>
 <ol>
 <li>查到且有内存地址 → 直接返回</li>
@@ -356,7 +374,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">51</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

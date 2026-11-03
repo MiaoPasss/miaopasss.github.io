@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="游戏 UI 中的“框架”通常指两类东西：负责显示界面的 UI 系统，以及负责组织界面代码的架构框架。 以 Unity 为例，uGUI、UI Toolkit 属于第一类；MVC、MVP、MVVM，以及窗口管理、页面导航、数据绑定等机制属于第二类。它们可以组合使用，例如：  用 uGUI 制作界面，用 MVP 组织代码，再用 UIManager 管理窗口的打开、关闭和层级。  UI系统   UI 系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="游戏UI框架设计">
+<meta property="og:url" content="https://miaopasss.github.io/2026/11/03/%E6%B8%B8%E6%88%8FUI%E6%A1%86%E6%9E%B6%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
+<meta property="og:description" content="游戏 UI 中的“框架”通常指两类东西：负责显示界面的 UI 系统，以及负责组织界面代码的架构框架。 以 Unity 为例，uGUI、UI Toolkit 属于第一类；MVC、MVP、MVVM，以及窗口管理、页面导航、数据绑定等机制属于第二类。它们可以组合使用，例如：  用 uGUI 制作界面，用 MVP 组织代码，再用 UIManager 管理窗口的打开、关闭和层级。  UI系统   UI 系统">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-11-03T04:04:14.000Z">
+<meta property="article:modified_time" content="2026-11-03T11:21:35.094Z">
+<meta property="article:author" content="Haotian Luo">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://miaopasss.github.io/2026/11/03/%E6%B8%B8%E6%88%8FUI%E6%A1%86%E6%9E%B6%E8%AE%BE%E8%AE%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>游戏UI框架设计 | 乌啦呀哈呀哈乌啦！</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">乌啦呀哈呀哈乌啦！</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">欢迎光临，这里是喵pass的个人博客，希望有能帮到你的地方
+</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页 | Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类 | Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签 | Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档 | Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/miaopasss" class="github-corner" title="Check out my GitHub" aria-label="Check out my GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/11/03/%E6%B8%B8%E6%88%8FUI%E6%A1%86%E6%9E%B6%E8%AE%BE%E8%AE%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          游戏UI框架设计
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-11-03 12:04:14 / Modified: 19:21:35" itemprop="dateCreated datePublished" datetime="2026-11-03T12:04:14+08:00">2026-11-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Design-Paradigm/" itemprop="url" rel="index"><span itemprop="name">Design Paradigm</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>游戏 UI 中的“框架”通常指两类东西：负责显示界面的 UI 系统，以及负责组织界面代码的架构框架。</p>
+<p>以 Unity 为例，uGUI、UI Toolkit 属于第一类；MVC、MVP、MVVM，以及窗口管理、页面导航、数据绑定等机制属于第二类。<br>它们可以组合使用，例如：</p>
+<blockquote>
+<p>用 uGUI 制作界面，用 MVP 组织代码，再用 UIManager 管理窗口的打开、关闭和层级。</p>
+</blockquote>
+<h1 id="UI系统"><a href="#UI系统" class="headerlink" title="UI系统"></a>UI系统</h1><table>
+<thead>
+<tr>
+<th>UI 系统</th>
+<th>核心方式</th>
+<th>常见用途</th>
+<th>主要特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>uGUI</td>
+<td>Canvas + GameObject + Component</td>
+<td>游戏 HUD、背包、商店、弹窗</td>
+<td>与 Unity 场景、Prefab、动画系统结合紧密</td>
+</tr>
+<tr>
+<td>UI Toolkit</td>
+<td>VisualElement + UXML + USS</td>
+<td>编辑器工具、菜单、设置、列表型界面</td>
+<td>文档结构、样式与逻辑分离</td>
+</tr>
+<tr>
+<td>IMGUI</td>
+<td>在 <code>OnGUI()</code> 中通过代码绘制</td>
+<td>简单调试界面、旧编辑器工具</td>
+<td>写起来直接，但不适合作为复杂游戏 UI 的主系统</td>
+</tr>
+<tr>
+<td>FairyGUI 等第三方方案</td>
+<td>专用编辑器 + 对应运行时</td>
+<td>界面量大、依赖 UI 设计协作的项目</td>
+<td>强调界面制作、组件复用、过渡动画等完整工作流</td>
+</tr>
+</tbody></table>
+<p>这里的选择决定了“界面怎么制作和渲染”，但不会自动解决“业务逻辑怎么组织”。</p>
+<h1 id="代码框架"><a href="#代码框架" class="headerlink" title="代码框架"></a>代码框架</h1><p>无论用哪种 UI 系统，都会遇到同一个问题：</p>
+<blockquote>
+<p>用户点了按钮，谁处理操作？数据变了，谁更新界面？</p>
+</blockquote>
+<p>MVC、MVP、MVVM 就是在回答这个问题。</p>
+<table>
+<thead>
+<tr>
+<th>架构</th>
+<th>主要角色</th>
+<th>界面如何更新</th>
+<th>适合情况</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MVC</td>
+<td>Model、View、Controller</td>
+<td>由 Controller 或模型通知机制推动</td>
+<td>流程简单、团队约定清晰</td>
+</tr>
+<tr>
+<td>MVP</td>
+<td>Model、View、Presenter</td>
+<td>Presenter 显式调用 View</td>
+<td>uGUI 项目、希望逻辑清晰且容易测试</td>
+</tr>
+<tr>
+<td>MVVM</td>
+<td>Model、View、ViewModel</td>
+<td>通过绑定或状态通知更新</td>
+<td>表单、列表、状态较多的界面</td>
+</tr>
+<tr>
+<td>单向数据流</td>
+<td>State、Action、Reducer&#x2F;处理器、View</td>
+<td>操作更新状态，界面读取状态</td>
+<td>状态组合复杂、需要追踪变化的界面</td>
+</tr>
+<tr>
+<td>这些名字不是自动就能带来良好设计。关键在于：显示、交互协调和业务规则是否有明确边界。</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h1 id="项目设计"><a href="#项目设计" class="headerlink" title="项目设计"></a>项目设计</h1><p>MVC、MVP、MVVM 只解决代码组织的一部分。游戏项目还需要处理以下问题。</p>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>Unity 中的典型问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>窗口管理</td>
+<td>同一个窗口能否重复打开？关闭后销毁还是缓存？</td>
+</tr>
+<tr>
+<td>生命周期</td>
+<td>什么时候绑定事件、刷新数据、播放动画、释放资源？</td>
+</tr>
+<tr>
+<td>分层</td>
+<td>HUD、普通页面、弹窗、加载遮罩谁在上面？</td>
+</tr>
+<tr>
+<td>导航</td>
+<td>返回键关闭弹窗，还是回到上一个页面？</td>
+</tr>
+<tr>
+<td>资源加载</td>
+<td>Prefab 从哪里加载？异步加载如何避免重复？</td>
+</tr>
+<tr>
+<td>数据同步</td>
+<td>金币变化后，哪些可见页面需要刷新？</td>
+</tr>
+<tr>
+<td>列表复用</td>
+<td>几百个背包物品如何避免生成几百套复杂控件？</td>
+</tr>
+<tr>
+<td>输入管理</td>
+<td>弹窗打开后，下面的页面还能否被点击？</td>
+</tr>
+<tr>
+<td>分辨率适配</td>
+<td>安全区域、横竖屏、锚点、长文本如何处理？</td>
+</tr>
+<tr>
+<td>异步取消</td>
+<td>窗口关闭后，请求结果是否还会写入控件？</td>
+</tr>
+<tr>
+<td>其中最容易被低估的是生命周期和异步处理。</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>假设玩家打开排行榜，界面开始请求数据，然后玩家马上关闭它：</p>
+<blockquote>
+<p>打开排行榜<br>↓<br>开始网络请求<br>    ↓<br>关闭排行榜<br>    ↓<br>请求返回</p>
+</blockquote>
+<p>此时如果直接执行：<code>rankText.text = result;</code><br>可能出现对象已经销毁、数据更新到下一次打开的界面，或旧请求覆盖新请求的情况。<br>框架需要明确约定：关闭时取消请求，或在结果返回时检查本次打开是否仍然有效。</p>
+<h2 id="窗口生命周期"><a href="#窗口生命周期" class="headerlink" title="窗口生命周期"></a>窗口生命周期</h2><p>一种常见设计是：</p>
+<blockquote>
+<p>创建<br>↓<br>初始化<br>    ↓<br>打开<br>    ↓<br>显示<br>    ↓<br>关闭<br>    ↓<br>隐藏并缓存 &#x2F; 销毁</p>
+</blockquote>
+<p>假如约定以下方法：</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">OnCreate()</span><br><span class="line">OnOpen(<span class="keyword">args</span>)</span><br><span class="line">OnShow()</span><br><span class="line">OnHide()</span><br><span class="line">OnClose()</span><br><span class="line">OnDestroy()</span><br></pre></td></tr></table></figure>
+<p>这些名字的具体含义由框架决定，并不是 Unity 内置生命周期。<br>还要与 Unity 的 <code>Awake</code>、<code>OnEnable</code>、<code>OnDisable</code>、<code>OnDestroy</code> 区分。例如隐藏一个缓存窗口，只会使它停用；下一次打开时，<code>Awake()</code> 不会重新执行。</p>
+<h2 id="分层与导航"><a href="#分层与导航" class="headerlink" title="分层与导航"></a>分层与导航</h2><p>常见层级可以是：</p>
+<blockquote>
+<p>HUD<br>Page<br>Popup<br>Loading<br>Toast</p>
+</blockquote>
+<p>但“画在上面”和“阻止下面接收输入”是两个问题。一个透明遮罩即使视觉上位于最上层，也需要正确配置射线或输入处理，才能阻止点击穿透。</p>
+<p>导航则适合使用页面栈：</p>
+<blockquote>
+<p>主界面 → 背包 → 物品详情</p>
+</blockquote>
+<p>返回时：</p>
+<blockquote>
+<p>物品详情 → 背包 → 主界面</p>
+</blockquote>
+<p>Toast、加载遮罩和长期显示的 HUD 通常不应该全部放进同一套返回栈。</p>
+<h2 id="缓存与列表虚拟化"><a href="#缓存与列表虚拟化" class="headerlink" title="缓存与列表虚拟化"></a>缓存与列表虚拟化</h2><p>这两者容易混淆：</p>
+<ul>
+<li>窗口缓存：关闭背包后保留整个背包实例，下次直接复用。</li>
+<li>对象池：反复使用物品格子，减少创建和销毁。</li>
+<li>列表虚拟化：只保留可视区域附近的格子，根据滚动位置展示不同数据。<br>有 1000 件物品时，即使通过对象池创建了 1000 个格子，它们仍可能带来大量布局和渲染成本。虚拟化解决的是“同时存在多少个显示单元”的问题。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/10/28/MipMap/" rel="prev" title="MipMap">
+      <i class="fa fa-chevron-left"></i> MipMap
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#UI%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.</span> <span class="nav-text">UI系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E6%A1%86%E6%9E%B6"><span class="nav-number">2.</span> <span class="nav-text">代码框架</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A1%B9%E7%9B%AE%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text">项目设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AA%97%E5%8F%A3%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">3.1.</span> <span class="nav-text">窗口生命周期</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B1%82%E4%B8%8E%E5%AF%BC%E8%88%AA"><span class="nav-number">3.2.</span> <span class="nav-text">分层与导航</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E4%B8%8E%E5%88%97%E8%A1%A8%E8%99%9A%E6%8B%9F%E5%8C%96"><span class="nav-number">3.3.</span> <span class="nav-text">缓存与列表虚拟化</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Haotian Luo"
+      src="/images/exciting-usagi.gif">
+  <p class="site-author-name" itemprop="name">Haotian Luo</p>
+  <div class="site-description" itemprop="description"><font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/miaopasss" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;miaopasss" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://miaopasss.github.io/Portfolio/src/files/Resume.pdf" title="Resume → https:&#x2F;&#x2F;miaopasss.github.io&#x2F;Portfolio&#x2F;src&#x2F;files&#x2F;Resume.pdf"><i class="fa fa-external-link-alt fa-fw"></i>Resume</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Haotian Luo</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2026/11/03/%E6%B8%B8%E6%88%8FUI%E6%A1%86%E6%9E%B6%E8%AE%BE%E8%AE%A1/',]
+      });
+      });
+  </script>
+
+</body>
+</html>

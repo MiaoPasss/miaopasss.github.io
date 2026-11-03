@@ -28,7 +28,7 @@
 <meta property="og:description" content="帧同步 (Lockstep &#x2F; Frame Sync)核心思想：所有客户端执行相同的输入，保证逻辑完全一致，只同步”操作指令”不同步状态。  客户端收集本帧输入 将输入发送给服务器 服务器等待所有客户端输入（或超时补默认输入） 服务器广播所有客户端的输入 所有客户端用相同输入推进同一逻辑帧 定期做 checksum 校验防止逻辑分叉  帧同步客户端12345678910111213141">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-03-17T10:14:51.000Z">
-<meta property="article:modified_time" content="2026-04-14T05:42:28.837Z">
+<meta property="article:modified_time" content="2026-11-03T11:25:57.389Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Programming">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-04-14 13:42:28" itemprop="dateModified" datetime="2026-04-14T13:42:28+08:00">2026-04-14</time>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
               </span>
 
           
@@ -344,8 +344,11 @@
 <h3 id="位置压缩（进一步降低带宽）"><a href="#位置压缩（进一步降低带宽）" class="headerlink" title="位置压缩（进一步降低带宽）"></a>位置压缩（进一步降低带宽）</h3><p>位置数据是最频繁变化的，可以额外压缩：</p>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title">PositionCompressor</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 全量：Vector3 = 12字节</span></span><br><span class="line">    <span class="comment">// 压缩后：只发变化量，用short存，约4-6字节</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">const</span> <span class="built_in">float</span> Precision = <span class="number">0.01f</span>; <span class="comment">// 1cm精度</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">const</span> <span class="built_in">float</span> MaxDelta = <span class="number">32767</span> * Precision; <span class="comment">// short最大值对应的距离</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 发送位置差值而不是绝对值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">short</span>[] <span class="title">CompressDelta</span>(<span class="params">Vector3 <span class="keyword">from</span>, Vector3 to</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Vector3 delta = to - <span class="keyword">from</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">short</span>[]</span><br><span class="line">        &#123;</span><br><span class="line">            (<span class="built_in">short</span>)(delta.x / Precision),</span><br><span class="line">            (<span class="built_in">short</span>)(delta.y / Precision),</span><br><span class="line">            (<span class="built_in">short</span>)(delta.z / Precision)</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="comment">// 3个short = 6字节，比12字节少一半</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Vector3 <span class="title">DecompressDelta</span>(<span class="params">Vector3 baseline, <span class="built_in">short</span>[] delta</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> baseline + <span class="keyword">new</span> Vector3(</span><br><span class="line">            delta[<span class="number">0</span>] * Precision,</span><br><span class="line">            delta[<span class="number">1</span>] * Precision,</span><br><span class="line">            delta[<span class="number">2</span>] * Precision</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="带宽对比"><a href="#带宽对比" class="headerlink" title="带宽对比"></a>带宽对比</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">100个玩家，每人10个字段，20次/秒广播：</span><br><span class="line"></span><br><span class="line">全量同步：</span><br><span class="line">100 × 10字段 × 4字节 × 20次 = 800 KB/s</span><br><span class="line"></span><br><span class="line">差量同步（假设每帧平均20%字段变化）：</span><br><span class="line">4字节标记位 + 变化字段</span><br><span class="line">100 × (4 + 2字段×4字节) × 20次 ≈ 176 KB/s  → 节省约78%</span><br></pre></td></tr></table></figure>
-
+<h3 id="带宽对比"><a href="#带宽对比" class="headerlink" title="带宽对比"></a>带宽对比</h3><blockquote>
+<p>100个玩家，每人10个字段，20次&#x2F;秒广播：  </p>
+<p>全量同步：<br>100 × 10字段 × 4字节 × 20次 &#x3D; 800 KB&#x2F;s  </p>
+<p>差量同步（假设每帧平均20%字段变化）：<br>4字节标记位 + 变化字段<br>100 × (4 + 2字段×4字节) × 20次 ≈ 176 KB&#x2F;s  → 节省约78%  </p>
+</blockquote>
 <p>在实际游戏中，应该根据不同的数据类型需要使用不同的差量压缩机制：</p>
 <ul>
 <li>移动中的玩家：位置每帧变，用压缩差值</li>
@@ -353,8 +356,9 @@
 <li>血量&#x2F;状态：只在变化时发一次，不需要每帧发</li>
 <li>大地图场景：加上 AOI（Area of Interest），只同步视野范围内的玩家，带宽再降一个数量级</li>
 </ul>
-<h2 id="核心流程总结"><a href="#核心流程总结" class="headerlink" title="核心流程总结"></a>核心流程总结</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">客户端输入</span><br><span class="line">    ↓ ServerRpc</span><br><span class="line">服务器执行权威逻辑</span><br><span class="line">    ↓ NetworkVariable 自动同步 / ClientRpc 触发事件</span><br><span class="line">所有客户端收到状态</span><br><span class="line">    ↓</span><br><span class="line">插值平滑表现 + 本地预测修正</span><br></pre></td></tr></table></figure>
-
+<h2 id="核心流程总结"><a href="#核心流程总结" class="headerlink" title="核心流程总结"></a>核心流程总结</h2><blockquote>
+<p>客户端输入<br>↓ ServerRpc<br>服务器执行权威逻辑<br>↓ NetworkVariable 自动同步 &#x2F; ClientRpc 触发事件<br>所有客户端收到状态<br>↓<br>插值平滑表现 + 本地预测修正  </p>
+</blockquote>
 <p>NetworkVariable 管持续状态，RPC 管瞬时事件，预测+插值管体验，三者配合就是状态同步在 Unity 里的完整实现。</p>
 
     </div>
@@ -461,7 +465,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">51</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

@@ -28,7 +28,7 @@
 <meta property="og:description" content="Draw Call (绘制调用): CPU 告诉 GPU “请按照这些状态，把这个网格画出来” 的一次命令。这个命令本身有开销。Draw Call 太多，CPU 就会因为一直忙于下达指令而成为瓶颈。目标：减少 Draw Call 的总次数。SetPass Call (状态切换调用): 在 Draw Call 之前，CPU 需要告诉 GPU 使用哪个 Shader、材质属性（颜色、贴图等）是什么。切">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-03-27T10:28:12.000Z">
-<meta property="article:modified_time" content="2026-08-14T12:55:52.605Z">
+<meta property="article:modified_time" content="2026-11-03T11:25:57.387Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Rendering pipeline">
 <meta property="article:tag" content="Shader">
@@ -202,7 +202,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-08-14 20:55:52" itemprop="dateModified" datetime="2026-08-14T20:55:52+08:00">2026-08-14</time>
+                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -237,28 +237,36 @@
 
       
         <p>Draw Call (绘制调用): CPU 告诉 GPU “请按照这些状态，把这个网格画出来” 的一次命令。这个命令本身有开销。Draw Call 太多，CPU 就会因为一直忙于下达指令而成为瓶颈。目标：减少 Draw Call 的总次数。<br>SetPass Call (状态切换调用): 在 Draw Call 之前，CPU 需要告诉 GPU 使用哪个 Shader、材质属性（颜色、贴图等）是什么。切换这些状态（特别是材质）是一个非常耗时的操作。目标：减少渲染状态的切换次数。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CPU 准备渲染数据</span><br><span class="line">    ↓</span><br><span class="line">设置渲染状态（材质、Shader、纹理绑定）← SetPass Call</span><br><span class="line">    ↓</span><br><span class="line">提交 DrawCall（告诉 GPU 画什么、怎么画）</span><br><span class="line">    ↓</span><br><span class="line">GPU 执行光栅化、着色、输出像素</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>CPU 准备渲染数据<br>↓<br>设置渲染状态（材质、Shader、纹理绑定）← SetPass Call<br>↓<br>提交 DrawCall（告诉 GPU 画什么、怎么画）<br>↓<br>GPU 执行光栅化、着色、输出像素  </p>
+</blockquote>
 <p>关键点：DrawCall 本身消耗资源，但准备阶段（SetPass Call）通常比 DrawCall 本身更耗性能。<br>开启批处理后，Unity 可以用一次 SetPass Call 复用同一材质状态，然后提交多个 DrawCall。所以降低 SetPass Call 往往比降低 DrawCall 更重要。</p>
 <hr>
 <h1 id="DrawCall（绘制调用）"><a href="#DrawCall（绘制调用）" class="headerlink" title="DrawCall（绘制调用）"></a>DrawCall（绘制调用）</h1><p>DrawCall 是 CPU 向 GPU 发送的一次渲染指令，包含了 GPU 绘制所需的全部信息：几何数据、纹理、Shader、Buffer 等。<br>CPU 先准备好数据，并通过调用图形API接口命令GPU对指定物体进行渲染一次的操作，称为一次DrawCall。</p>
 <p>每次调用 DrawMesh、DrawRenderer 等，就是一个 Draw Call。GPU 收到命令后开始渲染对应的几何体。</p>
 <p>当收到一个DrawCall时，GPU会按照指令，根据渲染状态和输入的顶点信息，指定一个网格（Mesh）进行渲染，绘制材质。<br>GPU 渲染时，同一批次的对象必须使用相同的材质和纹理。一旦纹理不同，就必须切换渲染状态，触发新的 DrawCall。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Image A（纹理1）→ DrawCall 1</span><br><span class="line">Image B（纹理2）→ DrawCall 2（纹理不同，无法合批）</span><br><span class="line">Image C（纹理1）→ 可以与 A 合批，不增加 DrawCall</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>Image A（纹理1）→ DrawCall 1<br>Image B（纹理2）→ DrawCall 2（纹理不同，无法合批）<br>Image C（纹理1）→ 可以与 A 合批，不增加 DrawCall  </p>
+</blockquote>
 <p>为了CPU和GPU可以进行并行工作，需要一个命令缓冲区，由CPU向其中添加命令，然后由GPU从中读取命令，这样就实现了通过CPU准备数据，通知GPU进行渲染。</p>
 <hr>
 <h1 id="SetPass-Call"><a href="#SetPass-Call" class="headerlink" title="SetPass Call"></a>SetPass Call</h1><p>在 Draw Call 之前，如果需要切换渲染状态（shader、材质属性、纹理等），CPU 就要先做一次 SetPass Call 来通知 GPU 切换 Pass。<br>SetPass Call 才是真正的性能瓶颈，因为它涉及 shader 编译、状态切换等开销。</p>
 <p>一次 SetPass 可能同时完成：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">绑定 Shader</span><br><span class="line">绑定纹理</span><br><span class="line">设置 Blend</span><br><span class="line">设置 Depth Test</span><br><span class="line">设置 Cull</span><br><span class="line">绑定材质参数</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>绑定 Shader<br>绑定纹理<br>设置 Blend<br>设置 Depth Test<br>设置 Cull<br>绑定材质参数  </p>
+</blockquote>
 <p>随后可以复用这些状态，执行多个 Draw Call：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SetPass</span><br><span class="line">├── Draw Call 1</span><br><span class="line">├── Draw Call 2</span><br><span class="line">└── Draw Call 3</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>SetPass<br>├── Draw Call 1<br>├── Draw Call 2<br>└── Draw Call 3  </p>
+</blockquote>
 <p>例如场景里有 5 个物体：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">物体A - 材质1 (Shader: Standard, 纹理: tex_a)</span><br><span class="line">物体B - 材质1 (同上)</span><br><span class="line">物体C - 材质1 (同上)</span><br><span class="line">物体D - 材质2 (Shader: Standard, 纹理: tex_b)</span><br><span class="line">物体E - 材质3 (Shader: Unlit,   纹理: tex_c)</span><br></pre></td></tr></table></figure>
-
+<blockquote>
+<p>物体A - 材质1 (Shader: Standard, 纹理: tex_a)<br>物体B - 材质1 (同上)<br>物体C - 材质1 (同上)<br>物体D - 材质2 (Shader: Standard, 纹理: tex_b)<br>物体E - 材质3 (Shader: Unlit,   纹理: tex_c)  </p>
+</blockquote>
 <p>渲染顺序：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">SetPass Call → 切换到材质1</span><br><span class="line">  Draw Call → 绘制物体A</span><br><span class="line">  Draw Call → 绘制物体B</span><br><span class="line">  Draw Call → 绘制物体C</span><br><span class="line">SetPass Call → 切换到材质2</span><br><span class="line">  Draw Call → 绘制物体D</span><br><span class="line">SetPass Call → 切换到材质3</span><br><span class="line">  Draw Call → 绘制物体E</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>SetPass Call → 切换到材质1<br>Draw Call → 绘制物体A<br>Draw Call → 绘制物体B<br>Draw Call → 绘制物体C<br>SetPass Call → 切换到材质2<br>Draw Call → 绘制物体D<br>SetPass Call → 切换到材质3<br>Draw Call → 绘制物体E  </p>
+</blockquote>
 <p>结果：5 个 Draw Call，3 个 SetPass Call。</p>
 <h2 id="Pass-是什么"><a href="#Pass-是什么" class="headerlink" title="Pass 是什么"></a>Pass 是什么</h2><p>一个 Pass 就是 shader 里的一次完整渲染流程，包含一套完整的顶点着色器 + 片元着色器，以及对应的渲染状态（混合模式、深度测试、剔除等）。<br>一个材质可以有多个 Pass，每个 Pass 对同一个物体渲染一遍。</p>
 <ul>
@@ -267,7 +275,10 @@
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line">Shader <span class="string">&quot;Custom/Outline&quot;</span></span><br><span class="line">&#123;</span><br><span class="line">    Properties</span><br><span class="line">    &#123;</span><br><span class="line">        _Color (<span class="string">&quot;Color&quot;</span>, Color) = (<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>)</span><br><span class="line">        _OutlineColor (<span class="string">&quot;Outline Color&quot;</span>, Color) = (<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>)</span><br><span class="line">        _OutlineWidth (<span class="string">&quot;Outline Width&quot;</span>, Float) = <span class="number">0.02</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    SubShader</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// ---- Pass 0：描边 ----</span></span><br><span class="line">        Pass</span><br><span class="line">        &#123;</span><br><span class="line">            Name <span class="string">&quot;OUTLINE&quot;</span></span><br><span class="line">            Cull Front  <span class="comment">// 只渲染背面，正面被裁掉</span></span><br><span class="line"></span><br><span class="line">            CGPROGRAM</span><br><span class="line">            <span class="meta">#<span class="keyword">pragma</span> vertex vert</span></span><br><span class="line">            <span class="meta">#<span class="keyword">pragma</span> fragment frag</span></span><br><span class="line"></span><br><span class="line">            <span class="type">float</span> _OutlineWidth;</span><br><span class="line">            float4 _OutlineColor;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">struct</span> <span class="title class_">appdata</span> &#123; float4 vertex : POSITION; float3 normal : NORMAL; &#125;;</span><br><span class="line">            <span class="keyword">struct</span> <span class="title class_">v2f</span>    &#123; float4 pos : SV_POSITION; &#125;;</span><br><span class="line"></span><br><span class="line">            <span class="function">v2f <span class="title">vert</span><span class="params">(appdata v)</span></span></span><br><span class="line"><span class="function">            </span>&#123;</span><br><span class="line">                v2f o;</span><br><span class="line">                <span class="comment">// 沿法线方向把顶点往外推</span></span><br><span class="line">                float3 expanded = v.vertex.xyz + v.normal * _OutlineWidth;</span><br><span class="line">                o.pos = <span class="built_in">UnityObjectToClipPos</span>(<span class="built_in">float4</span>(expanded, <span class="number">1</span>));</span><br><span class="line">                <span class="keyword">return</span> o;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="function">fixed4 <span class="title">frag</span><span class="params">(v2f i)</span> : SV_Target</span></span><br><span class="line"><span class="function">            &#123;</span></span><br><span class="line">                <span class="keyword">return</span> _OutlineColor;  <span class="comment">// 纯色描边</span></span><br><span class="line">            &#125;</span><br><span class="line">            ENDCG</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ---- Pass 1：正常渲染 ----</span></span><br><span class="line">        Pass</span><br><span class="line">        &#123;</span><br><span class="line">            Name <span class="string">&quot;BASE&quot;</span></span><br><span class="line">            Cull Back   <span class="comment">// 只渲染正面</span></span><br><span class="line"></span><br><span class="line">            CGPROGRAM</span><br><span class="line">            <span class="meta">#<span class="keyword">pragma</span> vertex vert</span></span><br><span class="line">            <span class="meta">#<span class="keyword">pragma</span> fragment frag</span></span><br><span class="line"></span><br><span class="line">            float4 _Color;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">struct</span> <span class="title class_">appdata</span> &#123; float4 vertex : POSITION; &#125;;</span><br><span class="line">            <span class="keyword">struct</span> <span class="title class_">v2f</span>    &#123; float4 pos : SV_POSITION; &#125;;</span><br><span class="line"></span><br><span class="line">            <span class="function">v2f <span class="title">vert</span><span class="params">(appdata v)</span></span></span><br><span class="line"><span class="function">            </span>&#123;</span><br><span class="line">                v2f o;</span><br><span class="line">                o.pos = <span class="built_in">UnityObjectToClipPos</span>(v.vertex);</span><br><span class="line">                <span class="keyword">return</span> o;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="function">fixed4 <span class="title">frag</span><span class="params">(v2f i)</span> : SV_Target</span></span><br><span class="line"><span class="function">            &#123;</span></span><br><span class="line">                <span class="keyword">return</span> _Color;</span><br><span class="line">            &#125;</span><br><span class="line">            ENDCG</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>渲染这一个物体时，GPU 会走两遍：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SetPass Call → 激活 Pass 0 (OUTLINE)，设置 Cull Front 状态</span><br><span class="line">  Draw Call  → 用 Pass 0 的 shader 绘制物体（画出描边）</span><br><span class="line"></span><br><span class="line">SetPass Call → 激活 Pass 1 (BASE)，设置 Cull Back 状态</span><br><span class="line">  Draw Call  → 用 Pass 1 的 shader 绘制物体（画出本体）</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>SetPass Call → 激活 Pass 0 (OUTLINE)，设置 Cull Front 状态<br>Draw Call  → 用 Pass 0 的 shader 绘制物体（画出描边）  </p>
+<p>SetPass Call → 激活 Pass 1 (BASE)，设置 Cull Back 状态<br>Draw Call  → 用 Pass 1 的 shader 绘制物体（画出本体）  </p>
+</blockquote>
 <p>所以 1 个物体、1 个材质，产生了 2 个 SetPass Call + 2 个 Draw Call。</p>
 <hr>
 <h1 id="Batch"><a href="#Batch" class="headerlink" title="Batch"></a>Batch</h1><p>在 Unity 中：</p>
@@ -285,7 +296,10 @@
 <li>绘制参数：绘制多少索引、从哪里开始、实例数量。</li>
 </ul>
 <p>不过 Batch 通常不是把这些数据复制成一个“大包”。很多数据已经在 GPU 中，Draw Call 只是引用它们：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">绑定材质和缓冲区</span><br><span class="line">→ DrawIndexed(索引数量, 起始位置, 实例数量)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>绑定材质和缓冲区<br>→ DrawIndexed(索引数量, 起始位置, 实例数量)  </p>
+</blockquote>
+
     </div>
 
     
@@ -391,7 +405,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">51</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
