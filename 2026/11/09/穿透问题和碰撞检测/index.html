@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="游戏中的“穿透”通常有两种不同的问题：物体在一次更新中直接越过障碍物，碰撞根本没有被检测到；或者碰撞已经被检测到，但物体仍然陷进了障碍物，甚至被挤到另一侧。 物体高速穿墙物理引擎通常按固定时间间隔更新，而不是在每一个真实时间点都计算碰撞。 采用离散碰撞检测时，可以将问题理解为：物理引擎检查更新时刻的碰撞形状，却没有充分检查两次更新之间经过的路径。  上一次物理更新              下一次">
+<meta property="og:type" content="article">
+<meta property="og:title" content="穿透问题和碰撞检测">
+<meta property="og:url" content="https://miaopasss.github.io/2026/11/09/%E7%A9%BF%E9%80%8F%E9%97%AE%E9%A2%98%E5%92%8C%E7%A2%B0%E6%92%9E%E6%A3%80%E6%B5%8B/index.html">
+<meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
+<meta property="og:description" content="游戏中的“穿透”通常有两种不同的问题：物体在一次更新中直接越过障碍物，碰撞根本没有被检测到；或者碰撞已经被检测到，但物体仍然陷进了障碍物，甚至被挤到另一侧。 物体高速穿墙物理引擎通常按固定时间间隔更新，而不是在每一个真实时间点都计算碰撞。 采用离散碰撞检测时，可以将问题理解为：物理引擎检查更新时刻的碰撞形状，却没有充分检查两次更新之间经过的路径。  上一次物理更新              下一次">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-11-09T06:24:15.000Z">
+<meta property="article:modified_time" content="2026-11-11T09:15:42.953Z">
+<meta property="article:author" content="Haotian Luo">
+<meta property="article:tag" content="Algorithm">
+<meta property="article:tag" content="Physics">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://miaopasss.github.io/2026/11/09/%E7%A9%BF%E9%80%8F%E9%97%AE%E9%A2%98%E5%92%8C%E7%A2%B0%E6%92%9E%E6%A3%80%E6%B5%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>穿透问题和碰撞检测 | 乌啦呀哈呀哈乌啦！</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">乌啦呀哈呀哈乌啦！</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">欢迎光临，这里是喵pass的个人博客，希望有能帮到你的地方
+</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页 | Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类 | Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签 | Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档 | Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/miaopasss" class="github-corner" title="Check out my GitHub" aria-label="Check out my GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/11/09/%E7%A9%BF%E9%80%8F%E9%97%AE%E9%A2%98%E5%92%8C%E7%A2%B0%E6%92%9E%E6%A3%80%E6%B5%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          穿透问题和碰撞检测
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2026-11-09 14:24:15" itemprop="dateCreated datePublished" datetime="2026-11-09T14:24:15+08:00">2026-11-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-11-11 17:15:42" itemprop="dateModified" datetime="2026-11-11T17:15:42+08:00">2026-11-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Gameplay/" itemprop="url" rel="index"><span itemprop="name">Gameplay</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>游戏中的“穿透”通常有两种不同的问题：<br>物体在一次更新中直接越过障碍物，碰撞根本没有被检测到；或者碰撞已经被检测到，但物体仍然陷进了障碍物，甚至被挤到另一侧。</p>
+<h1 id="物体高速穿墙"><a href="#物体高速穿墙" class="headerlink" title="物体高速穿墙"></a>物体高速穿墙</h1><p>物理引擎通常按固定时间间隔更新，而不是在每一个真实时间点都计算碰撞。</p>
+<p>采用离散碰撞检测时，可以将问题理解为：物理引擎检查更新时刻的碰撞形状，却没有充分检查两次更新之间经过的路径。</p>
+<blockquote>
+<p>上一次物理更新              下一次物理更新<br>   ● ──────────│墙│────────── ●<br>   检查时没重叠              检查时也没重叠</p>
+</blockquote>
+<p>虽然运动路径经过墙，但两个检查时刻都没有重叠，于是碰撞可能被漏掉。这通常叫 Tunneling，隧穿。</p>
+<p>真正需要关注的是相对运动速度。两个物体迎面运动时，即使各自速度不算特别高，相对速度也可能很高。<br>旋转同样可能造成问题：长杆快速旋转时，杆的末端可以在一个物理步内跨过很远的距离。</p>
+<p>一个实用的判断思路是：</p>
+<blockquote>
+<p>当“每个物理步的相对位移”接近或超过“障碍物和运动物体在运动方向上的有效尺寸”时，离散检测漏碰撞的风险会明显增大。<br>这只是风险判断，不是严格的安全保证。斜向移动、旋转、形状和接触位置都会影响结果。</p>
+</blockquote>
+<h1 id="物体陷进障碍物"><a href="#物体陷进障碍物" class="headerlink" title="物体陷进障碍物"></a>物体陷进障碍物</h1><p>这属于另一个问题：碰撞求解不够及时、不够准确，或者运动方式绕过了求解过程。</p>
+<p>多数实时物理引擎允许出现少量重叠，然后通过接触约束、速度修正和位置修正，让物体逐渐分离。因此，轻微的嵌入不一定代表检测失效。</p>
+<p>严重嵌入通常与这些因素有关：</p>
+<ul>
+<li>外力或速度太大，接触约束来不及阻止运动。</li>
+<li>堆叠、关节或多处接触很复杂，求解迭代次数不足。</li>
+<li>相互接触的动态物体质量差距很大，求解更难稳定。</li>
+<li>脚本持续强行设置位置，把物体反复推入墙中。</li>
+<li>物体生成时就与场景重叠。</li>
+<li>碰撞体尺寸、形状或缩放不合理。</li>
+</ul>
+<p>例如，角色已经撞到墙，但脚本每帧仍然执行：</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">transform.position += direction * speed * Time.deltaTime;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码直接改变位置，并没有要求物理系统先判断这一步能否移动。即使检测到了碰撞，下一帧脚本仍可能再次把角色推进墙内。</p>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>原理</th>
+<th>适用场景</th>
+<th>局限或代价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>连续碰撞检测 CCD</strong></td>
+<td>检查运动过程中的碰撞，或预测接触</td>
+<td>高速刚体、弹丸</td>
+<td>增加计算开销，具体模式对旋转等情况支持不同</td>
+</tr>
+<tr>
+<td><strong>缩短物理步长</strong></td>
+<td>提高物理更新频率，减小每步位移</td>
+<td>整体物理模拟</td>
+<td>CPU 开销增加，极高速物体仍可能穿透</td>
+</tr>
+<tr>
+<td><strong>增加子步</strong></td>
+<td>将一次运动拆成多次，每次都检测碰撞</td>
+<td>快速角色、机关、复杂运动</td>
+<td>子步越多，开销越大</td>
+</tr>
+<tr>
+<td><strong>射线检测</strong></td>
+<td>检查当前位置到预计下一位置的线段</td>
+<td>小子弹、瞬时射击</td>
+<td>射线没有厚度，不适合直接代表大物体</td>
+</tr>
+<tr>
+<td><strong>形状扫掠</strong></td>
+<td>用球、胶囊或盒子检查运动路径</td>
+<td>有体积的弹丸、角色</td>
+<td>需要处理初始重叠、多次碰撞和旋转</td>
+</tr>
+<tr>
+<td><strong>限制速度或单步位移</strong></td>
+<td>避免一次跨过障碍物</td>
+<td>普通角色、箱子、慢速机关</td>
+<td>可能改变运动效果</td>
+</tr>
+<tr>
+<td><strong>加厚、简化碰撞体</strong></td>
+<td>增加可检测的接触范围，改善接触稳定性</td>
+<td>薄墙、复杂场景模型</td>
+<td>可能出现视觉模型与碰撞边界不一致</td>
+</tr>
+<tr>
+<td><strong>移动前检测并截断位移</strong></td>
+<td>发现障碍物后，只移动到接触位置附近</td>
+<td>自定义角色、运动学对象</td>
+<td>需要实现滑动、台阶和拐角处理</td>
+</tr>
+<tr>
+<td><strong>重叠检测与位置恢复</strong></td>
+<td>检测已有嵌入，计算分离方向并修正位置</td>
+<td>生成、传送、平台挤压</td>
+<td>属于事后修正，处理不好会抖动或弹出</td>
+</tr>
+<tr>
+<td><strong>调整碰撞求解参数</strong></td>
+<td>提高接触约束的求解精度</td>
+<td>堆叠下陷、关节拉伸、持续嵌入</td>
+<td>无法解决根本没检测到的碰撞</td>
+</tr>
+<tr>
+<td><strong>改变对象实现方式</strong></td>
+<td>用命中查询或逻辑轨迹替代高速实体</td>
+<td>枪械、飞行弹丸</td>
+<td>需要自行实现飞行、命中和表现逻辑</td>
+</tr>
+</tbody></table>
+<p>这里有几个容易混淆的地方。</p>
+<p><strong>射线和形状扫掠虽然可以替代引擎内置 CCD，但沿运动路径检测碰撞，本身也属于连续检测的思路。</strong><br>如果你想找原理上不同于 CCD 的办法，主要是缩短步长、增加离散子步、限制速度、调整碰撞体，以及重叠修正。</p>
+<p><strong>增加子步必须包含检测。</strong><br>例如把一次移动拆成十次，每次都查询碰撞才有意义；只在循环里设置十次位置，物理引擎未必会在中间进行检测。</p>
+<p><strong>提高求解迭代次数主要解决“碰到了却挡不稳”。</strong><br>它适合箱子堆叠、复杂接触等情况，不能解决子弹直接跳过薄墙造成的漏检测。</p>
+<p>实际选择可以按对象来定：</p>
+<ul>
+<li>小子弹：检查前后位置之间的射线；需要飞行时间时，逐步计算轨迹并查询。</li>
+<li>火球、炮弹等有体积的弹丸：使用球形扫掠，或者适合的 CCD。</li>
+<li>玩家角色：移动前做胶囊查询，截断位移，再处理沿墙滑动和重叠恢复。</li>
+<li>动态箱子：检查移动方式和碰撞体，再按需要调整步长、CCD 和求解参数。</li>
+<li>快速挥剑、旋转刀片：采样旋转轨迹或检测扫掠体积，单纯检查中心移动路径不够。</li>
+<li>传送后卡进墙里：先验证目标位置，再做必要的重叠恢复。</li>
+</ul>
+<p>通常会组合使用。例如角色采用 移动前形状查询＋沿墙滑动＋重叠恢复；高速弹丸采用 轨迹查询＋首次命中处理。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Algorithm/" rel="tag"># Algorithm</a>
+              <a href="/tags/Physics/" rel="tag"># Physics</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/11/05/Spine-%E5%8A%A8%E7%94%BB/" rel="prev" title="Spine 动画">
+      <i class="fa fa-chevron-left"></i> Spine 动画
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%89%A9%E4%BD%93%E9%AB%98%E9%80%9F%E7%A9%BF%E5%A2%99"><span class="nav-number">1.</span> <span class="nav-text">物体高速穿墙</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%89%A9%E4%BD%93%E9%99%B7%E8%BF%9B%E9%9A%9C%E7%A2%8D%E7%89%A9"><span class="nav-number">2.</span> <span class="nav-text">物体陷进障碍物</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">3.</span> <span class="nav-text">解决方案</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Haotian Luo"
+      src="/images/exciting-usagi.gif">
+  <p class="site-author-name" itemprop="name">Haotian Luo</p>
+  <div class="site-description" itemprop="description"><font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">53</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/miaopasss" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;miaopasss" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://miaopasss.github.io/Portfolio/src/files/Resume.pdf" title="Resume → https:&#x2F;&#x2F;miaopasss.github.io&#x2F;Portfolio&#x2F;src&#x2F;files&#x2F;Resume.pdf"><i class="fa fa-external-link-alt fa-fw"></i>Resume</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Haotian Luo</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://miaopasss.github.io/2026/11/09/%E7%A9%BF%E9%80%8F%E9%97%AE%E9%A2%98%E5%92%8C%E7%A2%B0%E6%92%9E%E6%A3%80%E6%B5%8B/',]
+      });
+      });
+  </script>
+
+</body>
+</html>

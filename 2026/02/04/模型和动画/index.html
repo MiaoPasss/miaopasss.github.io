@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://miaopasss.github.io/2026/02/04/%E6%A8%A1%E5%9E%8B%E5%92%8C%E5%8A%A8%E7%94%BB/p1.png">
 <meta property="article:published_time" content="2026-02-04T12:37:14.000Z">
-<meta property="article:modified_time" content="2026-02-09T09:10:29.595Z">
+<meta property="article:modified_time" content="2026-11-11T09:14:52.101Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="3D Modelling">
 <meta name="twitter:card" content="summary">
@@ -203,7 +203,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-02-09 17:10:29" itemprop="dateModified" datetime="2026-02-09T17:10:29+08:00">2026-02-09</time>
+                <time title="Modified: 2026-11-11 17:14:52" itemprop="dateModified" datetime="2026-11-11T17:14:52+08:00">2026-11-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -239,13 +239,80 @@
 </ol>
 <p>骨架由一系列具有层次关系的关节（骨骼）和关节链组成，是一种树结构，选择其中一个是根关节，其它关节是根关节的子孙，可以通过平移和旋转根关节移动并确定整个骨架在世界空间中的位置和方向。父关节运动能影响子关节运动，但子关节运动对父关节不产生影响，因此，平移或旋转父关节时，也会同时平移或旋转其所有子关节。</p>
 <p><img src="/2026/02/04/%E6%A8%A1%E5%9E%8B%E5%92%8C%E5%8A%A8%E7%94%BB/p1.png" title="骨骼节点的父子关系"> <br></p>
-<h1 id="Unity动画系统"><a href="#Unity动画系统" class="headerlink" title="Unity动画系统"></a>Unity动画系统</h1><p>分为旧版动画系统和新版动画系统，即AnimationClip 与 Animator（Mecanim）</p>
+<h1 id="Unity动画系统"><a href="#Unity动画系统" class="headerlink" title="Unity动画系统"></a>Unity动画系统</h1><p>分为旧版动画系统和新版动画系统，即 Legacy Animation 与 Mecanim</p>
+<p>具体就是 Unity 中两个不同的组件，在 Inspector 点击 Add Component，可以分别搜索到它们：</p>
+<p>Animation component属于旧版 Legacy 动画系统<br>代码类型是 UnityEngine.Animation，直接管理、播放动画片段</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Animation anim = GetComponent&lt;Animation&gt;();</span><br><span class="line">anim.Play(<span class="string">&quot;Open&quot;</span>);</span><br><span class="line">anim.CrossFade(<span class="string">&quot;Close&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p>它使用标记为 Legacy 的 AnimationClip，不使用 Animator Controller。</p>
+<p>Animator component属于 Mecanim 动画系统<br>代码类型是 UnityEngine.Animator，通常在 Inspector 的 Controller 字段里配置 Animator Controller，用参数控制状态切换：</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Animator animator = GetComponent&lt;Animator&gt;();</span><br><span class="line">animator.SetBool(<span class="string">&quot;IsRunning&quot;</span>, <span class="literal">true</span>);</span><br><span class="line">animator.SetTrigger(<span class="string">&quot;Attack&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>Unity 编辑器里的 Animation 窗口是制作、编辑和预览 AnimationClip 的编辑器工具，它本身不是 Legacy 或 Mecanim 播放系统；它可以用于编辑两套系统使用的动画片段。</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>是什么</th>
+<th>怎么用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>AnimationClip</strong></td>
+<td>动画片段，保存关键帧、曲线等数据</td>
+<td>可以作为动画系统播放的内容</td>
+</tr>
+<tr>
+<td><strong>Animation 组件</strong></td>
+<td>旧版 Legacy 动画播放组件</td>
+<td>常通过 <code>Play()</code>、<code>CrossFade()</code> 等控制，使用标记为 Legacy 的 Clip</td>
+</tr>
+<tr>
+<td><strong>Animator 组件</strong></td>
+<td>Mecanim 动画系统的运行组件</td>
+<td>通常通过 Animator Controller 的状态、参数、过渡和 Blend Tree 控制动画</td>
+</tr>
+</tbody></table>
+<p>Animator Controller 的状态可以关联 AnimationClip，也可以关联 Blend Tree<br>Animator 组件负责运行状态机和播放动画</p>
+<h2 id="Blend-Tree"><a href="#Blend-Tree" class="headerlink" title="Blend Tree"></a>Blend Tree</h2><p>Blend Tree（混合树）是 Animator 中根据参数混合多个 AnimationClip 的机制，让动作连续变化。</p>
+<p>例如角色有三段动画：</p>
 <ul>
-<li><p>AnimationClip<br>Plays specific Animation Clips directly via script (e.g., Animation.Play(“Jump”)). It has no built-in state machine or visual graph.</p>
-</li>
-<li><p>Animator&#x2F;Mecanim (New)<br>Attach a animator component to your GameObject. It requires an Animator Controller asset to function.<br>It uses a visual graph to manage states. You rarely tell it to “Play” a clip; instead, you change a parameter (e.g., animator.SetFloat(“Speed”, 5.0f)), and the state machine decides which animation to play.</p>
+<li>Idle：站立。</li>
+<li>Walk：走路。</li>
+<li>Run：跑步。</li>
+</ul>
+<p>如果只用三个状态切换，你需要配置 <code>Idle</code> → <code>Walk</code> → <code>Run</code> 的过渡。用 1D Blend Tree，可以把它们放进同一个状态，根据 Speed 参数混合：</p>
+<table>
+<thead>
+<tr>
+<th>Speed 阈值</th>
+<th>动画</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>Idle</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Walk</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Run</td>
+</tr>
+</tbody></table>
+<p>当 Speed &#x3D; 2 时，它处于 Walk 和 Run 的阈值中间，通常会以各 50% 的权重混合两段动画的姿态。这不是先播放走路再播放跑步，而是在播放过程中持续计算混合结果。</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">animator.SetFloat(<span class="string">&quot;Speed&quot;</span>, speed);</span><br></pre></td></tr></table></figure>
+
+<p>状态过渡和 Blend Tree 的区别是：</p>
+<ul>
+<li>状态过渡：决定何时从一个状态进入另一个状态，例如“移动 → 攻击”。</li>
+<li>Blend Tree：在同一个状态内部，根据参数混合动作，例如移动状态中的“慢走 → 快走 → 跑步”。<br>两者可以一起使用：<blockquote>
+<p>Locomotion 状态（内部是 Blend Tree）<br>Idle &#x2F; Walk &#x2F; Run<br>        ↓ 攻击触发<br>    Attack 状态</p>
+</blockquote>
 </li>
 </ul>
+<p>常见类型还有 2D Blend Tree：使用两个参数，例如 MoveX 和 MoveY，混合向前、向后、向左、向右等移动动画。<br>要注意，Blend Tree 混合的是动画姿态，不会自动保证角色的实际移动速度与脚步匹配；需要协调移动代码、动画播放速度或 Root Motion，否则仍可能出现滑步。</p>
 <h1 id="3D模型"><a href="#3D模型" class="headerlink" title="3D模型"></a>3D模型</h1><ol>
 <li>绑定 (Rigging)<br>指为3D模型创建内部骨骼、关节及控制器系统，定义运动逻辑，给角色搭建“骨架”和“控制系统”的过程，类似于给木偶安装操纵线。</li>
 </ol>
@@ -351,7 +418,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B3%E8%8A%82%E5%9D%90%E6%A0%87%E7%9A%84%E5%AE%9A%E4%B9%89%E5%92%8C%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">关节坐标的定义和计算方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Unity%E5%8A%A8%E7%94%BB%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.</span> <span class="nav-text">Unity动画系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3D%E6%A8%A1%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">3D模型</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B3%E8%8A%82%E5%9D%90%E6%A0%87%E7%9A%84%E5%AE%9A%E4%B9%89%E5%92%8C%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">关节坐标的定义和计算方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Unity%E5%8A%A8%E7%94%BB%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.</span> <span class="nav-text">Unity动画系统</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Blend-Tree"><span class="nav-number">2.1.</span> <span class="nav-text">Blend Tree</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3D%E6%A8%A1%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">3D模型</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -373,20 +440,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-count">53</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

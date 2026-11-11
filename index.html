@@ -161,6 +161,336 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/11/09/%E7%A9%BF%E9%80%8F%E9%97%AE%E9%A2%98%E5%92%8C%E7%A2%B0%E6%92%9E%E6%A3%80%E6%B5%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/11/09/%E7%A9%BF%E9%80%8F%E9%97%AE%E9%A2%98%E5%92%8C%E7%A2%B0%E6%92%9E%E6%A3%80%E6%B5%8B/" class="post-title-link" itemprop="url">穿透问题和碰撞检测</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2026-11-09 14:24:15" itemprop="dateCreated datePublished" datetime="2026-11-09T14:24:15+08:00">2026-11-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-11-11 17:15:42" itemprop="dateModified" datetime="2026-11-11T17:15:42+08:00">2026-11-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Gameplay/" itemprop="url" rel="index"><span itemprop="name">Gameplay</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>游戏中的“穿透”通常有两种不同的问题：<br>物体在一次更新中直接越过障碍物，碰撞根本没有被检测到；或者碰撞已经被检测到，但物体仍然陷进了障碍物，甚至被挤到另一侧。</p>
+<h1 id="物体高速穿墙"><a href="#物体高速穿墙" class="headerlink" title="物体高速穿墙"></a>物体高速穿墙</h1><p>物理引擎通常按固定时间间隔更新，而不是在每一个真实时间点都计算碰撞。</p>
+<p>采用离散碰撞检测时，可以将问题理解为：物理引擎检查更新时刻的碰撞形状，却没有充分检查两次更新之间经过的路径。</p>
+<blockquote>
+<p>上一次物理更新              下一次物理更新<br>   ● ──────────│墙│────────── ●<br>   检查时没重叠              检查时也没重叠</p>
+</blockquote>
+<p>虽然运动路径经过墙，但两个检查时刻都没有重叠，于是碰撞可能被漏掉。这通常叫 Tunneling，隧穿。</p>
+<p>真正需要关注的是相对运动速度。两个物体迎面运动时，即使各自速度不算特别高，相对速度也可能很高。<br>旋转同样可能造成问题：长杆快速旋转时，杆的末端可以在一个物理步内跨过很远的距离。</p>
+<p>一个实用的判断思路是：</p>
+<blockquote>
+<p>当“每个物理步的相对位移”接近或超过“障碍物和运动物体在运动方向上的有效尺寸”时，离散检测漏碰撞的风险会明显增大。<br>这只是风险判断，不是严格的安全保证。斜向移动、旋转、形状和接触位置都会影响结果。</p>
+</blockquote>
+<h1 id="物体陷进障碍物"><a href="#物体陷进障碍物" class="headerlink" title="物体陷进障碍物"></a>物体陷进障碍物</h1><p>这属于另一个问题：碰撞求解不够及时、不够准确，或者运动方式绕过了求解过程。</p>
+<p>多数实时物理引擎允许出现少量重叠，然后通过接触约束、速度修正和位置修正，让物体逐渐分离。因此，轻微的嵌入不一定代表检测失效。</p>
+<p>严重嵌入通常与这些因素有关：</p>
+<ul>
+<li>外力或速度太大，接触约束来不及阻止运动。</li>
+<li>堆叠、关节或多处接触很复杂，求解迭代次数不足。</li>
+<li>相互接触的动态物体质量差距很大，求解更难稳定。</li>
+<li>脚本持续强行设置位置，把物体反复推入墙中。</li>
+<li>物体生成时就与场景重叠。</li>
+<li>碰撞体尺寸、形状或缩放不合理。</li>
+</ul>
+<p>例如，角色已经撞到墙，但脚本每帧仍然执行：</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">transform.position += direction * speed * Time.deltaTime;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码直接改变位置，并没有要求物理系统先判断这一步能否移动。即使检测到了碰撞，下一帧脚本仍可能再次把角色推进墙内。</p>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>原理</th>
+<th>适用场景</th>
+<th>局限或代价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>连续碰撞检测 CCD</strong></td>
+<td>检查运动过程中的碰撞，或预测接触</td>
+<td>高速刚体、弹丸</td>
+<td>增加计算开销，具体模式对旋转等情况支持不同</td>
+</tr>
+<tr>
+<td><strong>缩短物理步长</strong></td>
+<td>提高物理更新频率，减小每步位移</td>
+<td>整体物理模拟</td>
+<td>CPU 开销增加，极高速物体仍可能穿透</td>
+</tr>
+<tr>
+<td><strong>增加子步</strong></td>
+<td>将一次运动拆成多次，每次都检测碰撞</td>
+<td>快速角色、机关、复杂运动</td>
+<td>子步越多，开销越大</td>
+</tr>
+<tr>
+<td><strong>射线检测</strong></td>
+<td>检查当前位置到预计下一位置的线段</td>
+<td>小子弹、瞬时射击</td>
+<td>射线没有厚度，不适合直接代表大物体</td>
+</tr>
+<tr>
+<td><strong>形状扫掠</strong></td>
+<td>用球、胶囊或盒子检查运动路径</td>
+<td>有体积的弹丸、角色</td>
+<td>需要处理初始重叠、多次碰撞和旋转</td>
+</tr>
+<tr>
+<td><strong>限制速度或单步位移</strong></td>
+<td>避免一次跨过障碍物</td>
+<td>普通角色、箱子、慢速机关</td>
+<td>可能改变运动效果</td>
+</tr>
+<tr>
+<td><strong>加厚、简化碰撞体</strong></td>
+<td>增加可检测的接触范围，改善接触稳定性</td>
+<td>薄墙、复杂场景模型</td>
+<td>可能出现视觉模型与碰撞边界不一致</td>
+</tr>
+<tr>
+<td><strong>移动前检测并截断位移</strong></td>
+<td>发现障碍物后，只移动到接触位置附近</td>
+<td>自定义角色、运动学对象</td>
+<td>需要实现滑动、台阶和拐角处理</td>
+</tr>
+<tr>
+<td><strong>重叠检测与位置恢复</strong></td>
+<td>检测已有嵌入，计算分离方向并修正位置</td>
+<td>生成、传送、平台挤压</td>
+<td>属于事后修正，处理不好会抖动或弹出</td>
+</tr>
+<tr>
+<td><strong>调整碰撞求解参数</strong></td>
+<td>提高接触约束的求解精度</td>
+<td>堆叠下陷、关节拉伸、持续嵌入</td>
+<td>无法解决根本没检测到的碰撞</td>
+</tr>
+<tr>
+<td><strong>改变对象实现方式</strong></td>
+<td>用命中查询或逻辑轨迹替代高速实体</td>
+<td>枪械、飞行弹丸</td>
+<td>需要自行实现飞行、命中和表现逻辑</td>
+</tr>
+</tbody></table>
+<p>这里有几个容易混淆的地方。</p>
+<p><strong>射线和形状扫掠虽然可以替代引擎内置 CCD，但沿运动路径检测碰撞，本身也属于连续检测的思路。</strong><br>如果你想找原理上不同于 CCD 的办法，主要是缩短步长、增加离散子步、限制速度、调整碰撞体，以及重叠修正。</p>
+<p><strong>增加子步必须包含检测。</strong><br>例如把一次移动拆成十次，每次都查询碰撞才有意义；只在循环里设置十次位置，物理引擎未必会在中间进行检测。</p>
+<p><strong>提高求解迭代次数主要解决“碰到了却挡不稳”。</strong><br>它适合箱子堆叠、复杂接触等情况，不能解决子弹直接跳过薄墙造成的漏检测。</p>
+<p>实际选择可以按对象来定：</p>
+<ul>
+<li>小子弹：检查前后位置之间的射线；需要飞行时间时，逐步计算轨迹并查询。</li>
+<li>火球、炮弹等有体积的弹丸：使用球形扫掠，或者适合的 CCD。</li>
+<li>玩家角色：移动前做胶囊查询，截断位移，再处理沿墙滑动和重叠恢复。</li>
+<li>动态箱子：检查移动方式和碰撞体，再按需要调整步长、CCD 和求解参数。</li>
+<li>快速挥剑、旋转刀片：采样旋转轨迹或检测扫掠体积，单纯检查中心移动路径不够。</li>
+<li>传送后卡进墙里：先验证目标位置，再做必要的重叠恢复。</li>
+</ul>
+<p>通常会组合使用。例如角色采用 移动前形状查询＋沿墙滑动＋重叠恢复；高速弹丸采用 轨迹查询＋首次命中处理。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/11/05/Spine-%E5%8A%A8%E7%94%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/11/05/Spine-%E5%8A%A8%E7%94%BB/" class="post-title-link" itemprop="url">Spine 动画</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-11-05 11:41:04 / Modified: 11:51:51" itemprop="dateCreated datePublished" datetime="2026-11-05T11:41:04+08:00">2026-11-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Animation/" itemprop="url" rel="index"><span itemprop="name">Animation</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Spine 动画通常是在 Spine 编辑器里，把分层图片绑定到骨骼，再给骨骼和图片属性制作关键帧得到的。<br>Unity 通过 Spine 官方运行库播放它，它和 Unity 的 Animation &#x2F; Animator 可以配合使用。</p>
+<h1 id="动画制作"><a href="#动画制作" class="headerlink" title="动画制作"></a>动画制作</h1><p>以一个 2D 人物为例，用Spin制作动画通常是下面这个流程：</p>
+<ol>
+<li>准备分层图片<br>把头、身体、上臂、前臂、腿、武器等拆成独立图片。被其他部位遮住的部分通常也需要补画，避免转动时露出空洞。</li>
+<li>在 Spine 编辑器中建立骨骼<br>例如：身体 → 上臂 → 前臂 → 手。移动上臂时，前臂和手会跟着移动。</li>
+<li>把图片挂到骨骼上<br>简单部位可以直接挂一张图片；需要弯曲的部位，可以把图片划分成网格，并设置骨骼权重，让多个骨骼共同控制图片变形。</li>
+<li>制作动画关键帧<br>在时间轴上设置骨骼的位置、旋转、缩放，还可以设置图片切换、透明度、绘制顺序和网格变形，制作 <code>idle</code>、<code>walk</code>、<code>attack</code> 等动画。</li>
+<li>导出供游戏使用的资源<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>.json</code> 或 <code>.skel</code></td>
+<td>骨骼、皮肤、动画等数据</td>
+</tr>
+<tr>
+<td><code>.atlas</code></td>
+<td>图片在图集中的位置和相关信息</td>
+</tr>
+<tr>
+<td><code>.png</code></td>
+<td>实际显示的图集图片</td>
+</tr>
+</tbody></table>
+</li>
+</ol>
+<p>所以它通常不是预先渲染的一段视频，也不是每帧一张图片。游戏运行时，Spine 根据动画数据计算骨骼姿态，再生成和绘制网格。</p>
+<h1 id="在-Unity-中使用"><a href="#在-Unity-中使用" class="headerlink" title="在 Unity 中使用"></a>在 Unity 中使用</h1><p>先安装官方 spine-unity 运行库。运行库版本要与导出资源所用的 Spine 编辑器主次版本匹配，例如 Spine 4.2 导出的资源，应使用对应的 4.2 运行库。</p>
+<p>把导出文件放入 Unity 的 Assets 后，运行库会生成相关资源，核心是 SkeletonDataAsset，然后选择适合的组件：</p>
+<table>
+<thead>
+<tr>
+<th>使用场景</th>
+<th>组件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>场景里的角色、怪物、特效</td>
+<td><code>SkeletonAnimation</code></td>
+</tr>
+<tr>
+<td>Canvas 中的 UI 动画</td>
+<td><code>SkeletonGraphic</code></td>
+</tr>
+<tr>
+<td>想通过 Unity Animator 状态机控制</td>
+<td><code>SkeletonMecanim</code></td>
+</tr>
+</tbody></table>
+<p>最常见的是 SkeletonAnimation。下面是使用方式示例：</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> Spine.Unity;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SpineExample</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">SerializeField</span>] <span class="keyword">private</span> SkeletonAnimation skeleton;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 在第 0 条轨道循环播放 idle。</span></span><br><span class="line">        skeleton.AnimationState.SetAnimation(<span class="number">0</span>, <span class="string">&quot;idle&quot;</span>, <span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Attack</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 播放一次 attack，结束后回到 idle。</span></span><br><span class="line">        skeleton.AnimationState.SetAnimation(<span class="number">0</span>, <span class="string">&quot;attack&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">        skeleton.AnimationState.AddAnimation(<span class="number">0</span>, <span class="string">&quot;idle&quot;</span>, <span class="literal">true</span>, <span class="number">0f</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的 <code>&quot;idle&quot;</code> 和 <code>&quot;attack&quot;</code>，必须是 Spine 资源中已有的动画名称。<br>Spine 还支持动画混合、多轨道叠加、换皮肤和动画事件。例如下半身继续走路，上半身播放攻击；或者通过皮肤切换衣服、武器。</p>
+<p>Unity 原生动画主要通过动画曲线，修改 GameObject、Transform 和组件属性。<br>Spine 则有自己的骨骼、插槽、附件、皮肤、网格变形和绘制顺序。它的骨骼通常不是 Unity 层级里的一组普通 Transform，所以 Unity 原生 Animation 组件无法直接读取 Spine 导出的骨骼动画数据。</p>
+<ul>
+<li><code>SkeletonMecanim</code> 提供一层桥接，让 Animator 状态机选择和混合 Spine 动画。最终的骨骼计算与绘制仍然由 Spine 运行库完成。</li>
+<li>或者可以用 Unity 原生动画让整个 Spine 角色移动、缩放，同时让 Spine 播放角色内部的走路动画。若两套动画同时修改同一个属性，则需要明确由哪一套负责。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/11/03/%E6%B8%B8%E6%88%8FUI%E6%A1%86%E6%9E%B6%E8%AE%BE%E8%AE%A1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1209,7 +1539,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-07-08 17:48:57" itemprop="dateModified" datetime="2026-07-08T17:48:57+08:00">2026-07-08</time>
+                <time title="Modified: 2026-11-05 11:48:06" itemprop="dateModified" datetime="2026-11-05T11:48:06+08:00">2026-11-05</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1232,16 +1562,16 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="k-NN（k-nearest-neighbors）"><a href="#k-NN（k-nearest-neighbors）" class="headerlink" title="k-NN（k nearest neighbors）"></a>k-NN（k nearest neighbors）</h1><p>我在一个场景中，有100k个小怪，我需要得到1k个与我最近的单位，如何快速查找？</p>
+          <p><strong>k-NN（k nearest neighbors）问题</strong><br>我在一个场景中，有100k个小怪，我需要得到1k个与我最近的单位，如何快速查找？</p>
 <hr>
-<h2 id="四叉树"><a href="#四叉树" class="headerlink" title="四叉树"></a>四叉树</h2><p>四叉树适用于二维场景，将空间递归划分成四个象限，按区域把单位放进去。</p>
-<h3 id="树基本结构"><a href="#树基本结构" class="headerlink" title="树基本结构"></a>树基本结构</h3><ul>
+<h1 id="四叉树"><a href="#四叉树" class="headerlink" title="四叉树"></a>四叉树</h1><p>四叉树适用于二维场景，将空间递归划分成四个象限，按区域把单位放进去。</p>
+<h2 id="树基本结构"><a href="#树基本结构" class="headerlink" title="树基本结构"></a>树基本结构</h2><ul>
 <li>根节点：覆盖整个场景范围</li>
 <li>每个节点最多存放一定数量的对象（例如 8~16 个）</li>
 <li>超过阈值时分裂成 4 个子节点</li>
 <li>对象根据坐标放入对应的子节点</li>
 </ul>
-<h3 id="查找最近-1k-个单位的步骤"><a href="#查找最近-1k-个单位的步骤" class="headerlink" title="查找最近 1k 个单位的步骤"></a>查找最近 1k 个单位的步骤</h3><ol>
+<h2 id="查找最近-1k-个单位的步骤"><a href="#查找最近-1k-个单位的步骤" class="headerlink" title="查找最近 1k 个单位的步骤"></a>查找最近 1k 个单位的步骤</h2><ol>
 <li>从根节点开始，把查询点所在的区域优先搜索</li>
 <li>对当前节点里的对象计算距离，维护一个最大堆或固定大小的候选列表</li>
 <li>对子节点递归搜索，但只进入那些有可能包含更近对象的区域</li>
@@ -1252,14 +1582,14 @@
 <li>继续搜索直到所有可能更近的区域都处理完</li>
 </ol>
 <hr>
-<h2 id="网格-空间哈希（Spatial-Hash-Grid）"><a href="#网格-空间哈希（Spatial-Hash-Grid）" class="headerlink" title="网格 &#x2F; 空间哈希（Spatial Hash Grid）"></a>网格 &#x2F; 空间哈希（Spatial Hash Grid）</h2><ul>
+<h1 id="网格-空间哈希（Spatial-Hash-Grid）"><a href="#网格-空间哈希（Spatial-Hash-Grid）" class="headerlink" title="网格 &#x2F; 空间哈希（Spatial Hash Grid）"></a>网格 &#x2F; 空间哈希（Spatial Hash Grid）</h1><ul>
 <li>把场景分成固定大小的格子，每个格子维护一个对象列表。查询时只检查当前格子和相邻格子，速度快，非常适合均匀分布。</li>
 <li>把格子坐标哈希成桶，适合大范围、动态移动对象。插入、删除、查询都是常数级别，维护简单。也可以看成“网格划分+哈希映射”。</li>
 <li>查询时只访问与自身相邻的若干格子</li>
 <li>适合均匀分布、实时更新频繁的场景</li>
 </ul>
 <hr>
-<h2 id="k-d-树"><a href="#k-d-树" class="headerlink" title="k-d 树"></a>k-d 树</h2><ul>
+<h1 id="k-d-树"><a href="#k-d-树" class="headerlink" title="k-d 树"></a>k-d 树</h1><ul>
 <li>构建过程的时间复杂度是 O(N log N)。对于100k个小怪，这是一次性的、完全可以接受的开销。<ul>
 <li>构建完后，这棵树在这一帧内是静态的。</li>
 <li>适合静态点集或少量动态更新</li>
@@ -1267,7 +1597,7 @@
 </li>
 <li>递归按 x&#x2F;y 轴交替划分空间</li>
 </ul>
-<h3 id="查找最近-1k-个单位的步骤-1"><a href="#查找最近-1k-个单位的步骤-1" class="headerlink" title="查找最近 1k 个单位的步骤"></a>查找最近 1k 个单位的步骤</h3><p>最近邻查询类似二叉树剪枝</p>
+<h2 id="查找最近-1k-个单位的步骤-1"><a href="#查找最近-1k-个单位的步骤-1" class="headerlink" title="查找最近 1k 个单位的步骤"></a>查找最近 1k 个单位的步骤</h2><p>最近邻查询类似二叉树剪枝</p>
 <ul>
 <li>从根节点开始，比较你的位置和当前节点在分割轴上的坐标。</li>
 <li>如果你在节点的左边，就优先进入左子树；如果在右边，就优先进入右子树。像普通二叉树查找一样，一路向下，直到到达一个叶子节点。</li>
@@ -1280,12 +1610,12 @@
 </li>
 </ul>
 <hr>
-<h2 id="BVH-Bounding-Volume-Hierarchy-包围盒层级"><a href="#BVH-Bounding-Volume-Hierarchy-包围盒层级" class="headerlink" title="BVH (Bounding Volume Hierarchy) &#x2F; 包围盒层级"></a>BVH (Bounding Volume Hierarchy) &#x2F; 包围盒层级</h2><ul>
+<h1 id="BVH-Bounding-Volume-Hierarchy-包围盒层级"><a href="#BVH-Bounding-Volume-Hierarchy-包围盒层级" class="headerlink" title="BVH (Bounding Volume Hierarchy) &#x2F; 包围盒层级"></a>BVH (Bounding Volume Hierarchy) &#x2F; 包围盒层级</h1><ul>
 <li>每个节点是一个包围一组物体的盒子（AABB&#x2F;OBB等）</li>
 <li>子节点是把物体集合拆成两组（常见二叉），再分别求包围盒。</li>
 <li>划分不要求等分空间，通常按数据分布和代价（如 SAH）自适应构建。</li>
 </ul>
-<h3 id="查找最近-1k-个单位的步骤-2"><a href="#查找最近-1k-个单位的步骤-2" class="headerlink" title="查找最近 1k 个单位的步骤"></a>查找最近 1k 个单位的步骤</h3><ul>
+<h2 id="查找最近-1k-个单位的步骤-2"><a href="#查找最近-1k-个单位的步骤-2" class="headerlink" title="查找最近 1k 个单位的步骤"></a>查找最近 1k 个单位的步骤</h2><ul>
 <li>初始化: 将所有100k个小怪（或它们的精确位置）看作“物体”，放入一个列表中。</li>
 <li>递归构建:<ul>
 <li>终止条件: 如果当前列表中的物体数量小于等于某个阈值（比如8），则创建一个叶子节点。这个叶子节点的AABB是紧紧包裹这几个物体的包围盒，节点内部存储这些物体的引用。然后返回。</li>
@@ -1311,7 +1641,7 @@
 <li>作用: 用来存储接下来需要检查的 BVH 节点。</li>
 <li>特性: 队列的“顶部”永远是距离你最近的那个节点&#x2F;AABB盒。这保证了我们总是优先探索最有希望找到近邻的区域。</li>
 </ul>
-<h3 id="具体算法"><a href="#具体算法" class="headerlink" title="具体算法"></a>具体算法</h3><p>假设你的位置是 myPosition，要查找 K&#x3D;1000 个最近邻。</p>
+<h2 id="具体算法"><a href="#具体算法" class="headerlink" title="具体算法"></a>具体算法</h2><p>假设你的位置是 myPosition，要查找 K&#x3D;1000 个最近邻。</p>
 <ul>
 <li>初始化:<br>创建一个空的、容量为1000的 resultSet (最大优先队列)。<br>创建一个空的 todoList (最小优先队列)。<br>将 BVH 的根节点以及你到根节点AABB的最近距离 d_box (初始时这个距离是0，因为你在场景内)作为一个元组 (rootNode, d_box) 加入 todoList。<br>将“最大搜索半径 radius” 初始化为无穷大。<br>开始循环搜索: 当 todoList 不为空时，持续循环：</li>
 </ul>
@@ -1321,12 +1651,12 @@
 <p>如果 currentNode 是一个中间节点:<br>获取它的左、右两个子节点。<br>对于每一个子节点：<br>计算你到这个子节点AABB的最近距离 d_child_box。<br>如果 d_child_box &lt; radius: 这意味着这个子节点的区域内可能存在更近的邻居，我们必须探索它。将这个子节点和它的距离 (childNode, d_child_box) 加入 todoList。<br>如果 d_child_box ≥ radius，则直接忽略这个子节点及其整个分支（又一次剪枝！）。</p>
 <p>完成: 当循环结束时，resultSet 中存储的就是最终的1000个最近邻居。</p>
 <hr>
-<h2 id="倒排桶-桶排序距离"><a href="#倒排桶-桶排序距离" class="headerlink" title="倒排桶 &#x2F; 桶排序距离"></a>倒排桶 &#x2F; 桶排序距离</h2><ul>
+<h1 id="倒排桶-桶排序距离"><a href="#倒排桶-桶排序距离" class="headerlink" title="倒排桶 &#x2F; 桶排序距离"></a>倒排桶 &#x2F; 桶排序距离</h1><ul>
 <li>先用距离近似值分桶，再只对近距离桶内对象精确排序</li>
 <li>适合距离范围已知、精度需求不高的场景</li>
 </ul>
 <hr>
-<h2 id="粗略筛选-精确排序"><a href="#粗略筛选-精确排序" class="headerlink" title="粗略筛选 + 精确排序"></a>粗略筛选 + 精确排序</h2><ul>
+<h1 id="粗略筛选-精确排序"><a href="#粗略筛选-精确排序" class="headerlink" title="粗略筛选 + 精确排序"></a>粗略筛选 + 精确排序</h1><ul>
 <li>先用简单空间划分得到一小部分候选对象</li>
 <li>然后在候选集中排序取前 1k</li>
 <li>例如：先找 5x5 个邻近网格，再精确计算</li>
@@ -1387,7 +1717,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
+                <time title="Modified: 2026-11-06 16:11:05" itemprop="dateModified" datetime="2026-11-06T16:11:05+08:00">2026-11-06</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1414,7 +1744,31 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="Batching"><a href="#Batching" class="headerlink" title="Batching"></a>Batching</h1><p>静态合批: 将相同材质并且始终不动的的Mesh合并成为一个大Mesh，然后由CPU合并为一个批次发送给GPU处理,从而减少DrawCall带来的消耗。<br>动态合批: 相同材质并且会动的物体Mesh合并成为一个大Mesh<br>SRP Batcher: 将多个网格合并成单个批次进行渲染，从而提高性能。与其他合批不同，SRP Batcher将未改变属性的Mesh缓存起来，从而减少消耗<br>GPU Instancing: 使用一个DrawCall渲染多个相同材质的网格对象（如场景中大量重复的物体如树木和草地等），从而减少CPU和GPU的开销</p>
+          <table>
+<thead>
+<tr>
+<th>概念</th>
+<th>是什么</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Shader（着色器）</strong></td>
+<td>定义顶点如何处理、颜色如何计算，以及深度、混合等渲染规则</td>
+<td><code>URP/Lit</code></td>
+</tr>
+<tr>
+<td><strong>Material（材质）</strong></td>
+<td>引用一个 Shader，并保存贴图、颜色、数值和关键字配置</td>
+<td>使用 <code>URP/Lit</code> 的红色金属材质</td>
+</tr>
+<tr>
+<td><strong>Shader Variant（Shader 变体）</strong></td>
+<td>同一个 Shader 按不同关键字组合编译出的版本</td>
+<td>开启法线贴图版本、关闭法线贴图版本</td>
+</tr>
+</tbody></table>
+<h1 id="Batching"><a href="#Batching" class="headerlink" title="Batching"></a>Batching</h1><p>静态合批: 相同材质并且始终不动的的Mesh合并成为一个大Mesh，然后由CPU合并为一个批次发送给GPU处理，从而减少DrawCall。<br>动态合批: 相同材质并且会动的物体Mesh，CPU 每帧将符合条件的小网格顶点转换到世界空间，再合并提交<br>SRP Batcher: 同样的Shader变体，开启一个GPU常量缓冲区，一组可以沿着高效路径连续提交的绘制，但不会将多个网格合并成单个批次进行渲染，不减少DrawCall但能提高性能<br>GPU Instancing: 同样的Mesh（但允许不同的位置、颜色信息）同样的Shader变体，使用一个DrawCall渲染多个共享同一材质（但可以有实例属性）的Mesh，比如不同颜色可以作为实例属性提供，不需要单独创建材质</p>
 <h2 id="Static-Batching"><a href="#Static-Batching" class="headerlink" title="Static Batching"></a>Static Batching</h2><p>针对静态物体（勾选 Static）。在构建时，Unity 把所有使用相同材质的静态 mesh 合并成一个大 mesh，存到内存里。运行时一次 Draw Call 画完。</p>
 <table>
 <thead>
@@ -1481,7 +1835,7 @@
 <p>每帧：<br>CPU 检查哪些动态物体同材质 → 临时合并 mesh → 一次 Draw Call  </p>
 </blockquote>
 <p>代价是 CPU 每帧都要做合并，物体多了反而更慢。</p>
-<h2 id="SRP-Batcher"><a href="#SRP-Batcher" class="headerlink" title="SRP Batcher"></a>SRP Batcher</h2><p>Batches draw calls by grouping objects that use the same shader variant, reducing SetPass calls<br>Shader properties stored in GPU buffers instead of individual material constants</p>
+<h2 id="SRP-Batcher"><a href="#SRP-Batcher" class="headerlink" title="SRP Batcher"></a>SRP Batcher</h2><p>SRP Batcher 将各个材质的 UnityPerMaterial 数据持久保存在 GPU 内存中。材质数据没有变化时，就不必在每次绘制时重新上传。</p>
 <p>创建大型 GPU 缓冲区: 在每一帧开始时，SRP Batcher 会在 GPU 上开辟一个巨大的、持久化的缓冲区 (在现代图形API中通常是 Constant Buffer 或 UBO)。<br>打包所有数据: 它会遍历所有使用相同 Shader Variant（着色器变体）的物体，把它们的材质属性（颜色、向量、浮点数等）全部打包塞进这个大缓冲区里。</p>
 <p>现在，当 CPU 指示 GPU 绘制时，CPU 对 GPU 说：“准备画一批物体，它们都用 Shader A。它们的材质数据已经全部放在那个大缓冲区里了。” (这对应一个非常快速的、几乎可以忽略不计的 SetPass 准备工作)<br>然后 CPU 快速地连续下达指令：<br>    “画第一个物体，它的数据在缓冲区偏移量0的位置。” (一个 Draw call)<br>    “画第二个物体，它的数据在缓冲区偏移量64的位置。” (一个 Draw call)<br>    “画第三个物体，它的数据在缓冲区偏移量128的位置。” (一个 Draw call)</p>
 <p>SetPass call: 只有在切换 Shader Variant 时才会发生一次。对于所有使用相同 Shader Variant 的物体，无论它们有多少个，都属于同一个“SRP Batch”，共享一次 SetPass 设置。因此 SetPass call 的数量大幅降低。<br>Draw call: 每个物体最终还是需要 GPU 单独绘制一次。CPU 依然需要为每个物体都发送一个 Draw 指令。因此 Draw call 的数量没有改变。</p>
@@ -1584,7 +1938,7 @@
 <li>Unity automatically detects and performs Dynamic Batching on compatible objects at runtime</li>
 <li>SRP batcher automatically batches during render loop when objects use compatible shader variants enabled in the render pipeline settings (Window → Rendering → Render Pipeline → Universal Render Pipeline → General → SRP Batcher)</li>
 </ul>
-<h2 id="GPU-Instancing"><a href="#GPU-Instancing" class="headerlink" title="GPU Instancing"></a>GPU Instancing</h2><p>针对大量相同 mesh + 相同材质的物体（但允许不同的属性，比如颜色、位置）。CPU 只提交一次 mesh 数据，附带一个”实例属性数组”，GPU 自己循环绘制 N 次。<br>在 Unity 中，需要在材质属性中勾选 “Enable GPU Instancing”。</p>
+<h2 id="GPU-Instancing"><a href="#GPU-Instancing" class="headerlink" title="GPU Instancing"></a>GPU Instancing</h2><p>针对大量相同 mesh + 相同材质的物体（位置、旋转、缩放可以不同；颜色等属性也可以不同）。CPU 只提交一次 mesh 数据，附带一个”实例属性数组”，GPU 自己循环绘制 N 次。<br>在 Unity 中，需要在材质属性中勾选 “Enable GPU Instancing”。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// shader 里声明每个实例可以有不同颜色</span></span><br><span class="line"><span class="built_in">UNITY_INSTANCING_BUFFER_START</span>(Props)</span><br><span class="line">    <span class="built_in">UNITY_DEFINE_INSTANCED_PROP</span>(float4, _Color)</span><br><span class="line"><span class="built_in">UNITY_INSTANCING_BUFFER_END</span>(Props)</span><br></pre></td></tr></table></figure>
 
 <table>
@@ -1626,387 +1980,6 @@
 <blockquote>
 <p>100棵树（同mesh，同材质，不同位置&#x2F;颜色）：<br>CPU：提交1次mesh + 100个transform数组<br>GPU：自己 instance 100次<br>结果：SetPass × 1，Draw Call × 1  </p>
 </blockquote>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/06/02/%E5%AF%B9%E7%A7%B0%E4%B8%8E%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/06/02/%E5%AF%B9%E7%A7%B0%E4%B8%8E%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86/" class="post-title-link" itemprop="url">对称与非对称加密</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2026-06-02 18:06:15" itemprop="dateCreated datePublished" datetime="2026-06-02T18:06:15+08:00">2026-06-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-06-03 14:32:00" itemprop="dateModified" datetime="2026-06-03T14:32:00+08:00">2026-06-03</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Networks/" itemprop="url" rel="index"><span itemprop="name">Networks</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h1><p>对称加密是指加密和解密使用同一个密钥。加密方和解密方必须共享同一个秘密密钥。</p>
-<ul>
-<li>建立安全通道后，用于实际的数据传输。</li>
-<li>常见的算法有 AES、DES、3DES、Blowfish、ChaCha20。</li>
-</ul>
-<h2 id="优点："><a href="#优点：" class="headerlink" title="优点："></a>优点：</h2><ul>
-<li>速度快，适合加密大量 HTTP 请求和响应内容。</li>
-<li>算法实现简单。</li>
-</ul>
-<h2 id="缺点："><a href="#缺点：" class="headerlink" title="缺点："></a>缺点：</h2><ul>
-<li>密钥分发困难：如何安全地把密钥传给对方。</li>
-<li>一旦密钥泄露，所有通信都被破解。</li>
-</ul>
-<h1 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h1><p>非对称加密使用一对密钥：公钥和私钥。公钥公开给所有人，私钥保存在自己手里，主要用于“身份验证”和“密钥交换”。<br>用公钥加密的数据只能用对应的私钥解密。用私钥签名的数据可以用对应的公钥验证。</p>
-<ul>
-<li>服务器把自己的公钥包含在证书中公开给客户端</li>
-<li>客户端用服务器公钥加密一个随机对称密钥</li>
-<li>服务器用自己的私钥解密，得到同一个对称密钥</li>
-<li>这一阶段常见的协议是 TLS 中的 RSA、ECC（椭圆曲线加密）、DH、ECDH 等</li>
-</ul>
-<h2 id="优点：-1"><a href="#优点：-1" class="headerlink" title="优点："></a>优点：</h2><ul>
-<li>解决了密钥分发问题，公钥可以公开发布。</li>
-<li>支持数字签名，保证身份与完整性。</li>
-</ul>
-<h2 id="缺点：-1"><a href="#缺点：-1" class="headerlink" title="缺点："></a>缺点：</h2><ul>
-<li>计算速度比对称加密慢很多。</li>
-<li>只适合加密短数据或用于密钥交换。</li>
-</ul>
-<hr>
-<h1 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h1><p>HTTPS 是 HTTP 的安全版本，它在 HTTP 之上加了一层加密协议，常用的是 TLS（以前叫 SSL）。<br><strong>HTTPS &#x3D; HTTP + TLS</strong> -&gt; 浏览器访问 https:&#x2F;&#x2F; 时，实际上是在用 SSL&#x2F;TLS 加密 HTTP 请求和响应。</p>
-<p>服务器把它的公钥公开给客户端，通常通过证书发送给浏览器。<br>客户端用服务器的公钥来加密会话密钥或验证服务器签名。<br>服务器用自己的私钥来解密或签名。</p>
-<h2 id="HTTPS-常见场景："><a href="#HTTPS-常见场景：" class="headerlink" title="HTTPS 常见场景："></a>HTTPS 常见场景：</h2><ol start="0">
-<li>客户端发起请求：浏览器访问 <a target="_blank" rel="noopener" href="https://example.com/">https://example.com</a><ul>
-<li>服务器有一对长期密钥：公钥 + 私钥</li>
-</ul>
-</li>
-<li>客户端和服务器协商使用哪种加密算法，在 TLS 握手里，客户端和服务器协商的是一个“套件”，叫做 cipher suite，它通常包括几种算法：<ul>
-<li>Key Exchange（密钥交换算法），例如 RSA, ECDHE, DHE</li>
-<li>Authentication（身份验证算法），通常是证书签名所用的算法，如 RSA, ECDSA</li>
-<li>Bulk Encryption（对称加密算法），如 AES, ChaCha20</li>
-<li>MAC&#x2F;Hash（消息认证&#x2F;哈希算法），如 SHA256, SHA384</li>
-</ul>
-</li>
-<li>服务器提供证书（里面有公钥）：服务器发送自己的数字证书给浏览器</li>
-<li>客户端验证证书：确认服务器身份可信</li>
-<li>建立对称加密的会话密钥：浏览器使用服务器公钥加密一个随机对称密钥<ul>
-<li>客户端生成一个临时的对称会话密钥 K</li>
-<li>客户端使用服务器的公钥保护这个会话密钥</li>
-</ul>
-</li>
-<li>用这个会话密钥加密后续数据：服务器解密出对称密钥，后续通信用对称加密进行<ul>
-<li>服务器用自己的私钥解密，得到 K</li>
-</ul>
-</li>
-</ol>
-<h2 id="TLS-和-RSA"><a href="#TLS-和-RSA" class="headerlink" title="TLS 和 RSA"></a>TLS 和 RSA</h2><p>TLS 是一个安全协议，用来保护网络通信。<br>RSA 是一种加密算法，可以用于密钥交换、加密和数字签名。</p>
-<p>在 TLS 握手阶段，可以用 RSA 实现以下功能</p>
-<ul>
-<li>证书签名：服务器证书里常常包含 RSA 公钥，CA 会对证书签名。浏览器验证证书时，实际上是验证这个 RSA 公钥。</li>
-<li>身份验证：服务器用它对应的 RSA 私钥对握手数据签名，证明它是证书里的那台服务器。</li>
-<li>密钥交换：早期 TLS 版本里，客户端可以用服务器的 RSA 公钥加密一个随机的“预主密钥”，服务器用私钥解密，然后再生成对称会话密钥。</li>
-</ul>
-<p>RSA 可以是密钥交换算法，也可以是身份验证算法</p>
-<ul>
-<li>证书中公钥算法</li>
-<li>客户端加密“会话密钥”给服务器</li>
-<li>服务器用私钥解密<br>如果服务器证书使用 RSA，浏览器验证 CA 签名后，就信任该 RSA 公钥</li>
-</ul>
-<h2 id="密钥交换协议"><a href="#密钥交换协议" class="headerlink" title="密钥交换协议"></a>密钥交换协议</h2><p>现在大多数 TLS 连接不会直接用服务器公钥加密会话密钥，而是用“密钥交换协议”：</p>
-<ul>
-<li>例如 ECDHE &#x2F; DHE</li>
-<li>客户端和服务器各自生成一个临时的公私钥对</li>
-<li>通过交换各自的临时公钥，计算出共同的会话密钥 K</li>
-<li>这些临时密钥不是长期身份密钥，连接结束就废弃</li>
-</ul>
-<p>所以：</p>
-<ul>
-<li>服务器仍然有长期身份密钥对</li>
-<li>客户端通常不需要长期身份密钥对</li>
-<li>客户端确实会使用临时密钥材料来协商 K</li>
-</ul>
-<hr>
-<h1 id="CA-和证书"><a href="#CA-和证书" class="headerlink" title="CA 和证书"></a>CA 和证书</h1><p>证书：绑定公钥与身份，并由 CA 签名证明其可信<br>CA：受信任第三方，负责签发与验证证书，保证客户端不会误信伪造服务器</p>
-<p>证书是一个文件，它相当于“公钥的身份证明”，包含：</p>
-<ul>
-<li>持有者身份（如域名 example.com）</li>
-<li>持有者公钥</li>
-<li>证书颁发机构（CA）签名</li>
-<li>有效期、用途等信息</li>
-</ul>
-<p>CA（证书颁发机构）是一个受信任的第三方机构：</p>
-<ul>
-<li>它负责验证申请者身份、签发证书</li>
-<li>浏览器和操作系统预装了大量受信任 CA 根证书</li>
-</ul>
-<p>当浏览器收到服务器证书时，它会：</p>
-<ol>
-<li>检查证书是否由受信任 CA 签发</li>
-<li>检查证书是否针对当前域名</li>
-<li>检查证书是否在有效期内</li>
-<li>检查证书是否被撤销<br>如果验证通过，浏览器就信任该服务器公钥是真的属于这个服务器<br>这样客户端就能安全地用该公钥加密会话密钥，避免被中间人伪造</li>
-</ol>
-<p>服务器证书通常不是直接由根 CA 签发，而是由中间 CA 签发<br>浏览器通过证书链一路验证到根 CA，只有链条完整、签名有效，才被认定为可信服务器</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/05/07/%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BC%98%E5%8C%96/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/05/07/%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BC%98%E5%8C%96/" class="post-title-link" itemprop="url">客户端性能优化</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2026-05-07 16:36:32" itemprop="dateCreated datePublished" datetime="2026-05-07T16:36:32+08:00">2026-05-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-10-28 19:47:02" itemprop="dateModified" datetime="2026-10-28T19:47:02+08:00">2026-10-28</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>在面试中回答这个问题，建议从宏观的系统层面和微观的渲染层面两个维度来展开，并重点围绕“CPU瓶颈”与“GPU瓶颈”这两个核心概念来阐述。</p>
-<h1 id="系统层面"><a href="#系统层面" class="headerlink" title="系统层面"></a>系统层面</h1><h2 id="CPU与逻辑优化（解决主线程阻塞）"><a href="#CPU与逻辑优化（解决主线程阻塞）" class="headerlink" title="CPU与逻辑优化（解决主线程阻塞）"></a>CPU与逻辑优化（解决主线程阻塞）</h2><p><strong>减少DrawCall（绘制调用）</strong></p>
-<ul>
-<li>这是最常见的优化点。通过静态合批（合并静态场景）、动态合批（合并同材质小模型）以及GPU Instancing（大量重复物体如草丛、子弹的实例化渲染）来大幅降低CPU向GPU发送指令的次数。</li>
-</ul>
-<p><strong>预加载</strong></p>
-<ul>
-<li>预加载常用的资源，比如场景中的静态资源、UI 资源、音效资源等等。这些UI可以在游戏开始前加载UI资源但不实例化，只是将其加载到内存中。</li>
-<li>有些UI的实例化和初始化也可以提前到游戏开始前。实例化和初始化完成后，将其“隐藏”起来，待到需要的时候再将其展示出来。</li>
-<li>“隐藏”既可以将UI放在某一特定不被渲染或者未激活的层级，也可以将其放到摄像机视角之外藏起来。或者可以单独设置一个层级为不可见的layout，需要显示时再将UI元素放在可见层级中去。</li>
-<li>比如在场景加载阶段（Loading 界面）预先实例化核心 UI 并隐藏（SetActive(false)），这属于将提前初始化，而非延迟初始化，适合高频使用的核心界面。</li>
-</ul>
-<p><strong>异步处理与分帧加载 (Time-Slicing)</strong></p>
-<ul>
-<li>避免在每一帧（Update）中执行大量计算。将路径寻路、AI决策等耗时逻辑拆分到多帧执行，或者放入异步线程&#x2F;WebWorker中，防止阻塞主线程导致卡顿。</li>
-<li>对于包含大量子元素的列表（如背包系统），不要在同一帧初始化所有项。可以使用协程（Coroutine）每帧只初始化 2-3 个元素，避免单帧计算过载导致的掉帧。</li>
-</ul>
-<p><strong>物理与AI精简</strong></p>
-<ul>
-<li>关闭远处或视野外物体的物理碰撞检测和AI逻辑，只计算玩家周边的关键交互。</li>
-</ul>
-<h2 id="内存优化（杜绝泄漏与峰值溢出）"><a href="#内存优化（杜绝泄漏与峰值溢出）" class="headerlink" title="内存优化（杜绝泄漏与峰值溢出）"></a>内存优化（杜绝泄漏与峰值溢出）</h2><p><strong>对象池</strong></p>
-<ul>
-<li>对象池可以提高对象创建和销毁的效率，因为对象池中的对象可以重复使用，从而避免了创建和销毁对象的开销。</li>
-<li>延迟初始化后，不使用的 UI 不要直接 Destroy，而是放入对象池中。下次需要时，直接从池中取出并重新初始化，这比反复 Instantiate 性能更高。</li>
-</ul>
-<p><strong>延迟初始化</strong></p>
-<ul>
-<li>采用按需加载&#x2F;Lazy Initialization的思路，在运行时加载需要的资源，而不是在编译时加载所有的资源。</li>
-<li>仅在 UI 界面真正需要显示时，才调用 Instantiate 创建对象或从对象池中取出。</li>
-</ul>
-<p><strong>资源管理与按需加载</strong></p>
-<ul>
-<li>将资源采用高压缩率格式压缩，例如LZ4HC (用打包时间换空间)</li>
-<li>大世界采用流式加载，只加载玩家周围一定范围内的资源；切换场景或退出副本时，强制卸载无用资源并释放内存。</li>
-<li>在背包或一些数据项比较多的应用中，scroll view常常会有大量的元素存在，他们在窗口中的不断滚动变化导致前面说的网格重构，消耗大量的CPU资源。</li>
-<li>可以只实例化加载稍微比可视化区域大点的数据项UI，当滚动达到一定范围后再销毁一部分不可见的元素，同时加载一部分后续可能显示的元素（结合对象池）</li>
-</ul>
-<p><strong>字体拆分</strong></p>
-<ul>
-<li>字体一定程度上站了很大的空间（汉字😣），而且游戏打多需要的文字固定，没必要仅为少数的文字使用而加入整个字体库。</li>
-<li>数字字母等固定的字符可以单独打包，汉字常用字符3000足够游戏使用，真遇到特殊字符可以单独添加进去，在通过unity下的字体制作工具打包处理。</li>
-</ul>
-<p><strong>UI贴图</strong></p>
-<ul>
-<li>倒入贴图资源时，贴图的某些属性或数据其实并不是必要的，但要占用很大的空间，不合理的贴图大小也会增大资源占用。</li>
-<li>导入贴图资源时注意事项：<ol>
-<li>alpha通道是否需要&#x2F;</li>
-<li>2次方贴图大小 （宽、高分别是 2 的整数次幂，也叫 Power of Two 纹理，例如：256 × 256，512 × 1024）<br>  以前很多 GPU 对非 POT 纹理有限制，现在通常支持。但部分压缩格式仍对尺寸有要求，例如 PVRTC 常有 2 次幂限制，具体取决于平台和格式。不必把所有图片都强制改成 POT，应结合目标平台、压缩格式和图集设置判断。</li>
-<li>读写权限是否需要</li>
-<li>MipMap是否需要（多级渐远纹理）。它会为原图生成一组逐级缩小的版本，例如：1024 × 1024 → 512 × 512 → 256 × 256 → … → 1 × 1，物体远离镜头、贴图只占少量屏幕像素时，GPU 可以使用较小的版本<br>  开启 Mipmap 后，在普通纹理采样中，GPU 通常会自动选择合适的层级，前提是采样设置允许使用 Mipmap。它主要根据纹理坐标在相邻屏幕像素之间的变化率判断，相当于估算：一个屏幕像素覆盖了原贴图多少像素。</li>
-<li>合适的压缩方式</li>
-</ol>
-</li>
-<li>上述过程可以通过unity editor扩展asset importer pipeline的方式自动化管理，可以通过Texture Importer类控制指定导入路径的图片具体设置。</li>
-</ul>
-<h2 id="网络与IO优化"><a href="#网络与IO优化" class="headerlink" title="网络与IO优化"></a>网络与IO优化</h2><p><strong>协议压缩</strong></p>
-<ul>
-<li>使用 Protobuf 等二进制协议替代 JSON&#x2F;XML，大幅减小数据包体积，解析速度更快。</li>
-<li>Protobuf 是基于预定义协议（契约），在“对象”和“二进制字节数组”之间进行高效、双向转换的通信标准</li>
-<li>Protobuf 按照提前写好的 .proto 协议文件（也就是双方约定好的“契约”），通过字段编号、数据类型等规则，进行极其精简的二进制编码。</li>
-</ul>
-<p><strong>数据差分同步</strong></p>
-<ul>
-<li>状态同步时只发送变化的数据（如位置偏移量、血量变化），而不是发送全量数据。<ol>
-<li>只发送变化的字段：血量从 100 变成 90，只发送 { hp: 90 }，省略未变化的位置、装备等字段。</li>
-<li>只发送变化量：发送 { hpDelta: -10 }，客户端在原有血量上减去 10。</li>
-</ol>
-</li>
-<li>前者更容易纠正状态，后者依赖双方基准一致；丢包、重复处理或乱序可能导致偏差，因此通常需要版本号、顺序控制，以及定期全量同步来校准。</li>
-</ul>
-<hr>
-<h1 id="渲染层面"><a href="#渲染层面" class="headerlink" title="渲染层面"></a>渲染层面</h1><p>渲染优化的核心是减轻GPU的压力，核心指标是降低 Overdraw（过度绘制）和 FillRate（填充率）的消耗。</p>
-<h2 id="UI画布"><a href="#UI画布" class="headerlink" title="UI画布"></a>UI画布</h2><p><strong>动静分离</strong></p>
-<ul>
-<li>unity中UGUI系统都是使用网格模型来构建，UI元素只要“动”，就会发生网格的重构合并。正所谓牵一发而动全身，少的UI元素的动导致整个UI的重构，由此带来重绘导致了cpu的开销。</li>
-<li>UGUI系统以Canvas作为自己的重绘节点，所以需要以canvas作为节点拆分动和静的UI元素。</li>
-<li>将频繁更新的动态 UI 与不常变动的静态 UI 拆分到不同的 Canvas 中，因为每次UI更新都会触发 Canvas 的重建。</li>
-<li>这样当动态 UI 延迟加载并触发重建（Rebuild）时，不会影响到静态 Canvas 的性能。</li>
-</ul>
-<p><strong>降低 Overdraw（过度绘制）</strong></p>
-<ul>
-<li>控制透明层叠加：透明物体（如特效、粒子、UI流光）是 Overdraw 的重灾区。严格限制透明层的叠加数量（通常不超过2层），远距离的特效直接降低分辨率或关闭。</li>
-<li>遮挡剔除（Occlusion Culling）：开启引擎的遮挡剔除功能，被墙体等物体完全挡住的物体直接不参与渲染。</li>
-<li>分层渲染：将UI、场景、角色、特效划分不同的渲染层级，透明与不透明物体严格分离。</li>
-</ul>
-<p><strong>避免 Layout Group 重建</strong></p>
-<ul>
-<li>瞬间加载大量元素到含有 VerticalLayoutGroup 的父物体时，会导致剧烈的 Layout 重建。</li>
-<li>可以先禁用 Layout 组件，等所有元素加载完毕后，使用 LayoutRebuilder.ForceRebuildLayoutImmediate 一次性刷新。</li>
-</ul>
-<p><strong>网格重构</strong></p>
-<ul>
-<li>UGUI系统网格合并机制是，只有将相同材质球的网格合并在一起，才能达到最佳效果。一个材质球对应一个图集，只有相同图集内的图片才需要合并在一起。</li>
-<li>当元素需要改变颜色时，是通过改变顶点颜色实现，然后将他们重新合批到网格中去。在UI动画里修改UI颜色时，UGUI都会对网格进行重构。</li>
-<li>此时我们需要自定义UI元素的材质球，通过自定义材质球改变相应的颜色变化。</li>
-<li>此时UGUI不再重构网格，因为把渲染工作交给了新的材质球，而非通过UGUI设置顶点颜色达到效果。</li>
-</ul>
-<h2 id="模型与纹理优化"><a href="#模型与纹理优化" class="headerlink" title="模型与纹理优化"></a>模型与纹理优化</h2><p><strong>LOD（多细节层次）</strong></p>
-<ul>
-<li>根据物体距离摄像机的远近，自动切换不同精度的模型。远处的物体使用低模（面数少），近处使用高模。</li>
-</ul>
-<p><strong>纹理压缩与格式选择</strong></p>
-<ul>
-<li>使用 GPU 友好的压缩格式（如 ASTC、ETC2、BC7），在保证画质的前提下大幅降低显存占用和带宽压力。</li>
-</ul>
-<h2 id="Shader（着色器）轻量化"><a href="#Shader（着色器）轻量化" class="headerlink" title="Shader（着色器）轻量化"></a>Shader（着色器）轻量化</h2><p><strong>简化光照计算</strong></p>
-<ul>
-<li>移动端尽量避免复杂的光照模型、实时阴影和高光反射。</li>
-</ul>
-<p><strong>减少分支指令</strong></p>
-<ul>
-<li>Fragment Shader（片元着色器）中的 if&#x2F;else 分支会严重影响GPU并行计算效率，尽量用数学运算替代逻辑分支。</li>
-</ul>
-<hr>
-<h1 id="性能分析工具"><a href="#性能分析工具" class="headerlink" title="性能分析工具"></a>性能分析工具</h1><ul>
-<li>优化不能靠猜，必须依赖工具。</li>
-<li>常用的有 Unity 的 Profiler &#x2F; Frame Debugger，或者第三方的 RenderDoc、Snapdragon Profiler。</li>
-<li>通过这些工具可以精准定位到当前帧的瓶颈是在 CPU（如 DrawCall 过高）还是 GPU（如 Overdraw 严重或 Shader 过于复杂），从而进行针对性的优化。</li>
-</ul>
 
       
     </div>
@@ -2099,20 +2072,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-count">53</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

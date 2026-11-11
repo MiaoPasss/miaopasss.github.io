@@ -161,6 +161,387 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/06/02/%E5%AF%B9%E7%A7%B0%E4%B8%8E%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/06/02/%E5%AF%B9%E7%A7%B0%E4%B8%8E%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86/" class="post-title-link" itemprop="url">对称与非对称加密</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2026-06-02 18:06:15" itemprop="dateCreated datePublished" datetime="2026-06-02T18:06:15+08:00">2026-06-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-06-03 14:32:00" itemprop="dateModified" datetime="2026-06-03T14:32:00+08:00">2026-06-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Networks/" itemprop="url" rel="index"><span itemprop="name">Networks</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h1><p>对称加密是指加密和解密使用同一个密钥。加密方和解密方必须共享同一个秘密密钥。</p>
+<ul>
+<li>建立安全通道后，用于实际的数据传输。</li>
+<li>常见的算法有 AES、DES、3DES、Blowfish、ChaCha20。</li>
+</ul>
+<h2 id="优点："><a href="#优点：" class="headerlink" title="优点："></a>优点：</h2><ul>
+<li>速度快，适合加密大量 HTTP 请求和响应内容。</li>
+<li>算法实现简单。</li>
+</ul>
+<h2 id="缺点："><a href="#缺点：" class="headerlink" title="缺点："></a>缺点：</h2><ul>
+<li>密钥分发困难：如何安全地把密钥传给对方。</li>
+<li>一旦密钥泄露，所有通信都被破解。</li>
+</ul>
+<h1 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h1><p>非对称加密使用一对密钥：公钥和私钥。公钥公开给所有人，私钥保存在自己手里，主要用于“身份验证”和“密钥交换”。<br>用公钥加密的数据只能用对应的私钥解密。用私钥签名的数据可以用对应的公钥验证。</p>
+<ul>
+<li>服务器把自己的公钥包含在证书中公开给客户端</li>
+<li>客户端用服务器公钥加密一个随机对称密钥</li>
+<li>服务器用自己的私钥解密，得到同一个对称密钥</li>
+<li>这一阶段常见的协议是 TLS 中的 RSA、ECC（椭圆曲线加密）、DH、ECDH 等</li>
+</ul>
+<h2 id="优点：-1"><a href="#优点：-1" class="headerlink" title="优点："></a>优点：</h2><ul>
+<li>解决了密钥分发问题，公钥可以公开发布。</li>
+<li>支持数字签名，保证身份与完整性。</li>
+</ul>
+<h2 id="缺点：-1"><a href="#缺点：-1" class="headerlink" title="缺点："></a>缺点：</h2><ul>
+<li>计算速度比对称加密慢很多。</li>
+<li>只适合加密短数据或用于密钥交换。</li>
+</ul>
+<hr>
+<h1 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h1><p>HTTPS 是 HTTP 的安全版本，它在 HTTP 之上加了一层加密协议，常用的是 TLS（以前叫 SSL）。<br><strong>HTTPS &#x3D; HTTP + TLS</strong> -&gt; 浏览器访问 https:&#x2F;&#x2F; 时，实际上是在用 SSL&#x2F;TLS 加密 HTTP 请求和响应。</p>
+<p>服务器把它的公钥公开给客户端，通常通过证书发送给浏览器。<br>客户端用服务器的公钥来加密会话密钥或验证服务器签名。<br>服务器用自己的私钥来解密或签名。</p>
+<h2 id="HTTPS-常见场景："><a href="#HTTPS-常见场景：" class="headerlink" title="HTTPS 常见场景："></a>HTTPS 常见场景：</h2><ol start="0">
+<li>客户端发起请求：浏览器访问 <a target="_blank" rel="noopener" href="https://example.com/">https://example.com</a><ul>
+<li>服务器有一对长期密钥：公钥 + 私钥</li>
+</ul>
+</li>
+<li>客户端和服务器协商使用哪种加密算法，在 TLS 握手里，客户端和服务器协商的是一个“套件”，叫做 cipher suite，它通常包括几种算法：<ul>
+<li>Key Exchange（密钥交换算法），例如 RSA, ECDHE, DHE</li>
+<li>Authentication（身份验证算法），通常是证书签名所用的算法，如 RSA, ECDSA</li>
+<li>Bulk Encryption（对称加密算法），如 AES, ChaCha20</li>
+<li>MAC&#x2F;Hash（消息认证&#x2F;哈希算法），如 SHA256, SHA384</li>
+</ul>
+</li>
+<li>服务器提供证书（里面有公钥）：服务器发送自己的数字证书给浏览器</li>
+<li>客户端验证证书：确认服务器身份可信</li>
+<li>建立对称加密的会话密钥：浏览器使用服务器公钥加密一个随机对称密钥<ul>
+<li>客户端生成一个临时的对称会话密钥 K</li>
+<li>客户端使用服务器的公钥保护这个会话密钥</li>
+</ul>
+</li>
+<li>用这个会话密钥加密后续数据：服务器解密出对称密钥，后续通信用对称加密进行<ul>
+<li>服务器用自己的私钥解密，得到 K</li>
+</ul>
+</li>
+</ol>
+<h2 id="TLS-和-RSA"><a href="#TLS-和-RSA" class="headerlink" title="TLS 和 RSA"></a>TLS 和 RSA</h2><p>TLS 是一个安全协议，用来保护网络通信。<br>RSA 是一种加密算法，可以用于密钥交换、加密和数字签名。</p>
+<p>在 TLS 握手阶段，可以用 RSA 实现以下功能</p>
+<ul>
+<li>证书签名：服务器证书里常常包含 RSA 公钥，CA 会对证书签名。浏览器验证证书时，实际上是验证这个 RSA 公钥。</li>
+<li>身份验证：服务器用它对应的 RSA 私钥对握手数据签名，证明它是证书里的那台服务器。</li>
+<li>密钥交换：早期 TLS 版本里，客户端可以用服务器的 RSA 公钥加密一个随机的“预主密钥”，服务器用私钥解密，然后再生成对称会话密钥。</li>
+</ul>
+<p>RSA 可以是密钥交换算法，也可以是身份验证算法</p>
+<ul>
+<li>证书中公钥算法</li>
+<li>客户端加密“会话密钥”给服务器</li>
+<li>服务器用私钥解密<br>如果服务器证书使用 RSA，浏览器验证 CA 签名后，就信任该 RSA 公钥</li>
+</ul>
+<h2 id="密钥交换协议"><a href="#密钥交换协议" class="headerlink" title="密钥交换协议"></a>密钥交换协议</h2><p>现在大多数 TLS 连接不会直接用服务器公钥加密会话密钥，而是用“密钥交换协议”：</p>
+<ul>
+<li>例如 ECDHE &#x2F; DHE</li>
+<li>客户端和服务器各自生成一个临时的公私钥对</li>
+<li>通过交换各自的临时公钥，计算出共同的会话密钥 K</li>
+<li>这些临时密钥不是长期身份密钥，连接结束就废弃</li>
+</ul>
+<p>所以：</p>
+<ul>
+<li>服务器仍然有长期身份密钥对</li>
+<li>客户端通常不需要长期身份密钥对</li>
+<li>客户端确实会使用临时密钥材料来协商 K</li>
+</ul>
+<hr>
+<h1 id="CA-和证书"><a href="#CA-和证书" class="headerlink" title="CA 和证书"></a>CA 和证书</h1><p>证书：绑定公钥与身份，并由 CA 签名证明其可信<br>CA：受信任第三方，负责签发与验证证书，保证客户端不会误信伪造服务器</p>
+<p>证书是一个文件，它相当于“公钥的身份证明”，包含：</p>
+<ul>
+<li>持有者身份（如域名 example.com）</li>
+<li>持有者公钥</li>
+<li>证书颁发机构（CA）签名</li>
+<li>有效期、用途等信息</li>
+</ul>
+<p>CA（证书颁发机构）是一个受信任的第三方机构：</p>
+<ul>
+<li>它负责验证申请者身份、签发证书</li>
+<li>浏览器和操作系统预装了大量受信任 CA 根证书</li>
+</ul>
+<p>当浏览器收到服务器证书时，它会：</p>
+<ol>
+<li>检查证书是否由受信任 CA 签发</li>
+<li>检查证书是否针对当前域名</li>
+<li>检查证书是否在有效期内</li>
+<li>检查证书是否被撤销<br>如果验证通过，浏览器就信任该服务器公钥是真的属于这个服务器<br>这样客户端就能安全地用该公钥加密会话密钥，避免被中间人伪造</li>
+</ol>
+<p>服务器证书通常不是直接由根 CA 签发，而是由中间 CA 签发<br>浏览器通过证书链一路验证到根 CA，只有链条完整、签名有效，才被认定为可信服务器</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/05/07/%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BC%98%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/05/07/%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BC%98%E5%8C%96/" class="post-title-link" itemprop="url">客户端性能优化</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2026-05-07 16:36:32" itemprop="dateCreated datePublished" datetime="2026-05-07T16:36:32+08:00">2026-05-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-11-10 13:41:00" itemprop="dateModified" datetime="2026-11-10T13:41:00+08:00">2026-11-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>在面试中回答这个问题，建议从宏观的系统层面和微观的渲染层面两个维度来展开，并重点围绕“CPU瓶颈”与“GPU瓶颈”这两个核心概念来阐述。</p>
+<h1 id="系统层面"><a href="#系统层面" class="headerlink" title="系统层面"></a>系统层面</h1><h2 id="CPU与逻辑优化（解决主线程阻塞）"><a href="#CPU与逻辑优化（解决主线程阻塞）" class="headerlink" title="CPU与逻辑优化（解决主线程阻塞）"></a>CPU与逻辑优化（解决主线程阻塞）</h2><p><strong>减少DrawCall（绘制调用）</strong></p>
+<ul>
+<li>这是最常见的优化点。通过静态合批（合并静态场景）、动态合批（合并同材质小模型）以及GPU Instancing（大量重复物体如草丛、子弹的实例化渲染）来大幅降低CPU向GPU发送指令的次数。</li>
+</ul>
+<p><strong>预加载</strong></p>
+<ul>
+<li>预加载常用的资源，比如场景中的静态资源、UI 资源、音效资源等等。这些UI可以在游戏开始前加载UI资源但不实例化，只是将其加载到内存中。</li>
+<li>有些UI的实例化和初始化也可以提前到游戏开始前。实例化和初始化完成后，将其“隐藏”起来，待到需要的时候再将其展示出来。</li>
+<li>“隐藏”既可以将UI放在某一特定不被渲染或者未激活的层级，也可以将其放到摄像机视角之外藏起来。或者可以单独设置一个层级为不可见的layout，需要显示时再将UI元素放在可见层级中去。</li>
+<li>比如在场景加载阶段（Loading 界面）预先实例化核心 UI 并隐藏（SetActive(false)），这属于将提前初始化，而非延迟初始化，适合高频使用的核心界面。</li>
+</ul>
+<p><strong>异步处理与分帧加载 (Time-Slicing)</strong></p>
+<ul>
+<li>避免在每一帧（Update）中执行大量计算。将路径寻路、AI决策等耗时逻辑拆分到多帧执行，或者放入异步线程&#x2F;WebWorker中，防止阻塞主线程导致卡顿。</li>
+<li>对于包含大量子元素的列表（如背包系统），不要在同一帧初始化所有项。可以使用协程（Coroutine）每帧只初始化 2-3 个元素，避免单帧计算过载导致的掉帧。</li>
+</ul>
+<p><strong>物理与AI精简</strong></p>
+<ul>
+<li>关闭远处或视野外物体的物理碰撞检测和AI逻辑，只计算玩家周边的关键交互。</li>
+</ul>
+<h2 id="内存优化（杜绝泄漏与峰值溢出）"><a href="#内存优化（杜绝泄漏与峰值溢出）" class="headerlink" title="内存优化（杜绝泄漏与峰值溢出）"></a>内存优化（杜绝泄漏与峰值溢出）</h2><p><strong>对象池</strong></p>
+<ul>
+<li>对象池可以提高对象创建和销毁的效率，因为对象池中的对象可以重复使用，从而避免了创建和销毁对象的开销。</li>
+<li>延迟初始化后，不使用的 UI 不要直接 Destroy，而是放入对象池中。下次需要时，直接从池中取出并重新初始化，这比反复 Instantiate 性能更高。</li>
+</ul>
+<p><strong>延迟初始化</strong></p>
+<ul>
+<li>采用按需加载&#x2F;Lazy Initialization的思路，在运行时加载需要的资源，而不是在编译时加载所有的资源。</li>
+<li>仅在 UI 界面真正需要显示时，才调用 Instantiate 创建对象或从对象池中取出。</li>
+</ul>
+<p><strong>资源管理与按需加载</strong></p>
+<ul>
+<li>将资源采用高压缩率格式压缩，例如LZ4HC (用打包时间换空间)</li>
+<li>大世界采用流式加载，只加载玩家周围一定范围内的资源；切换场景或退出副本时，强制卸载无用资源并释放内存。</li>
+<li>在背包或一些数据项比较多的应用中，scroll view常常会有大量的元素存在，他们在窗口中的不断滚动变化导致前面说的网格重构，消耗大量的CPU资源。</li>
+<li>可以只实例化加载稍微比可视化区域大点的数据项UI，当滚动达到一定范围后再销毁一部分不可见的元素，同时加载一部分后续可能显示的元素（结合对象池）</li>
+</ul>
+<p><strong>字体拆分</strong></p>
+<ul>
+<li>字体一定程度上站了很大的空间（汉字😣），而且游戏打多需要的文字固定，没必要仅为少数的文字使用而加入整个字体库。</li>
+<li>数字字母等固定的字符可以单独打包，汉字常用字符3000足够游戏使用，真遇到特殊字符可以单独添加进去，在通过unity下的字体制作工具打包处理。</li>
+</ul>
+<p><strong>UI贴图</strong></p>
+<ul>
+<li>倒入贴图资源时，贴图的某些属性或数据其实并不是必要的，但要占用很大的空间，不合理的贴图大小也会增大资源占用。</li>
+<li>导入贴图资源时注意事项：<ol>
+<li>alpha通道是否需要</li>
+<li>2次方贴图大小 （宽、高分别是 2 的整数次幂，也叫 Power of Two 纹理，例如：256 × 256，512 × 1024）<br>  以前很多 GPU 对非 POT 纹理有限制，现在通常支持。但部分压缩格式仍对尺寸有要求，例如 PVRTC 常有 2 次幂限制，具体取决于平台和格式。不必把所有图片都强制改成 POT，应结合目标平台、压缩格式和图集设置判断。</li>
+<li>读写权限是否需要</li>
+<li>MipMap是否需要（多级渐远纹理）。它会为原图生成一组逐级缩小的版本，例如：1024 × 1024 → 512 × 512 → 256 × 256 → … → 1 × 1，物体远离镜头、贴图只占少量屏幕像素时，GPU 可以使用较小的版本<br>  开启 Mipmap 后，在普通纹理采样中，GPU 通常会自动选择合适的层级，前提是采样设置允许使用 Mipmap。它主要根据纹理坐标在相邻屏幕像素之间的变化率判断，相当于估算：一个屏幕像素覆盖了原贴图多少像素。</li>
+<li>合适的压缩方式</li>
+</ol>
+</li>
+<li>上述过程可以通过unity editor扩展asset importer pipeline的方式自动化管理，可以通过Texture Importer类控制指定导入路径的图片具体设置。</li>
+</ul>
+<h2 id="网络与IO优化"><a href="#网络与IO优化" class="headerlink" title="网络与IO优化"></a>网络与IO优化</h2><p><strong>协议压缩</strong></p>
+<ul>
+<li>使用 Protobuf 等二进制协议替代 JSON&#x2F;XML，大幅减小数据包体积，解析速度更快。</li>
+<li>Protobuf 是基于预定义协议（契约），在“对象”和“二进制字节数组”之间进行高效、双向转换的通信标准</li>
+<li>Protobuf 按照提前写好的 .proto 协议文件（也就是双方约定好的“契约”），通过字段编号、数据类型等规则，进行极其精简的二进制编码。</li>
+</ul>
+<p><strong>数据差分同步</strong></p>
+<ul>
+<li>状态同步时只发送变化的数据（如位置偏移量、血量变化），而不是发送全量数据。<ol>
+<li>只发送变化的字段：血量从 100 变成 90，只发送 { hp: 90 }，省略未变化的位置、装备等字段。</li>
+<li>只发送变化量：发送 { hpDelta: -10 }，客户端在原有血量上减去 10。</li>
+</ol>
+</li>
+<li>前者更容易纠正状态，后者依赖双方基准一致；丢包、重复处理或乱序可能导致偏差，因此通常需要版本号、顺序控制，以及定期全量同步来校准。</li>
+</ul>
+<hr>
+<h1 id="渲染层面"><a href="#渲染层面" class="headerlink" title="渲染层面"></a>渲染层面</h1><p>渲染优化的核心是减轻GPU的压力，核心指标是降低 Overdraw（过度绘制）和 FillRate（填充率）的消耗。</p>
+<h2 id="UI画布"><a href="#UI画布" class="headerlink" title="UI画布"></a>UI画布</h2><p><strong>动静分离</strong></p>
+<ul>
+<li>unity中UGUI系统都是使用网格模型来构建，UI元素只要“动”，就会发生网格的重构合并。正所谓牵一发而动全身，少的UI元素的动导致整个UI的重构，由此带来重绘导致了cpu的开销。</li>
+<li>UGUI系统以Canvas作为自己的重绘节点，所以需要以canvas作为节点拆分动和静的UI元素。</li>
+<li>将频繁更新的动态 UI 与不常变动的静态 UI 拆分到不同的 Canvas 中，因为每次UI更新都会触发 Canvas 的重建。</li>
+<li>这样当动态 UI 延迟加载并触发重建（Rebuild）时，不会影响到静态 Canvas 的性能。</li>
+</ul>
+<p><strong>降低 Overdraw（过度绘制）</strong></p>
+<ul>
+<li>控制透明层叠加：透明物体（如特效、粒子、UI流光）是 Overdraw 的重灾区。严格限制透明层的叠加数量（通常不超过2层），远距离的特效直接降低分辨率或关闭。</li>
+<li>遮挡剔除（Occlusion Culling）：开启引擎的遮挡剔除功能，被墙体等物体完全挡住的物体直接不参与渲染。</li>
+<li>分层渲染：将UI、场景、角色、特效划分不同的渲染层级，透明与不透明物体严格分离。</li>
+</ul>
+<p><strong>避免 Layout Group 重建</strong></p>
+<ul>
+<li>瞬间加载大量元素到含有 VerticalLayoutGroup 的父物体时，会导致剧烈的 Layout 重建。</li>
+<li>可以先禁用 Layout 组件，等所有元素加载完毕后，使用 LayoutRebuilder.ForceRebuildLayoutImmediate 一次性刷新。</li>
+</ul>
+<p><strong>网格重构</strong></p>
+<ul>
+<li>UGUI系统网格合并机制是，只有将相同材质球的网格合并在一起，才能达到最佳效果。一个材质球对应一个图集，只有相同图集内的图片才需要合并在一起。</li>
+<li>当元素需要改变颜色时，是通过改变顶点颜色实现，然后将他们重新合批到网格中去。在UI动画里修改UI颜色时，UGUI都会对网格进行重构。</li>
+<li>此时我们需要自定义UI元素的材质球，通过自定义材质球改变相应的颜色变化。</li>
+<li>此时UGUI不再重构网格，因为把渲染工作交给了新的材质球，而非通过UGUI设置顶点颜色达到效果。</li>
+</ul>
+<h2 id="模型与纹理优化"><a href="#模型与纹理优化" class="headerlink" title="模型与纹理优化"></a>模型与纹理优化</h2><p><strong>LOD（多细节层次）</strong></p>
+<ul>
+<li>根据物体距离摄像机的远近，自动切换不同精度的模型。远处的物体使用低模（面数少），近处使用高模。</li>
+</ul>
+<p><strong>纹理压缩与格式选择</strong></p>
+<ul>
+<li>使用 GPU 友好的压缩格式（如 ASTC、ETC2、BC7），在保证画质的前提下大幅降低显存占用和带宽压力。</li>
+</ul>
+<h2 id="Shader（着色器）轻量化"><a href="#Shader（着色器）轻量化" class="headerlink" title="Shader（着色器）轻量化"></a>Shader（着色器）轻量化</h2><p><strong>简化光照计算</strong></p>
+<ul>
+<li>移动端尽量避免复杂的光照模型、实时阴影和高光反射。</li>
+</ul>
+<p><strong>减少分支指令</strong></p>
+<ul>
+<li>Fragment Shader（片元着色器）中的 if&#x2F;else 分支会严重影响GPU并行计算效率，尽量用数学运算替代逻辑分支。</li>
+</ul>
+<hr>
+<h1 id="性能分析工具"><a href="#性能分析工具" class="headerlink" title="性能分析工具"></a>性能分析工具</h1><ul>
+<li>优化不能靠猜，必须依赖工具。</li>
+<li>常用的有 Unity 的 Profiler &#x2F; Frame Debugger，或者第三方的 RenderDoc、Snapdragon Profiler。</li>
+<li>通过这些工具可以精准定位到当前帧的瓶颈是在 CPU（如 DrawCall 过高）还是 GPU（如 Overdraw 严重或 Shader 过于复杂），从而进行针对性的优化。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/05/07/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E7%B1%BB%E5%9E%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1540,368 +1921,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/20/Unity%E8%B5%84%E6%BA%90%E5%8A%A0%E8%BD%BD/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/03/20/Unity%E8%B5%84%E6%BA%90%E5%8A%A0%E8%BD%BD/" class="post-title-link" itemprop="url">Unity资源加载</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2026-03-20 16:49:19" itemprop="dateCreated datePublished" datetime="2026-03-20T16:49:19+08:00">2026-03-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Resources"><a href="#Resources" class="headerlink" title="Resources"></a>Resources</h1><p>Resources文件夹是一个只读的文件夹，通过Resources.Load()来读取对象。<br>因为这个文件夹下的所有资源都可以运行时来加载，所以Resources文件夹下的所有东西都会被无条件的打到发布包中。<br>建议这个文件夹下只放Prefab文件，因为Prefab会自动过滤掉对象上不需要的资源。</p>
-<ul>
-<li>举个例子我把模型文件还有贴图文件都放在了Resources文件夹下，但是我有两张贴图是没有在模型上用的，那么此时这两张没用的贴图也会被打包到发布包中。</li>
-<li>假如这里我用Prefab，那么Prefab会自动过滤到这两张不被用的贴图，这样发布包就会小一些了。</li>
-<li>此时，若prefab引用的贴图在resources文件夹下，则贴图仍然会被打进包中，因为resources文件夹对资源无条件打包。</li>
-<li>若prefab引用的贴图在AB包中，则实例化prefab之前，必须手动去把AB加载出来。</li>
-<li>就算prefab不是在resources文件来而是在不同于它引用的贴图的AB包中，也一样要在实例化前把贴图所在的AB加载出来；但不用把贴图加载出来，prefab会自动去加载它。</li>
-</ul>
-<h2 id="Resources-Load"><a href="#Resources-Load" class="headerlink" title="Resources.Load"></a>Resources.Load</h2><p>Unity 打包时为每个资源分配 UID，同时建立一张”路径→UID”映射表存在配置文件里。<br>加载时先查表把路径转成 UID，再用 UID 找到实际数据。</p>
-<blockquote>
-<p>Assets&#x2F;Resources&#x2F;ui&#x2F;icon.png<br>↓ 打包<br>resources.assets（包含所有未被场景引用的Resources资源）<br>↓ 运行时<br><code>Resources.Load(&quot;ui/icon&quot;, typeof(Sprite))</code>  </p>
-</blockquote>
-<p>特殊情况：如果 Resources 下的资源被场景直接引用，会打进 sharedassets[level].assets 而不是 resources.assets，不同目录下的 Resources 文件夹资源路径最好不重名。</p>
-<p>卸载资源时用UnloadUnusedAssets（注意：UnloadAsset 对 Resources 无效）</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// 加载</span><br><span class="line">Texture2D tex = Resources.Load(&quot;ui/icon&quot;, typeof(Texture2D)) as Texture2D;</span><br><span class="line"></span><br><span class="line">// 卸载</span><br><span class="line">Resources.UnloadUnusedAssets(); // 正确方式</span><br><span class="line">// Resources.UnloadAsset(tex); 只对 AB 包加载的资源有效</span><br><span class="line"></span><br><span class="line">// 查找场景中所有同类型对象（包括未激活的）</span><br><span class="line">Resources.FindObjectsOfTypeAll&lt;GameObject&gt;();</span><br></pre></td></tr></table></figure>
-
-<p>优点：</p>
-<ul>
-<li>使用极简，一行代码加载</li>
-<li>不需要管理 AB 包依赖</li>
-</ul>
-<p>缺点：</p>
-<ul>
-<li>所有 Resources 资源无论用没用都打进安装包，包体膨胀</li>
-<li>无法热更，改资源必须重新发版</li>
-<li>大量资源时启动慢（Unity 启动时要建立完整索引表）</li>
-</ul>
-<h1 id="StreamingAssets"><a href="#StreamingAssets" class="headerlink" title="StreamingAssets"></a>StreamingAssets</h1><p>StreamingAssets文件夹也是一个只读的文件夹，其目录下的文件在打包时完全不处理，原样复制到目标平台，保留原始文件格式和路径结构。</p>
-<ul>
-<li>Resources文件夹下的资源会进行一次压缩，而且也会加密，不使用点特殊办法是拿不到原始资源的</li>
-<li>StreamingAssets文件夹下面的所有资源不会被加密，然后是原封不动的打包到发布包中，这样很容易就拿到里面的文件。所以StreamingAssets适合放一些二进制文件，而Resources更适合放一些GameObject和Object文件。<ul>
-<li>比如 icon.png 是源文件，放进 Resources 后打包时变成 Texture2D Object，使用Resources.Load&lt;Texture2D&gt;(“icon”)可直接返回 Texture2D 对象</li>
-<li>放进 StreamingAssets 它还是原始 .png，Unity 不处理它。</li>
-</ul>
-</li>
-</ul>
-<h2 id="各平台存储位置"><a href="#各平台存储位置" class="headerlink" title="各平台存储位置"></a>各平台存储位置</h2><blockquote>
-<p>Windows&#x2F;Editor  → [项目]&#x2F;Assets&#x2F;StreamingAssets&#x2F;<br>iOS             → [.ipa包]&#x2F;Data&#x2F;Raw&#x2F;<br>Android         → [.apk包]&#x2F;assets&#x2F;  （压缩存储在zip内）<br>WebGL           → 无法直接访问  </p>
-</blockquote>
-<p>Android 特殊处理（存在 APK 压缩包内，不能直接用文件路径）：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// Android 必须用 UnityWebRequest</span><br><span class="line">IEnumerator LoadVideoAndroid(string fileName)</span><br><span class="line">&#123;</span><br><span class="line">    string path = Path.Combine(Application.streamingAssetsPath, fileName);</span><br><span class="line">    using var req = UnityWebRequest.Get(path);</span><br><span class="line">    yield return req.SendWebRequest();</span><br><span class="line">    byte[] data = req.downloadHandler.data;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 其他平台可以直接用文件路径</span><br><span class="line">string videoPath = Path.Combine(Application.streamingAssetsPath, &quot;intro.mp4&quot;);</span><br><span class="line">videoPlayer.url = videoPath;</span><br></pre></td></tr></table></figure>
-
-<p>优点：</p>
-<ul>
-<li>保留原始文件格式，适合需要文件路径的第三方库</li>
-<li>视频播放器、SQLite 数据库等可以直接访问</li>
-<li>不经过 Unity 资源管道，格式不受限</li>
-</ul>
-<p>缺点：</p>
-<ul>
-<li>Android 上访问慢且必须用 UnityWebRequest</li>
-<li>无法热更</li>
-<li>不适合大量小文件（没有打包优化）</li>
-</ul>
-<p>实际用例：</p>
-<ul>
-<li>视频文件（需要 VideoPlayer 直接访问路径）</li>
-<li>SQLite 数据库初始文件（首次运行复制到 PersistentDataPath 再读写）</li>
-<li>第三方 SDK 需要的配置文件</li>
-<li>AB 包的初始版本（首次运行写入缓存）</li>
-</ul>
-<h2 id="PersistentDataPath"><a href="#PersistentDataPath" class="headerlink" title="PersistentDataPath"></a>PersistentDataPath</h2><p>由于StreamingAssets文件夹里的内容只能读不能写，所以在需要进行写入操作的时候可以使用PersistentDataPath文件夹，此目录下的文件可读可写，但和StreamingAssets的不同点是：在Editor阶段没有，等到手机安装App后在目标设备上自动生成</p>
-<ul>
-<li>可以将一些需要读写的文件先放在Streaming Assets，在App安装后通过代码Copy到PersistentDataPath文件夹，比如上面提到的数据库初始文件</li>
-</ul>
-<h1 id="AssetBundle"><a href="#AssetBundle" class="headerlink" title="AssetBundle"></a>AssetBundle</h1><p>资源在 Inspector 面板右下角设置包名和变体名，相同包名打进同一个 .ab 文件。</p>
-<blockquote>
-<p>包名: characters&#x2F;hero    变体名: hd<br>包名: characters&#x2F;hero    变体名: sd<br>→ 生成 characters&#x2F;hero.hd 和 characters&#x2F;hero.sd 两个变体包  </p>
-</blockquote>
-<p>变体包（Variant）是同一资源的不同版本，用于针对不同设备&#x2F;平台加载不同质量的内容，但代码层面引用名称保持一致。</p>
-<figure class="highlight cs"><figcaption><span>根据设备性能决定加载哪个变体</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> variant = SystemInfo.systemMemorySize &gt; <span class="number">4096</span> ? <span class="string">&quot;hd&quot;</span> : <span class="string">&quot;sd&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 加载对应变体的 AB 包</span></span><br><span class="line"><span class="built_in">string</span> bundlePath = <span class="string">$&quot;characters/hero.<span class="subst">&#123;variant&#125;</span>&quot;</span>;</span><br><span class="line">AssetBundle ab = AssetBundle.LoadFromFile(bundlePath);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 资源名称不变，Unity 自动从当前加载的变体中取</span></span><br><span class="line">GameObject hero = ab.LoadAsset&lt;GameObject&gt;(<span class="string">&quot;Hero&quot;</span>);</span><br><span class="line">Instantiate(hero);</span><br></pre></td></tr></table></figure>
-
-<p>运行游戏时加载方式：</p>
-<figure class="highlight cs"><figcaption><span>本地加载和从服务器下载</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 本地加载</span></span><br><span class="line">AssetBundle ab = AssetBundle.LoadFromFile(path);</span><br><span class="line">GameObject prefab = ab.LoadAsset&lt;GameObject&gt;(<span class="string">&quot;Hero&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 网络下载（带缓存）</span></span><br><span class="line"><span class="function">IEnumerator <span class="title">LoadFromCDN</span>(<span class="params"><span class="built_in">string</span> url, <span class="built_in">uint</span> version</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">var</span> req = UnityWebRequestAssetBundle.GetAssetBundle(url, version, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">yield</span> <span class="keyword">return</span> req.SendWebRequest();</span><br><span class="line">    AssetBundle ab = DownloadHandlerAssetBundle.GetContent(req);</span><br><span class="line">    <span class="keyword">var</span> prefab = ab.LoadAsset&lt;GameObject&gt;(<span class="string">&quot;Hero&quot;</span>);</span><br><span class="line">    Instantiate(prefab);</span><br><span class="line">    ab.Unload(<span class="literal">false</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>优点：</p>
-<ul>
-<li>支持热更新，资源可以独立于安装包更新</li>
-<li>按需加载，减少内存占用</li>
-<li>支持变体，同一资源针对不同平台&#x2F;设备加载不同版本</li>
-<li>可以精细控制加载和卸载时机</li>
-</ul>
-<p>缺点：</p>
-<ul>
-<li>需要管理依赖关系，漏加载依赖包会导致资源丢失，或者依赖未正确处理会产生资源冗余（同一资源打进多个包）</li>
-<li>开发流程复杂，需要额外的打包和版本管理系统</li>
-<li>Unload 使用不当会导致内存泄漏或纹理变洋红</li>
-</ul>
-<p>实际用例：</p>
-<ul>
-<li>手游热更新（关卡、角色、皮肤）</li>
-<li>DLC 内容下载</li>
-<li>大型游戏按需加载地图&#x2F;场景</li>
-<li>多语言资源包（不同语言加载不同 AB）</li>
-</ul>
-<p>现代 Unity 项目的推荐方案是用 Addressables，它是对 AssetBundle 的封装，自动处理依赖、缓存和版本管理，大幅降低 AB 包的使用复杂度。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/19/%E5%8E%8B%E7%BC%A9%E6%A0%BC%E5%BC%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/03/19/%E5%8E%8B%E7%BC%A9%E6%A0%BC%E5%BC%8F/" class="post-title-link" itemprop="url">压缩格式</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2026-03-19 16:19:01" itemprop="dateCreated datePublished" datetime="2026-03-19T16:19:01+08:00">2026-03-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-11-03 19:25:57" itemprop="dateModified" datetime="2026-11-03T19:25:57+08:00">2026-11-03</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="LZ-系列（通用数据压缩）"><a href="#LZ-系列（通用数据压缩）" class="headerlink" title="LZ 系列（通用数据压缩）"></a>LZ 系列（通用数据压缩）</h1><p>LZ 系列都基于同一个核心思想：找重复的字节序列，用引用替代。</p>
-<blockquote>
-<p>原始数据：<br>“abcdefabcdef”  </p>
-<p>压缩后：<br>“abcdef” + (往前6个字节，复制6个字节)<br>↑ 这就是一个”引用”，比重复存储省空间  </p>
-<p>压缩结果：<br>[literal: abcdef] [match: offset&#x3D;6, len&#x3D;6]  </p>
-</blockquote>
-<h2 id="LZMA-Lempel-Ziv-Markov-chain-Algorithm"><a href="#LZMA-Lempel-Ziv-Markov-chain-Algorithm" class="headerlink" title="LZMA (Lempel-Ziv-Markov chain Algorithm)"></a>LZMA (Lempel-Ziv-Markov chain Algorithm)</h2><p>7-Zip 使用的算法，压缩率极高但速度慢。</p>
-<ul>
-<li>在 LZ 基础上加了马尔可夫链概率模型</li>
-<li>用范围编码（Range Encoding）替代哈夫曼编码</li>
-<li>搜索窗口极大（最大 4GB），能找到更远的重复</li>
-</ul>
-<p>普通LZ: 只看前面 32KB 找重复<br>LZMA: 看前面最多 4GB 找重复 → 压缩率更高，但更慢更耗内存</p>
-<ul>
-<li>压缩率：极高（最好）</li>
-<li>压缩速度：很慢</li>
-<li>解压速度：中等</li>
-<li>适合：安装包、资源包（压缩一次，解压多次）</li>
-</ul>
-<h2 id="LZ4"><a href="#LZ4" class="headerlink" title="LZ4"></a>LZ4</h2><p>专为速度设计，压缩率换速度。</p>
-<ul>
-<li>搜索窗口只有 64KB，不追求最优匹配</li>
-<li>输出格式极简，解压只需简单的内存拷贝操作</li>
-<li>几乎不做概率统计，纯粹的字节匹配</li>
-</ul>
-<blockquote>
-<p>LZ4 数据块格式：<br>[token 1字节] [extra literal长度?] [literal数据] [match偏移 2字节] [extra match长度?]  </p>
-<p>数据: “abcdeabcde”  </p>
-<p>序列1: literal&#x3D;”abcde”(5字节) + match(偏移5, 长度4) → 复制”abcd”<br>序列2: literal&#x3D;”e”(1字节，收尾无match)  </p>
-<p>但 LZ4 规范明确规定：最后一个序列必须以至少5字节的 literal 结尾，且没有 match 部分。<br>所以实际上 LZ4 编码器会放弃这个 match，直接把整个 “abcdeabcde” 当 literal 输出：  </p>
-<p>token &#x3D; 0xA0  → 高4位&#x3D;10(literal长度10), 低4位&#x3D;0<br>literal &#x3D; “abcdeabcde”  </p>
-</blockquote>
-<ul>
-<li>压缩率：一般</li>
-<li>压缩速度：极快</li>
-<li>解压速度：极快（接近内存带宽上限）</li>
-<li>适合：运行时实时解压、游戏资源热加载</li>
-</ul>
-<h2 id="LZ4HC-LZ4-High-Compression"><a href="#LZ4HC-LZ4-High-Compression" class="headerlink" title="LZ4HC (LZ4 High Compression)"></a>LZ4HC (LZ4 High Compression)</h2><p>LZ4 的高压缩变体，压缩慢但解压和 LZ4 一样快。</p>
-<blockquote>
-<p>LZ4   → 快速找”够用”的匹配就行<br>LZ4HC → 穷举搜索”最优”匹配，压缩慢3-10倍<br>但输出格式完全兼容LZ4，解压速度相同  </p>
-</blockquote>
-<p>适合：离线打包资源（压缩慢没关系），运行时快速解压。</p>
-<hr>
-<h1 id="DXT-Texture（GPU-纹理压缩）"><a href="#DXT-Texture（GPU-纹理压缩）" class="headerlink" title="DXT Texture（GPU 纹理压缩）"></a>DXT Texture（GPU 纹理压缩）</h1><p>和上面完全不同，DXT 是专门为 GPU 设计的，解压在 GPU 硬件上完成，不占 CPU。</p>
-<h2 id="块压缩（Block-Compression）"><a href="#块压缩（Block-Compression）" class="headerlink" title="块压缩（Block Compression）"></a>块压缩（Block Compression）</h2><blockquote>
-<p>把纹理分成 4×4 像素的小块：<br>┌──┬──┬──┬──┐<br>│  │  │  │  │<br>├──┼──┼──┼──┤<br>│  │  │  │  │  每个 4×4 块 &#x3D; 16个像素<br>├──┼──┼──┼──┤<br>│  │  │  │  │  原始大小 &#x3D; 16 × 4字节(RGBA) &#x3D; 64字节<br>├──┼──┼──┼──┤<br>│  │  │  │  │<br>└──┴──┴──┴──┘  </p>
-</blockquote>
-<h2 id="DXT1-BC1"><a href="#DXT1-BC1" class="headerlink" title="DXT1 (BC1)"></a>DXT1 (BC1)</h2><blockquote>
-<p>每个 4×4 块只存：  </p>
-<ul>
-<li>2个”端点颜色” color0, color1（各16位）  </li>
-<li>16个像素各2位的索引（选0%&#x2F;33%&#x2F;66%&#x2F;100%插值）</li>
-</ul>
-<p>存储大小 &#x3D; 8字节（原来64字节）→ 压缩比 8:1  </p>
-<p>color0 ──────────────────── color1<br>|        |         |        |<br>100%     66%       33%       0%<br>↑ 每个像素用2bit选择落在哪个位置  </p>
-</blockquote>
-<hr>
-<h1 id="Unity-中的压缩格式"><a href="#Unity-中的压缩格式" class="headerlink" title="Unity 中的压缩格式"></a>Unity 中的压缩格式</h1><p>AssetBundle有三种压缩模式</p>
-<blockquote>
-<p>AssetBundle 文件：<br>┌─────────────────────────────┐<br>│         Header              │  版本、压缩类型、文件信息<br>├─────────────────────────────┤<br>│      Catalog&#x2F;Manifest       │  资源索引表（资源名→文件偏移）<br>├─────────────────────────────┤<br>│       Asset Data            │  实际资源数据（压缩块）<br>│  [block0][block1][block2]   │<br>└─────────────────────────────┘  </p>
-</blockquote>
-<figure class="highlight cs"><figcaption><span>打包时指定压缩方式</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">BuildAssetBundles(<span class="string">&quot;Assets/AB&quot;</span>, BuildAssetBundleOptions.None);              <span class="comment">// LZMA</span></span><br><span class="line">BuildAssetBundles(<span class="string">&quot;Assets/AB&quot;</span>, BuildAssetBundleOptions.ChunkBasedCompression); <span class="comment">// LZ4</span></span><br><span class="line">BuildAssetBundles(<span class="string">&quot;Assets/AB&quot;</span>, BuildAssetBundleOptions.UncompressedAssetBundle); <span class="comment">// 不压缩</span></span><br></pre></td></tr></table></figure>
-
-<p>LZMA（整体压缩）</p>
-<blockquote>
-<p>整个 AB 文件作为一个流压缩：<br>┌────────────────────────────────────┐<br>│  LZMA压缩流（Header+Catalog+Data）   │<br>└────────────────────────────────────┘  </p>
-<p>加载时必须解压整个文件才能读取任何一个资源<br>→ 体积最小，但加载慢，内存峰值高  </p>
-</blockquote>
-<p>LZ4（块压缩）</p>
-<blockquote>
-<p>每个数据块独立压缩：<br>┌────────┬────────┬────────┬────────┐<br>│ block0 │ block1 │ block2 │ block3 │  每块独立LZ4压缩<br>└────────┴────────┴────────┴────────┘  </p>
-<p>加载某个资源时只解压它所在的块<br>→ 体积稍大，但可以随机访问，加载快  </p>
-</blockquote>
-<h2 id="下载包-vs-运行时加载"><a href="#下载包-vs-运行时加载" class="headerlink" title="下载包 vs 运行时加载"></a>下载包 vs 运行时加载</h2><p>这是两个不同阶段，关注点完全不同：</p>
-<blockquote>
-<p>下载阶段：<br>用户等待下载 → 关注流量和时间<br>→ 用 LZMA，体积最小，节省流量和下载时间<br>→ 下载完存到本地磁盘  </p>
-<p>运行时加载阶段：<br>游戏运行中加载资源 → 关注速度和流畅度<br>→ 用 LZ4，随机访问，解压快，不卡帧<br>→ 从本地磁盘读取并解压到内存  </p>
-</blockquote>
-<p>实际工作流：</p>
-<blockquote>
-<p>服务器存 LZMA 包<br>↓ 用户下载<br>本地磁盘存 LZMA 包<br>↓ 首次加载时 Unity 转换（RecompressAssetBundleAsync）<br>本地缓存存 LZ4 包<br>↓ 之后每次启动<br>直接加载 LZ4 包，速度快  </p>
-</blockquote>
-<ul>
-<li>Unity 不会自动将LZMA转换成LZ4（除非用 UnityWebRequest + 缓存版本号）</li>
-<li>转换 &#x3D; 解压 LZMA + 重压缩 LZ4，是两步操作</li>
-<li>推荐在下载完成后立即转换，游戏运行时直接读 LZ4</li>
-</ul>
-<figure class="highlight cs"><figcaption><span>Unity 提供的重压缩 API</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">IEnumerator <span class="title">DownloadAndRecompress</span>(<span class="params"><span class="built_in">string</span> url, <span class="built_in">string</span> savePath, <span class="built_in">string</span> cachePath</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 下载 LZMA 包</span></span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">var</span> req = UnityWebRequestAssetBundle.GetAssetBundle(url);</span><br><span class="line">    <span class="keyword">yield</span> <span class="keyword">return</span> req.SendWebRequest();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 存到磁盘</span></span><br><span class="line">    File.WriteAllBytes(savePath, req.downloadHandler.data);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 立即转换成 LZ4 存到缓存目录</span></span><br><span class="line">    <span class="keyword">var</span> op = AssetBundle.RecompressAssetBundleAsync(</span><br><span class="line">        savePath, cachePath,</span><br><span class="line">        BuildCompression.LZ4,</span><br><span class="line">        <span class="number">0</span>, ThreadPriority.Low</span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">yield</span> <span class="keyword">return</span> op;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 删掉原始 LZMA 包（可选）</span></span><br><span class="line">    File.Delete(savePath);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 之后加载用 cachePath</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h1 id="哈夫曼编码"><a href="#哈夫曼编码" class="headerlink" title="哈夫曼编码"></a>哈夫曼编码</h1><p>思路：高频字符用短编码，低频字符用长编码，减少总位数。</p>
-<blockquote>
-<p>原始数据：”AAAAABBBCD”<br>统计频率：A&#x3D;5, B&#x3D;3, C&#x3D;1, D&#x3D;1  </p>
-<p>建哈夫曼树：<br>10<br>&#x2F;  \<br>A    5<br>(5)  &#x2F; \<br>B   2<br>(3) &#x2F; \<br>C   D<br>(1) (1)  </p>
-<p>编码结果：<br>A → 0      (1位)<br>B → 10     (2位)<br>C → 110    (3位)<br>D → 111    (3位)  </p>
-<p>原始：10字符 × 8位 &#x3D; 80位<br>压缩：5×1 + 3×2 + 1×3 + 1×3 &#x3D; 17位  → 压缩率 79%  </p>
-</blockquote>
-<h2 id="DEFLATE-LZ77-哈夫曼（zip-gzip-PNG-都用这个）"><a href="#DEFLATE-LZ77-哈夫曼（zip-gzip-PNG-都用这个）" class="headerlink" title="DEFLATE &#x3D; LZ77 + 哈夫曼（zip&#x2F;gzip&#x2F;PNG 都用这个）"></a>DEFLATE &#x3D; LZ77 + 哈夫曼（zip&#x2F;gzip&#x2F;PNG 都用这个）</h2><p>先用 LZ 消除重复，再用哈夫曼压缩剩余符号：</p>
-<blockquote>
-<p>第一步 LZ77：<br>原始: “abcdeabcde”<br>输出: [literal:abcde] [match:5,5]<br>↓ 转成符号流<br>a b c d e <code>&lt;match:5,5&gt;</code>  </p>
-<p>第二步 哈夫曼：<br>对符号流统计频率，高频符号用短编码<br>a,b,c,d,e 各出现1次<br><match> 出现1次<br>→ 再压缩一遍  </p>
-<p>两步叠加，压缩率比单独用任何一种都高  </p>
-</blockquote>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1979,20 +1998,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-count">53</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
