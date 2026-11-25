@@ -161,6 +161,97 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/03/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/03/03/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">单例模式</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-03-03 11:47:07 / Modified: 11:55:03" itemprop="dateCreated datePublished" datetime="2026-03-03T11:47:07+08:00">2026-03-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Design-Paradigm/" itemprop="url" rel="index"><span itemprop="name">Design Paradigm</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h1><ol>
+<li>全局唯一实例：单例模式确保在整个应用程序中只有一个实例存在，可以提供一个全局的访问点，方便对实例的管理和调用。</li>
+<li>节省资源：由于只有一个实例存在，可以避免重复创建实例，节省了系统资源。</li>
+<li>避免竞态条件：在多线程环境下，使用单例模式可以避免由于竞态条件而导致的问题，如资源争夺、数据不一致等。</li>
+<li>实现了懒加载：某些单例模式的实现方式（如懒汉式）在需要时才创建实例，实现了延迟加载，节省了内存空间。</li>
+<li>继承monobehaviour的单例有unity生命周期函数和也可以调用协程，可以用来控制没有继承monobehaivour的脚本组件</li>
+</ol>
+<h1 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h1><ol>
+<li>可能引入全局状态：由于单例模式提供了全局访问点，可能会导致多个部分之间共享了同一个状态，增加了系统的耦合性。</li>
+<li>可能造成性能瓶颈：在高并发环境下，单例模式的实现需要考虑线程安全性，可能会引入锁机制，导致性能下降。</li>
+<li>隐藏了依赖关系：单例模式的使用会隐藏类的依赖关系，增加了代码的复杂性和理解难度。</li>
+<li>不利于扩展和测试：单例模式一般是通过静态方法获取实例，难以进行扩展和替换，也不利于单元测试。</li>
+<li>可能造成内存泄漏：如果实例被长时间持有而不释放，可能会造成内存泄漏，特别是在移动端或长时间运行的服务中。</li>
+</ol>
+<h1 id="实例化方法"><a href="#实例化方法" class="headerlink" title="实例化方法"></a>实例化方法</h1><p>懒汉式（Lazy Initialization）：在第一次使用时创建实例。</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Singleton</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Singleton instance;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="title">Singleton</span>()</span> &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> synchronized Singleton <span class="title">getInstance</span>()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">            instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>饿汉式（Eager Initialization）：在类加载时就创建实例。</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Singleton</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> final Singleton instance = <span class="keyword">new</span> Singleton();</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="title">Singleton</span>()</span> &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span>()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/02/11/%E4%BA%8B%E4%BB%B6%E5%92%8C%E5%A7%94%E6%89%98/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1234,7 +1325,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-11-24 18:05:07" itemprop="dateModified" datetime="2026-11-24T18:05:07+08:00">2026-11-24</time>
+                <time title="Modified: 2026-11-24 18:14:35" itemprop="dateModified" datetime="2026-11-24T18:14:35+08:00">2026-11-24</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1270,35 +1361,6 @@
 </ol>
 <p>CPU应用程序端逻辑：经过剔除、排序等等，将模型数据打包发给GPU渲染管线<br>GPU渲染管线：拿到模型数据后，讲图像画出来，存放在对应的帧缓冲区中</p>
 <p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p3.png" title="CPU打包数据"> <br></p>
-<h2 id="剔除算法"><a href="#剔除算法" class="headerlink" title="剔除算法"></a>剔除算法</h2><ol>
-<li>层过滤：Layer Culling<br>这不是复杂的几何算法，而是规则过滤。例如某台相机只绘制场景层，不绘制特效层。实现上用位掩码判断：</li>
-</ol>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">bool</span> included = (cameraMask &amp; (<span class="number">1</span> &lt;&lt; objectLayer)) != <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
-<p>不匹配的对象不进入这台相机的绘制范围。Unity 的 <code>Camera.cullingMask</code> 就是这个用途。<br><strong>特点</strong>：判断便宜，但它并不分析对象 “实际看不看得见”，只是执行你指定的规则。</p>
-<ol start="2">
-<li>距离剔除：Distance Culling<br>可以给不同类别设置不同距离：小装饰物近一些剔除，大建筑远一些剔除。<br>Unity 支持 <code>Camera.layerCullDistances</code>；其默认判断边界是与相机对齐的平面，也可以通过 <code>layerCullSpherical</code> 改成球形距离边界。</li>
-</ol>
-<p>距离剔除通常属于<strong>画质与性能的主动取舍</strong>，需要考虑突然消失的视觉问题。它与视锥剔除的区别是：</p>
-<ul>
-<li><strong>视锥剔除</strong>：这个对象位于当前可见范围之外。</li>
-<li><strong>距离剔除</strong>：对象可能仍在视野里，但超过了允许显示的距离。</li>
-</ul>
-<ol start="3">
-<li>视锥剔除：Frustum Culling<br>它判断对象的包围体是否位于相机视锥之外。通常测试包围球、AABB 或 OBB，而不是逐个三角形测试。<strong>包围体完全在外面才剔除；与视锥相交则保留。</strong><blockquote>
-<p>测试父节点包围体<br>├─ 完全在外面 → 整棵子树跳过<br>├─ 完全在里面 → 子节点不用再做该视锥测试<br>└─ 与边界相交 → 继续测试子节点</p>
-</blockquote>
-</li>
-</ol>
-<p>BVH、八叉树不是另一种可见性判断规则，而是让剔除测试更高效的数据结构。</p>
-<ol start="4">
-<li>PVS：Potentially Visible Set 预计算潜在可见集</li>
-<li>把场景划分为多个空间区域（Cell）。</li>
-<li>离线计算：从每个区域中，哪些其他区域可能可见。</li>
-<li>保存这些集合。</li>
-<li>运行时找到相机所在区域，只考虑对应 PVS 中的对象或区域。</li>
-<li>对剩余对象继续做视锥等测试。</li>
-</ol>
-<p>它保存的是<strong>可能可见</strong>，不一定是 “此刻确实可见”。例如某个房间从当前区域的某个位置能看到，就可能被保留。<br><strong>优点</strong>：把复杂计算转移到离线阶段。<br><strong>代价</strong>：需要存储数据，而且可见性依赖用于预计算的场景结构。Unity 传统烘焙式遮挡剔除也是先生成 Cell 与可见性数据，再在运行时查询；它允许动态对象被遮挡，但动态对象不能作为该烘焙系统的遮挡者。</p>
 <h1 id="GPU渲染管线"><a href="#GPU渲染管线" class="headerlink" title="GPU渲染管线"></a>GPU渲染管线</h1><ol start="0">
 <li>CPU打包数据：vertex buffer&#x2F;index buffer&#x2F;frustum视锥&#x2F;directional light平行光&#x2F;texture+shader<br> • SetPass Call：设定好渲染设置后，告诉GPU使用哪个shader，使用哪种混合模式、设置背面剔除等等，当使用不同的材质或者相同的材质下不同的Pass时需要设置切换多个渲染状态，就会增加SetPassCall，所以SetPassCall的次数也能反映性能<br> • Draw Call（绘制调用）：CPU打包数据发送给GPU，告诉GPU使用哪些模型数据进行渲染</li>
 <li>Vertex Shader: 使用顶点&#x2F;视锥信息将模型空间变换到屏幕空间</li>
@@ -1336,85 +1398,6 @@
 <hr>
 <h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/lel18570471704/article/details/134708949">https://blog.csdn.net/lel18570471704/article/details/134708949</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/667522425">https://zhuanlan.zhihu.com/p/667522425</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/407046161">https://zhuanlan.zhihu.com/p/407046161</a><br>图元vs片元：<a target="_blank" rel="noopener" href="https://blog.csdn.net/DoomGT/article/details/115806364">https://blog.csdn.net/DoomGT/article/details/115806364</a></p>
 <hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/" class="post-title-link" itemprop="url">变换矩阵</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2025-08-08 11:42:32 / Modified: 15:25:06" itemprop="dateCreated datePublished" datetime="2025-08-08T11:42:32+08:00">2025-08-08</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Math/" itemprop="url" rel="index"><span itemprop="name">Math</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>固定坐标系下，一个对象的变换等价于固定对象所处的坐标系变换。</p>
-<p><img src="/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/p1.png" title="标量"> <br></p>
-<p>经过线性变换(直线依旧是直线，保持网格线平等且等距分布，并且原点保持固定)：</p>
-<p><img src="/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/p2.png" title="标量变换"> <br></p>
-<p>如图，新坐标系的基就是那个绿箭头和红箭头，在原来的ij坐标系下的坐标值是[1,-2]和[3,0]。经过如图的计算过程，坐标系的变化，导致原来的V向量变成了[5,2]，实现了移动。</p>
-<h1 id="Transformation-Matrix"><a href="#Transformation-Matrix" class="headerlink" title="Transformation Matrix"></a>Transformation Matrix</h1><p>常见的变换矩阵类型：<br><img src="/2025/08/08/%E5%8F%98%E6%8D%A2%E7%9F%A9%E9%98%B5/p3.png" title="变换矩阵举例"> <br></p>
 
       
     </div>
@@ -1507,7 +1490,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">53</span>
+          <span class="site-state-item-count">54</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

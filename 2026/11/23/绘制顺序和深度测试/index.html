@@ -28,10 +28,10 @@
 <meta property="og:description" content="绘制顺序：先画 A，还是先画 B。Unity 会根据排序层、渲染队列、距离等规则决定顺序。 深度测试 ZTest：画到某个像素时，将它的深度与深度缓冲中已有的深度比较，决定是否允许绘制。常见的 LEqual 表示：比已有深度更近或相等才能通过。 深度写入 ZWrite：这个对象是否更新深度缓冲。通常不透明物体开启，半透明物体关闭。关闭深度写入，不等于关闭深度测试。  所以，后画不一定能盖住先画的">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-11-23T09:52:42.000Z">
-<meta property="article:modified_time" content="2026-11-24T09:51:18.188Z">
+<meta property="article:modified_time" content="2026-11-24T10:14:18.889Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Rendering pipeline">
-<meta property="article:tag" content="Shader">
+<meta property="article:tag" content="Camera">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://miaopasss.github.io/2026/11/23/%E7%BB%98%E5%88%B6%E9%A1%BA%E5%BA%8F%E5%92%8C%E6%B7%B1%E5%BA%A6%E6%B5%8B%E8%AF%95/">
@@ -202,7 +202,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-11-24 17:51:18" itemprop="dateModified" datetime="2026-11-24T17:51:18+08:00">2026-11-24</time>
+                <time title="Modified: 2026-11-24 18:14:18" itemprop="dateModified" datetime="2026-11-24T18:14:18+08:00">2026-11-24</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -347,7 +347,7 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/Rendering-pipeline/" rel="tag"># Rendering pipeline</a>
-              <a href="/tags/Shader/" rel="tag"># Shader</a>
+              <a href="/tags/Camera/" rel="tag"># Camera</a>
           </div>
 
         
@@ -359,7 +359,10 @@
     <a href="/2026/11/09/%E7%A9%BF%E9%80%8F%E9%97%AE%E9%A2%98%E5%92%8C%E7%A2%B0%E6%92%9E%E6%A3%80%E6%B5%8B/" rel="prev" title="穿透问题和碰撞检测">
       <i class="fa fa-chevron-left"></i> 穿透问题和碰撞检测
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2026/11/24/%E5%89%94%E9%99%A4%E7%AE%97%E6%B3%95/" rel="next" title="剔除算法">
+      剔除算法 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -440,7 +443,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">53</span>
+          <span class="site-state-item-count">54</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
