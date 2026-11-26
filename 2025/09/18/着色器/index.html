@@ -27,14 +27,14 @@
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
 <meta property="og:description" content="Shader简介Shader（着色器）是一段运行在 GPU 上的程序，用来决定物体怎么被画出来。 比如物体是什么颜色、有没有反光、表面是否透明，以及是否出现发光、溶解等效果。    概念 负责什么 例子    Mesh（网格） 描述物体的几何数据：顶点、三角形、法线、UV 等 一个球的形状   Material（材质） 保存 Shader 及其使用的参数、纹理 红色、金属度、表面贴图   Shad">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://miaopasss.github.io/2026/06/04/Batching-%E5%90%88%E6%89%B9/diagram.png">
+<meta property="og:image" content="https://miaopasss.github.io/2025/09/18/%E7%9D%80%E8%89%B2%E5%99%A8/mermaid-diagram.png">
 <meta property="article:published_time" content="2025-09-18T08:43:49.000Z">
 <meta property="article:modified_time" content="2026-11-26T05:28:10.728Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Rendering pipeline">
 <meta property="article:tag" content="Shader">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://miaopasss.github.io/2026/06/04/Batching-%E5%90%88%E6%89%B9/diagram.png">
+<meta name="twitter:image" content="https://miaopasss.github.io/2025/09/18/%E7%9D%80%E8%89%B2%E5%99%A8/mermaid-diagram.png">
 
 <link rel="canonical" href="https://miaopasss.github.io/2025/09/18/%E7%9D%80%E8%89%B2%E5%99%A8/">
 
@@ -385,7 +385,7 @@
 <p>注意条件分支不一定产生变体，更准确地说，是声明产生变体，条件编译让变体包含不同代码</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> multi_compile _ USE_FOG  <span class="comment">// 声明两个编译选项</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> USE_FOG                   <span class="comment">// 编译时决定是否保留这段代码</span></span></span><br><span class="line">    color = <span class="built_in">ApplyFog</span>(color);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
 <p><code>#ifdef</code> 在编译时就处理完了；GPU 执行时，关闭雾的版本没有这段雾代码。<br>而普通 <code>if (_UseFog &gt; 0.5)</code> 是同一个程序里的条件判断，本身不会生成变体。</p>
-<h1 id="Shader-处理阶段"><a href="#Shader-处理阶段" class="headerlink" title="Shader 处理阶段"></a>Shader 处理阶段</h1><p>顶点着色器处理顶点，片元着色器计算片元输出，可以沿着这条简化流程理解：<br><img src="/2026/06/04/Batching-%E5%90%88%E6%89%B9/diagram.png" title="着色器渲染流程"><br>这里表达的是概念流程；GPU 可以提前执行部分深度、模板测试。</p>
+<h1 id="Shader-处理阶段"><a href="#Shader-处理阶段" class="headerlink" title="Shader 处理阶段"></a>Shader 处理阶段</h1><p>顶点着色器处理顶点，片元着色器计算片元输出，可以沿着这条简化流程理解：<br><img src="/2025/09/18/%E7%9D%80%E8%89%B2%E5%99%A8/mermaid-diagram.png" title="着色器渲染流程"><br>这里表达的是概念流程；GPU 可以提前执行部分深度、模板测试。</p>
 <p>顶点着色器通常负责：</p>
 <ul>
 <li>把顶点位置变换到裁剪空间。</li>
@@ -570,7 +570,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-count">56</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -693,6 +693,8 @@
 
 
 
+
+  
 
   
 

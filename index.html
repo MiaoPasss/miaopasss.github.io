@@ -161,6 +161,131 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/11/26/Post-processing-%E5%92%8C-Volume-profile/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/11/26/Post-processing-%E5%92%8C-Volume-profile/" class="post-title-link" itemprop="url">Post processing 和 Volume profile</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-11-26 16:34:52 / Modified: 18:54:05" itemprop="dateCreated datePublished" datetime="2026-11-26T16:34:52+08:00">2026-11-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="0-参数：Volume-Profile"><a href="#0-参数：Volume-Profile" class="headerlink" title="0. 参数：Volume Profile"></a>0. 参数：Volume Profile</h1><p><strong>Volume Profile 是配置资产，不是渲染出来的图像，也不会自己执行效果。</strong><br>它保存 Bloom、色彩调整、景深等配置，例如 Bloom 的 Threshold、Intensity、Scatter。</p>
+<p>场景中的 Volume 引用这个 Profile，并决定它如何影响相机：</p>
+<ul>
+<li>Global：没有空间边界。</li>
+<li>Local：根据相机位置和空间范围产生影响。</li>
+<li>Weight、Priority：参与多个 Volume 的参数混合。</li>
+</ul>
+<p>URP 据此计算出当前相机最终使用的一组效果参数。<strong>所以你编辑的是某份 Profile，实际执行时使用的可能是多个 Volume 混合后的结果。</strong></p>
+<h2 id="SRP-和-Built-in"><a href="#SRP-和-Built-in" class="headerlink" title="SRP 和 Built-in"></a>SRP 和 Built-in</h2><ul>
+<li><strong>SRP 是可编程渲染管线框架；URP 和 HDRP 是 Unity 基于它编写好的、开箱即用的管线实现。</strong> 两者都使用了 Volume + <strong>VolumeProfile</strong>，保存 VolumeComponent 配置。</li>
+<li><strong>Built-in 没有内置接入这套 VolumeProfile 效果处理流程。</strong> 它常用的 Post-processing Stack v2 是另一套系统，使用 PostProcessVolume 和 PostProcessProfile。</li>
+</ul>
+<p>严格来说，<strong>VolumeProfile 本身只是一个保存参数的 ScriptableObject</strong>，自定义代码也可以读取它；真正的限制是渲染系统是否实现了对应效果，而 Built-in 不会自动读取其中的配置并执行对应效果。</p>
+<h1 id="1-读取贴图和材质，在线性空间计算"><a href="#1-读取贴图和材质，在线性空间计算" class="headerlink" title="1. 读取贴图和材质，在线性空间计算"></a>1. 读取贴图和材质，在线性空间计算</h1><p>常见颜色贴图是 sRGB 编码。在 Linear 工作流程中，标记为 sRGB 的贴图被采样时，会解码成线性值，再参与 Shader 计算；已经是线性数据的纹理不需要重复解码。<br>例如，sRGB 的 (0.5) 对应线性值约 (0.214)，而 sRGB 的 1 对应线性值仍然是 1。<strong>同一颜色在不同空间中的数字可能不同，不代表颜色凭空变亮或变暗。</strong></p>
+<p><strong>线性空间意味着数值与光强成正比，适合做光照、颜色混合等计算。</strong> 它不是一个额外的后处理效果，而是这些计算所使用的数值表示方式。</p>
+<h1 id="2-片元着色器生成颜色"><a href="#2-片元着色器生成颜色" class="headerlink" title="2. 片元着色器生成颜色"></a>2. 片元着色器生成颜色</h1><p>片元 Shader 根据贴图、材质以及它所支持的光照等计算颜色。以 URP Unlit 为例，贴图与 <code>_BaseColor</code> 的基础关系是逐通道相乘：<br>$$<br>C_{\text{fragment}} &#x3D; C_{\text{texture}}\odot C_{\text{BaseColor}}<br>$$</p>
+<p>这属于染色，而不是直接相加</p>
+<h1 id="3-形成相机颜色缓冲区"><a href="#3-形成相机颜色缓冲区" class="headerlink" title="3. 形成相机颜色缓冲区"></a>3. 形成相机颜色缓冲区</h1><p>片元输出经过测试、混合等过程，写入相机颜色缓冲区。透明物体会与已有背景混合，因此一个像素不一定只代表一个物体。</p>
+<ul>
+<li><strong>光栅化</strong>：把三角形覆盖的区域转换成片元，并生成深度、插值后的 UV 等数据。</li>
+<li><strong>片元着色器</strong>：GPU 通常将多个片元分组、并行处理，计算片元的颜色等输出，也可以通过 discard 主动丢弃片元。</li>
+<li><strong>深度测试、模板测试等操作</strong>：每个片元用自己的深度，与深度缓冲中<strong>对应位置</strong>的已有深度比较。因此，同一个三角形的片元可以有些通过、有些被遮挡；通过后，再按混合和写入设置更新帧缓冲。</li>
+</ul>
+<p>GPU 不必等整个三角形的所有片元都着色完成，才开始深度测试和写入；这些阶段可以流水线式地重叠进行。</p>
+<p><strong>相机颜色缓冲区是 “帧缓冲中的颜色部分”</strong>，帧缓冲（Framebuffer）通常可以包含或关联：</p>
+<ul>
+<li><strong>颜色缓冲</strong>：保存渲染出的像素颜色。</li>
+<li><strong>深度缓冲</strong>：保存深度，用于判断遮挡等。</li>
+<li><strong>模板缓冲</strong>：用于遮罩和限制绘制区域等。</li>
+</ul>
+<h1 id="4-渲染管线执行-Post-Processing"><a href="#4-渲染管线执行-Post-Processing" class="headerlink" title="4. 渲染管线执行 Post Processing"></a>4. 渲染管线执行 Post Processing</h1><p>Post Processing 是对渲染结果进行处理的一组效果，<strong>例如 Bloom 是其中一种</strong>；其他效果还可能读取深度、运动信息等，而不只是颜色。<br>后处理还包括色彩调整、景深、运动模糊等，渲染管线读取前面得到的参数，并安排这些处理步骤。</p>
+<p>Bloom 在屏幕显示之前处理渲染缓冲区，步骤可以概括为：</p>
+<ol>
+<li>从相机图像中提取亮色。</li>
+<li>对提取结果降采样、模糊。</li>
+<li>放大并合并各层结果，形成扩散光晕。</li>
+<li>让光晕参与原画面的合成。<br><strong>后处理通常把片元输出经过深度测试、透明混合等之后形成的 “相机颜色缓冲区” 作为输入，再处理成最终显示的画面。</strong><br>所以，它读取的是<strong>已渲染、但还没显示到屏幕上的图像</strong>，不是单个片元未经混合的输出，也不是屏幕显示完成后的截图。Bloom 就是对这张图像采样、提取亮色并模糊。</li>
+</ol>
+<p><strong>在 URP 的常规渲染流程下，Screen Space - Overlay 的 UI 通常不受相机的 Bloom 等后处理影响。</strong><br>更直接的原因是：<strong>它在相机后处理完成后才叠加，Bloom 的输入图像里还没有这部分 UI。</strong></p>
+<p>顺序可以理解为：</p>
+<ol>
+<li>相机渲染场景，得到颜色缓冲区。</li>
+<li>按 Volume 配置执行 Bloom 等后处理。</li>
+<li>再绘制 Screen Space - Overlay 的 UI。</li>
+</ol>
+<h2 id="Bloom-的-Threshold-计算"><a href="#Bloom-的-Threshold-计算" class="headerlink" title="Bloom 的 Threshold 计算"></a>Bloom 的 Threshold 计算</h2><p>Bloom Inspector 输入的是 Gamma 空间阈值，URP 将它转换成线性阈值，再用于处理图像：<br>$$<br>T_{\text{linear}} &#x3D; \operatorname{GammaToLinear}(T_{\text{Inspector}})<br>$$</p>
+<p>输入 1 时，转换结果仍然是 1。<strong>阈值与图像不是各用一套空间直接比较，而是在该流程中使用线性值计算。</strong></p>
+<p>URP 14 使用固定 Soft Knee，且亮度指标取 RGB 最大通道。因此 Threshold 为 1 并不是 “所有不超过 1 的像素都剔除”：接近阈值的普通亮色也会贡献 Bloom，纯白 $(1,1,1)$ 就能产生光晕。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/11/25/Unity-IAP-%E5%92%8C%E7%AC%AC%E4%B8%89%E6%96%B9%E5%86%85%E8%B4%AD/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1752,109 +1877,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/08/07/unity-%E8%AE%A1%E7%AE%97%E7%82%B9%E5%88%B0%E7%9B%B4%E7%BA%BF%E8%B7%9D%E7%A6%BB/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/08/07/unity-%E8%AE%A1%E7%AE%97%E7%82%B9%E5%88%B0%E7%9B%B4%E7%BA%BF%E8%B7%9D%E7%A6%BB/" class="post-title-link" itemprop="url">unity 计算点到直线距离</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2026-08-07 17:44:17 / Modified: 17:50:17" itemprop="dateCreated datePublished" datetime="2026-08-07T17:44:17+08:00">2026-08-07</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="点到直线距离"><a href="#点到直线距离" class="headerlink" title="点到直线距离"></a>点到直线距离</h2><h3 id="方法一：投影-勾股定理"><a href="#方法一：投影-勾股定理" class="headerlink" title="方法一：投影 + 勾股定理"></a>方法一：投影 + 勾股定理</h3><p>利用点到直线上某点的向量长度，以及它在直线方向上的投影长度，用勾股定理求出垂直分量。</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 点到直线距离</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">float</span> <span class="title">DistancePoint2Line</span>(<span class="params">Vector3 point, Vector3 linePoint1, Vector3 linePoint2</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">float</span> fProj = Vector3.Dot(point - linePoint1, (linePoint1 - linePoint2).normalized);</span><br><span class="line">    <span class="keyword">return</span> Mathf.Sqrt((point - linePoint1).sqrMagnitude - fProj * fProj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>原理：<code>|d|² = |斜边|² - |投影|²</code>（勾股定理）。</p>
-<blockquote>
-<p>注意：在浮点误差下 <code>sqrMagnitude - fProj²</code> 可能出现极小的负数，导致 <code>Mathf.Sqrt</code> 返回 <code>NaN</code>，必要时可对被开方数做一次 <code>Mathf.Max(0, ...)</code> 保护。</p>
-</blockquote>
-<h3 id="方法二：叉乘（面积法）"><a href="#方法二：叉乘（面积法）" class="headerlink" title="方法二：叉乘（面积法）"></a>方法二：叉乘（面积法）</h3><p>两向量叉乘的模等于它们所构成平行四边形的面积，面积除以底边长度即为高（也就是点到直线的距离）。这种方式在 3D 中最推荐，代码简洁且数值稳定。</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">float</span> <span class="title">DistancePoint2Line_Cross</span>(<span class="params">Vector3 point, Vector3 linePoint1, Vector3 linePoint2</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    Vector3 dir = linePoint2 - linePoint1;</span><br><span class="line">    Vector3 v = point - linePoint1;</span><br><span class="line">    <span class="keyword">return</span> Vector3.Cross(v, dir).magnitude / dir.magnitude;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>原理：<code>距离 = 平行四边形面积 / 底 = |v × dir| / |dir|</code>。</p>
-<h3 id="方法三：先求投影点，再求两点距离"><a href="#方法三：先求投影点，再求两点距离" class="headerlink" title="方法三：先求投影点，再求两点距离"></a>方法三：先求投影点，再求两点距离</h3><p>先算出点在直线上的投影点坐标，再直接用 <code>Vector3.Distance</code>。好处是能顺便拿到最近点（投影点）。</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">float</span> <span class="title">DistancePoint2Line_Project</span>(<span class="params">Vector3 point, Vector3 linePoint1, Vector3 linePoint2</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    Vector3 dir = (linePoint2 - linePoint1).normalized;</span><br><span class="line">    Vector3 projPoint = linePoint1 + Vector3.Dot(point - linePoint1, dir) * dir;</span><br><span class="line">    <span class="keyword">return</span> Vector3.Distance(point, projPoint);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>补充：以上三种求的都是<strong>无限长直线</strong>的距离。如果要的是**线段（Segment）**距离，需要把投影参数 <code>t</code> 用 <code>Mathf.Clamp01</code> 限制在 <code>[0, 1]</code> 之间，再求点到该最近点的距离。</p>
-</blockquote>
-<h2 id="点到面距离"><a href="#点到面距离" class="headerlink" title="点到面距离"></a>点到面距离</h2><p>点到平面的距离公式：<code>d = |Ax0 + By0 + Cz0 + D| / √(A² + B² + C²)</code>。</p>
-<p>平面的一般式方程为 <code>Ax + By + Cz + D = 0</code>，平面的法向量为 <code>(A, B, C)</code>。</p>
-<blockquote>
-<p>如果一个非零向量 n 与平面 a 垂直，则称向量 n 为平面 a 的法向量。垂直于平面的直线所表示的向量即为该平面的法向量。每一个平面存在无数个法向量。</p>
-</blockquote>
-<h3 id="方法一：用-Plane-类"><a href="#方法一：用-Plane-类" class="headerlink" title="方法一：用 Plane 类"></a>方法一：用 Plane 类</h3><p>Unity 内置的 <code>Plane</code> 类可以由三点构造，并直接求点到平面的（有符号）距离。</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">float</span> <span class="title">DisPoint2Surface_Plane</span>(<span class="params">Vector3 point, Vector3 surfacePoint1, Vector3 surfacePoint2, Vector3 surfacePoint3</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    Plane plane = <span class="keyword">new</span> Plane(surfacePoint1, surfacePoint2, surfacePoint3);</span><br><span class="line">    <span class="keyword">return</span> plane.GetDistanceToPoint(point);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="方法二：用法线-点乘"><a href="#方法二：用法线-点乘" class="headerlink" title="方法二：用法线 + 点乘"></a>方法二：用法线 + 点乘</h3><p>由平面上两条边叉乘得到法向量，再把「点到平面上一点」的向量投影到法向量方向上，其绝对值即为距离。</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">float</span> <span class="title">DisPoint2Surface_Normal</span>(<span class="params">Vector3 point, Vector3 surfacePoint1, Vector3 surfacePoint2, Vector3 surfacePoint3</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    Vector3 cross = Vector3.Cross(surfacePoint1 - surfacePoint2, surfacePoint1 - surfacePoint3);</span><br><span class="line">    <span class="built_in">float</span> proj = Vector3.Dot(point - surfacePoint1, cross.normalized);</span><br><span class="line">    <span class="keyword">return</span> Mathf.Abs(proj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1932,7 +1954,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-count">56</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -2057,6 +2079,61 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
   <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
