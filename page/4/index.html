@@ -1070,7 +1070,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-11-25 17:13:54" itemprop="dateModified" datetime="2026-11-25T17:13:54+08:00">2026-11-25</time>
+                <time title="Modified: 2026-11-26 13:28:10" itemprop="dateModified" datetime="2026-11-26T13:28:10+08:00">2026-11-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1093,7 +1093,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><strong>Shader（着色器）是一段运行在 GPU 上的程序，用来决定物体怎么被画出来。</strong> 比如物体是什么颜色、有没有反光、表面是否透明，以及是否出现发光、溶解等效果。</p>
+          <h1 id="Shader简介"><a href="#Shader简介" class="headerlink" title="Shader简介"></a>Shader简介</h1><p><strong>Shader（着色器）是一段运行在 GPU 上的程序，用来决定物体怎么被画出来。</strong> 比如物体是什么颜色、有没有反光、表面是否透明，以及是否出现发光、溶解等效果。</p>
 <table>
 <thead>
 <tr>
@@ -1126,25 +1126,200 @@
 <li><strong>材质（Material）</strong>：选择一个 Shader，并设置贴图、颜色、光滑度等具体参数，然后赋给物体。</li>
 </ul>
 <p>同一个球模型，使用不同 Shader 和材质，就能呈现完全不同的外观。<br>同一个 Shader 可以对应多个材质：使用同一套渲染规则，给出不同的颜色和贴图，就会产生不同外观。</p>
-<p>常见的 Shader 处理阶段有：</p>
+<p>在 Unity 里，你可以直接使用内置 Shader，也可以用 <strong>Shader Graph 连接节点</strong>来制作效果，或者用 <strong>HLSL 写代码</strong>。<br>例如做一个“物体逐渐溶解”的效果，Shader 会根据噪声贴图和溶解参数，丢弃一部分片元，并给溶解边缘加上发光颜色。</p>
+<h1 id="ShaderLab-和-HLSL"><a href="#ShaderLab-和-HLSL" class="headerlink" title="ShaderLab 和 HLSL"></a>ShaderLab 和 HLSL</h1><ul>
+<li>ShaderLab：Unity 的 Shader 描述语言，组织属性、SubShader、Pass，以及深度、混合等渲染状态。</li>
+<li>HLSL：编写实际的 GPU 计算，例如顶点变换、纹理采样和光照计算。</li>
+<li>Cg、GLSL：其他着色器语言；目前使用 Unity，通常优先学习 HLSL。</li>
+</ul>
+<p>常见结构可以理解为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Shader</span><br><span class="line">├── Properties：材质面板中的参数</span><br><span class="line">└── SubShader：适用于某种条件的一套渲染实现</span><br><span class="line">    ├── Tags：队列、类型等标签</span><br><span class="line">    └── Pass：某个渲染阶段使用的绘制代码</span><br><span class="line">        ├── 渲染状态</span><br><span class="line">        └── 顶点、片元等着色程序</span><br></pre></td></tr></table></figure>
+<p>多个 SubShader 通常用于提供不同实现，Unity 选择适用的一个；多个 Pass 则可以承担不同绘制任务。 Pass 越多通常意味着更多渲染工作，但是否执行也取决于渲染管线。<br><code>Properties</code> 中的参数还需要对应到着色程序里的变量声明，才能在计算中使用。</p>
+<h2 id="Shader-变体"><a href="#Shader-变体" class="headerlink" title="Shader 变体"></a>Shader 变体</h2><p>Shader 变体（Shader Variant）通常指同一段着色程序，在不同关键字组合下编译出来的不同版本</p>
 <table>
 <thead>
 <tr>
-<th>阶段</th>
+<th>概念</th>
 <th>作用</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>顶点着色器（Vertex Shader）</td>
-<td>处理模型顶点的位置，可以实现波浪、树叶摇摆等形变</td>
+<td><code>SubShader</code></td>
+<td>为不同渲染管线、硬件能力等提供一套渲染实现</td>
 </tr>
 <tr>
-<td>片元着色器（Fragment Shader）</td>
-<td>计算表面每个片元的颜色，可以实现光照、透明、渐变等效果</td>
+<td><code>Pass</code></td>
+<td>完成一次绘制所需的渲染状态和着色程序</td>
+</tr>
+<tr>
+<td><code>Shader Variant</code></td>
+<td>根据关键字选择，在编译时生成不同的着色程序版本</td>
 </tr>
 </tbody></table>
-<p>“片元”可以先理解成一个准备画到屏幕上的像素候选，它还可能被深度测试等步骤丢弃。</p>
-<p>在 Unity 里，你可以直接使用内置 Shader，也可以用 <strong>Shader Graph 连接节点</strong>来制作效果，或者用 <strong>HLSL 写代码</strong>。<br>例如做一个“物体逐渐溶解”的效果，Shader 会根据噪声贴图和溶解参数，丢弃一部分片元，并给溶解边缘加上发光颜色。</p>
+<p>在同一个 ShaderLab 文件中，主要看着色程序里的 #pragma 声明。 例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Pass</span><br><span class="line">&#123;</span><br><span class="line">    HLSLPROGRAM</span><br><span class="line"></span><br><span class="line">    <span class="meta">#<span class="keyword">pragma</span> vertex vert</span></span><br><span class="line">    <span class="meta">#<span class="keyword">pragma</span> fragment frag</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">#<span class="keyword">pragma</span> multi_compile _ USE_FOG</span></span><br><span class="line">    <span class="meta">#<span class="keyword">pragma</span> shader_feature_local _ USE_DISSOLVE</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 顶点、片元程序……</span></span><br><span class="line">    ENDHLSL</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里声明了两组独立的关键字选择：</p>
+<ul>
+<li>USE_FOG：关闭或开启。</li>
+<li>USE_DISSOLVE：关闭或开启。</li>
+</ul>
+<p>因此，这个 Pass 理论上有 2 × 2 &#x3D; 4 种关键字组合：</p>
+<table>
+<thead>
+<tr>
+<th>变体</th>
+<th>USE_FOG</th>
+<th>USE_DISSOLVE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>关闭</td>
+<td>关闭</td>
+</tr>
+<tr>
+<td>2</td>
+<td>开启</td>
+<td>关闭</td>
+</tr>
+<tr>
+<td>3</td>
+<td>关闭</td>
+<td>开启</td>
+</tr>
+<tr>
+<td>4</td>
+<td>开启</td>
+<td>开启</td>
+</tr>
+</tbody></table>
+<p>看源码时，可以重点查找：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> multi_compile ...</span></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> multi_compile_local ...</span></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> shader_feature ...</span></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> shader_feature_local ...</span></span><br></pre></td></tr></table></figure>
+
+<p><code>multi_compile</code>和<code>shader_feature</code>都是声明关键字选项，让 Unity 按不同组合编译 Shader 变体。区别主要在于：构建时如何保留这些变体。</p>
+<table>
+<thead>
+<tr>
+<th>声明</th>
+<th>变体保留方式</th>
+<th>常见用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>multi_compile</code></td>
+<td>通常保留所有声明的组合，但仍可能被其他剔除规则剔除</td>
+<td>运行时可能切换的功能、渲染管线控制的功能</td>
+</tr>
+<tr>
+<td><code>shader_feature</code></td>
+<td>构建时通常只保留项目中使用到的组合，未使用的会被剔除</td>
+<td>由材质设置决定的功能，例如是否使用法线贴图</td>
+</tr>
+</tbody></table>
+<p>加 local，主要改变的是关键字的作用范围，不改变变体组合数。</p>
+<table>
+<thead>
+<tr>
+<th>声明</th>
+<th>作用范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>不加 <code>local</code></td>
+<td>可以由材质控制，也可以被同名全局关键字覆盖</td>
+</tr>
+<tr>
+<td>加 <code>local</code></td>
+<td>由使用这个 Shader 的材质控制，不受同名全局关键字影响</td>
+</tr>
+</tbody></table>
+<p>以及 <code>multi_compile_fog</code>、<code>multi_compile_instancing</code> 等快捷声明。声明也可能在被包含的文件中，例如通过 <code>#include_with_pragmas</code> 引入。</p>
+<ul>
+<li>多个 SubShader 或多个 Pass，不代表它们就是多个变体。 即使只有一个 SubShader、一个 Pass，也可以产生大量变体。</li>
+<li>上述 4 个是理论组合数，实际打包保留的数量可能更少。 shader_feature 的未使用变体通常会被剔除，构建流程也可能进一步剔除变体。</li>
+<li>修改 _Color、<code>_Speed</code> 等普通材质参数，通常只是改变输入值，不会产生新变体；通过关键字切换编译出来的程序版本，才涉及这里说的变体。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> shader_feature _ USE_DISSOLVE</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> USE_DISSOLVE</span></span><br><span class="line">    <span class="built_in">clip</span>(dissolveValue - _Threshold);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p>这里理论上有两个版本：开启溶解、关闭溶解。如果构建收集到的材质都没有开启 USE_DISSOLVE，开启版本通常会被剔除。运行时再开启关键字，所需变体可能已经不在包里。<br>因此，运行时切换的功能需要确保相关变体被保留，或者使用 multi_compile。</p>
+<p>注意条件分支不一定产生变体，更准确地说，是声明产生变体，条件编译让变体包含不同代码</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> multi_compile _ USE_FOG  <span class="comment">// 声明两个编译选项</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> USE_FOG                   <span class="comment">// 编译时决定是否保留这段代码</span></span></span><br><span class="line">    color = <span class="built_in">ApplyFog</span>(color);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p><code>#ifdef</code> 在编译时就处理完了；GPU 执行时，关闭雾的版本没有这段雾代码。<br>而普通 <code>if (_UseFog &gt; 0.5)</code> 是同一个程序里的条件判断，本身不会生成变体。</p>
+<h1 id="Shader-处理阶段"><a href="#Shader-处理阶段" class="headerlink" title="Shader 处理阶段"></a>Shader 处理阶段</h1><p>顶点着色器处理顶点，片元着色器计算片元输出，可以沿着这条简化流程理解：<br><img src="/2026/06/04/Batching-%E5%90%88%E6%89%B9/diagram.png" title="着色器渲染流程"><br>这里表达的是概念流程；GPU 可以提前执行部分深度、模板测试。</p>
+<p>顶点着色器通常负责：</p>
+<ul>
+<li>把顶点位置变换到裁剪空间。</li>
+<li>传递 UV、法线、颜色等数据。</li>
+<li>修改顶点位置，实现波浪、摆动等效果。<br>坐标变换的常见路径是：<br>模型空间 → 世界空间 → 观察空间 → 裁剪空间。</li>
+</ul>
+<p>“片元”可以先理解成一个准备画到屏幕上的像素候选，它还可能被深度测试等步骤丢弃。<br>片元着色器通常负责：</p>
+<ul>
+<li>根据 UV 采样纹理。</li>
+<li>计算颜色和光照。</li>
+<li>决定是否丢弃当前片元。</li>
+<li>输出颜色等结果到渲染目标。</li>
+</ul>
+<p>三角形是图元；片元是光栅化生成的候选样本。同一个屏幕像素可能被多个物体产生的片元覆盖，并不是每个片元最终都能显示。</p>
+<h1 id="绘制和剔除"><a href="#绘制和剔除" class="headerlink" title="绘制和剔除"></a>绘制和剔除</h1><p>“画不画”和“怎么叠加”，由不同机制控制</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>回答的问题</th>
+<th>典型用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Cull</code> 剔除</td>
+<td>三角形的哪一面需要绘制？</td>
+<td>剔除背面</td>
+</tr>
+<tr>
+<td><code>ZTest</code> 深度测试</td>
+<td>当前片元能否通过深度比较？</td>
+<td>近处物体遮住远处物体</td>
+</tr>
+<tr>
+<td><code>ZWrite</code> 深度写入</td>
+<td>是否把深度记录到深度缓冲？</td>
+<td>为后续遮挡判断提供依据</td>
+</tr>
+<tr>
+<td><code>clip</code> 透明度裁剪</td>
+<td>是否直接丢弃当前片元？</td>
+<td>树叶、铁丝网、镂空图案</td>
+</tr>
+<tr>
+<td><code>Stencil</code> 模板测试</td>
+<td>是否满足屏幕位置上的标记条件？</td>
+<td>遮罩、门户效果</td>
+</tr>
+<tr>
+<td><code>Blend</code> 混合</td>
+<td>当前颜色如何与已有颜色组合？</td>
+<td>玻璃、烟雾、半透明 UI</td>
+</tr>
+</tbody></table>
+<p>透明裁剪与半透明混合不同。裁剪是“保留或丢弃”，例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">clip</span>(color.a - _Cutoff);</span><br></pre></td></tr></table></figure>
+
+<p>当 Alpha 小于阈值时，片元被丢弃。半透明混合则按比例叠加颜色，常见设置是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Blend SrcAlpha OneMinusSrcAlpha</span><br></pre></td></tr></table></figure>
+<p>计算结果 &#x3D; 当前颜色 × 当前 Alpha + 背景颜色 × (1 − 当前 Alpha)</p>
+<p>关闭深度写入，不等于关闭深度测试。常见半透明设置为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ZWrite Off</span><br><span class="line">ZTest LEqual</span><br><span class="line">Blend SrcAlpha OneMinusSrcAlpha</span><br></pre></td></tr></table></figure>
+<p>物体仍会被前方的不透明物体遮挡，只是不把自身深度写入缓冲。</p>
+<p>模板缓冲则可以理解为屏幕上的标记图。先绘制遮罩，把覆盖区域的模板值写成 1；再绘制内容，仅允许模板值等于 1 的位置通过。</p>
+<h1 id="其他属性"><a href="#其他属性" class="headerlink" title="其他属性"></a>其他属性</h1><ul>
+<li><code>Render Queue</code>：指定渲染队列，例如不透明物体常用 Geometry，半透明物体常用 Transparent。</li>
+<li><code>RenderType</code>：给 Shader 分类，供替换渲染等机制识别。设成 “Transparent” 本身不会自动开启透明混合。<ul>
+<li><strong>完全不写 <code>RenderType</code></strong>：在内置管线中，如果相机使用 <code>&quot;RenderType&quot;</code> 做 Shader 替换，这个物体会因为缺少标签而被跳过，<strong>不出现在那次替换渲染的结果里</strong>。不是说正常画面也一定消失。</li>
+<li><strong>内置管线的部分深度／深度法线纹理生成路径也可能使用 Shader 替换</strong>，因此标签缺失或分类错误可能影响相关效果。</li>
+<li>对于<strong>URP&#x2F;HDRP可以理解为</strong>：<code>RenderType</code> 是供人读取的分类信息；没人读取它时，它不会自己改变绘制效果。</li>
+</ul>
+</li>
+<li><code>Shader LOD</code>：配合允许的最大 Shader LOD 筛选 SubShader，通常用于限制复杂度；它不会自动根据相机距离切换网格，那属于 LODGroup 等机制。</li>
+</ul>
+<p>Shader 不仅计算颜色，还要配合渲染状态，决定哪些表面参与绘制、哪些片元通过测试，以及颜色怎样叠加。</p>
 <hr>
 <h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits:"></a>Credits:</h1><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/718015588">https://zhuanlan.zhihu.com/p/718015588</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/lengyoumo/article/details/98497353">https://blog.csdn.net/lengyoumo/article/details/98497353</a></p>
 <hr>

@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="1. 层过滤：Layer Culling不经过几何算法，直接使用规则过滤。例如某台相机只绘制场景层，不绘制特效层。实现上用位掩码判断： 1bool included &#x3D; (cameraMask &amp; (1 &lt;&lt; objectLayer)) !&#x3D; 0; 不匹配的对象不进入这台相机的绘制范围。Unity 的 Camera.cullingMask 就是这个用途。特点：判断便宜，但它并不">
+  <meta name="description" content="层过滤：Layer Culling不经过几何算法，直接使用规则过滤。例如某台相机只绘制场景层，不绘制特效层。实现上用位掩码判断： 1bool included &#x3D; (cameraMask &amp; (1 &lt;&lt; objectLayer)) !&#x3D; 0; 不匹配的对象不进入这台相机的绘制范围。Unity 的 Camera.cullingMask 就是这个用途。特点：判断便宜，但它并不分析对">
 <meta property="og:type" content="article">
 <meta property="og:title" content="剔除算法">
 <meta property="og:url" content="https://miaopasss.github.io/2026/11/24/%E5%89%94%E9%99%A4%E7%AE%97%E6%B3%95/index.html">
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:description" content="1. 层过滤：Layer Culling不经过几何算法，直接使用规则过滤。例如某台相机只绘制场景层，不绘制特效层。实现上用位掩码判断： 1bool included &#x3D; (cameraMask &amp; (1 &lt;&lt; objectLayer)) !&#x3D; 0; 不匹配的对象不进入这台相机的绘制范围。Unity 的 Camera.cullingMask 就是这个用途。特点：判断便宜，但它并不">
+<meta property="og:description" content="层过滤：Layer Culling不经过几何算法，直接使用规则过滤。例如某台相机只绘制场景层，不绘制特效层。实现上用位掩码判断： 1bool included &#x3D; (cameraMask &amp; (1 &lt;&lt; objectLayer)) !&#x3D; 0; 不匹配的对象不进入这台相机的绘制范围。Unity 的 Camera.cullingMask 就是这个用途。特点：判断便宜，但它并不分析对">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-11-24T10:13:37.000Z">
-<meta property="article:modified_time" content="2026-11-26T02:26:22.934Z">
+<meta property="article:modified_time" content="2026-11-26T05:39:43.515Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Rendering pipeline">
 <meta property="article:tag" content="Camera">
@@ -202,7 +202,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-11-26 10:26:22" itemprop="dateModified" datetime="2026-11-26T10:26:22+08:00">2026-11-26</time>
+                <time title="Modified: 2026-11-26 13:39:43" itemprop="dateModified" datetime="2026-11-26T13:39:43+08:00">2026-11-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -232,22 +232,21 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="1-层过滤：Layer-Culling"><a href="#1-层过滤：Layer-Culling" class="headerlink" title="1. 层过滤：Layer Culling"></a>1. 层过滤：Layer Culling</h1><p>不经过几何算法，直接使用规则过滤。例如某台相机只绘制场景层，不绘制特效层。实现上用位掩码判断：</p>
+        <h1 id="层过滤：Layer-Culling"><a href="#层过滤：Layer-Culling" class="headerlink" title="层过滤：Layer Culling"></a>层过滤：Layer Culling</h1><p>不经过几何算法，直接使用规则过滤。例如某台相机只绘制场景层，不绘制特效层。实现上用位掩码判断：</p>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">bool</span> included = (cameraMask &amp; (<span class="number">1</span> &lt;&lt; objectLayer)) != <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
 <p>不匹配的对象不进入这台相机的绘制范围。Unity 的 <code>Camera.cullingMask</code> 就是这个用途。<br><strong>特点</strong>：判断便宜，但它并不分析对象 “实际看不看得见”，只是执行你指定的规则。</p>
-<h1 id="2-距离剔除：Distance-Culling"><a href="#2-距离剔除：Distance-Culling" class="headerlink" title="2. 距离剔除：Distance Culling"></a>2. 距离剔除：Distance Culling</h1><p>可以给不同类别设置不同距离：小装饰物近一些剔除，大建筑远一些剔除。<br>Unity 支持 <code>Camera.layerCullDistances</code>；其默认判断边界是与相机对齐的平面，也可以通过 <code>layerCullSpherical</code> 改成球形距离边界。</p>
+<h1 id="距离剔除：Distance-Culling"><a href="#距离剔除：Distance-Culling" class="headerlink" title="距离剔除：Distance Culling"></a>距离剔除：Distance Culling</h1><p>可以给不同类别设置不同距离：小装饰物近一些剔除，大建筑远一些剔除。<br>Unity 支持 <code>Camera.layerCullDistances</code>；其默认判断边界是与相机对齐的平面，也可以通过 <code>layerCullSpherical</code> 改成球形距离边界。</p>
 <p>距离剔除通常属于<strong>画质与性能的主动取舍</strong>，需要考虑突然消失的视觉问题。它与视锥剔除的区别是：</p>
 <ul>
 <li><strong>视锥剔除</strong>：这个对象位于当前可见范围之外。</li>
 <li><strong>距离剔除</strong>：对象可能仍在视野里，但超过了允许显示的距离。</li>
 </ul>
-<h1 id="3-视锥剔除：Frustum-Culling"><a href="#3-视锥剔除：Frustum-Culling" class="headerlink" title="3. 视锥剔除：Frustum Culling"></a>3. 视锥剔除：Frustum Culling</h1><p>它判断对象的包围体是否位于相机视锥之外。通常测试包围球、AABB 或 OBB，而不是逐个三角形测试。<strong>包围体完全在外面才剔除；与视锥相交则保留。</strong><br>对象多时，可以用 BVH、八叉树等层级结构：</p>
+<h1 id="视锥剔除：Frustum-Culling"><a href="#视锥剔除：Frustum-Culling" class="headerlink" title="视锥剔除：Frustum Culling"></a>视锥剔除：Frustum Culling</h1><p>它判断对象的包围体是否位于相机视锥之外。通常测试包围球、AABB 或 OBB，而不是逐个三角形测试。<strong>包围体完全在外面才剔除；与视锥相交则保留。</strong><br>对象多时，可以用 BVH、八叉树等层级结构：</p>
 <blockquote>
 <p>测试父节点包围体<br>├─ 完全在外面 → 整棵子树跳过<br>├─ 完全在里面 → 子节点不用再做该视锥测试<br>└─ 与边界相交 → 继续测试子节点</p>
 </blockquote>
 <p>BVH、八叉树不是另一种可见性判断规则，而是让剔除测试更高效的数据结构。</p>
-<ol start="4">
-<li>PVS：Potentially Visible Set 预计算潜在可见集</li>
+<h1 id="PVS：Potentially-Visible-Set-预计算潜在可见集"><a href="#PVS：Potentially-Visible-Set-预计算潜在可见集" class="headerlink" title="PVS：Potentially Visible Set 预计算潜在可见集"></a>PVS：Potentially Visible Set 预计算潜在可见集</h1><ol>
 <li>把场景划分为多个空间区域（Cell）。</li>
 <li>离线计算：从每个区域中，哪些其他区域可能可见。</li>
 <li>保存这些集合。</li>
@@ -255,6 +254,24 @@
 <li>对剩余对象继续做视锥等测试。</li>
 </ol>
 <p>它保存的是<strong>可能可见</strong>，不一定是 “此刻确实可见”。例如某个房间从当前区域的某个位置能看到，就可能被保留。<br><strong>优点</strong>：把复杂计算转移到离线阶段。<br><strong>代价</strong>：需要存储数据，而且可见性依赖用于预计算的场景结构。Unity 传统烘焙式遮挡剔除也是先生成 Cell 与可见性数据，再在运行时查询；它允许动态对象被遮挡，但动态对象不能作为该烘焙系统的遮挡者。</p>
+<h1 id="背面剔除：Back-face-Culling"><a href="#背面剔除：Back-face-Culling" class="headerlink" title="背面剔除：Back-face Culling"></a>背面剔除：Back-face Culling</h1><p>**不绘制背向相机的三角形面。**它不会删除模型，而是在渲染时跳过这些面。</p>
+<p>可以把一个三角形想成一张单面纸：从正面看会绘制，从背面看则被剔除。<br>判断正面、背面主要看<strong>从当前视角观察，三角形顶点的连接顺序（绕序）</strong>。Unity 的规则是：</p>
+<ul>
+<li><strong>顺时针：正面。</strong></li>
+<li><strong>逆时针：背面。</strong></li>
+</ul>
+<p>顶点数组保存各个顶点的位置，索引数组指定哪些顶点组成三角形，以及顺序。例如：</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">int</span>[] triangles = &#123; <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span> &#125;;</span><br></pre></td></tr></table></figure>
+<p>意思是：第一个三角形按 <strong>顶点 0 → 顶点 1 → 顶点 2</strong> 连接。<br>换成下面这样，就把同一个三角形的绕序反转了：</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">int</span>[] triangles = &#123; <span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span> &#125;;</span><br></pre></td></tr></table></figure>
+
+<p>顶点着色器计算变换后为每个顶点输出<strong>裁剪空间位置</strong>，在 HLSL 中通常标为 <code>SV_POSITION</code>。还可以输出 UV、法线等后续着色需要的数据，但不需要额外输出一个 “这是正面／背面” 的字段。<br>Unity 中大致是：<strong>C# 设置 Mesh／提交渲染命令 → Unity 底层图形代码 → DirectX／Vulkan → GPU</strong>。SRP 的 C# 代码通过 Unity 的底层图形架构间接调用图形 API。<br>GPU 按索引指定的顺序，看这三个点从当前视角投影后是顺时针还是逆时针，再根据正面规则和剔除设置决定是否绘制。<strong>所以仅看到索引是 <code>0, 1, 2</code>，还不能说它一定是正面 —— 还要看顶点位置和观察视角。</strong><br>顶点法线主要参与光照计算；背面剔除依据的是几何绕序，不是你传入的光照法线。</p>
+<p>Unity 中对应的设置：</p>
+<ul>
+<li><code>Cull Back</code>：剔除背面，默认值。</li>
+<li><code>Cull Front</code>：剔除正面，只绘制背面。</li>
+<li><code>Cull Off</code>：不按朝向剔除，两面都可以绘制，适用于需要双面显示的墙、叶片等。<br>它和<strong>遮挡剔除</strong>不是一回事：背面剔除判断的是 “这个面朝哪边”，不是 “它是否被其他物体挡住”。所以一个完全没有被遮挡的单面模型，也可能从背面看不到。</li>
+</ul>
 
     </div>
 
@@ -339,7 +356,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E5%B1%82%E8%BF%87%E6%BB%A4%EF%BC%9ALayer-Culling"><span class="nav-number">1.</span> <span class="nav-text">1. 层过滤：Layer Culling</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E8%B7%9D%E7%A6%BB%E5%89%94%E9%99%A4%EF%BC%9ADistance-Culling"><span class="nav-number">2.</span> <span class="nav-text">2. 距离剔除：Distance Culling</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E8%A7%86%E9%94%A5%E5%89%94%E9%99%A4%EF%BC%9AFrustum-Culling"><span class="nav-number">3.</span> <span class="nav-text">3. 视锥剔除：Frustum Culling</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%82%E8%BF%87%E6%BB%A4%EF%BC%9ALayer-Culling"><span class="nav-number">1.</span> <span class="nav-text">层过滤：Layer Culling</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B7%9D%E7%A6%BB%E5%89%94%E9%99%A4%EF%BC%9ADistance-Culling"><span class="nav-number">2.</span> <span class="nav-text">距离剔除：Distance Culling</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%86%E9%94%A5%E5%89%94%E9%99%A4%EF%BC%9AFrustum-Culling"><span class="nav-number">3.</span> <span class="nav-text">视锥剔除：Frustum Culling</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PVS%EF%BC%9APotentially-Visible-Set-%E9%A2%84%E8%AE%A1%E7%AE%97%E6%BD%9C%E5%9C%A8%E5%8F%AF%E8%A7%81%E9%9B%86"><span class="nav-number">4.</span> <span class="nav-text">PVS：Potentially Visible Set 预计算潜在可见集</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E9%9D%A2%E5%89%94%E9%99%A4%EF%BC%9ABack-face-Culling"><span class="nav-number">5.</span> <span class="nav-text">背面剔除：Back-face Culling</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
