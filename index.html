@@ -161,6 +161,225 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/11/25/Unity-IAP-%E5%92%8C%E7%AC%AC%E4%B8%89%E6%96%B9%E5%86%85%E8%B4%AD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/11/25/Unity-IAP-%E5%92%8C%E7%AC%AC%E4%B8%89%E6%96%B9%E5%86%85%E8%B4%AD/" class="post-title-link" itemprop="url">Unity IAP 和第三方内购</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2026-11-25 15:47:52 / Modified: 17:05:16" itemprop="dateCreated datePublished" datetime="2026-11-25T15:47:52+08:00">2026-11-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Unity-IAP"><a href="#Unity-IAP" class="headerlink" title="Unity IAP"></a>Unity IAP</h1><p>Unity IAP（In-App Purchasing）是 Unity 提供的内购工具包，让你通过一套 C# 接口接入不同平台的商店内购系统。<br>比如游戏里卖金币、去广告或订阅会员，都可以用它。它负责与商店交互；商品内容和购买后的游戏逻辑由你实现。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">你的游戏代码</span><br><span class="line">    ↓</span><br><span class="line">Unity IAP</span><br><span class="line">    ↓</span><br><span class="line">Apple StoreKit / Google Play Billing</span><br><span class="line">    ↓</span><br><span class="line">平台处理付款</span><br></pre></td></tr></table></figure>
+<p>在 iOS 上，Unity IAP 调用 Apple StoreKit；在 Google Play 的 Android 应用上，调用 Google Play Billing。</p>
+<h2 id="支持的商品类型"><a href="#支持的商品类型" class="headerlink" title="支持的商品类型"></a>支持的商品类型</h2><table>
+<thead>
+<tr>
+<th>商品类型</th>
+<th>例子</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>消耗型 Consumable</td>
+<td>金币、钻石、体力</td>
+<td>可以反复购买；发放与余额需要你自己管理</td>
+</tr>
+<tr>
+<td>非消耗型 Non-Consumable</td>
+<td>永久去广告、永久解锁关卡</td>
+<td>通常购买一次，可以恢复购买</td>
+</tr>
+<tr>
+<td>订阅 Subscription</td>
+<td>月度会员、月度权益</td>
+<td>在订阅有效期间提供权益，可能自动续费</td>
+</tr>
+<tr>
+<td>注意“月卡”如何分类取决于设计：购买后获得 30 天奖励但不自动续费，与商店自动续订的月度会员，不是同一种购买机制。</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="购买流程"><a href="#购买流程" class="headerlink" title="购买流程"></a>购买流程</h2><ol>
+<li>配置商品：在 App Store Connect、Google Play Console 中建立商品，并在游戏中配置对应的商品 ID。</li>
+<li>连接商店并获取商品：读取商品是否可购买、当地价格、货币等信息。</li>
+<li>玩家发起购买：Unity IAP 调用平台购买界面，由平台完成付款。</li>
+<li>收到购买结果并验证：检查交易是否有效。</li>
+<li>发放商品并确认交易：记录订单、增加金币或解锁权益，再向商店确认处理完成。<br>价格展示应使用商店返回的本地化价格，例如<code>HK$38.00</code>，避免自己写死价格。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Unity IAP 提供的能力</th>
+<th>你需要实现的业务</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>连接平台商店、获取商品信息</td>
+<td>商品配置和商店 UI</td>
+</tr>
+<tr>
+<td>发起购买、接收交易状态</td>
+<td>验证交易、记录订单和发放奖励</td>
+</tr>
+<tr>
+<td>提供交易凭证或相关数据</td>
+<td>服务端校验与防止重复发货</td>
+</tr>
+<tr>
+<td>接入恢复购买等平台能力</td>
+<td>恢复对应权益、处理订阅状态变化</td>
+</tr>
+</tbody></table>
+<p>最需要注意的是：购买结果可能重复送达。 比如付款成功后游戏崩溃，下次启动时商店可能重新交付未处理的交易。<br>因此，发货逻辑应该根据交易 ID 去重，确保同一笔订单只发一次奖励。<br>对于有价值的金币、会员等商品，通常让服务端验证交易并保存发货记录。退款、订阅到期等变化，也需要相应更新玩家权益。</p>
+<h2 id="开发与测试"><a href="#开发与测试" class="headerlink" title="开发与测试"></a>开发与测试</h2><p>Unity IAP 负责接入购买流程，钱由对应商店收取，再结算给开发者。例如使用 Apple 内购时：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">玩家付款 → Apple 收款</span><br><span class="line">        → 按协议扣除佣金、处理税费等</span><br><span class="line">        → 定期结算到开发者在 App Store Connect 配置的银行账户</span><br></pre></td></tr></table></figure>
+<p>因此，你不是在 Unity IAP 代码里填写收款账号，而是在对应平台的开发者后台配置结算信息。<br>Unity IAP 主要负责获取商品、发起购买、接收交易结果等；游戏还需要验证订单、发放商品。</p>
+<table>
+<thead>
+<tr>
+<th>发布平台</th>
+<th>常用接入方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>iOS App Store</td>
+<td>Unity IAP → Apple StoreKit</td>
+</tr>
+<tr>
+<td>Android Google Play</td>
+<td>Unity IAP → Google Play Billing</td>
+</tr>
+<tr>
+<td>Steam</td>
+<td>Steamworks SDK + 服务端微交易 API</td>
+</tr>
+</tbody></table>
+<p>Steam 的典型流程是：玩家点击购买 → 服务端创建交易 → Steam 界面让玩家授权钱包付款 → 服务端完成交易 → 游戏发放商品。收入由 Steam 按协议结算到 Steamworks 配置的银行账户。</p>
+<p>可以通过 Package Manager 安装 In App Purchasing。开发时可以使用它提供的模拟商店能力检查购买流程，再通过 Apple 沙盒、TestFlight 或 Google Play 测试渠道验证真实平台行为。<br>Unity IAP 不同大版本的 API 差异较大，尤其 v4 与 v5 的初始化、回调和订单处理方式。 找教程时先确认版本，避免把不同版本的代码混用。</p>
+<p>对 Unity 客户端开发来说，你可以把它理解为：统一调用商店的工具包<br>加上你自己实现的订单与商品发放系统，共同组成完整内购功能。</p>
+<h1 id="PayPal支付"><a href="#PayPal支付" class="headerlink" title="PayPal支付"></a>PayPal支付</h1><p>Unity 应用通常通过“网页结账 + 服务端调用 PayPal API”接入 PayPal。这条流程可以独立于 Unity IAP 实现。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Unity 客户端 → 你的服务端 → PayPal 创建订单</span><br><span class="line">     ↓</span><br><span class="line">打开 PayPal 结账网页，玩家登录并批准付款</span><br><span class="line">     ↓</span><br><span class="line">你的服务端调用 PayPal 扣款接口</span><br><span class="line">     ↓</span><br><span class="line">确认支付成功 → 记录订单、发放商品 → Unity 更新界面</span><br></pre></td></tr></table></figure>
+
+<h2 id="接入步骤"><a href="#接入步骤" class="headerlink" title="接入步骤"></a>接入步骤</h2><ol>
+<li>创建 PayPal 商家账户和开发者应用<br>在 PayPal Developer 创建应用，获得 Client ID 和 Client Secret。先用 Sandbox 测试。</li>
+<li>服务端创建订单<br>Unity 把商品 ID 发给你的服务端。服务端查询商品价格，再调用 PayPal Orders v2 API 创建订单，返回结账链接。</li>
+<li>Unity 打开结账网页<br>可以用 Application.OpenURL(checkoutUrl) 打开系统浏览器，让玩家完成 PayPal 授权。移动端可配置 Universal Link／App Link 或深链接返回游戏。</li>
+<li>服务端完成扣款并发货<br>玩家批准付款后，服务端调用 Capture Order 接口。确认捕获付款状态为 COMPLETED，并核对订单、金额、币种和玩家身份后，再发放商品。<br>玩家跳回游戏、网页显示成功，都不能单独作为发货依据。</li>
+<li>Unity 查询结果<br>返回游戏后，客户端向你的服务端查询订单状态，再刷新金币、会员等权益。玩家没有返回游戏时，服务端也应能够继续处理已批准的订单。</li>
+</ol>
+<h2 id="必须处理的订单问题"><a href="#必须处理的订单问题" class="headerlink" title="必须处理的订单问题"></a>必须处理的订单问题</h2><table>
+<thead>
+<tr>
+<th>问题</th>
+<th>处理方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>玩家重复点击购买</td>
+<td>防止重复创建或重复扣款，使用幂等机制</td>
+</tr>
+<tr>
+<td>API 结果或通知重复到达</td>
+<td>根据订单和付款记录去重，同一笔付款只发货一次</td>
+</tr>
+<tr>
+<td>付款后断网或关闭游戏</td>
+<td>服务端保存状态，恢复后查询；用经过验证的 Webhook 补充同步</td>
+</tr>
+<tr>
+<td>退款或争议</td>
+<td>接收对应通知，按业务规则调整权益或订单状态</td>
+</tr>
+</tbody></table>
+<p>支付中的“幂等机制”，就是让同一笔购买请求即使重复提交，也只产生一次扣款、一次发货。主要分三层处理：</p>
+<ol>
+<li>创建订单：同一次购买使用同一个请求 ID<br>玩家开始一次购买时生成 purchaseRequestId，网络超时后重试仍使用它：</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">第一次请求：请求 ID = abc → 创建订单 123</span><br><span class="line">重试请求：  请求 ID = abc → 返回已有订单 123</span><br></pre></td></tr></table></figure>
+<p>服务端给这个请求 ID 设置数据库唯一约束，避免并发请求创建两笔订单。玩家主动开始另一笔购买时，才使用新的 ID。<br>注意：每次点击都生成新 ID，就不能防止重复点击产生多笔订单。 客户端还需要在购买处理中禁用按钮，并复用当前购买请求。</p>
+<ol start="2">
+<li>调用 PayPal：同一次 API 操作使用同一个幂等键<br>PayPal 支持幂等的接口可以通过请求头传入：</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PayPal-Request-Id: capture-order-123</span><br></pre></td></tr></table></figure>
+<p>例如，服务端请求扣款后超时，不知道有没有扣款成功，重试时使用相同的值，PayPal 就能识别这是同一次操作，避免重复处理。<br>创建订单和扣款是不同操作，要使用不同的键。 具体支持范围、保存期限要看对应接口文档。</p>
+<ol start="3">
+<li>发放商品：数据库保证同一订单只发一次<br>收到支付成功结果后，在同一个数据库事务 (Transaction) 中执行：</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">插入发货记录（订单 ID 有唯一约束）</span><br><span class="line">给玩家增加 100 金币</span><br><span class="line">提交事务</span><br></pre></td></tr></table></figure>
+<p>如果这笔订单已经发过货，插入记录会遇到唯一约束，整个事务回滚，不再加金币。如果执行中途失败，两个步骤一起回滚，之后可以重试。</p>
+<p>不能只写：查询是否发货 → 没发过就增加金币<br>因为两个并发请求可能同时查到“没发过”，然后各发一次。</p>
+<p>所以，幂等是目标，请求 ID、支付接口的幂等键、数据库唯一约束和事务，是实现这个目标的手段。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/11/24/%E5%89%94%E9%99%A4%E7%AE%97%E6%B3%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -190,10 +409,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-11-24 18:13:37 / Modified: 18:14:47" itemprop="dateCreated datePublished" datetime="2026-11-24T18:13:37+08:00">2026-11-24</time>
+              <time title="Created: 2026-11-24 18:13:37" itemprop="dateCreated datePublished" datetime="2026-11-24T18:13:37+08:00">2026-11-24</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-11-26 10:26:22" itemprop="dateModified" datetime="2026-11-26T10:26:22+08:00">2026-11-26</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -215,7 +440,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="1-层过滤：Layer-Culling"><a href="#1-层过滤：Layer-Culling" class="headerlink" title="1. 层过滤：Layer Culling"></a>1. 层过滤：Layer Culling</h1><p>这不是复杂的几何算法，而是规则过滤。例如某台相机只绘制场景层，不绘制特效层。实现上用位掩码判断：</p>
+          <h1 id="1-层过滤：Layer-Culling"><a href="#1-层过滤：Layer-Culling" class="headerlink" title="1. 层过滤：Layer Culling"></a>1. 层过滤：Layer Culling</h1><p>不经过几何算法，直接使用规则过滤。例如某台相机只绘制场景层，不绘制特效层。实现上用位掩码判断：</p>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">bool</span> included = (cameraMask &amp; (<span class="number">1</span> &lt;&lt; objectLayer)) != <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
 <p>不匹配的对象不进入这台相机的绘制范围。Unity 的 <code>Camera.cullingMask</code> 就是这个用途。<br><strong>特点</strong>：判断便宜，但它并不分析对象 “实际看不看得见”，只是执行你指定的规则。</p>
 <h1 id="2-距离剔除：Distance-Culling"><a href="#2-距离剔除：Distance-Culling" class="headerlink" title="2. 距离剔除：Distance Culling"></a>2. 距离剔除：Distance Culling</h1><p>可以给不同类别设置不同距离：小装饰物近一些剔除，大建筑远一些剔除。<br>Unity 支持 <code>Camera.layerCullDistances</code>；其默认判断边界是与相机对齐的平面，也可以通过 <code>layerCullSpherical</code> 改成球形距离边界。</p>
@@ -1613,171 +1838,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/07/24/UGUI%E5%92%8CUI-Toolkit/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/07/24/UGUI%E5%92%8CUI-Toolkit/" class="post-title-link" itemprop="url">UGUI和UI Toolkit</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2026-07-24 17:03:05" itemprop="dateCreated datePublished" datetime="2026-07-24T17:03:05+08:00">2026-07-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-07-29 20:36:48" itemprop="dateModified" datetime="2026-07-29T20:36:48+08:00">2026-07-29</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Game-Engine/" itemprop="url" rel="index"><span itemprop="name">Game Engine</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Game-Engine/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="核心架构差异"><a href="#核心架构差异" class="headerlink" title="核心架构差异"></a>核心架构差异</h1><p><strong>UGUI：每个 UI 元素是一个 GameObject</strong></p>
-<ul>
-<li>UI 就是场景里的 GameObject，挂 RectTransform + Canvas Renderer + 各种组件（Image、Text、Button…）。</li>
-<li>一个复杂界面 &#x3D; 成百上千个 GameObject，纳入正常的场景层级、Prefab 系统。</li>
-<li>优点：概念统一，和场景其它对象一致，容易理解、容易挂脚本。</li>
-<li>缺点：GameObject&#x2F;Component 开销大，元素多了内存和遍历成本高。</li>
-</ul>
-<p><strong>UI Toolkit：一棵轻量的 VisualElement 树</strong></p>
-<ul>
-<li>UI 是一棵 VisualElement 树，不是 GameObject，是纯 C# 轻量对象。</li>
-<li>结构（UXML）、样式（USS）、逻辑（C#）三者分离，像 Web 的 HTML&#x2F;CSS&#x2F;JS。</li>
-<li>优点：元素轻量，海量元素也省内存；结构&#x2F;样式&#x2F;逻辑解耦。</li>
-<li>缺点：不在场景层级里，不能直接给单个元素挂 MonoBehaviour，思路要转变。</li>
-</ul>
-<h1 id="渲染机制"><a href="#渲染机制" class="headerlink" title="渲染机制"></a>渲染机制</h1><p>UGUI的渲染单元是Canvas，按 Canvas 合批</p>
-<ul>
-<li>合批：依赖 Canvas 内元素的层级&#x2F;材质，容易被打断，需手动优化（拆 Canvas、图集）</li>
-<li>重建：一个元素变化可能触发整个 Canvas rebuild（著名的性能坑）</li>
-</ul>
-<p>UI Toolkit的渲染单元是统一的 UIR（UI Renderer）网格系统</p>
-<ul>
-<li>合批：通过引擎自动生成网格并合批，通常 drawcall 更少</li>
-<li>重建：局部脏标记，只重建变化部分</li>
-</ul>
-<h1 id="更新UI样式"><a href="#更新UI样式" class="headerlink" title="更新UI样式"></a>更新UI样式</h1><p>UGUI的样式序列化在每个GameObject&#x2F;组件字段上</p>
-<ul>
-<li>复用：改一处只影响一个游戏对象，批量改要靠 Prefab 或脚本</li>
-<li>热重载：组件字段改了即时可见（Inspector）</li>
-<li>逻辑分离：样式和结构混在场景&#x2F;预制体里</li>
-</ul>
-<p>UI Toolkit的样式存保存于独立的 USS 文本文件中</p>
-<ul>
-<li>复用：一个选择器（class）改一处，所有匹配元素全局生效</li>
-<li>热重载：存盘热重载，且可运行时动态换 USS</li>
-<li>逻辑分离：样式（USS）&#x2F;结构（UXML）&#x2F;逻辑（C#）三文件分离</li>
-</ul>
-<p>UI Toolkit 让”改样式”变成改一个集中的、可选择器批量作用、可热重载、可运行时切换的文本文件，且和 C# 逻辑彻底分离</p>
-<p>样式和结构可以脱离 C# 迭代，但数据源和逻辑仍在 C# 里:</p>
-<ul>
-<li>纯视觉（颜色、间距、字体、布局、:hover 效果）→ 改 USS 即可，不碰 C#。</li>
-<li>改结构（增删元素、换控件）→ 改 UXML，通常也不用重编译 C#（如果不新增需要 C# 引用的元素）。</li>
-<li>改数据绑定关系：如果绑定写在 UXML 里，改绑定路径也不用重编译；但如果绑定写在 C# 里（SetBinding(…)），那就要重编译。</li>
-<li>改 ViewModel &#x2F; [CreateProperty] 属性 &#x2F; 业务逻辑 → 必须重编译 C#。</li>
-</ul>
-<hr>
-<h1 id="数据绑定"><a href="#数据绑定" class="headerlink" title="数据绑定"></a>数据绑定</h1><p>UGUI 根本没有内置数据绑定系统。你在 UGUI 里做的所有”数据显示到 UI”都是手写命令式代码。<br>UI Toolkit（Unity 6 起）则提供了声明式的数据绑定。所以优势不是”绑定做得更好”，而是”从无到有”。</p>
-<h2 id="UGUI-的写法（命令式，手动同步）"><a href="#UGUI-的写法（命令式，手动同步）" class="headerlink" title="UGUI 的写法（命令式，手动同步）"></a>UGUI 的写法（命令式，手动同步）</h2><figure class="highlight cs"><figcaption><span>在Player类中手动引用healthSlider和实现更新</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Player</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> health = <span class="number">100</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> maxHealth = <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Slider healthSlider;   <span class="comment">// 拖引用</span></span><br><span class="line">    <span class="keyword">public</span> Text healthLabel;      <span class="comment">// 拖引用</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">TakeDamage</span>(<span class="params"><span class="built_in">int</span> dmg</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        health -= dmg;</span><br><span class="line">        RefreshUI();   <span class="comment">// 每次改数据都得记得手动刷新</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">RefreshUI</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        healthSlider.<span class="keyword">value</span> = (<span class="built_in">float</span>)health / maxHealth;</span><br><span class="line">        healthLabel.text  = <span class="string">$&quot;<span class="subst">&#123;health&#125;</span>/<span class="subst">&#123;maxHealth&#125;</span>&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>数据和 UI 强耦合：Player 逻辑类里塞了 Slider&#x2F;Text 引用。</li>
-<li>容易漏刷新：任何地方改了 health 都得记得调 RefreshUI()，漏一处就显示错。</li>
-<li>UI 引用靠拖拽：换了 UI 结构容易丢引用、报 NullReference。</li>
-</ul>
-<h2 id="UI-Toolkit-的写法（声明式，自动同步）"><a href="#UI-Toolkit-的写法（声明式，自动同步）" class="headerlink" title="UI Toolkit 的写法（声明式，自动同步）"></a>UI Toolkit 的写法（声明式，自动同步）</h2><figure class="highlight cs"><figcaption><span>数据源（纯数据，不知道 UI 的存在）</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">PlayerViewModel</span> : <span class="title">INotifyBindablePropertyChanged</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">int</span> _health = <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">CreateProperty</span>]</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> Health</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> =&gt; _health;</span><br><span class="line">        <span class="keyword">set</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (_health == <span class="keyword">value</span>) <span class="keyword">return</span>;</span><br><span class="line">            _health = <span class="keyword">value</span>;</span><br><span class="line">            Notify(); <span class="comment">// 只管喊一声&quot;我变了&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">CreateProperty</span>]</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">float</span> HealthRatio =&gt; _health / <span class="number">100f</span>; <span class="comment">// 派生属性也能绑</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">event</span> EventHandler&lt;BindablePropertyChangedEventArgs&gt; propertyChanged;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">Notify</span>(<span class="params">[CallerMemberName] <span class="built_in">string</span> name = <span class="string">&quot;&quot;</span></span>)</span> &#123;</span><br><span class="line">        propertyChanged?.Invoke(<span class="keyword">this</span>, <span class="keyword">new</span> BindablePropertyChangedEventArgs(name));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cs"><figcaption><span>绑定（一次性建立，之后自动同步）</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> vm = <span class="keyword">new</span> PlayerViewModel();</span><br><span class="line">root.dataSource = vm;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> bar = root.Q&lt;ProgressBar&gt;(<span class="string">&quot;healthBar&quot;</span>);</span><br><span class="line">bar.SetBinding(<span class="string">&quot;value&quot;</span>, <span class="keyword">new</span> DataBinding</span><br><span class="line">&#123;</span><br><span class="line">    dataSourcePath = <span class="keyword">new</span> PropertyPath(<span class="keyword">nameof</span>(PlayerViewModel.HealthRatio)),</span><br><span class="line">    bindingMode = BindingMode.ToTarget</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> label = root.Q&lt;Label&gt;(<span class="string">&quot;healthLabel&quot;</span>);</span><br><span class="line">label.SetBinding(<span class="string">&quot;text&quot;</span>, <span class="keyword">new</span> DataBinding</span><br><span class="line">&#123;</span><br><span class="line">    dataSourcePath = <span class="keyword">new</span> PropertyPath(<span class="keyword">nameof</span>(PlayerViewModel.Health)),</span><br><span class="line">    bindingMode = BindingMode.ToTarget</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>之后业务代码只写 vm.Health -&#x3D; 10;，血条和文字自动更新。逻辑层再也不碰任何 UI 引用。<br>这些绑定也可以直接写在 UXML 里，做到 UI 结构和绑定关系纯声明式、和 C# 逻辑完全分离。</p>
-<h2 id="UI-Toolkit的数据绑定优势"><a href="#UI-Toolkit的数据绑定优势" class="headerlink" title="UI Toolkit的数据绑定优势"></a>UI Toolkit的数据绑定优势</h2><ol>
-<li>解耦：数据源（ViewModel）完全不知道 UI 存在，可单独测试、复用。</li>
-<li>声明式 + 少样板：绑定关系集中声明（甚至写在 UXML），不用到处写刷新代码，也不会漏刷新。</li>
-<li>双向绑定：BindingMode.TwoWay，输入框改了值自动回写数据源，UGUI InputField得手动写 onValueChanged 回调。</li>
-<li>无反射、低 GC：底层用 Unity.Properties（[CreateProperty]），不走反射，运行时开销小。</li>
-<li>派生属性&#x2F;转换器：可以绑派生属性或加 converter 做格式转换（如 100 → “100&#x2F;100”），不用在数据里存冗余字段。</li>
-</ol>
-<p>UI Toolkit 真正的工作流优势在于三层各自独立迭代：</p>
-<ul>
-<li>USS (Styles) → 美术&#x2F;UI 改，热重载，不碰 C#</li>
-<li>UXML (Structure) → 布局&#x2F;绑定调整，多数不碰 C#</li>
-<li>C# (ViewModel) → 程序改数据源，需重编译</li>
-</ul>
-<p>而 UGUI 里，样式（组件字段）、结构（Prefab 层级）、刷新逻辑（C# 里的 RefreshUI）纠缠在一起，想修改外观往往还是要回到 C# 手动加刷新代码。</p>
-<h2 id="UGUI-用-INotifyPropertyChanged数据绑定"><a href="#UGUI-用-INotifyPropertyChanged数据绑定" class="headerlink" title="UGUI 用 INotifyPropertyChanged数据绑定"></a>UGUI 用 INotifyPropertyChanged数据绑定</h2><p>INotifyPropertyChanged 本身只是一个”我变了”的通知接口，它不会自动更新任何 UI。<br>要在 UGUI 上复现 UI Toolkit 的体验，你需要自己写一个绑定层：</p>
-<figure class="highlight cs"><figcaption><span>手动写这样的桥接组件，每个属性一个</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TextBinder</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> Text target;</span><br><span class="line">    INotifyPropertyChanged _source;</span><br><span class="line">    <span class="built_in">string</span> _propName;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Bind</span>(<span class="params">INotifyPropertyChanged src, <span class="built_in">string</span> propName</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _source = src;</span><br><span class="line">        _propName = propName;</span><br><span class="line">        src.PropertyChanged += OnChanged;</span><br><span class="line">        UpdateNow();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnChanged</span>(<span class="params"><span class="built_in">object</span> s, PropertyChangedEventArgs e</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (e.PropertyName == _propName) UpdateNow();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">UpdateNow</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 还得用反射或委托去取值</span></span><br><span class="line">        <span class="keyword">var</span> val = _source.GetType().GetProperty(_propName).GetValue(_source);</span><br><span class="line">        target.text = val.ToString();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnDestroy</span>()</span> &#123; <span class="keyword">if</span> (_source != <span class="literal">null</span>) _source.PropertyChanged -= OnChanged; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>也就是说，用 INotifyPropertyChanged 你需要自己解决：</p>
-<ul>
-<li>取值&#x2F;赋值：要么反射（有 GC 和性能开销），要么每个属性写委托；UI Toolkit 用 Unity.Properties 免了这层。</li>
-<li>绑定注册&#x2F;注销：手动管理事件订阅，注意 OnDestroy 里退订，否则内存泄漏。</li>
-<li>双向绑定：还得反向监听 UI 的 onValueChanged 再写回，自己防循环更新。</li>
-<li>每种控件&#x2F;属性都要写对应 binder。</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1855,7 +1915,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

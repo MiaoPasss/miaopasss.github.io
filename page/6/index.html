@@ -161,6 +161,105 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/12/TCP-IP-%E4%BA%94%E5%B1%82%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/" class="post-title-link" itemprop="url">TCP/IP 五层网络模型</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-12 17:26:08" itemprop="dateCreated datePublished" datetime="2025-02-12T17:26:08+08:00">2025-02-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-10-28 20:57:17" itemprop="dateModified" datetime="2026-10-28T20:57:17+08:00">2026-10-28</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Networks/" itemprop="url" rel="index"><span itemprop="name">Networks</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="TCP-IP网络模型各层协议功能"><a href="#TCP-IP网络模型各层协议功能" class="headerlink" title="TCP&#x2F;IP网络模型各层协议功能"></a>TCP&#x2F;IP网络模型各层协议功能</h1><h2 id="1-应用层"><a href="#1-应用层" class="headerlink" title="1. 应用层"></a>1. 应用层</h2><p>应用层是网络通信的最高层，它定义了应用程序和网络之间的接口。在这一层，用户可以直接与应用程序进行交互。常见的应用层协议有HTTP、FTP、SMTP等。</p>
+<ul>
+<li><p><strong>Proxy</strong><br>A proxy server (forward proxy) takes requests from a client and forwards them to the internet, a reverse proxy takes requests from the internet and forwards them to a server.</p>
+</li>
+<li><p><strong>Transport Layer Security</strong><br>SSL&#x2F;TLS uses asymmetric encryption is used to establish a secure session between a client and a server, and symmetric encryption is used to exchange data within the secured session.<br>密钥：数据的加密是通过密钥进行的，通过密钥，明文被加密成密文。密钥分为对称加密密钥和非对称加密密钥。密钥为一段随机生成的数，通常以 .pem或者 .key文件保存，可以使用Openssl生成。<br>对称加密：加密解密都是使用同一个密钥。服务器使用该密钥进行加密，经过传输后客户端使用该密钥解密。该方式效率高，但存在安全隐患。<br>非对称加密：非对称加密具有一个密钥对，公钥和私钥，理论上来说公钥和私钥并不区分，便于区分将保存在本地的那个叫做私钥，将需要传输给对方的那个叫做公钥。数据经过私钥加密后，只能由对应的公钥解密，同样数据经过公钥加密后，只能由对应的私钥解密。那么只要客户端拥有服务器的公钥，通过公钥加密报文，服务器用自己的私钥解密就可以实现对传输过程的加密。非对称加密的效率比较低，而且仍有被中间人攻击的风险。<br>证书颁发机构：CA机构是权威的第三方，机构本身具有自己的CA公钥与CA私钥，CA公钥是发给全体互联网成员的，可以将其称为CA证书。服务器需要将自己的 公钥以及认证信息经过HASH加密后发改CA机构，CA机构使用CA私钥对提交的信息进行加密，这就得到了带有数字签名的数据。在使用时使用CA公钥对带有数字签名的数据解密，得到经HASH后的数据，同时将公钥以及认证信息 经过HASH加密后与CA解密后的数据比对，验证电子签名的安全性。</p>
+</li>
+</ul>
+<h2 id="2-传输层"><a href="#2-传输层" class="headerlink" title="2. 传输层"></a>2. 传输层</h2><p>传输层负责在源主机和目标主机（端到端）之间建立数据传输通道，主要协议有TCP和UDP。</p>
+<h2 id="3-网络层"><a href="#3-网络层" class="headerlink" title="3. 网络层"></a>3. 网络层</h2><p>网络层负责在网络上寻址和路由数据包。它定义了数据在网络中的传输路径，使得数据可以从源主机传输到目标主机。常见的网络层协议有IP协议。</p>
+<ul>
+<li><strong>地址解析协议</strong><br>ARP（Address Resolution Protocol，地址解析协议）是用来将IP地址解析为MAC地址的协议。主机或三层网络设备上会维护一张ARP表，用于存储IP地址和MAC地址的映射关系</li>
+</ul>
+<h2 id="4-数据链路层"><a href="#4-数据链路层" class="headerlink" title="4. 数据链路层"></a>4. 数据链路层</h2><p>数据链路层协议负责将网络层传输的数据分组封装成帧，传输到物理层，并通过物理介质进行传输。常见的数据链路层协议有以太网和Wi-Fi等。</p>
+<h2 id="5-物理层"><a href="#5-物理层" class="headerlink" title="5. 物理层"></a>5. 物理层</h2><p>物理层是网络通信的最底层，它负责在物理介质上传输比特流。它定义了物理连接的特性，如电压、频率等。常见的物理层介质有光纤、双绞线等。</p>
+<hr>
+<h1 id="二层设备和三层设备"><a href="#二层设备和三层设备" class="headerlink" title="二层设备和三层设备"></a>二层设备和三层设备</h1><p>二层设备是工作数据链路层的设备。二层交换机可以识别数据包中的MAC地址信息，根据MAC地址进行转发，并将这些MAC地址与对应的端口记录在自己内部的一个地址表中。具体的工作流程如下：<br>（1） 当交换机从某个端口收到一个数据包，它先读取包头中的源MAC地址，这样它就知道源MAC地址的机器是连在哪个端口上的；<br>（2） 再去读取包头中的目的MAC地址，并在地址表中查找相应的端口；<br>（3） 如表中有与这目的MAC地址对应的端口，把数据包直接复制到这端口上；<br>（4） 如表中找不到相应的端口则把数据包广播到所有端口上，当目的机器对源机器回应时，交换机又可以学习一目的MAC地址与哪个端口对应，在下次传送数据时就不再需要对所有端口进行广播了。<br>不断的循环这个过程，对于全网的MAC地址信息都可以学习到，二层交换机就是这样建立和维护它自己的地址表。</p>
+<p>三层设备是工作在网络层的设备。路由器是最常用的三层设备，利用不同网络的ID号（即IP地址）来确定数据转发的地址。IP地址是在软件中实现的，描述的是设备所在的网络，有时这些第三层的地址也称为协议地址或者网络地址。</p>
+<hr>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>详解TCP&#x2F;IP五层网络模型：<a target="_blank" rel="noopener" href="https://blog.csdn.net/2201_75437633/article/details/137373813">https://blog.csdn.net/2201_75437633/article/details/137373813</a><br>TLS&#x2F;SSL：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44640149/article/details/134667685">https://blog.csdn.net/weixin_44640149/article/details/134667685</a></p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/02/11/C-%E4%B8%AD%E7%9A%84unsafe%E3%80%81fixed%E5%92%8Cchecked%E5%85%B3%E9%94%AE%E5%AD%97/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -306,7 +405,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-10-28 21:00:13" itemprop="dateModified" datetime="2026-10-28T21:00:13+08:00">2026-10-28</time>
+                <time title="Modified: 2026-11-26 10:28:36" itemprop="dateModified" datetime="2026-11-26T10:28:36+08:00">2026-11-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -338,19 +437,19 @@
 <li><strong>有机发光二极管显示器（OLED）</strong></li>
 <li><strong>量子点显示器（QLED）</strong></li>
 </ul>
-<h1 id="VSync-工作原理"><a href="#VSync-工作原理" class="headerlink" title="VSync 工作原理"></a>VSync 工作原理</h1><p>What is VSync? VSync stands for Vertical Synchronization. The basic idea is that synchronizes your FPS with your monitor’s refresh rate. The purpose is to eliminate something called “tearing”. I will describe all these things here.  </p>
-<p>Every CRT monitor has a refresh rate. It’s specified in Hz (Hertz, cycles per second). It is the number of times the monitor updates the display per second. Different monitors support different refresh rates at different resolutions. They range from 60Hz at the low end up to 100Hz and higher. Note that this isn’t your FPS as your games report it. If your monitor is set at a specific refresh rate, it always updates the screen at that rate, even if nothing on it is changing. On an LCD, things work differently. Pixels on an LCD stay lit until they are told to change; they don’t have to be refreshed. However, because of how VGA (and DVI) works, the LCD must still poll the video card at a certain rate for new frames. This is why LCD’s still have a “refresh rate” even though they don’t actually have to refresh.  </p>
+<h1 id="VSync-工作原理"><a href="#VSync-工作原理" class="headerlink" title="VSync 工作原理"></a>VSync 工作原理</h1><p>What is VSync? VSync stands for Vertical Synchronization. The basic idea is that synchronizes your FPS with your monitor’s refresh rate. The purpose is to eliminate something called “tearing”. I will describe all these things here.</p>
+<p>Every CRT monitor has a refresh rate. It’s specified in Hz (Hertz, cycles per second). It is the number of times the monitor updates the display per second. Different monitors support different refresh rates at different resolutions. They range from 60Hz at the low end up to 100Hz and higher. Note that this isn’t your FPS as your games report it. If your monitor is set at a specific refresh rate, it always updates the screen at that rate, even if nothing on it is changing. On an LCD, things work differently. Pixels on an LCD stay lit until they are told to change; they don’t have to be refreshed. However, because of how VGA (and DVI) works, the LCD must still poll the video card at a certain rate for new frames. This is why LCD’s still have a “refresh rate” even though they don’t actually have to refresh.</p>
 <p>I think everyone here understands FPS. It’s how many frames the video card can draw per second. Higher is obviously better. However, during a fast paced game, your FPS rarely stays the same all the time. It moves around as the complexity of the image the video card has to draw changes based on what you are seeing. This is where tearing comes in.  </p>
 <p>Tearing is a phenomenon that gives a disjointed image. The idea is as if you took a photograph of something, then rotated your vew maybe just 1 degree to the left and took a photograph of that, then cut the two pictures in half and taped the top half of one to the bottom half of the other. The images would be similar but there would be a notable difference in the top half from the bottom half. This is what is called tearing on a visual display. It doesn’t always have to be cut right in the middle. It can be near the top or the bottom and the separation point can actually move up or down the screen, or seem to jump back and forth between two points.  </p>
-<p>Why does this happen? Lets take a specific example. Let’s say your monitor is set to a refresh rate of 75Hz. You’re playing your favorite game and you’re getting 100FPS right now. That means that the mointor is updating itself 75 times per second, but the video card is updating the display 100 times per second, that’s 33% faster than the mointor. So that means in the time between screen updates, the video card has drawn one frame and a third of another one. That third of the next frame will overwrite the top third of the previous frame and then get drawn on the screen. The video card then finishes the last 2 thirds of that frame, and renders the next 2 thirds of the next frame and then the screen updates again. As you can see this would cause this tearing effect as 2 out of every 3 times the screen updates, either the top third or bottom third is disjointed from the rest of the display. This won’t really be noticeable if what is on the screen isn’t changing much, but if you’re looking around quickly or what not this effect will be very apparant.  </p>
-<p>Now this is where the common misconception comes in. Some people think that the solution to this problem is to simply create an FPS cap equal to the refresh rate. So long as the video card doesn’t go faster than 75 FPS, everything is fine, right? Wrong.  </p>
-<p>Before I explain why, let me talk about double-buffering. Double-buffering is a technique that mitigates the tearing problem somewhat, but not entirely. Basically you have a frame buffer and a back buffer. Whenever the monitor grabs a frame to refresh with, it pulls it from the frame buffer. The video card draws new frames in the back buffer, then copies it to the frame buffer when it’s done. However the copy operation still takes time, so if the monitor refreshes in the middle of the copy operation, it will still have a torn image.  </p>
-<p>VSync solves this problem by creating a rule that says the back buffer can’t copy to the frame buffer until right after the monitor refreshes. With a framerate higher than the refresh rate, this is fine. The back buffer is filled with a frame, the system waits, and after the refresh, the back buffer is copied to the frame buffer and a new frame is drawn in the back buffer, effectively capping your framerate at the refresh rate.  </p>
-<p>That’s all well and good, but now let’s look at a different example. Let’s say you’re playing the sequel to your favorite game, which has better graphics. You’re at 75Hz refresh rate still, but now you’re only getting 50FPS, 33% slower than the refresh rate. That means every time the monitor updates the screen, the video card draws 2&#x2F;3 of the next frame. So lets track how this works. The monitor just refreshed, and frame 1 is copied into the frame buffer. 2&#x2F;3 of frame 2 gets drawn in the back buffer, and the monitor refreshes again. It grabs frame 1 from the frame buffer for the first time. Now the video card finishes the last third of frame 2, but it has to wait, because it can’t update until right after a refresh. The monitor refreshes, grabbing frame 1 the second time, and frame 2 is put in the frame buffer. The video card draws 2&#x2F;3 of frame 3 in the back buffer, and a refresh happens, grabbing frame 2 for the first time. The last third of frame 3 is draw, and again we must wait for the refresh, and when it happens, frame 2 is grabbed for the second time, and frame 3 is copied in. We went through 4 refresh cycles but only 2 frames were drawn. At a refresh rate of 75Hz, that means we’ll see 37.5FPS. That’s noticeably less than 50FPS which the video card is capable of. This happens because the video card is forced to waste time after finishing a frame in the back buffer as it can’t copy it out and it has nowhere else to draw frames.  </p>
-<p>Essentially this means that with double-buffered VSync, the framerate can only be equal to a discrete set of values equal to Refresh &#x2F; N where N is some positive integer. That means if you’re talking about 60Hz refresh rate, the only framerates you can get are 60, 30, 20, 15, 12, 10, etc etc. You can see the big gap between 60 and 30 there. Any framerate between 60 and 30 your video card would normally put out would get dropped to 30.  </p>
-<p>Now maybe you can see why people loathe it. Let’s go back to the original example. You’re playing your favorite game at 75Hz refresh and 100FPS. You turn VSync on, and the game limits you to 75FPS. No problem, right? Fixed the tearing issue, it looks better. You get to an area that’s particularly graphically intensive, an area that would drop your FPS down to about 60 without VSync. Now your card cannot do the 75FPS it was doing before, and since VSync is on, it has to do the next highest one on the list, which is 37.5FPS. So now your game which was running at 75FPS just halved it’s framerate to 37.5 instantly. Whether or not you find 37.5FPS smooth doesn’t change the fact that the framerate just cut in half suddenly, which you would notice. This is what people hate about it.  </p>
-<p>If you’re playing a game that has a framerate that routinely stays above your refresh rate, then VSync will generally be a good thing. However if it’s a game that moves above and below it, then VSync can become annoying. Even worse, if the game plays at an FPS that is just below the refresh rate (say you get 65FPS most of the time on a refresh rate of 75Hz), the video card will have to settle for putting out much less FPS than it could (37.5FPS in that instance). This second example is where the percieved drop in performance comes in. It looks like VSync just killed your framerate. It did, technically, but it isn’t because it’s a graphically intensive operation. It’s simply the way it works.  </p>
-<p>All hope is not lost however. There is a technique called triple-buffering that solves this VSync problem. Lets go back to our 50FPS, 75Hz example. Frame 1 is in the frame buffer, and 2&#x2F;3 of frame 2 are drawn in the back buffer. The refresh happens and frame 1 is grabbed for the first time. The last third of frame 2 are drawn in the back buffer, and the first third of frame 3 is drawn in the second back buffer (hence the term triple-buffering). The refresh happens, frame 1 is grabbed for the second time, and frame 2 is copied into the frame buffer and the first part of frame 3 into the back buffer. The last 2&#x2F;3 of frame 3 are drawn in the back buffer, the refresh happens, frame 2 is grabbed for the first time, and frame 3 is copied to the frame buffer. The process starts over. This time we still got 2 frames, but in only 3 refresh cycles. That’s 2&#x2F;3 of the refresh rate, which is 50FPS, exactly what we would have gotten without it. Triple-buffering essentially gives the video card someplace to keep doing work while it waits to transfer the back buffer to the frame buffer, so it doesn’t have to waste time. Unfortunately, triple-buffering isn’t available in every game, and in fact it isn’t too common. It also can cost a little performance to utilize, as it requires extra VRAM for the buffers, and time spent copying all of them around. However, triple-buffered VSync really is the key to the best experience as you eliminate tearing without the downsides of normal VSync (unless you consider the fact that your FPS is capped a downside… which is silly because you can’t see an FPS higher than your refresh anyway).  </p>
+<p>Why does this happen? Lets take a specific example. Let’s say your monitor is set to a refresh rate of 75Hz. You’re playing your favorite game and you’re getting 100FPS right now. That means that the mointor is updating itself 75 times per second, but the video card is updating the display 100 times per second, that’s 33% faster than the mointor. So that means in the time between screen updates, the video card has drawn one frame and a third of another one. That third of the next frame will overwrite the top third of the previous frame and then get drawn on the screen. The video card then finishes the last 2 thirds of that frame, and renders the next 2 thirds of the next frame and then the screen updates again. As you can see this would cause this tearing effect as 2 out of every 3 times the screen updates, either the top third or bottom third is disjointed from the rest of the display. This won’t really be noticeable if what is on the screen isn’t changing much, but if you’re looking around quickly or what not this effect will be very apparant.</p>
+<p>Now this is where the common misconception comes in. Some people think that the solution to this problem is to simply create an FPS cap equal to the refresh rate. So long as the video card doesn’t go faster than 75 FPS, everything is fine, right? Wrong.</p>
+<p>Before I explain why, let me talk about double-buffering. Double-buffering is a technique that mitigates the tearing problem somewhat, but not entirely. Basically you have a frame buffer and a back buffer. Whenever the monitor grabs a frame to refresh with, it pulls it from the frame buffer. The video card draws new frames in the back buffer, then copies it to the frame buffer when it’s done. However the copy operation still takes time, so if the monitor refreshes in the middle of the copy operation, it will still have a torn image. </p>
+<p>VSync solves this problem by creating a rule that says the back buffer can’t copy to the frame buffer until right after the monitor refreshes. With a framerate higher than the refresh rate, this is fine. The back buffer is filled with a frame, the system waits, and after the refresh, the back buffer is copied to the frame buffer and a new frame is drawn in the back buffer, effectively capping your framerate at the refresh rate.</p>
+<p>That’s all well and good, but now let’s look at a different example. Let’s say you’re playing the sequel to your favorite game, which has better graphics. You’re at 75Hz refresh rate still, but now you’re only getting 50FPS, 33% slower than the refresh rate. That means every time the monitor updates the screen, the video card draws 2&#x2F;3 of the next frame. So lets track how this works. The monitor just refreshed, and frame 1 is copied into the frame buffer. 2&#x2F;3 of frame 2 gets drawn in the back buffer, and the monitor refreshes again. It grabs frame 1 from the frame buffer for the first time. Now the video card finishes the last third of frame 2, but it has to wait, because it can’t update until right after a refresh. The monitor refreshes, grabbing frame 1 the second time, and frame 2 is put in the frame buffer. The video card draws 2&#x2F;3 of frame 3 in the back buffer, and a refresh happens, grabbing frame 2 for the first time. The last third of frame 3 is draw, and again we must wait for the refresh, and when it happens, frame 2 is grabbed for the second time, and frame 3 is copied in. We went through 4 refresh cycles but only 2 frames were drawn. At a refresh rate of 75Hz, that means we’ll see 37.5FPS. That’s noticeably less than 50FPS which the video card is capable of. This happens because the video card is forced to waste time after finishing a frame in the back buffer as it can’t copy it out and it has nowhere else to draw frames.</p>
+<p>Essentially this means that with double-buffered VSync, the framerate can only be equal to a discrete set of values equal to Refresh &#x2F; N where N is some positive integer. That means if you’re talking about 60Hz refresh rate, the only framerates you can get are 60, 30, 20, 15, 12, 10, etc etc. You can see the big gap between 60 and 30 there. Any framerate between 60 and 30 your video card would normally put out would get dropped to 30.</p>
+<p>Now maybe you can see why people loathe it. Let’s go back to the original example. You’re playing your favorite game at 75Hz refresh and 100FPS. You turn VSync on, and the game limits you to 75FPS. No problem, right? Fixed the tearing issue, it looks better. You get to an area that’s particularly graphically intensive, an area that would drop your FPS down to about 60 without VSync. Now your card cannot do the 75FPS it was doing before, and since VSync is on, it has to do the next highest one on the list, which is 37.5FPS. So now your game which was running at 75FPS just halved it’s framerate to 37.5 instantly. Whether or not you find 37.5FPS smooth doesn’t change the fact that the framerate just cut in half suddenly, which you would notice. This is what people hate about it.</p>
+<p>If you’re playing a game that has a framerate that routinely stays above your refresh rate, then VSync will generally be a good thing. However if it’s a game that moves above and below it, then VSync can become annoying. Even worse, if the game plays at an FPS that is just below the refresh rate (say you get 65FPS most of the time on a refresh rate of 75Hz), the video card will have to settle for putting out much less FPS than it could (37.5FPS in that instance). This second example is where the percieved drop in performance comes in. It looks like VSync just killed your framerate. It did, technically, but it isn’t because it’s a graphically intensive operation. It’s simply the way it works.</p>
+<p>All hope is not lost however. There is a technique called triple-buffering that solves this VSync problem. Lets go back to our 50FPS, 75Hz example. Frame 1 is in the frame buffer, and 2&#x2F;3 of frame 2 are drawn in the back buffer. The refresh happens and frame 1 is grabbed for the first time. The last third of frame 2 are drawn in the back buffer, and the first third of frame 3 is drawn in the second back buffer (hence the term triple-buffering). The refresh happens, frame 1 is grabbed for the second time, and frame 2 is copied into the frame buffer and the first part of frame 3 into the back buffer. The last 2&#x2F;3 of frame 3 are drawn in the back buffer, the refresh happens, frame 2 is grabbed for the first time, and frame 3 is copied to the frame buffer. The process starts over. This time we still got 2 frames, but in only 3 refresh cycles. That’s 2&#x2F;3 of the refresh rate, which is 50FPS, exactly what we would have gotten without it. Triple-buffering essentially gives the video card someplace to keep doing work while it waits to transfer the back buffer to the frame buffer, so it doesn’t have to waste time. Unfortunately, triple-buffering isn’t available in every game, and in fact it isn’t too common. It also can cost a little performance to utilize, as it requires extra VRAM for the buffers, and time spent copying all of them around. However, triple-buffered VSync really is the key to the best experience as you eliminate tearing without the downsides of normal VSync (unless you consider the fact that your FPS is capped a downside… which is silly because you can’t see an FPS higher than your refresh anyway).</p>
 <p>I hope this was informative, and will help people understand the intracacies of VSync (and hopefully curb the “VSync, yes or no?” debates!). Generally, if triple buffering isn’t available, you have to decide whether the discrete framerate limitations of VSync and the issues that can cause are worth the visual improvement of the elimination of tearing. It’s a personal preference, and it’s entirely up to you.</p>
 <hr>
 <h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p>VSync explanation: <a target="_blank" rel="noopener" href="https://hardforum.com/threads/how-vsync-works-and-why-people-loathe-it.928593/">https://hardforum.com/threads/how-vsync-works-and-why-people-loathe-it.928593/</a></p>
@@ -670,7 +769,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

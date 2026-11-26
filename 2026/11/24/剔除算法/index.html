@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"miaopasss.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="1. 层过滤：Layer Culling这不是复杂的几何算法，而是规则过滤。例如某台相机只绘制场景层，不绘制特效层。实现上用位掩码判断： 1bool included &#x3D; (cameraMask &amp; (1 &lt;&lt; objectLayer)) !&#x3D; 0; 不匹配的对象不进入这台相机的绘制范围。Unity 的 Camera.cullingMask 就是这个用途。特点：判断便宜，但它并">
+  <meta name="description" content="1. 层过滤：Layer Culling不经过几何算法，直接使用规则过滤。例如某台相机只绘制场景层，不绘制特效层。实现上用位掩码判断： 1bool included &#x3D; (cameraMask &amp; (1 &lt;&lt; objectLayer)) !&#x3D; 0; 不匹配的对象不进入这台相机的绘制范围。Unity 的 Camera.cullingMask 就是这个用途。特点：判断便宜，但它并不">
 <meta property="og:type" content="article">
 <meta property="og:title" content="剔除算法">
 <meta property="og:url" content="https://miaopasss.github.io/2026/11/24/%E5%89%94%E9%99%A4%E7%AE%97%E6%B3%95/index.html">
 <meta property="og:site_name" content="乌啦呀哈呀哈乌啦！">
-<meta property="og:description" content="1. 层过滤：Layer Culling这不是复杂的几何算法，而是规则过滤。例如某台相机只绘制场景层，不绘制特效层。实现上用位掩码判断： 1bool included &#x3D; (cameraMask &amp; (1 &lt;&lt; objectLayer)) !&#x3D; 0; 不匹配的对象不进入这台相机的绘制范围。Unity 的 Camera.cullingMask 就是这个用途。特点：判断便宜，但它并">
+<meta property="og:description" content="1. 层过滤：Layer Culling不经过几何算法，直接使用规则过滤。例如某台相机只绘制场景层，不绘制特效层。实现上用位掩码判断： 1bool included &#x3D; (cameraMask &amp; (1 &lt;&lt; objectLayer)) !&#x3D; 0; 不匹配的对象不进入这台相机的绘制范围。Unity 的 Camera.cullingMask 就是这个用途。特点：判断便宜，但它并不">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-11-24T10:13:37.000Z">
-<meta property="article:modified_time" content="2026-11-24T10:14:47.478Z">
+<meta property="article:modified_time" content="2026-11-26T02:26:22.934Z">
 <meta property="article:author" content="Haotian Luo">
 <meta property="article:tag" content="Rendering pipeline">
 <meta property="article:tag" content="Camera">
@@ -194,10 +194,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2026-11-24 18:13:37 / Modified: 18:14:47" itemprop="dateCreated datePublished" datetime="2026-11-24T18:13:37+08:00">2026-11-24</time>
+              <time title="Created: 2026-11-24 18:13:37" itemprop="dateCreated datePublished" datetime="2026-11-24T18:13:37+08:00">2026-11-24</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-11-26 10:26:22" itemprop="dateModified" datetime="2026-11-26T10:26:22+08:00">2026-11-26</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -226,7 +232,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="1-层过滤：Layer-Culling"><a href="#1-层过滤：Layer-Culling" class="headerlink" title="1. 层过滤：Layer Culling"></a>1. 层过滤：Layer Culling</h1><p>这不是复杂的几何算法，而是规则过滤。例如某台相机只绘制场景层，不绘制特效层。实现上用位掩码判断：</p>
+        <h1 id="1-层过滤：Layer-Culling"><a href="#1-层过滤：Layer-Culling" class="headerlink" title="1. 层过滤：Layer Culling"></a>1. 层过滤：Layer Culling</h1><p>不经过几何算法，直接使用规则过滤。例如某台相机只绘制场景层，不绘制特效层。实现上用位掩码判断：</p>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">bool</span> included = (cameraMask &amp; (<span class="number">1</span> &lt;&lt; objectLayer)) != <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
 <p>不匹配的对象不进入这台相机的绘制范围。Unity 的 <code>Camera.cullingMask</code> 就是这个用途。<br><strong>特点</strong>：判断便宜，但它并不分析对象 “实际看不看得见”，只是执行你指定的规则。</p>
 <h1 id="2-距离剔除：Distance-Culling"><a href="#2-距离剔除：Distance-Culling" class="headerlink" title="2. 距离剔除：Distance Culling"></a>2. 距离剔除：Distance Culling</h1><p>可以给不同类别设置不同距离：小装饰物近一些剔除，大建筑远一些剔除。<br>Unity 支持 <code>Camera.layerCullDistances</code>；其默认判断边界是与相机对齐的平面，也可以通过 <code>layerCullSpherical</code> 改成球形距离边界。</p>
@@ -271,7 +277,10 @@
     <a href="/2026/11/23/%E7%BB%98%E5%88%B6%E9%A1%BA%E5%BA%8F%E5%92%8C%E6%B7%B1%E5%BA%A6%E6%B5%8B%E8%AF%95/" rel="prev" title="绘制顺序和深度测试">
       <i class="fa fa-chevron-left"></i> 绘制顺序和深度测试
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2026/11/25/Unity-IAP-%E5%92%8C%E7%AC%AC%E4%B8%89%E6%96%B9%E5%86%85%E8%B4%AD/" rel="next" title="Unity IAP 和第三方内购">
+      Unity IAP 和第三方内购 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -352,7 +361,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

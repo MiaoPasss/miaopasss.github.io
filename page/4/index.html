@@ -161,6 +161,227 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/03/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/exciting-usagi.gif">
+      <meta itemprop="name" content="Haotian Luo">
+      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
+
+赤团开时斜飞去，<br>
+最不安神晴又复雨。
+
+</font>
+">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/03/03/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" class="post-title-link" itemprop="url">数据结构</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2026-03-03 13:48:16" itemprop="dateCreated datePublished" datetime="2026-03-03T13:48:16+08:00">2026-03-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2026-11-24 17:31:17" itemprop="dateModified" datetime="2026-11-24T17:31:17+08:00">2026-11-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index"><span itemprop="name">Programming</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>线性：一头一尾，每个元素只有一个前驱和一个后驱，比如栈&#x2F;队列<br>非线性：分支、分层关系，比如树&#x2F;图</p>
+<hr>
+<h1 id="物理结构和逻辑结构"><a href="#物理结构和逻辑结构" class="headerlink" title="物理结构和逻辑结构"></a>物理结构和逻辑结构</h1><p><strong>数组和链表可以看做物理存储的概念。</strong><br>数组是用一段连续的内存存储，可以随机访问，支持随机访问（ O(1) ），但增删需移动元素（ O(n) ）。<br>链表不要求连续的内存，元素分散存储，通过指针连接，增删无需移动元素（ O(1) ），但不支持随机访问（ O(n) ）。</p>
+<p><strong>而数据结构都是逻辑层的概念，线性表，非线性表，栈，队列，树，图等等。</strong><br>线性表这些逻辑层的概念，底层既可以用数组实现，也可以用链表实现。线性表用数组实现就叫做顺序表。</p>
+<p>“顺序表是在计算机内存中以数组的形式保存的线中以数组的形式保存的线性表。” 简而言之，是线性表的一种实现方式。显然，这里的“数组”指物理结构，“线性表”指逻辑结构。这个解释应该还是合理的。</p>
+<hr>
+<h1 id="AVL树"><a href="#AVL树" class="headerlink" title="AVL树"></a>AVL树</h1><p>平衡树：一棵包含 N 个节点的平衡树，其树高 h 始终保持在 O(log N) 的量级。<br>AVL是平衡树的一种，平衡条件非常严格。它要求任何节点的左右子树高度差的绝对值不能超过1。</p>
+<ol>
+<li>空二叉树是一个 AVL 树</li>
+<li>如果 T 是一棵 AVL 树，那么其左右子树也是 AVL 树，并且 |ℎ(𝑙𝑠) −ℎ(𝑟𝑠)| ≤1，h 是其左右子树的高度</li>
+<li>树高为 𝑂(log ⁡𝑛)</li>
+</ol>
+<p>平衡因子：右子树高度 - 左子树高度</p>
+<hr>
+<h1 id="红黑树"><a href="#红黑树" class="headerlink" title="红黑树"></a>红黑树</h1><p>首先，红黑树是一个二叉搜索树，它在每个节点增加了一个存储位记录节点的颜色，可以是RED,也可以是BLACK<br>通过任意一条从根到叶子简单路径上颜色的约束，红黑树保证最长路径不超过最短路径的二倍，因而近似平衡（最短路径就是全黑节点，最长路径就是一个红节点一个黑节点，当从根节点到叶子节点的路径上黑色节点相同时，最长路径刚好是最短路径的两倍）</p>
+<p>红黑树满足以下特性：</p>
+<ol>
+<li>节点是红色或黑色</li>
+<li>根是黑色</li>
+<li>叶子节点（外部节点，空节点）都是黑色，这里的叶子节点指的是最底层的空节点（外部节点），即null节点才是叶子节点，null节点的父节点在红黑树里不将其看作叶子节点</li>
+<li>红色节点的子节点都是黑色，红色节点的父节点都是黑色</li>
+<li>从根节点到叶子节点的所有路径上不能有 2 个连续的红色节点</li>
+<li>从任一节点到叶子节点的所有路径都包含相同数目的黑色节点</li>
+</ol>
+<hr>
+<h1 id="并查集"><a href="#并查集" class="headerlink" title="并查集"></a>并查集</h1><p>并查集是一种用于管理元素所属集合的数据结构，实现为一个森林，其中每棵树表示一个集合，树中的节点表示对应集合中的元素</p>
+<p>并查集支持以下两种操作：</p>
+<ul>
+<li>合并（Unite）：合并两个元素所属集合（合并对应的树）。</li>
+<li>查询（Find）：查询某个元素所属集合（查询对应的树的根节点），这可以用于判断两个元素是否属于同一集合。</li>
+</ul>
+<h2 id="路经压缩"><a href="#路经压缩" class="headerlink" title="路经压缩"></a>路经压缩</h2><p>如果查询过程中经过的每个元素都属于该集合，我们可以将其直接连到根节点以加快后续查询。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// assignment expression </span></span><br><span class="line"><span class="comment">// size_t a; size_t b = (a = 10);</span></span><br><span class="line"><span class="function"><span class="type">size_t</span> <span class="title">dsu::find</span><span class="params">(<span class="type">size_t</span> x)</span> </span>&#123; <span class="keyword">return</span> pa[x] == x ? x : pa[x] = <span class="built_in">find</span>(pa[x]); &#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="kd-树（k-d-tree）"><a href="#kd-树（k-d-tree）" class="headerlink" title="kd 树（k-d tree）"></a>kd 树（k-d tree）</h1><p>数据驱动 (Data-Driven) 的空间划分。k-d树的分割线（或分割面）的位置，是由数据点本身的位置决定的，目标是让分割后的两个子空间包含大致相同数量的点。<br>每个节点按一个维度（2D：x 或 y，3D：x&#x2F;y&#x2F;z）把空间分成两半<br>节点保存一个点&#x2F;对象，左子树保存该维度值更小的点，右子树保存更大的点</p>
+<h2 id="构建方式"><a href="#构建方式" class="headerlink" title="构建方式"></a>构建方式</h2><ol>
+<li>选维度: 从 X 轴开始。</li>
+<li>找到中位数: 在所有数据点中，找到 X 坐标的中位数。</li>
+<li>划分: 以这个中位数点的 X 坐标为界，画一条垂直于 X 轴的分割线（平面）。<ul>
+<li>X 坐标小于该值的点，归入左子树。</li>
+<li>X 坐标大于等于该值的点，归入右子树。</li>
+</ul>
+</li>
+<li>递归与交替维度:（3维的话是 x -&gt; y -&gt; z -&gt; x -&gt; …）<ul>
+<li>对左子树和右子树，重复上述过程，但这次切换到 Y 轴。</li>
+<li>下一层再切换回 X 轴，如此循环，交替使用不同的维度进行划分。</li>
+</ul>
+</li>
+<li>结束: 直到每个子区域只包含一个点，或达到预设的叶子节点容量。</li>
+</ol>
+<p>结果是一个平衡树，构建复杂度 O(N log N)</p>
+<h2 id="最近邻查询"><a href="#最近邻查询" class="headerlink" title="最近邻查询"></a>最近邻查询</h2><p>递归访问树，先搜索查询点所在的那一侧<br>回溯时比较当前最优距离与另一侧超平面距离<br>如果另一侧可能存在更近点，则前往另一侧(进入这个子树，重复上面的递归搜索过程)继续搜索<br>查 top-K 时可维护一个大小为 K 的最大堆，剪枝条件是当前节点距离是否小于堆顶距离</p>
+<h2 id="更新方式"><a href="#更新方式" class="headerlink" title="更新方式"></a>更新方式</h2><p>插入</p>
+<ul>
+<li>直接沿树下降，到叶子插入新点</li>
+<li>不做重平衡，平均 O(log N)，但随着插入会变得不平衡</li>
+</ul>
+<p>删除</p>
+<ul>
+<li>可把节点标记为“已删除”</li>
+<li>或用后继&#x2F;前驱点替换当前节点并递归删除</li>
+</ul>
+<p>动态维护</p>
+<ul>
+<li>简单方案：批量更新后重建整个 kd 树</li>
+<li>常见做法：周期性重建，或者在插入&#x2F;删除累计到一定阈值后重建</li>
+</ul>
+<p>适用场景</p>
+<ul>
+<li>点集较静态或更新较少</li>
+<li>适合近邻搜索、点查询</li>
+</ul>
+<hr>
+<h1 id="四叉树"><a href="#四叉树" class="headerlink" title="四叉树"></a>四叉树</h1><p>空间驱动 (Space-Driven) 的划分。四叉树的分割方式是固定的，它只关心空间本身，而不管空间里有什么数据。<br>每个节点对应一个轴对齐的矩形&#x2F;正方形区域，如果区域内点数超过阈值，则分成 4 个子象限<br>分割线永远是区域的正中线。最终划分出的子空间是大小可能不同、但形状永远是正方形的网格。</p>
+<h2 id="构建方式-1"><a href="#构建方式-1" class="headerlink" title="构建方式"></a>构建方式</h2><ol>
+<li>定义边界: 从一个包含所有数据点的巨大正方形（根节点区域）开始。</li>
+<li>划分: 将这个正方形均匀地分割成四个等大的子正方形（象限）：西北、东北、西南、东南。这四个子正方形成为根节点的四个子节点。</li>
+<li>递归:<ul>
+<li>对于每个子节点，检查其中包含的数据点数量。</li>
+<li>如果数量大于某个阈值（比如1），或者区域的尺寸还很大，就再次将其均分成四个更小的正方形。</li>
+<li>如果数量小于等于阈值，或者区域已经很小，则停止分裂，该节点成为叶子节点。</li>
+</ul>
+</li>
+<li>数据归属: 每个数据点根据其坐标，被存储在完全包含它的、尺寸最小的那个叶子节点中。</li>
+</ol>
+<h2 id="最近邻查询-1"><a href="#最近邻查询-1" class="headerlink" title="最近邻查询"></a>最近邻查询</h2><p>从根开始遍历<br>按与查询点距离排序子节点访问顺序<br>对每个子节点计算该区域到查询点的最小可能距离<br>如果最小距离比当前最远候选距离大，则剪枝<br>对于 top-K，维护候选列表并持续剪枝</p>
+<h2 id="更新方式-1"><a href="#更新方式-1" class="headerlink" title="更新方式"></a>更新方式</h2><p>插入</p>
+<ul>
+<li>找到点所属的叶节点并加入</li>
+<li>若点数超阈值，分裂该叶节点</li>
+</ul>
+<p>删除</p>
+<ul>
+<li>从对应叶节点删除点</li>
+<li>如果节点和兄弟节点合并后点数低于阈值，可回收子节点，合并成父节点</li>
+</ul>
+<p>移动对象</p>
+<ul>
+<li>先从旧格子删除，再重新插入新位置</li>
+<li>若对象移动量不大，可使用“松散四叉树”（loose quadtree）减少频繁重插入</li>
+</ul>
+<p>适用场景</p>
+<ul>
+<li>2D 空间、区域查询、碰撞检测、动态场景</li>
+<li>对于分布不均匀、局部聚集的点特别有效</li>
+</ul>
+<hr>
+<h1 id="BVH-Bounding-Volume-Hierarchy-包围盒层级"><a href="#BVH-Bounding-Volume-Hierarchy-包围盒层级" class="headerlink" title="BVH (Bounding Volume Hierarchy) &#x2F; 包围盒层级"></a>BVH (Bounding Volume Hierarchy) &#x2F; 包围盒层级</h1><p>对单位按区域构建层级包围盒（AABB），按包围盒层级组织，适合先过滤远物体再精细排序<br>适合移动对象少、查询多的场景<br>查询时先过滤掉远离的盒子：如果这个盒子比当前队列（大顶堆）中的最远距离还要远，那么不考虑这个盒子</p>
+<h2 id="构建方式-2"><a href="#构建方式-2" class="headerlink" title="构建方式"></a>构建方式</h2><ol>
+<li>准备叶子对象：每个对象先计算自己的AABB和中心点（centroid）</li>
+<li>建根节点：根节点包围所有对象的总 AABB</li>
+<li>递归分裂：<ul>
+<li>终止条件为对象数 &lt;&#x3D; leaf_size（如 4&#x2F;8）或树深度到上限。</li>
+<li>否则继续分裂：选最长轴 + 中位数切分（快，质量一般），或者 SAH 选轴和切分位置（慢些，但查询更快）。</li>
+</ul>
+</li>
+<li>生成子节点：左右子集分别求 AABB，继续递归</li>
+<li>叶子存索引：叶节点保存对象索引范围（而不是拷贝对象）。<ul>
+<li>“保存索引范围” 通常建立在 “构建时把对象重排成连续段”这个前提上</li>
+<li>如果不重排，那就需要存一个显式索引列表（vector&#x2F;list），代价是内存和访问局部性通常更差。</li>
+</ul>
+</li>
+</ol>
+<h2 id="最近邻查询-2"><a href="#最近邻查询-2" class="headerlink" title="最近邻查询"></a>最近邻查询</h2><ol>
+<li>准备两个堆，lb &#x3D; dist_lower_bound<ul>
+<li>nodePQ：最小堆，键是 dist_lb(query, node.bbox)（点到 AABB 的最小可能距离）。</li>
+<li>ansPQ：最大堆，存当前前 k 个候选点（堆顶是当前最差的那个，距离 dmax）。</li>
+</ul>
+</li>
+<li>初始化<ul>
+<li>把根节点放进 nodePQ</li>
+<li>dmax &#x3D; +inf（当 ansPQ 满 k 后，dmax 变为堆顶距离）。</li>
+</ul>
+</li>
+<li>循环弹出 nodePQ 里下界最小的节点 (lb, node)，若 lb &gt; dmax，可直接停止，因为后面节点下界只会更大，不可能更优<ul>
+<li>若是内部节点：计算左右子节点 lbL&#x2F;lbR，只把 lb &lt;&#x3D; dmax 的子节点入堆</li>
+<li>若是叶节点：逐个计算真实距离 d(query, point)，若 ansPQ 未满就放入；满了且 d &lt; dmax 就替换堆顶</li>
+</ul>
+</li>
+<li>结束，ansPQ里就是KNN</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2026/03/03/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -849,7 +1070,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-11-09 14:09:10" itemprop="dateModified" datetime="2026-11-09T14:09:10+08:00">2026-11-09</time>
+                <time title="Modified: 2026-11-25 17:13:54" itemprop="dateModified" datetime="2026-11-25T17:13:54+08:00">2026-11-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -873,14 +1094,38 @@
 
       
           <p><strong>Shader（着色器）是一段运行在 GPU 上的程序，用来决定物体怎么被画出来。</strong> 比如物体是什么颜色、有没有反光、表面是否透明，以及是否出现发光、溶解等效果。</p>
-<p>在 Unity 中，可以这样理解它们的关系：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>负责什么</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Mesh（网格）</td>
+<td>描述物体的几何数据：顶点、三角形、法线、UV 等</td>
+<td>一个球的形状</td>
+</tr>
+<tr>
+<td>Material（材质）</td>
+<td>保存 Shader 及其使用的参数、纹理</td>
+<td>红色、金属度、表面贴图</td>
+</tr>
+<tr>
+<td>Shader（着色器）</td>
+<td>定义这些数据如何参与渲染</td>
+<td>如何计算颜色、光照和透明效果</td>
+</tr>
+</tbody></table>
+<p>在这个球的例子中，可以这样理解它们的关系：</p>
 <ul>
 <li><strong>模型（Mesh）</strong>：提供形状，例如一个球。</li>
 <li><strong>贴图（Texture）</strong>：提供图案，例如球表面的木纹。</li>
 <li><strong>Shader</strong>：规定如何处理光照、贴图和颜色，让球看起来像木头、金属或玻璃。</li>
 <li><strong>材质（Material）</strong>：选择一个 Shader，并设置贴图、颜色、光滑度等具体参数，然后赋给物体。</li>
 </ul>
-<p>同一个球模型，使用不同 Shader 和材质，就能呈现完全不同的外观。</p>
+<p>同一个球模型，使用不同 Shader 和材质，就能呈现完全不同的外观。<br>同一个 Shader 可以对应多个材质：使用同一套渲染规则，给出不同的颜色和贴图，就会产生不同外观。</p>
 <p>常见的 Shader 处理阶段有：</p>
 <table>
 <thead>
@@ -899,10 +1144,9 @@
 </tr>
 </tbody></table>
 <p>“片元”可以先理解成一个准备画到屏幕上的像素候选，它还可能被深度测试等步骤丢弃。</p>
-<p>在 Unity 里，你可以直接使用内置 Shader，也可以用 <strong>Shader Graph 连接节点</strong>来制作效果，或者用 <strong>HLSL 写代码</strong>。</p>
-<p>例如做一个“物体逐渐溶解”的效果，Shader 会根据噪声贴图和溶解参数，丢弃一部分片元，并给溶解边缘加上发光颜色。</p>
+<p>在 Unity 里，你可以直接使用内置 Shader，也可以用 <strong>Shader Graph 连接节点</strong>来制作效果，或者用 <strong>HLSL 写代码</strong>。<br>例如做一个“物体逐渐溶解”的效果，Shader 会根据噪声贴图和溶解参数，丢弃一部分片元，并给溶解边缘加上发光颜色。</p>
 <hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits:"></a>Credits:</h1><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/718015588">https://zhuanlan.zhihu.com/p/718015588</a></p>
+<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits:"></a>Credits:</h1><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/718015588">https://zhuanlan.zhihu.com/p/718015588</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/lengyoumo/article/details/98497353">https://blog.csdn.net/lengyoumo/article/details/98497353</a></p>
 <hr>
 
       
@@ -1284,135 +1528,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://miaopasss.github.io/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/exciting-usagi.gif">
-      <meta itemprop="name" content="Haotian Luo">
-      <meta itemprop="description" content="<font face="KAI" size=4 color=firebrick>
-
-赤团开时斜飞去，<br>
-最不安神晴又复雨。
-
-</font>
-">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乌啦呀哈呀哈乌啦！">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/" class="post-title-link" itemprop="url">渲染管线概览</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-08-14 17:45:38" itemprop="dateCreated datePublished" datetime="2025-08-14T17:45:38+08:00">2025-08-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2026-11-24 18:14:35" itemprop="dateModified" datetime="2026-11-24T18:14:35+08:00">2026-11-24</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p2.png" title="渲染图元"> <br></p>
-<h1 id="CPU-GPU工作流程"><a href="#CPU-GPU工作流程" class="headerlink" title="CPU + GPU工作流程"></a>CPU + GPU工作流程</h1><ol>
-<li>剔除，把一些不想看到的，或者看不到的东西排除掉</li>
-<li>确定物体的先后渲染顺序</li>
-<li>将对应的模型数据、材质等打包发送给GPU</li>
-<li>发送SetPassCall和Drawcall告诉GPU渲染管线渲染模型数据所需的shader</li>
-<li>数据在GPU渲染管线中绘制，将3D物体渲染为2D图像</li>
-<li>将渲染图像存放在帧缓冲区（FrameBuffer）中。可以理解为一个和屏幕大小等大的临时画布</li>
-<li>后处理操作。通过CPU拿到帧缓冲区的图像，调用shader再进入GPU渲染管线，对帧缓冲区的图像进行二次的修改，比如调色、bloom等操作</li>
-<li>显示在屏幕上</li>
-</ol>
-<p>CPU应用程序端逻辑：经过剔除、排序等等，将模型数据打包发给GPU渲染管线<br>GPU渲染管线：拿到模型数据后，讲图像画出来，存放在对应的帧缓冲区中</p>
-<p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p3.png" title="CPU打包数据"> <br></p>
-<h1 id="GPU渲染管线"><a href="#GPU渲染管线" class="headerlink" title="GPU渲染管线"></a>GPU渲染管线</h1><ol start="0">
-<li>CPU打包数据：vertex buffer&#x2F;index buffer&#x2F;frustum视锥&#x2F;directional light平行光&#x2F;texture+shader<br> • SetPass Call：设定好渲染设置后，告诉GPU使用哪个shader，使用哪种混合模式、设置背面剔除等等，当使用不同的材质或者相同的材质下不同的Pass时需要设置切换多个渲染状态，就会增加SetPassCall，所以SetPassCall的次数也能反映性能<br> • Draw Call（绘制调用）：CPU打包数据发送给GPU，告诉GPU使用哪些模型数据进行渲染</li>
-<li>Vertex Shader: 使用顶点&#x2F;视锥信息将模型空间变换到屏幕空间</li>
-<li>Triangle Processing 图元装配：把顶点信息按照缓存连接成三角形图元</li>
-<li>Rasterization：插值计算出三角形每个像素的深度&#x2F;颜色</li>
-<li>Pixel Shader (i.e. Fragment Shader)：根据灯光&#x2F;纹理贴图采样</li>
-<li>Frame Buffer：post processing 抗锯齿 校色 景深（DOF） 动态模糊</li>
-</ol>
-<p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p1.jpg" title="全览图"> <br></p>
-<h2 id="顶点着色器-vs-片元着色器"><a href="#顶点着色器-vs-片元着色器" class="headerlink" title="顶点着色器 vs 片元着色器"></a>顶点着色器 vs 片元着色器</h2><p>One main difference is that a vertex shader can manipulate the attributes of vertices. which are the corner points of your polygons.<br>The fragment shader on the other hand takes care of how the pixels between the vertices look. They are interpolated between the defined vertices following specific rules.</p>
-<h2 id="顶点着色器-Vertex-Shader"><a href="#顶点着色器-Vertex-Shader" class="headerlink" title="顶点着色器(Vertex Shader)"></a>顶点着色器(Vertex Shader)</h2><p>顶点着色器是图形渲染管线中的第一个可编程阶段。它的主要任务是处理从CPU发送到GPU的顶点数据。每个顶点都会通过顶点着色器进行一次，通常用于执行以下操作：</p>
-<ul>
-<li>变换：将顶点从模型空间转换到世界空间，然后进一步转换到视图空间和投影空间。这通常涉及到矩阵乘法运算，用于实现平移、旋转和缩放等变换。</li>
-<li>光照计算（可选）：在某些情况下，顶点着色器也用于执行初步的光照计算，但这通常是在更简单的渲染场景中，或者作为更复杂的片元级光照计算的一个初步步骤。</li>
-<li>传递数据：顶点着色器可以计算并传递额外的数据到后续的渲染阶段，如片元着色器。这些数据可以是颜色、纹理坐标或其他自定义属性。</li>
-</ul>
-<h2 id="片元着色器"><a href="#片元着色器" class="headerlink" title="片元着色器"></a>片元着色器</h2><p>片元着色器是图形渲染管线中处理像素级渲染的阶段。它接收由顶点着色器插值得到的片元（即屏幕上的像素或像素的候选者），并生成最终的颜色和其他与像素相关的数据。以下是片元着色器的一些主要用途：</p>
-<ul>
-<li>纹理映射：从纹理中读取颜色信息，并应用到相应的像素上。这可以用于实现贴图、细节增强等效果。</li>
-<li>光照计算：执行更详细的光照计算，如计算每个像素上的光照强度和颜色。这可以包括漫反射、镜面反射、环境光等多种光照模型。</li>
-<li>颜色混合和特殊效果：实现各种颜色混合模式，以及应用如模糊、发光、深度测试等后处理效果。</li>
-<li>输出最终颜色：基于上述计算，确定每个像素的最终颜色，并将其发送到渲染管线的下一个阶段（通常是帧缓冲区）。</li>
-</ul>
-<h1 id="图元-vs-片元"><a href="#图元-vs-片元" class="headerlink" title="图元 vs 片元"></a>图元 vs 片元</h1><ul>
-<li>图元</li>
-</ul>
-<p>渲染图元（rendering primitives）为图形渲染开发接口中用来描述各种图形元素的图形数据，所对应的就是绘图界面上看得见的实体，它包括了渲染所需的几何信息，可以是顶点数据、线段、多边形等。</p>
-<p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p4.png" title="图元的数据类型"> <br></p>
-<p>图元至少要包含一个顶点（Vertex）；一个顶点定义了2D或3D坐标系中一个点，也同样定义了若干个可以影响如何把顶点渲染到屏幕上的属性，如：</p>
-<p><img src="/2025/08/14/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%A7%88/p5.png" title="图元顶点所包含的信息"> <br></p>
-<ul>
-<li>片元</li>
-</ul>
-<p>在GPU流水线中的三角形遍历阶段，将会检查每个像素是否被一个三角网格所覆盖；如果被覆盖的话，就会生成一个片元（fragment）；需要注意的是，一个片元并不是真正意义上的像素，而是包括了很多状态的集合，这些状态用于计算每个像素的最终颜色；这些状态包括了（但不限于）它的屏幕坐标、深度信息，以及其它从几何阶段输出的顶点信息，例如法线、纹理坐标等。</p>
-<hr>
-<h1 id="Credits"><a href="#Credits" class="headerlink" title="Credits"></a>Credits</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/lel18570471704/article/details/134708949">https://blog.csdn.net/lel18570471704/article/details/134708949</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/667522425">https://zhuanlan.zhihu.com/p/667522425</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/407046161">https://zhuanlan.zhihu.com/p/407046161</a><br>图元vs片元：<a target="_blank" rel="noopener" href="https://blog.csdn.net/DoomGT/article/details/115806364">https://blog.csdn.net/DoomGT/article/details/115806364</a></p>
-<hr>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1490,7 +1605,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
